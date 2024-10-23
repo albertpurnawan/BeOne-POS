@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -151,6 +153,7 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
                 setState(() {
                   isZero = false;
                 });
+                log("adwfwfwwf - ${_textEditingControllerQuantity.text}");
                 context.pop(_textEditingControllerQuantity.text);
               },
               child: Center(

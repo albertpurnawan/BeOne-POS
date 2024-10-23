@@ -532,6 +532,39 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     }
   }
 
+  List<ItemEntity> groupItems(List<ItemEntity> items) {
+    Map<String, ItemEntity> groupedItemsMap = {};
+
+    for (var item in items) {
+      String key = "${item.itemCode}_${item.barcode}";
+
+      if (!groupedItemsMap.containsKey(key)) {
+        groupedItemsMap[key] = item;
+      }
+    }
+
+    return groupedItemsMap.values.toList();
+  }
+
+  List<double> groupQtys(List<ItemEntity> items, List<double> qtys) {
+    Map<String, double> groupedQtysMap = {};
+
+    for (int i = 0; i < items.length; i++) {
+      ItemEntity item = items[i];
+      double quantity = qtys[i];
+
+      String key = "${item.itemCode}_${item.barcode}";
+
+      if (groupedQtysMap.containsKey(key)) {
+        groupedQtysMap[key] = (groupedQtysMap[key] ?? 0) + quantity;
+      } else {
+        groupedQtysMap[key] = quantity;
+      }
+    }
+
+    return groupedQtysMap.values.toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScaffoldMessenger(
@@ -544,17 +577,58 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
             onKeyEvent: (node, event) {
               if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
               if (event.physicalKey == PhysicalKeyboardKey.f12) {
-                FocusScope.of(context).unfocus();
-                final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
-                if (receiptItems.any((item) => item.itemEntity.itemCode != "99") &&
-                    receiptItems.any((item) => item.itemEntity.itemCode != "08700000002")) {
-                  SnackBarHelper.presentErrorSnackBar(
-                      childContext, "Down payment has to be excluded from other transactions");
-                  return KeyEventResult.handled;
-                }
-                if (receiveZero) return KeyEventResult.handled;
-                context.pop();
-                _addOrUpdateReceiveDownPayment();
+                isReceive
+                    ? () async {
+                        FocusScope.of(context).unfocus();
+                        final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
+                        if (receiptItems.any((item) => item.itemEntity.itemCode != "99") &&
+                            receiptItems.any((item) => item.itemEntity.itemCode != "08700000002")) {
+                          SnackBarHelper.presentErrorSnackBar(
+                              childContext, "Down payment has to be excluded from other transactions");
+                          return;
+                        }
+                        if (salesSelected == "Not Set*") {
+                          SnackBarHelper.presentErrorSnackBar(childContext, "Please select the salesperson");
+                          return;
+                        }
+                        if (receiveZero || _amountController.text == "") {
+                          SnackBarHelper.presentErrorSnackBar(childContext, "Please input the Down Payment amount");
+                          return;
+                        }
+                        if (_remarksController.text.isEmpty) {
+                          SnackBarHelper.presentErrorSnackBar(childContext, "Please fill in the remarks");
+                          return;
+                        }
+                        if (await _checkDrawDownPayment()) {
+                          if (childContext.mounted) {
+                            SnackBarHelper.presentErrorSnackBar(childContext,
+                                "Receiving and drawing down payment cannot be processed in a single transaction");
+                          }
+                          return;
+                        }
+                        if (context.mounted) {
+                          context.pop();
+                        }
+                        await _addOrUpdateReceiveDownPayment();
+                      }
+                    : () async {
+                        FocusScope.of(context).unfocus();
+                        if (await _checkReceiveDownPayment()) {
+                          if (childContext.mounted) {
+                            SnackBarHelper.presentErrorSnackBar(childContext,
+                                "Receiving and drawing down payment cannot be processed in a single transaction");
+                          }
+                          return;
+                        }
+
+                        await _resetDrawDownPayment();
+
+                        if (childContext.mounted) {
+                          await _addOrUpdateDrawDownPayment(childContext);
+                        }
+
+                        await updateSalesAndRemarks();
+                      };
               } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
                 context.pop();
                 return KeyEventResult.handled;
@@ -710,7 +784,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                 context.pop();
                               }
                               await _addOrUpdateReceiveDownPayment();
-                              // log("is it here? - $stateInvoice");
                             }
                           : () async {
                               FocusScope.of(context).unfocus();
@@ -751,7 +824,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                   ],
                 ),
               ],
-              actionsPadding: const EdgeInsets.all(10),
+              actionsPadding: const EdgeInsets.fromLTRB(30, 0, 30, 10),
             ),
           ),
         );
@@ -760,27 +833,53 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   }
 
   Widget _buildReceiveDownPayment() {
+    List<ItemEntity> groupedItems = groupItems(itemsDP);
+    List<double> groupedQtys = groupQtys(itemsDP, qtyDP);
+
     return Builder(builder: (context) {
       return SizedBox(
         height: MediaQuery.of(context).size.height * 0.6,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(50, 0, 0, 0),
-                  child: Tooltip(
-                    message: "Receipt Number: ${stateInvoice.docNum}",
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(50, 0, 0, 0),
+                    child: Tooltip(
+                      message: "Receipt Number: ${stateInvoice.docNum}",
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.receipt_outlined,
+                            color: Color.fromARGB(255, 66, 66, 66),
+                          ),
+                          const SizedBox(width: 20),
+                          Text(
+                            stateInvoice.docNum,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Color.fromARGB(255, 66, 66, 66),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Tooltip(
+                    message: "Customer Name: $customerSelected",
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(
-                          Icons.receipt_outlined,
+                          Icons.face_outlined,
                           color: Color.fromARGB(255, 66, 66, 66),
                         ),
                         const SizedBox(width: 20),
                         Text(
-                          stateInvoice.docNum,
+                          customerSelected,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -790,527 +889,531 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                       ],
                     ),
                   ),
-                ),
-                Tooltip(
-                  message: "Customer Name: $customerSelected",
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.face_outlined,
-                        color: Color.fromARGB(255, 66, 66, 66),
-                      ),
-                      const SizedBox(width: 20),
-                      Text(
-                        customerSelected,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
+                  Tooltip(
+                    message: "Salesperson: $salesSelected",
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.handshake_outlined,
                           color: Color.fromARGB(255, 66, 66, 66),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                Tooltip(
-                  message: "Salesperson: $salesSelected",
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.handshake_outlined,
-                        color: Color.fromARGB(255, 66, 66, 66),
-                      ),
-                      const SizedBox(width: 20),
-                      GestureDetector(
-                        onTap: () => showDialog<EmployeeEntity>(
-                          context: context,
-                          builder: (BuildContext context) => const SelectEmployee(),
-                        ).then((selectedEmployee) {
-                          if (selectedEmployee != null) {
-                            setState(() {
-                              salesSelected = selectedEmployee.empName;
-                              tohemIdSelected = selectedEmployee.docId;
-                            });
-                          }
-                        }),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              salesSelected.toString(),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Color.fromARGB(255, 66, 66, 66),
-                              ),
-                              textAlign: TextAlign.start,
-                            ),
-                            (salesSelected != "Not Set*" && salesSelected != null)
-                                ? IconButton(
-                                    icon: const Icon(
-                                      Icons.delete_outline,
-                                      color: ProjectColors.primary,
-                                    ),
-                                    onPressed: () {
-                                      removeSalesPerson();
-                                    },
-                                  )
-                                : IconButton(
-                                    icon: const Icon(
-                                      Icons.navigate_next,
-                                      color: Color.fromARGB(255, 66, 66, 66),
-                                    ),
-                                    onPressed: () => showDialog<EmployeeEntity>(
-                                      context: context,
-                                      builder: (BuildContext context) => const SelectEmployee(),
-                                    ).then(
-                                      (selectedEmployee) {
-                                        if (selectedEmployee != null) {
-                                          setState(() {
-                                            salesSelected = selectedEmployee.empName;
-                                            tohemIdSelected = selectedEmployee.docId;
-                                          });
-                                        }
-                                      },
-                                    ),
-                                  ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 0, 35, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () async {
-                          final check = await showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return _warningCloseDPDialog();
+                        const SizedBox(width: 20),
+                        GestureDetector(
+                          onTap: () => showDialog<EmployeeEntity>(
+                            context: context,
+                            builder: (BuildContext context) => const SelectEmployee(),
+                          ).then((selectedEmployee) {
+                            if (selectedEmployee != null) {
+                              setState(() {
+                                salesSelected = selectedEmployee.empName;
+                                tohemIdSelected = selectedEmployee.docId;
                               });
-                          if (check) {
-                            await _resetDPItems(context);
-                          }
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
-                          decoration: BoxDecoration(
-                            color: ProjectColors.primary,
-                            borderRadius: BorderRadius.circular(5),
-                            boxShadow: const [
-                              BoxShadow(
-                                spreadRadius: 0.5,
-                                blurRadius: 5,
-                                color: Color.fromRGBO(0, 0, 0, 0.222),
-                              ),
-                            ],
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
+                            }
+                          }),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Icon(
-                                Icons.remove_shopping_cart_outlined,
-                                size: 18,
-                                color: Colors.white,
+                              Text(
+                                salesSelected.toString(),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color.fromARGB(255, 66, 66, 66),
+                                ),
+                                textAlign: TextAlign.start,
                               ),
+                              (salesSelected != "Not Set*" && salesSelected != null)
+                                  ? IconButton(
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: ProjectColors.primary,
+                                      ),
+                                      onPressed: () {
+                                        removeSalesPerson();
+                                      },
+                                    )
+                                  : IconButton(
+                                      icon: const Icon(
+                                        Icons.navigate_next,
+                                        color: Color.fromARGB(255, 66, 66, 66),
+                                      ),
+                                      onPressed: () => showDialog<EmployeeEntity>(
+                                        context: context,
+                                        builder: (BuildContext context) => const SelectEmployee(),
+                                      ).then(
+                                        (selectedEmployee) {
+                                          if (selectedEmployee != null) {
+                                            setState(() {
+                                              salesSelected = selectedEmployee.empName;
+                                              tohemIdSelected = selectedEmployee.docId;
+                                            });
+                                          }
+                                        },
+                                      ),
+                                    ),
                             ],
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 5),
-                      GestureDetector(
-                        onTap: () async {
-                          context.read<ItemsCubit>().clearItems();
-                          if (mounted) {
-                            FocusScope.of(context).unfocus();
-                          }
-                          final ItemEntity? itemEntitySearch = await showDialog<ItemEntity>(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (context) => const ItemSearchDialog());
-
-                          context.read<ItemsCubit>().clearItems();
-
-                          if (itemEntitySearch != null) {
-                            final double quantity = double.parse(await showDialog(
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 35, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: () async {
+                            final check = await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return _warningCloseDPDialog();
+                                });
+                            if (check) {
+                              await _resetDPItems(context);
+                            }
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                            decoration: BoxDecoration(
+                              color: ProjectColors.primary,
+                              borderRadius: BorderRadius.circular(5),
+                              boxShadow: const [
+                                BoxShadow(
+                                  spreadRadius: 0.5,
+                                  blurRadius: 5,
+                                  color: Color.fromRGBO(0, 0, 0, 0.222),
+                                ),
+                              ],
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.remove_shopping_cart_outlined,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        GestureDetector(
+                          onTap: () async {
+                            context.read<ItemsCubit>().clearItems();
+                            if (mounted) {
+                              FocusScope.of(context).unfocus();
+                            }
+                            final ItemEntity? itemEntitySearch = await showDialog<ItemEntity>(
                                 context: context,
                                 barrierDismissible: false,
-                                builder: (context) => const QuantityReceiveDPDialog(
-                                      quantity: 0,
-                                    )));
-                            setState(() {
-                              itemsDP.add(itemEntitySearch);
-                              qtyDP.add(quantity);
-                              grandTotalReceiveDP += (itemEntitySearch.price * quantity);
-                            });
-                            await _recalculateDownPayment(grandTotalReceiveDP);
-                          }
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
-                          decoration: BoxDecoration(
-                            color: ProjectColors.primary,
-                            borderRadius: BorderRadius.circular(5),
-                            boxShadow: const [
-                              BoxShadow(
-                                spreadRadius: 0.5,
-                                blurRadius: 5,
-                                color: Color.fromRGBO(0, 0, 0, 0.222),
-                              ),
-                            ],
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.add_outlined,
-                                size: 18,
-                                color: Colors.white,
-                              ),
-                            ],
+                                builder: (context) => const ItemSearchDialog());
+
+                            context.read<ItemsCubit>().clearItems();
+
+                            if (itemEntitySearch != null) {
+                              final double quantity = double.parse((await showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => const QuantityReceiveDPDialog(
+                                            quantity: 0,
+                                          )))
+                                  .replaceAll(',', ''));
+                              setState(() {
+                                itemsDP.add(itemEntitySearch);
+                                qtyDP.add(quantity);
+                                grandTotalReceiveDP += (itemEntitySearch.price * quantity);
+                              });
+                              await _recalculateDownPayment(grandTotalReceiveDP);
+                            }
+                          },
+                          child: Container(
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                            decoration: BoxDecoration(
+                              color: ProjectColors.primary,
+                              borderRadius: BorderRadius.circular(5),
+                              boxShadow: const [
+                                BoxShadow(
+                                  spreadRadius: 0.5,
+                                  blurRadius: 5,
+                                  color: Color.fromRGBO(0, 0, 0, 0.222),
+                                ),
+                              ],
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.add_outlined,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-                  child: SizedBox(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(25, 10, 25, 0),
+                        child: SizedBox(
                           child: Column(
                             children: [
-                              Container(
-                                width: double.infinity,
-                                height: 250,
-                                padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.white,
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      spreadRadius: 0.5,
-                                      blurRadius: 5,
-                                      color: Color.fromRGBO(197, 197, 197, 1),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: double.infinity,
+                                      height: 250,
+                                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(5),
+                                        color: Colors.white,
+                                        boxShadow: const [
+                                          BoxShadow(
+                                            spreadRadius: 0.5,
+                                            blurRadius: 5,
+                                            color: Color.fromRGBO(197, 197, 197, 1),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          (isLoadingReceive)
+                                              ? const Center(child: CircularProgressIndicator())
+                                              : (groupedItems.isEmpty)
+                                                  ? const Expanded(
+                                                      child: Center(
+                                                        child: EmptyList(
+                                                          imagePath: "assets/images/empty-item.svg",
+                                                          sentence:
+                                                              "Tadaa.. There is nothing here!\nPress icon + to start adding item.",
+                                                          height: 100,
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : Expanded(
+                                                      child: ListView.separated(
+                                                          itemBuilder: (BuildContext context, int index) {
+                                                            return Material(
+                                                              type: MaterialType.transparency,
+                                                              elevation: 6,
+                                                              color: Colors.transparent,
+                                                              shadowColor: Colors.grey[50],
+                                                              child: InkWell(
+                                                                focusColor: const Color.fromRGBO(255, 220, 221, 1.0),
+                                                                onTap: () {},
+                                                                child: SizedBox(
+                                                                  height: 50,
+                                                                  child: Padding(
+                                                                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                                                                    child: Row(
+                                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                                      children: [
+                                                                        SizedBox(
+                                                                          width: 30,
+                                                                          child: Text(
+                                                                            (index + 1).toString(),
+                                                                            textAlign: TextAlign.center,
+                                                                          ),
+                                                                        ),
+                                                                        const SizedBox(width: 10),
+                                                                        Expanded(
+                                                                          flex: 3,
+                                                                          child: Column(
+                                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                                            crossAxisAlignment:
+                                                                                CrossAxisAlignment.start,
+                                                                            children: [
+                                                                              Row(
+                                                                                mainAxisAlignment:
+                                                                                    MainAxisAlignment.start,
+                                                                                children: [
+                                                                                  SvgPicture.asset(
+                                                                                    "assets/images/inventory.svg",
+                                                                                    height: 18,
+                                                                                  ),
+                                                                                  const SizedBox(
+                                                                                    width: 5,
+                                                                                  ),
+                                                                                  Text(
+                                                                                    groupedItems[index].itemCode,
+                                                                                    style: const TextStyle(
+                                                                                      fontSize: 12,
+                                                                                      fontWeight: FontWeight.w500,
+                                                                                      color: Color.fromARGB(
+                                                                                          255, 66, 66, 66),
+                                                                                    ),
+                                                                                  ),
+                                                                                  const SizedBox(
+                                                                                    width: 20,
+                                                                                  ),
+                                                                                  SvgPicture.asset(
+                                                                                    "assets/images/barcode.svg",
+                                                                                    height: 20,
+                                                                                  ),
+                                                                                  const SizedBox(
+                                                                                    width: 5,
+                                                                                  ),
+                                                                                  Text(
+                                                                                    groupedItems[index].barcode,
+                                                                                    style: const TextStyle(
+                                                                                      fontSize: 12,
+                                                                                      fontWeight: FontWeight.w500,
+                                                                                      color: Color.fromARGB(
+                                                                                          255, 66, 66, 66),
+                                                                                    ),
+                                                                                  ),
+                                                                                ],
+                                                                              ),
+                                                                              Text(
+                                                                                groupedItems[index].itemName,
+                                                                                style: const TextStyle(
+                                                                                  fontSize: 16,
+                                                                                  fontWeight: FontWeight.w500,
+                                                                                  color:
+                                                                                      Color.fromARGB(255, 66, 66, 66),
+                                                                                ),
+                                                                                textAlign: TextAlign.start,
+                                                                                overflow: TextOverflow.ellipsis,
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                        Expanded(
+                                                                          flex: 1,
+                                                                          child: Text(
+                                                                            Helpers.parseMoney(
+                                                                                groupedItems[index].price),
+                                                                            textAlign: TextAlign.end,
+                                                                            style: const TextStyle(
+                                                                              fontSize: 16,
+                                                                              fontWeight: FontWeight.w500,
+                                                                              color: Color.fromARGB(255, 66, 66, 66),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        Expanded(
+                                                                          flex: 1,
+                                                                          child: Padding(
+                                                                            padding:
+                                                                                const EdgeInsets.fromLTRB(0, 0, 30, 0),
+                                                                            child: Text(
+                                                                              "${Helpers.cleanDecimal(groupedQtys[index], 1)} x",
+                                                                              textAlign: TextAlign.end,
+                                                                              style: const TextStyle(
+                                                                                fontSize: 16,
+                                                                                fontWeight: FontWeight.w500,
+                                                                                color: Color.fromARGB(255, 66, 66, 66),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                        Expanded(
+                                                                            flex: 1,
+                                                                            child: Text(
+                                                                              Helpers.parseMoney(groupedQtys[index] *
+                                                                                  groupedItems[index].price),
+                                                                              textAlign: TextAlign.end,
+                                                                              style: const TextStyle(
+                                                                                fontSize: 16,
+                                                                                fontWeight: FontWeight.w500,
+                                                                                color: Color.fromARGB(255, 66, 66, 66),
+                                                                              ),
+                                                                            )),
+                                                                        Expanded(
+                                                                          flex: 1,
+                                                                          child: Padding(
+                                                                            padding:
+                                                                                const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                                                            child: Row(
+                                                                              mainAxisAlignment: MainAxisAlignment.end,
+                                                                              children: [
+                                                                                IntrinsicHeight(
+                                                                                  child: GestureDetector(
+                                                                                    onTap: () async {
+                                                                                      final double quantity =
+                                                                                          double.parse(
+                                                                                              (await showDialog(
+                                                                                        context: context,
+                                                                                        barrierDismissible: false,
+                                                                                        builder: (context) =>
+                                                                                            QuantityReceiveDPDialog(
+                                                                                          quantity: groupedQtys[index],
+                                                                                        ),
+                                                                                      ))
+                                                                                                  .replaceAll(',', ''));
+                                                                                      setState(() {
+                                                                                        grandTotalReceiveDP -=
+                                                                                            groupedItems[index].price *
+                                                                                                qtyDP[index];
+                                                                                        groupedQtys[index] = quantity;
+                                                                                        grandTotalReceiveDP +=
+                                                                                            groupedItems[index].price *
+                                                                                                groupedQtys[index];
+                                                                                      });
+                                                                                      await _recalculateDownPayment(
+                                                                                          grandTotalReceiveDP);
+                                                                                    },
+                                                                                    child: Container(
+                                                                                      alignment: Alignment.center,
+                                                                                      padding:
+                                                                                          const EdgeInsets.fromLTRB(
+                                                                                              6, 6, 6, 6),
+                                                                                      decoration: BoxDecoration(
+                                                                                        color: ProjectColors.blue,
+                                                                                        borderRadius:
+                                                                                            BorderRadius.circular(5),
+                                                                                        boxShadow: const [
+                                                                                          BoxShadow(
+                                                                                            spreadRadius: 0.5,
+                                                                                            blurRadius: 5,
+                                                                                            color: Color.fromRGBO(
+                                                                                                0, 0, 0, 0.222),
+                                                                                          ),
+                                                                                        ],
+                                                                                      ),
+                                                                                      child: const Row(
+                                                                                        mainAxisSize: MainAxisSize.min,
+                                                                                        children: [
+                                                                                          Icon(
+                                                                                            Icons.edit_outlined,
+                                                                                            size: 18,
+                                                                                            color: Colors.white,
+                                                                                          ),
+                                                                                        ],
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                                const SizedBox(width: 5),
+                                                                                IntrinsicHeight(
+                                                                                  child: GestureDetector(
+                                                                                    onTap: () async {
+                                                                                      setState(() {
+                                                                                        grandTotalReceiveDP -=
+                                                                                            (groupedItems[index].price *
+                                                                                                groupedQtys[index]);
+                                                                                        groupedItems
+                                                                                            .remove(itemsDP[index]);
+                                                                                        groupedQtys
+                                                                                            .remove(qtyDP[index]);
+                                                                                      });
+                                                                                      await _recalculateDownPayment(
+                                                                                          grandTotalReceiveDP);
+                                                                                      if (context.mounted) {
+                                                                                        SnackBarHelper
+                                                                                            .presentSuccessSnackBar(
+                                                                                                context,
+                                                                                                "Item ${itemsDP[index].itemName} removed",
+                                                                                                2);
+                                                                                      }
+                                                                                    },
+                                                                                    child: Container(
+                                                                                      alignment: Alignment.center,
+                                                                                      padding:
+                                                                                          const EdgeInsets.fromLTRB(
+                                                                                              6, 6, 6, 6),
+                                                                                      decoration: BoxDecoration(
+                                                                                        color: Colors.deepOrange,
+                                                                                        borderRadius:
+                                                                                            BorderRadius.circular(5),
+                                                                                        boxShadow: const [
+                                                                                          BoxShadow(
+                                                                                            spreadRadius: 0.5,
+                                                                                            blurRadius: 5,
+                                                                                            color: Color.fromRGBO(
+                                                                                                0, 0, 0, 0.222),
+                                                                                          ),
+                                                                                        ],
+                                                                                      ),
+                                                                                      child: const Row(
+                                                                                        mainAxisSize: MainAxisSize.min,
+                                                                                        children: [
+                                                                                          Icon(
+                                                                                            Icons.close_outlined,
+                                                                                            size: 18,
+                                                                                            color: Colors.white,
+                                                                                          ),
+                                                                                        ],
+                                                                                      ),
+                                                                                    ),
+                                                                                  ),
+                                                                                ),
+                                                                              ],
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          },
+                                                          separatorBuilder: (BuildContext context, int index) =>
+                                                              const Divider(
+                                                                height: 10,
+                                                                thickness: 0.5,
+                                                                color: Color.fromARGB(100, 118, 118, 117),
+                                                              ),
+                                                          itemCount: groupedItems.length),
+                                                    ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(30, 15, 20, 15),
                                 child: Column(
                                   children: [
-                                    (isLoadingReceive)
-                                        ? const Center(child: CircularProgressIndicator())
-                                        : (itemsDP.isEmpty)
-                                            ? const Expanded(
-                                                child: Center(
-                                                  child: EmptyList(
-                                                    imagePath: "assets/images/empty-item.svg",
-                                                    sentence:
-                                                        "Tadaa.. There is nothing here!\nPress icon + to start adding item.",
-                                                    height: 100,
-                                                  ),
-                                                ),
-                                              )
-                                            : Expanded(
-                                                child: ListView.separated(
-                                                    itemBuilder: (BuildContext context, int index) {
-                                                      return Material(
-                                                        type: MaterialType.transparency,
-                                                        elevation: 6,
-                                                        color: Colors.transparent,
-                                                        shadowColor: Colors.grey[50],
-                                                        child: InkWell(
-                                                          focusColor: const Color.fromRGBO(255, 220, 221, 1.0),
-                                                          onTap: () {},
-                                                          child: SizedBox(
-                                                            height: 50,
-                                                            child: Padding(
-                                                              padding: const EdgeInsets.symmetric(horizontal: 10),
-                                                              child: Row(
-                                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                                children: [
-                                                                  SizedBox(
-                                                                    width: 30,
-                                                                    child: Text(
-                                                                      (index + 1).toString(),
-                                                                      textAlign: TextAlign.center,
-                                                                    ),
-                                                                  ),
-                                                                  const SizedBox(width: 10),
-                                                                  Expanded(
-                                                                    flex: 3,
-                                                                    child: Column(
-                                                                      mainAxisAlignment: MainAxisAlignment.center,
-                                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                                      children: [
-                                                                        Row(
-                                                                          mainAxisAlignment: MainAxisAlignment.start,
-                                                                          children: [
-                                                                            SvgPicture.asset(
-                                                                              "assets/images/inventory.svg",
-                                                                              height: 18,
-                                                                            ),
-                                                                            const SizedBox(
-                                                                              width: 5,
-                                                                            ),
-                                                                            Text(
-                                                                              itemsDP[index].itemCode,
-                                                                              style: const TextStyle(
-                                                                                fontSize: 12,
-                                                                                fontWeight: FontWeight.w500,
-                                                                                color: Color.fromARGB(255, 66, 66, 66),
-                                                                              ),
-                                                                            ),
-                                                                            const SizedBox(
-                                                                              width: 20,
-                                                                            ),
-                                                                            SvgPicture.asset(
-                                                                              "assets/images/barcode.svg",
-                                                                              height: 20,
-                                                                            ),
-                                                                            const SizedBox(
-                                                                              width: 5,
-                                                                            ),
-                                                                            Text(
-                                                                              itemsDP[index].barcode,
-                                                                              style: const TextStyle(
-                                                                                fontSize: 12,
-                                                                                fontWeight: FontWeight.w500,
-                                                                                color: Color.fromARGB(255, 66, 66, 66),
-                                                                              ),
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                                                        Text(
-                                                                          itemsDP[index].itemName,
-                                                                          style: const TextStyle(
-                                                                            fontSize: 16,
-                                                                            fontWeight: FontWeight.w500,
-                                                                            color: Color.fromARGB(255, 66, 66, 66),
-                                                                          ),
-                                                                          textAlign: TextAlign.start,
-                                                                          overflow: TextOverflow.ellipsis,
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    flex: 1,
-                                                                    child: Text(
-                                                                      Helpers.parseMoney(itemsDP[index].price),
-                                                                      textAlign: TextAlign.center,
-                                                                      style: const TextStyle(
-                                                                        fontSize: 16,
-                                                                        fontWeight: FontWeight.w500,
-                                                                        color: Color.fromARGB(255, 66, 66, 66),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                    flex: 1,
-                                                                    child: Padding(
-                                                                      padding: const EdgeInsets.fromLTRB(0, 0, 75, 0),
-                                                                      child: Text(
-                                                                        Helpers.cleanDecimal(qtyDP[index], 1),
-                                                                        textAlign: TextAlign.end,
-                                                                        style: const TextStyle(
-                                                                          fontSize: 16,
-                                                                          fontWeight: FontWeight.w500,
-                                                                          color: Color.fromARGB(255, 66, 66, 66),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                  Expanded(
-                                                                      flex: 1,
-                                                                      child: Text(
-                                                                        Helpers.parseMoney(
-                                                                            qtyDP[index] * itemsDP[index].price),
-                                                                        textAlign: TextAlign.end,
-                                                                        style: const TextStyle(
-                                                                          fontSize: 16,
-                                                                          fontWeight: FontWeight.w500,
-                                                                          color: Color.fromARGB(255, 66, 66, 66),
-                                                                        ),
-                                                                      )),
-                                                                  Expanded(
-                                                                    flex: 1,
-                                                                    child: Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.end,
-                                                                      children: [
-                                                                        IntrinsicHeight(
-                                                                          child: GestureDetector(
-                                                                            onTap: () async {
-                                                                              // log("Edit button pressed ");
-                                                                              final double quantity = double.parse(
-                                                                                  await showDialog(
-                                                                                      context: context,
-                                                                                      barrierDismissible: false,
-                                                                                      builder: (context) =>
-                                                                                          QuantityReceiveDPDialog(
-                                                                                            quantity: qtyDP[index],
-                                                                                          )));
-                                                                              setState(() {
-                                                                                grandTotalReceiveDP -=
-                                                                                    itemsDP[index].price * qtyDP[index];
-                                                                                qtyDP[index] = quantity;
-                                                                                grandTotalReceiveDP +=
-                                                                                    itemsDP[index].price * qtyDP[index];
-                                                                              });
-                                                                              await _recalculateDownPayment(
-                                                                                  grandTotalReceiveDP);
-                                                                            },
-                                                                            child: Container(
-                                                                              alignment: Alignment.center,
-                                                                              padding:
-                                                                                  const EdgeInsets.fromLTRB(6, 6, 6, 6),
-                                                                              decoration: BoxDecoration(
-                                                                                color: ProjectColors.blue,
-                                                                                borderRadius: BorderRadius.circular(5),
-                                                                                boxShadow: const [
-                                                                                  BoxShadow(
-                                                                                    spreadRadius: 0.5,
-                                                                                    blurRadius: 5,
-                                                                                    color:
-                                                                                        Color.fromRGBO(0, 0, 0, 0.222),
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                              child: const Row(
-                                                                                mainAxisSize: MainAxisSize.min,
-                                                                                children: [
-                                                                                  Icon(
-                                                                                    Icons.edit_outlined,
-                                                                                    size: 18,
-                                                                                    color: Colors.white,
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                        const SizedBox(width: 5),
-                                                                        IntrinsicHeight(
-                                                                          child: GestureDetector(
-                                                                            onTap: () async {
-                                                                              setState(() {
-                                                                                grandTotalReceiveDP -=
-                                                                                    (itemsDP[index].price *
-                                                                                        qtyDP[index]);
-                                                                                itemsDP.remove(itemsDP[index]);
-                                                                                qtyDP.remove(qtyDP[index]);
-                                                                              });
-                                                                              await _recalculateDownPayment(
-                                                                                  grandTotalReceiveDP);
-                                                                              if (context.mounted) {
-                                                                                SnackBarHelper.presentSuccessSnackBar(
-                                                                                    context,
-                                                                                    "Item ${itemsDP[index].itemName} removed",
-                                                                                    2);
-                                                                              }
-                                                                            },
-                                                                            child: Container(
-                                                                              alignment: Alignment.center,
-                                                                              padding:
-                                                                                  const EdgeInsets.fromLTRB(6, 6, 6, 6),
-                                                                              decoration: BoxDecoration(
-                                                                                color: Colors.deepOrange,
-                                                                                borderRadius: BorderRadius.circular(5),
-                                                                                boxShadow: const [
-                                                                                  BoxShadow(
-                                                                                    spreadRadius: 0.5,
-                                                                                    blurRadius: 5,
-                                                                                    color:
-                                                                                        Color.fromRGBO(0, 0, 0, 0.222),
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                              child: const Row(
-                                                                                mainAxisSize: MainAxisSize.min,
-                                                                                children: [
-                                                                                  Icon(
-                                                                                    Icons.close_outlined,
-                                                                                    size: 18,
-                                                                                    color: Colors.white,
-                                                                                  ),
-                                                                                ],
-                                                                              ),
-                                                                            ),
-                                                                          ),
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
-                                                    separatorBuilder: (BuildContext context, int index) =>
-                                                        const Divider(
-                                                          height: 10,
-                                                          thickness: 0.5,
-                                                          color: Color.fromARGB(100, 118, 118, 117),
-                                                        ),
-                                                    itemCount: itemsDP.length),
-                                              ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(50, 15, 155, 0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const SizedBox(
-                                            child: Text(
-                                              "GRAND TOTAL",
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w700,
-                                                color: Color.fromARGB(255, 66, 66, 66),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 270),
-                                          Text(
-                                            Helpers.cleanDecimal(
-                                                (qtyDP.isEmpty) ? 0 : qtyDP.reduce((a, b) => a + b), 1),
-                                            style: const TextStyle(
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(width: 30),
+                                        const Expanded(
+                                          flex: 3,
+                                          child: Text(
+                                            "GRAND TOTAL",
+                                            style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w700,
                                               color: Color.fromARGB(255, 66, 66, 66),
                                             ),
+                                            textAlign: TextAlign.start,
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(0, 2, 10, 0),
+                                        ),
+                                        const Expanded(
+                                          flex: 1,
+                                          child: Text(
+                                            "",
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color.fromARGB(255, 66, 66, 66),
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 1,
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(0, 0, 30, 0),
                                             child: Text(
-                                              Helpers.parseMoney(grandTotalReceiveDP),
+                                              "${Helpers.cleanDecimal((qtyDP.isEmpty) ? 0 : qtyDP.reduce((a, b) => a + b), 1)} x",
                                               style: const TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w700,
@@ -1319,101 +1422,191 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                               textAlign: TextAlign.end,
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Expanded(
-                                            flex: 1,
+                                        ),
+                                        Expanded(
+                                          flex: 1,
+                                          child: Text(
+                                            Helpers.parseMoney(grandTotalReceiveDP),
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color.fromARGB(255, 66, 66, 66),
+                                            ),
+                                            textAlign: TextAlign.end,
+                                          ),
+                                        ),
+                                        const Expanded(
+                                          flex: 1,
+                                          child: Padding(
+                                            padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 15),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(width: 30),
+                                        const Expanded(
+                                          flex: 3,
+                                          child: Text(
+                                            "DP Amount*",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color.fromARGB(255, 66, 66, 66),
+                                            ),
+                                          ),
+                                        ),
+                                        const Expanded(
+                                          flex: 1,
+                                          child: Text(
+                                            "",
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color.fromARGB(255, 66, 66, 66),
+                                            ),
+                                          ),
+                                        ),
+                                        const Expanded(
+                                          flex: 1,
+                                          child: Padding(
+                                            padding: EdgeInsets.fromLTRB(0, 0, 30, 0),
                                             child: Text(
-                                              "DP Amount*",
+                                              "",
                                               style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w700,
+                                                color: Color.fromARGB(255, 66, 66, 66),
+                                              ),
+                                              textAlign: TextAlign.end,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 4,
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(0, 0, 35, 0),
+                                            child: TextField(
+                                              maxLines: 1,
+                                              maxLength: 21,
+                                              style: const TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w500,
                                                 color: Color.fromARGB(255, 66, 66, 66),
                                               ),
-                                            ),
-                                          ),
-                                          const Spacer(),
-                                          Expanded(
-                                            flex: 2,
-                                            child: Padding(
-                                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                              child: TextField(
-                                                maxLines: 1,
-                                                maxLength: 21,
-                                                style: const TextStyle(
+                                              inputFormatters: [MoneyInputFormatter()],
+                                              controller: _amountController,
+                                              focusNode: _amountFocusNode,
+                                              textAlign: TextAlign.end,
+                                              decoration: InputDecoration(
+                                                isDense: true,
+                                                hintText: "Input Amount*",
+                                                hintStyle: const TextStyle(
                                                   fontSize: 16,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Color.fromARGB(255, 66, 66, 66),
+                                                  fontStyle: FontStyle.italic,
                                                 ),
-                                                inputFormatters: [MoneyInputFormatter()],
-                                                controller: _amountController,
-                                                focusNode: _amountFocusNode,
-                                                textAlign: TextAlign.end,
-                                                decoration: InputDecoration(
-                                                  isDense: true,
-                                                  hintText: "Input Amount*",
-                                                  hintStyle: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontStyle: FontStyle.italic,
-                                                  ),
-                                                  contentPadding: const EdgeInsets.all(10),
-                                                  border: const OutlineInputBorder(),
-                                                  // enabledBorder: const UnderlineInputBorder(
-                                                  //   borderSide: BorderSide(color: Colors.black, width: 1),
-                                                  // ),
-                                                  // focusedBorder: const UnderlineInputBorder(
-                                                  //   borderSide: BorderSide(color: ProjectColors.primary, width: 2),
-                                                  // ),
-                                                  counterText: "",
-                                                  prefixText: receiveZero ? "Amount can't be zero" : null,
-                                                  prefixStyle: const TextStyle(
-                                                    fontSize: 12,
-                                                    fontStyle: FontStyle.italic,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: ProjectColors.swatch,
-                                                  ),
+                                                contentPadding: const EdgeInsets.all(10),
+                                                border: const OutlineInputBorder(),
+                                                // enabledBorder: const UnderlineInputBorder(
+                                                //   borderSide: BorderSide(color: Colors.black, width: 1),
+                                                // ),
+                                                // focusedBorder: const UnderlineInputBorder(
+                                                //   borderSide: BorderSide(color: ProjectColors.primary, width: 2),
+                                                // ),
+                                                counterText: "",
+                                                prefixText: receiveZero ? "Amount can't be zero" : null,
+                                                prefixStyle: const TextStyle(
+                                                  fontSize: 12,
+                                                  fontStyle: FontStyle.italic,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: ProjectColors.swatch,
                                                 ),
-                                                onChanged: (value) {
-                                                  final amount = double.tryParse(value.replaceAll(',', '')) ?? 0;
-                                                  setState(() {
-                                                    receiveZero = amount == 0;
-                                                  });
-                                                },
                                               ),
+                                              onChanged: (value) {
+                                                final amount = double.tryParse(value.replaceAll(',', '')) ?? 0;
+                                                setState(() {
+                                                  receiveZero = amount == 0;
+                                                });
+                                              },
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 10),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Expanded(
-                                            flex: 1,
+                                        ),
+                                        const Expanded(
+                                          flex: 1,
+                                          child: Padding(
+                                            padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(width: 30),
+                                        const Expanded(
+                                          flex: 3,
+                                          child: Text(
+                                            "Remarks*",
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color.fromARGB(255, 66, 66, 66),
+                                            ),
+                                          ),
+                                        ),
+                                        const Expanded(
+                                          flex: 1,
+                                          child: Text(
+                                            "",
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color.fromARGB(255, 66, 66, 66),
+                                            ),
+                                          ),
+                                        ),
+                                        const Expanded(
+                                          flex: 1,
+                                          child: Padding(
+                                            padding: EdgeInsets.fromLTRB(0, 0, 30, 0),
                                             child: Text(
-                                              "Remarks*",
+                                              "",
                                               style: TextStyle(
                                                 fontSize: 16,
-                                                fontWeight: FontWeight.w500,
+                                                fontWeight: FontWeight.w700,
                                                 color: Color.fromARGB(255, 66, 66, 66),
                                               ),
+                                              textAlign: TextAlign.end,
                                             ),
                                           ),
-                                          const Spacer(),
-                                          Expanded(
-                                            flex: 2,
-                                            child: SingleChildScrollView(
-                                              child: Container(
-                                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
+                                        ),
+                                        Expanded(
+                                          flex: 4,
+                                          child: SingleChildScrollView(
+                                            child: Container(
+                                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
+                                              child: Padding(
+                                                padding: const EdgeInsets.fromLTRB(0, 0, 35, 0),
                                                 child: TextField(
                                                   maxLines: null,
                                                   maxLength: 300,
                                                   controller: _remarksController,
                                                   focusNode: _remarksFocusNode,
+                                                  textAlign: TextAlign.start,
                                                   style: const TextStyle(
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.w500,
@@ -1446,23 +1639,32 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                               ),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                        ),
+                                        const Expanded(
+                                          flex: 1,
+                                          child: Padding(
+                                            padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              children: [],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 10),
-                      ],
+                      ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     });
