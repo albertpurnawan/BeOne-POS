@@ -3415,7 +3415,7 @@ class _FetchScreenState extends State<FetchScreen> {
                               const Padding(
                                 padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
                                 child: Text(
-                                  "Set Last Sync Date On:",
+                                  "Set Last Sync Date to:",
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w700,
