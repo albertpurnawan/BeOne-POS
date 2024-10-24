@@ -3488,13 +3488,19 @@ class _FetchScreenState extends State<FetchScreen> {
                                 onPressed: () async {
                                   DateTime localDateTime = startSyncFrom ?? DateTime.now();
 
-                                  await showDialog(
-                                    context: context,
-                                    barrierDismissible: true,
-                                    builder: (context) => SetLastSyncDateDialog(
-                                      lastSyncDate: localDateTime,
-                                    ),
-                                  );
+                                  if (prefs.getBool("isSyncing") ?? false) {
+                                    final syncStart = prefs.getString("autoSyncStart");
+                                    SnackBarHelper.presentErrorSnackBar(
+                                        context, "Sync is currently in progress. Initiated at $syncStart.");
+                                  } else {
+                                    await showDialog(
+                                      context: context,
+                                      barrierDismissible: true,
+                                      builder: (context) => SetLastSyncDateDialog(
+                                        lastSyncDate: localDateTime,
+                                      ),
+                                    );
+                                  }
                                 },
                                 style: const ButtonStyle(
                                   backgroundColor: MaterialStatePropertyAll(ProjectColors.primary),
