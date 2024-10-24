@@ -237,6 +237,11 @@ abstract class Helpers {
     return formatter.format(dTime).toString();
   }
 
+  static String dateEEddMMMMyyy(DateTime dTime) {
+    final DateFormat formatter = DateFormat('EEEE, dd MMMM yyyy');
+    return formatter.format(dTime).toString();
+  }
+
   static String dateHHmmss(DateTime dTime) {
     final DateFormat formatter = DateFormat('HH:mm:ss');
     return formatter.format(dTime).toString();

@@ -150,6 +150,7 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/zipcode_servic
 import 'package:pos_fe/features/settings/domain/usecases/check_credential_active_status.dart';
 import 'package:pos_fe/features/settings/domain/usecases/refresh_token.dart';
 import 'package:pos_fe/features/settings/presentation/pages/log_error_screen.dart';
+import 'package:pos_fe/features/settings/presentation/pages/set_last_sync_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -172,6 +173,7 @@ class _FetchScreenState extends State<FetchScreen> {
   int totalData = 0;
   int totalTable = 64;
   bool checkSync = false;
+  DateTime? startSyncFrom;
 
   @override
   void initState() {
@@ -186,14 +188,16 @@ class _FetchScreenState extends State<FetchScreen> {
 
   void getPosParameter() async {
     _posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
-    setState(() {});
+    setState(() {
+      startSyncFrom = DateTime.parse(_posParameterEntity!.lastSync!).toLocal();
+    });
   }
 
   Future<void> refreshToken() async {
     await refreshTokenUsecase.call();
   }
 
-  Future<void> manualSync() async {
+  Future<void> manualSync(DateTime? startSync) async {
     late List<CurrencyModel> tcurr;
     late List<CountryModel> tocry;
     late List<ProvinceModel> toprv;
@@ -265,7 +269,7 @@ class _FetchScreenState extends State<FetchScreen> {
         prefs.setBool('isSyncing', true);
         final singleTopos = _posParameterEntity;
         final toposId = singleTopos!.docId;
-        final lastSyncDate = _posParameterEntity!.lastSync!;
+        final lastSyncDate = startSync?.toIso8601String() ?? _posParameterEntity!.lastSync!;
         prefs.setString("autoSyncStart", Helpers.formatDate(DateTime.now().toLocal()));
 
         final nextSyncDate = DateTime.now().toUtc().toIso8601String();
@@ -3297,6 +3301,38 @@ class _FetchScreenState extends State<FetchScreen> {
     }
   }
 
+  Future<void> selectSyncDate(BuildContext context) async {
+    log("lastSync - $startSyncFrom");
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: startSyncFrom,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+            data: ThemeData.light().copyWith(
+              colorScheme: const ColorScheme.light(
+                primary: ProjectColors.lightBlack,
+                onPrimary: Colors.white,
+                surface: Colors.white,
+                onSurface: ProjectColors.lightBlack,
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.black,
+                ),
+              ),
+            ),
+            child: child!);
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        startSyncFrom = picked;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -3327,205 +3363,351 @@ class _FetchScreenState extends State<FetchScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(30.0),
-        child: Row(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: SizedBox(
-                        height: 40,
-                        width: MediaQuery.of(context).size.width * 0.5,
-                        child: LinearProgressIndicator(
-                          value: syncProgress,
-                          backgroundColor: const Color.fromARGB(255, 184, 183, 183),
-                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.teal),
-                        ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: SizedBox(
+                      height: 40,
+                      child: LinearProgressIndicator(
+                        value: syncProgress,
+                        backgroundColor: const Color.fromARGB(255, 184, 183, 183),
+                        valueColor: const AlwaysStoppedAnimation<Color>(Colors.teal),
                       ),
                     ),
-                    Positioned.fill(
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: Text(
-                          syncProgress == 1.0
-                              ? "Data Synced: $totalData"
-                              : "${(syncProgress * 100).round().toString()}%",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (prefs.getBool("isSyncing") ?? false) {
-                        final syncStart = prefs.getString("autoSyncStart");
-                        SnackBarHelper.presentErrorSnackBar(
-                            context, "Sync is currently in progress. Initiated at $syncStart.");
-                      } else {
-                        await refreshToken();
-                        setState(() {
-                          syncProgress = 0;
-                          isManualSyncing = true;
-                        });
-
-                        await manualSync();
-
-                        setState(() {
-                          isManualSyncing = false;
-                        });
-
-                        if (context.mounted) {
-                          context.pop();
-                          setState(() {
-                            prefs.setBool('isSyncing', false);
-                          });
-                        }
-                      }
-                    },
-                    style: const ButtonStyle(
-                      backgroundColor: MaterialStatePropertyAll(ProjectColors.primary),
-                      foregroundColor: MaterialStatePropertyAll(Colors.white),
-                    ),
-                    child: isManualSyncing
-                        ? const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: SizedBox(
-                              height: 24,
-                              width: 24,
-                              child: CircularProgressIndicator.adaptive(
-                                  // backgroundColor: Colors.white,
-                                  ),
-                            ),
-                          )
-                        : const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'Synchronize',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  child: ElevatedButton(
-                    onPressed: isManualSyncing
-                        ? null
-                        : () {
-                            setState(() {
-                              syncProgress = 0;
-                            });
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const LogErrorScreen()),
-                            ).then((value) => Future.delayed(
-                                const Duration(milliseconds: 200),
-                                () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-                                    statusBarColor: ProjectColors.primary,
-                                    statusBarBrightness: Brightness.light,
-                                    statusBarIconBrightness: Brightness.light))));
-                          },
-                    style: ButtonStyle(
-                      shape: MaterialStatePropertyAll(
-                        RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(100),
-                          side: BorderSide(
-                            color: isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                      backgroundColor: MaterialStatePropertyAll(
-                        isManualSyncing ? Colors.grey : ProjectColors.primary,
-                      ),
-                      foregroundColor: MaterialStatePropertyAll(
-                          isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : Colors.white),
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.center,
                       child: Text(
-                        'Error Logs',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 18,
+                        syncProgress == 1.0 ? "Data Synced: $totalData" : "${(syncProgress * 100).round().toString()}%",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
+                                child: Text(
+                                  "Set Last Sync Date On:",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: ProjectColors.lightBlack,
+                                  ),
+                                  textAlign: TextAlign.start,
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () => isManualSyncing ? null : selectSyncDate(context),
+                                style: ButtonStyle(
+                                  shape: MaterialStatePropertyAll(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(100),
+                                      side: BorderSide(
+                                        color: isManualSyncing
+                                            ? const Color.fromARGB(255, 114, 114, 114)
+                                            : ProjectColors.primary,
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                  backgroundColor: MaterialStatePropertyAll(
+                                    isManualSyncing ? Colors.grey : Colors.white,
+                                  ),
+                                  foregroundColor: MaterialStatePropertyAll(isManualSyncing
+                                      ? const Color.fromARGB(255, 114, 114, 114)
+                                      : ProjectColors.primary),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        Helpers.dateEEddMMMMyyy(startSyncFrom ?? DateTime.now()),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      isManualSyncing
+                                          ? const Icon(Icons.edit_off_outlined)
+                                          : const Icon(Icons.edit_calendar_outlined),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.fromLTRB(25, 0, 0, 0),
+                                child: Text(
+                                  "",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  textAlign: TextAlign.start,
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  DateTime localDateTime = startSyncFrom ?? DateTime.now();
+
+                                  await showDialog(
+                                    context: context,
+                                    barrierDismissible: true,
+                                    builder: (context) => SetLastSyncDateDialog(
+                                      lastSyncDate: localDateTime,
+                                    ),
+                                  );
+                                },
+                                style: const ButtonStyle(
+                                  backgroundColor: MaterialStatePropertyAll(ProjectColors.primary),
+                                  foregroundColor: MaterialStatePropertyAll(Colors.white),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      isManualSyncing
+                                          ? const SizedBox(
+                                              height: 24,
+                                              width: 24,
+                                              child: CircularProgressIndicator.adaptive(),
+                                            )
+                                          : const Text(
+                                              'Save',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (prefs.getBool("isSyncing") ?? false) {
+                          final syncStart = prefs.getString("autoSyncStart");
+                          SnackBarHelper.presentErrorSnackBar(
+                              context, "Sync is currently in progress. Initiated at $syncStart.");
+                        } else {
+                          await refreshToken();
+                          setState(() {
+                            syncProgress = 0;
+                            isManualSyncing = true;
+                          });
+
+                          await manualSync(startSyncFrom);
+
+                          setState(() {
+                            isManualSyncing = false;
+                          });
+
+                          if (context.mounted) {
+                            context.pop();
+                            setState(() {
+                              prefs.setBool('isSyncing', false);
+                            });
+                          }
+                        }
+                      },
+                      style: ButtonStyle(
+                        shape: MaterialStatePropertyAll(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(100),
+                            side: BorderSide(
+                              color: isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        backgroundColor: MaterialStatePropertyAll(
+                          isManualSyncing ? Colors.grey : ProjectColors.primary,
+                        ),
+                        foregroundColor: MaterialStatePropertyAll(
+                            isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : Colors.white),
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          'Synchronize',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                (widget.outside)
-                    ? SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.5,
-                        child: ElevatedButton(
-                          onPressed: null,
-                          onLongPress: isManualSyncing
-                              ? null
-                              : () async {
-                                  try {
-                                    final bool? isAuthorized = await showDialog<bool>(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (context) => const ResetDBApprovalDialog());
-                                    if (isAuthorized != true) return;
-                                    await GetIt.instance<AppDatabase>().resetDatabase();
-                                    // exit(0);
-                                  } catch (e) {
-                                    SnackBarHelper.presentErrorSnackBar(context, e.toString());
-                                  }
-                                },
-                          style: ButtonStyle(
-                            shape: MaterialStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(100),
-                                side: BorderSide(
-                                  color: isManualSyncing
-                                      ? const Color.fromARGB(255, 114, 114, 114)
-                                      : ProjectColors.primary,
-                                  width: 2,
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
+                    child: ElevatedButton(
+                      onPressed: isManualSyncing
+                          ? null
+                          : () {
+                              setState(() {
+                                syncProgress = 0;
+                              });
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const LogErrorScreen()),
+                              ).then((value) => Future.delayed(
+                                  const Duration(milliseconds: 200),
+                                  () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+                                      statusBarColor: ProjectColors.primary,
+                                      statusBarBrightness: Brightness.light,
+                                      statusBarIconBrightness: Brightness.light))));
+                            },
+                      style: ButtonStyle(
+                        shape: MaterialStatePropertyAll(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(100),
+                            side: BorderSide(
+                              color: isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        backgroundColor: MaterialStatePropertyAll(
+                          isManualSyncing ? Colors.grey : ProjectColors.primary,
+                        ),
+                        foregroundColor: MaterialStatePropertyAll(
+                            isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : Colors.white),
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          'Error Logs',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            (widget.outside)
+                ? Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2),
+                          child: ElevatedButton(
+                            onPressed: null,
+                            onLongPress: isManualSyncing
+                                ? null
+                                : () async {
+                                    try {
+                                      final bool? isAuthorized = await showDialog<bool>(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (context) => const ResetDBApprovalDialog());
+                                      if (isAuthorized != true) return;
+                                      await GetIt.instance<AppDatabase>().resetDatabase();
+                                      // exit(0);
+                                    } catch (e) {
+                                      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                                    }
+                                  },
+                            style: ButtonStyle(
+                              shape: MaterialStatePropertyAll(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(100),
+                                  side: BorderSide(
+                                    color: isManualSyncing
+                                        ? const Color.fromARGB(255, 114, 114, 114)
+                                        : ProjectColors.primary,
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                              backgroundColor: MaterialStatePropertyAll(
+                                isManualSyncing ? Colors.grey : const Color.fromARGB(255, 234, 234, 234),
+                              ),
+                              foregroundColor: MaterialStatePropertyAll(
+                                  isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary),
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'Reset Database',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 18,
                                 ),
                               ),
                             ),
-                            backgroundColor: MaterialStatePropertyAll(
-                              isManualSyncing ? Colors.grey : const Color.fromARGB(255, 234, 234, 234),
-                            ),
-                            foregroundColor: MaterialStatePropertyAll(
-                                isManualSyncing ? const Color.fromARGB(255, 114, 114, 114) : ProjectColors.primary),
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Text(
-                              'Reset Database',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 18,
-                              ),
-                            ),
                           ),
                         ),
-                      )
-                    : const SizedBox.shrink(),
-                const SizedBox(height: 20),
-              ],
-            ),
+                      ),
+                    ],
+                  )
+                : const SizedBox.shrink(),
+            const SizedBox(height: 20),
           ],
         ),
       ),
