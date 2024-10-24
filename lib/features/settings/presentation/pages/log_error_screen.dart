@@ -27,6 +27,7 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
   Future<void> fetchLogErrors() async {
     try {
       logErr = await GetIt.instance<AppDatabase>().logErrorDao.readAll();
+      logErr.sort((a, b) => b.createDate.compareTo(a.createDate));
     } catch (e) {
       log("Error fetching log errors: $e");
     } finally {

@@ -408,7 +408,10 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       for (DownPaymentEntity dp in downPaymentList) {
         for (DownPaymentItemsEntity dpItem in dp.tinv7 ?? []) {
           for (ReceiptItemEntity itemReceipt in receiptItemList) {
-            if (dpItem.toitmId == itemReceipt.itemEntity.toitmId && dpItem.tbitmId == itemReceipt.itemEntity.tbitmId) {
+            log("itemReceipt - $itemReceipt");
+            if (dpItem.toitmId == itemReceipt.itemEntity.toitmId &&
+                dpItem.tbitmId == itemReceipt.itemEntity.tbitmId &&
+                itemReceipt.refpos2 != null) {
               final AddUpdateReceiptItemsParams param = AddUpdateReceiptItemsParams(
                 barcode: itemReceipt.itemEntity.barcode,
                 itemEntity: itemReceipt.itemEntity,
@@ -2188,8 +2191,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                   }).toList();
 
                                                   if (matchingReceiptItems.isNotEmpty) {
-                                                    qtyAdditional =
-                                                        matchingReceiptItems[0].quantity - tinvItem.quantity;
+                                                    qtyAdditional = matchingReceiptItems[0].quantity;
                                                   }
 
                                                   return CheckboxListTile(
