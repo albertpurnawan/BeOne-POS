@@ -29,6 +29,7 @@ import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_toprn.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_rounding_down.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
@@ -84,6 +85,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   final ApplyRoundingUseCase _applyRoundingUseCase;
   final GetItemWithAndConditionUseCase _getItemWithAndConditionUseCase;
   final ApplyPromoToprnUseCase _applyPromoToprnUseCase;
+  final ApplyRoundingDownUseCase _applyRoundingDownUseCase;
 
   ReceiptCubit(
     this._getItemByBarcodeUseCase,
@@ -110,6 +112,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     this._applyRoundingUseCase,
     this._getItemWithAndConditionUseCase,
     this._applyPromoToprnUseCase,
+    this._applyRoundingDownUseCase,
   ) : super(ReceiptEntity(
             docNum: "-",
             receiptItems: [],
@@ -1080,6 +1083,16 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       )..mopSelections = [],
     );
     return;
+  }
+
+  Future<void> roundingDown() async {
+    try {
+      ReceiptEntity receiptRounded = await _applyRoundingDownUseCase.call(params: state);
+      emit(state.copyWith(grandTotal: receiptRounded.grandTotal, rounding: receiptRounded.rounding));
+    } catch (e) {
+      dev.log('Error during rounding: $e');
+      rethrow;
+    }
   }
 }
 

@@ -44,7 +44,6 @@ import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_voucher
 import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/duitku_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/edc_dialog.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_duitku_va_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_mop_amount.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
@@ -418,6 +417,10 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     });
   }
 
+  Future<void> roundingDown() async {
+    await context.read<ReceiptCubit>().roundingDown();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -509,6 +512,102 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   ),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                 ),
+                                onPressed: () async {
+                                  await roundingDown();
+                                },
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.arrow_downward_outlined,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(
+                                      width: 6,
+                                    ),
+                                    RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Round \nDown",
+                                            style: TextStyle(fontWeight: FontWeight.w600),
+                                          ),
+                                          TextSpan(
+                                            text: " (F4)",
+                                            style: TextStyle(fontWeight: FontWeight.w300),
+                                          ),
+                                        ],
+                                        style: TextStyle(height: 1, fontSize: 12),
+                                      ),
+                                      overflow: TextOverflow.clip,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              OutlinedButton(
+                                focusNode: FocusNode(skipTraversal: true),
+                                style: OutlinedButton.styleFrom(
+                                  elevation: 5,
+                                  shadowColor: Colors.black87,
+                                  backgroundColor: ProjectColors.primary,
+                                  padding: const EdgeInsets.all(10),
+                                  foregroundColor: Colors.white,
+                                  side: const BorderSide(
+                                    color: Colors.white,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                ),
+                                onPressed: () {},
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.arrow_upward_outlined,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(
+                                      width: 6,
+                                    ),
+                                    RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Round \nUp",
+                                            style: TextStyle(fontWeight: FontWeight.w600),
+                                          ),
+                                          TextSpan(
+                                            text: " (F5)",
+                                            style: TextStyle(fontWeight: FontWeight.w300),
+                                          ),
+                                        ],
+                                        style: TextStyle(height: 1, fontSize: 12),
+                                      ),
+                                      overflow: TextOverflow.clip,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              OutlinedButton(
+                                focusNode: FocusNode(skipTraversal: true),
+                                style: OutlinedButton.styleFrom(
+                                  elevation: 5,
+                                  shadowColor: Colors.black87,
+                                  backgroundColor: ProjectColors.primary,
+                                  padding: const EdgeInsets.all(10),
+                                  foregroundColor: Colors.white,
+                                  side: const BorderSide(
+                                    color: Colors.white,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                ),
                                 onPressed: () async => await showDiscountAndRoundingDialog(childContext),
                                 child: Row(
                                   children: [
@@ -524,11 +623,11 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                       text: const TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: "Discount &\nRounding",
+                                            text: "Disc.\n",
                                             style: TextStyle(fontWeight: FontWeight.w600),
                                           ),
                                           TextSpan(
-                                            text: " (F6)",
+                                            text: "(F6)",
                                             style: TextStyle(fontWeight: FontWeight.w300),
                                           ),
                                         ],
@@ -619,11 +718,11 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                             text: const TextSpan(
                                               children: [
                                                 TextSpan(
-                                                  text: "Print Pending\nOrder",
+                                                  text: "Print\nOrder",
                                                   style: TextStyle(fontWeight: FontWeight.w600),
                                                 ),
                                                 TextSpan(
-                                                  text: " (F8)",
+                                                  text: "(F8)",
                                                   style: TextStyle(fontWeight: FontWeight.w300),
                                                 ),
                                               ],
@@ -655,9 +754,13 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   RichText(
                                     text: TextSpan(
                                       children: [
+                                        const TextSpan(
+                                          text: "Multi MOPs\n",
+                                          style: TextStyle(fontWeight: FontWeight.w300),
+                                        ),
                                         TextSpan(
-                                          text: isMultiMOPs ? "Multi MOPs ON" : "Multi MOPs OFF",
-                                          style: const TextStyle(fontWeight: FontWeight.w600),
+                                          text: isMultiMOPs ? "ON" : "OFF",
+                                          style: const TextStyle(fontWeight: FontWeight.w700),
                                         ),
                                         const TextSpan(
                                           text: " (F9)",
