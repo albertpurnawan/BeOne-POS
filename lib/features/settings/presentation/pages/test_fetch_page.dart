@@ -272,7 +272,9 @@ class _FetchScreenState extends State<FetchScreen> {
         final lastSyncDate = startSync?.toIso8601String() ?? _posParameterEntity!.lastSync!;
         prefs.setString("autoSyncStart", Helpers.formatDate(DateTime.now().toLocal()));
 
-        final nextSyncDate = DateTime.now().toUtc().toIso8601String();
+        final nextSync = DateTime.now();
+        final noSeconds = DateTime(nextSync.year, nextSync.month, nextSync.day, nextSync.hour, nextSync.minute, 0);
+        final nextSyncDate = noSeconds.toIso8601String();
 
         final fetchFunctions = [
           () async {
