@@ -34,6 +34,7 @@ import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/repository/mop_selection_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_manual_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
@@ -76,6 +77,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isCharging = false;
   bool isMultiMOPs = true;
   bool isConnected = true;
+  bool _isRoundedUp = false;
+  bool _isRoundedDown = false;
+  double? _originalValue;
   int cancelCount = 0;
   List<PaymentTypeEntity> paymentType = [];
   final FocusNode _keyboardListenerFocusNode = FocusNode();
@@ -403,7 +407,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
               builder: (context) => DiscountAndRoundingDialog(docnum: context.read<ReceiptCubit>().state.docNum))
           .then((value) {
         if (value != null) {
-          SnackBarHelper.presentSuccessSnackBar(childContext, "Discount or Rounding Applied", 3);
+          SnackBarHelper.presentSuccessSnackBar(childContext, "Discount Applied", 3);
         }
       });
     } catch (e) {
@@ -417,8 +421,47 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     });
   }
 
-  Future<void> roundingDown() async {
-    await context.read<ReceiptCubit>().roundingDown();
+  Future<void> manualRounding(RoundingMode mode) async {
+    final cubit = context.read<ReceiptCubit>();
+
+    final double beforeRounding =
+        cubit.state.subtotal - (cubit.state.discAmount ?? 0) - cubit.state.couponDiscount + cubit.state.taxAmount;
+
+    _originalValue ??= beforeRounding;
+
+    if (mode == RoundingMode.down) {
+      if (_isRoundedDown) {
+        return;
+      } else if (_isRoundedUp) {
+        cubit.resetRounding(_originalValue!);
+        setState(() {
+          _isRoundedUp = false;
+          _isRoundedDown = false;
+        });
+      } else {
+        await cubit.applyRounding(RoundingMode.down);
+        setState(() {
+          _isRoundedDown = true;
+          _isRoundedUp = false;
+        });
+      }
+    } else if (mode == RoundingMode.up) {
+      if (_isRoundedUp) {
+        return;
+      } else if (_isRoundedDown) {
+        cubit.resetRounding(_originalValue!);
+        setState(() {
+          _isRoundedUp = false;
+          _isRoundedDown = false;
+        });
+      } else {
+        await cubit.applyRounding(RoundingMode.up);
+        setState(() {
+          _isRoundedUp = true;
+          _isRoundedDown = false;
+        });
+      }
+    }
   }
 
   @override
@@ -513,7 +556,8 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                 ),
                                 onPressed: () async {
-                                  await roundingDown();
+                                  await manualRounding(RoundingMode.down);
+                                  dev.log("${context.read<ReceiptCubit>().state.rounding}");
                                 },
                                 child: Row(
                                   children: [
@@ -561,7 +605,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   ),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                 ),
-                                onPressed: () {},
+                                onPressed: () async {
+                                  await manualRounding(RoundingMode.up);
+                                },
                                 child: Row(
                                   children: [
                                     const Icon(
@@ -608,7 +654,14 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   ),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                 ),
-                                onPressed: () async => await showDiscountAndRoundingDialog(childContext),
+                                onPressed: () async {
+                                  setState(() {
+                                    _isRoundedUp = false;
+                                    _isRoundedDown = false;
+                                    _originalValue = null;
+                                  });
+                                  await showDiscountAndRoundingDialog(childContext);
+                                },
                                 child: Row(
                                   children: [
                                     const Icon(
@@ -950,6 +1003,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   }
                                   setState(() {
                                     cancelCount = 0;
+                                    _isRoundedUp = false;
+                                    _isRoundedDown = false;
+                                    _originalValue = null;
                                   });
                                   context.pop(false);
                                 },
@@ -987,7 +1043,14 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                 ? null
                                 : isLoadingQRIS
                                     ? null
-                                    : () async => await charge(),
+                                    : () async {
+                                        await charge();
+                                        setState(() {
+                                          _isRoundedUp = false;
+                                          _isRoundedDown = false;
+                                          _originalValue = null;
+                                        });
+                                      },
                             child: Center(
                               child: isLoadingQRIS
                                   ? const SizedBox(
@@ -1768,9 +1831,9 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          // (receipt.discHeaderManual ?? 0) != 0
-                                          //     ? _noteChip((1000000), 1)
-                                          //     : const SizedBox.shrink(),
+                                          receipt.rounding != 0
+                                              ? _noteChip((receipt.rounding), 1)
+                                              : const SizedBox.shrink(),
                                           (receipt.downPayments != null &&
                                                   receipt.downPayments!.isNotEmpty &&
                                                   receipt.downPayments!
@@ -2528,16 +2591,15 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              // type == 1
-              //     ? "RT ${Helpers.parseMoney(amount)}"
-              //     :
-              type == 2
-                  ? "DP ${Helpers.parseMoney(amount)}"
-                  : type == 3
-                      ? "HD ${Helpers.parseMoney(amount)}"
-                      : type == 4
-                          ? "TLD ${Helpers.parseMoney(amount)}"
-                          : "",
+              type == 1
+                  ? "RD ${Helpers.parseMoney(amount)}"
+                  : type == 2
+                      ? "DP ${Helpers.parseMoney(amount)}"
+                      : type == 3
+                          ? "HD ${Helpers.parseMoney(amount)}"
+                          : type == 4
+                              ? "TLD ${Helpers.parseMoney(amount)}"
+                              : "",
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,

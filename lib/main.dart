@@ -7,9 +7,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_manual_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_toprn.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
-import 'package:pos_fe/features/sales/domain/usecases/apply_rounding_down.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/delete_queued_receipt_by_docId.dart';
@@ -136,7 +136,8 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<ApplyRoundingUseCase>(),
                       GetIt.instance<GetItemWithAndConditionUseCase>(),
                       GetIt.instance<ApplyPromoToprnUseCase>(),
-                      GetIt.instance<ApplyRoundingDownUseCase>(),
+                      GetIt.instance<ApplyManualRoundingUseCase>(instanceName: 'roundingDown'),
+                      GetIt.instance<ApplyManualRoundingUseCase>(instanceName: 'roundingUp'),
                     )),
             BlocProvider<CustomersCubit>(create: (context) => CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
             BlocProvider<MopSelectionsCubit>(

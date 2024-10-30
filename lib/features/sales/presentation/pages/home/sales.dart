@@ -3008,7 +3008,7 @@ class _SalesPageState extends State<SalesPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        // (state.discHeaderManual ?? 0) != 0 ? _noteChip((1000000), 1) : const SizedBox.shrink(),
+                        state.rounding != 0 ? _noteChip((state.rounding), 1) : const SizedBox.shrink(),
                         (state.downPayments != null &&
                                 state.downPayments!.isNotEmpty &&
                                 state.downPayments!.any((dp) => dp.isReceive == false && dp.isSelected == true))
@@ -3019,11 +3019,9 @@ class _SalesPageState extends State<SalesPage> {
                                 ),
                                 2)
                             : const SizedBox.shrink(),
-
                         (state.discHeaderManual ?? 0) != 0
                             ? _noteChip((state.discHeaderManual ?? 0), 3)
                             : const SizedBox.shrink(),
-
                         state.receiptItems.any((e1) => e1.promos.any((e2) => e2.promoType == 998))
                             ? _noteChip(
                                 state.receiptItems.fold(
@@ -4265,7 +4263,7 @@ class _SalesPageState extends State<SalesPage> {
           children: [
             Text(
               type == 1
-                  ? "RT ${Helpers.parseMoney(amount)}"
+                  ? "RD ${Helpers.parseMoney(amount)}"
                   : type == 2
                       ? "DP ${Helpers.parseMoney(amount)}"
                       : type == 3
