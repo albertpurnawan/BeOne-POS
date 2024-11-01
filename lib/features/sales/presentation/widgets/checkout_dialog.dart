@@ -49,6 +49,7 @@ import 'package:pos_fe/features/sales/presentation/widgets/input_duitku_va_dialo
 import 'package:pos_fe/features/sales/presentation/widgets/input_mop_amount.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/rounding_up_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/duitku_va_list_service.dart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -415,6 +416,25 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     }
   }
 
+  Future<void> showRoundUpDialog(BuildContext childContext) async {
+    try {
+      final ReceiptItemEntity? dpItem =
+          context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
+      if (dpItem != null && dpItem.quantity > 0) {
+        throw "Rounding cannot be applied on Receive DP";
+      }
+
+      await showDialog(context: context, barrierDismissible: false, builder: (context) => const RoundingUpDialog())
+          .then((value) {
+        if (value != null) {
+          SnackBarHelper.presentSuccessSnackBar(childContext, "Discount Applied", 3);
+        }
+      });
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
+  }
+
   Future<void> toggleMultiMOPs() async {
     setState(() {
       isMultiMOPs = !isMultiMOPs;
@@ -422,46 +442,56 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   }
 
   Future<void> manualRounding(RoundingMode mode) async {
-    final cubit = context.read<ReceiptCubit>();
-
-    final double beforeRounding =
-        cubit.state.subtotal - (cubit.state.discAmount ?? 0) - cubit.state.couponDiscount + cubit.state.taxAmount;
-
-    _originalValue ??= beforeRounding;
-
-    if (mode == RoundingMode.down) {
-      if (_isRoundedDown) {
-        return;
-      } else if (_isRoundedUp) {
-        cubit.resetRounding(_originalValue!);
-        setState(() {
-          _isRoundedUp = false;
-          _isRoundedDown = false;
-        });
-      } else {
-        await cubit.applyRounding(RoundingMode.down);
-        setState(() {
-          _isRoundedDown = true;
-          _isRoundedUp = false;
-        });
+    try {
+      final cubit = context.read<ReceiptCubit>();
+      final ReceiptItemEntity? dpItem = cubit.state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
+      if (dpItem != null && dpItem.quantity > 0) {
+        throw "Rounding cannot be applied on Receive DP";
       }
-    } else if (mode == RoundingMode.up) {
-      if (_isRoundedUp) {
-        return;
-      } else if (_isRoundedDown) {
-        cubit.resetRounding(_originalValue!);
-        setState(() {
-          _isRoundedUp = false;
-          _isRoundedDown = false;
-        });
-      } else {
-        await cubit.applyRounding(RoundingMode.up);
-        setState(() {
-          _isRoundedUp = true;
-          _isRoundedDown = false;
-        });
+
+      final double beforeRounding =
+          cubit.state.subtotal - (cubit.state.discAmount ?? 0) - cubit.state.couponDiscount + cubit.state.taxAmount;
+
+      _originalValue ??= beforeRounding;
+
+      if (mode == RoundingMode.down) {
+        if (_isRoundedDown) {
+          cubit.resetRounding(_originalValue!);
+          setState(() {
+            _isRoundedUp = false;
+            _isRoundedDown = false;
+          });
+        } else if (_isRoundedUp) {
+          cubit.resetRounding(_originalValue!);
+          setState(() {
+            _isRoundedUp = false;
+            _isRoundedDown = false;
+          });
+        } else {
+          await cubit.applyRounding(RoundingMode.down, null);
+          setState(() {
+            _isRoundedDown = true;
+            _isRoundedUp = false;
+          });
+        }
+      } else if (mode == RoundingMode.up) {
+        if (_isRoundedUp) {
+          return;
+        } else if (_isRoundedDown) {
+          cubit.resetRounding(_originalValue!);
+          setState(() {
+            _isRoundedUp = false;
+            _isRoundedDown = false;
+          });
+        } else {
+          await cubit.applyRounding(RoundingMode.up, null);
+          setState(() {
+            _isRoundedUp = true;
+            _isRoundedDown = false;
+          });
+        }
       }
-    }
+    } catch (e) {}
   }
 
   @override
@@ -606,7 +636,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                 ),
                                 onPressed: () async {
-                                  await manualRounding(RoundingMode.up);
+                                  await showRoundUpDialog(childContext);
                                 },
                                 child: Row(
                                   children: [

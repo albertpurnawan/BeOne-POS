@@ -9,7 +9,7 @@ class ApplyManualRoundingUseCase implements UseCase<ReceiptEntity, ReceiptEntity
   ApplyManualRoundingUseCase({required this.roundingMode});
 
   @override
-  Future<ReceiptEntity> call({ReceiptEntity? params}) async {
+  Future<ReceiptEntity> call({ReceiptEntity? params, double? amount}) async {
     try {
       if (params == null) throw "ApplyManualRoundingUseCase requires params";
 

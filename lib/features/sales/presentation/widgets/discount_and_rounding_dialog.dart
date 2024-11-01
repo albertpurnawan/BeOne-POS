@@ -1,9 +1,7 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get_it/get_it.dart';
@@ -105,7 +103,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
 
   double getSimulatedGrandTotal() {
     try {
-      final ReceiptEntity state = context.read<ReceiptCubit>().state;
+      // final ReceiptEntity state = context.read<ReceiptCubit>().state;
       final double simulatedGrandTotal = initialGrandTotal -
           Helpers.revertMoneyToDecimalFormatDouble(_textEditorHeaderDiscountController.text) -
           lineDiscountInputs.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
@@ -246,7 +244,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                 child: Row(
                   children: [
                     const Text(
-                      'Discount & Rounding',
+                      'Discount',
                       style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                     ),
                     const Spacer(),

@@ -1087,7 +1087,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     return;
   }
 
-  Future<void> applyRounding(RoundingMode mode) async {
+  Future<void> applyRounding(RoundingMode mode, double? input) async {
     try {
       ReceiptEntity receiptRounded;
       if (mode == RoundingMode.down) {
