@@ -270,6 +270,9 @@ class _FetchScreenState extends State<FetchScreen> {
         final singleTopos = _posParameterEntity;
         final toposId = singleTopos!.docId;
         final lastSyncDate = startSync?.toIso8601String() ?? _posParameterEntity!.lastSync!;
+        final dtLastSync = DateTime.parse(lastSyncDate).toUtc();
+        final utcLastSync = dtLastSync.toIso8601String();
+
         prefs.setString("autoSyncStart", Helpers.formatDate(DateTime.now().toLocal()));
 
         final nextSync = DateTime.now();
@@ -283,12 +286,12 @@ class _FetchScreenState extends State<FetchScreen> {
 
               if (tcurrDb.isNotEmpty) {
                 final tcurrDbMap = {for (var datum in tcurrDb) datum.docId: datum};
-                tcurr = await GetIt.instance<CurrencyApi>().fetchData(lastSyncDate);
+                tcurr = await GetIt.instance<CurrencyApi>().fetchData(utcLastSync);
                 for (final datumBos in tcurr) {
                   final datumDb = tcurrDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().currencyDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -323,12 +326,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tocryDb.isNotEmpty) {
                 final tocryDbMap = {for (var datum in tocryDb) datum.docId: datum};
 
-                tocry = await GetIt.instance<CountryApi>().fetchData(lastSyncDate);
+                tocry = await GetIt.instance<CountryApi>().fetchData(utcLastSync);
                 for (final datumBos in tocry) {
                   final datumDb = tocryDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().countryDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -363,12 +366,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (toprvDb.isNotEmpty) {
                 final toprvDbMap = {for (var datum in toprvDb) datum.docId: datum};
 
-                toprv = await GetIt.instance<ProvinceApi>().fetchData(lastSyncDate);
+                toprv = await GetIt.instance<ProvinceApi>().fetchData(utcLastSync);
                 for (final datumBos in toprv) {
                   final datumDb = toprvDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().provinceDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -403,12 +406,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tozcdDb.isNotEmpty) {
                 final tozcdDbMap = {for (var datum in tozcdDb) datum.docId: datum};
 
-                tozcd = await GetIt.instance<ZipcodeApi>().fetchData(lastSyncDate);
+                tozcd = await GetIt.instance<ZipcodeApi>().fetchData(utcLastSync);
                 for (final datumBos in tozcd) {
                   final datumDb = tozcdDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().zipcodeDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -443,12 +446,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tohemDb.isNotEmpty) {
                 final tohemDbMap = {for (var datum in tohemDb) datum.docId: datum};
 
-                tohem = await GetIt.instance<EmployeeApi>().fetchData(lastSyncDate);
+                tohem = await GetIt.instance<EmployeeApi>().fetchData(utcLastSync);
                 for (final datumBos in tohem) {
                   final datumDb = tohemDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().employeeDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -483,12 +486,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tovatDb.isNotEmpty) {
                 final tovatDbMap = {for (var datum in tovatDb) datum.docId: datum};
 
-                tovat = await GetIt.instance<TaxMasterApi>().fetchData(lastSyncDate);
+                tovat = await GetIt.instance<TaxMasterApi>().fetchData(utcLastSync);
                 for (final datumBos in tovat) {
                   final datumDb = tovatDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().taxMasterDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -523,12 +526,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (topmtDb.isNotEmpty) {
                 final topmtDbMap = {for (var datum in topmtDb) datum.docId: datum};
 
-                topmt = await GetIt.instance<PaymentTypeApi>().fetchData(lastSyncDate);
+                topmt = await GetIt.instance<PaymentTypeApi>().fetchData(utcLastSync);
                 for (final datumBos in topmt) {
                   final datumDb = topmtDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().paymentTypeDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -563,12 +566,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpmt1Db.isNotEmpty) {
                 final tpmt1DbMap = {for (var datum in tpmt1Db) datum.docId: datum};
 
-                tpmt1 = await GetIt.instance<MOPApi>().fetchData(lastSyncDate);
+                tpmt1 = await GetIt.instance<MOPApi>().fetchData(utcLastSync);
                 for (final datumBos in tpmt1) {
                   final datumDb = tpmt1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .meansOfPaymentDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -605,12 +608,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpmt2Db.isNotEmpty) {
                 final tpmt2DbMap = {for (var datum in tpmt2Db) datum.docId: datum};
 
-                tpmt2 = await GetIt.instance<CreditCardApi>().fetchData(lastSyncDate);
+                tpmt2 = await GetIt.instance<CreditCardApi>().fetchData(utcLastSync);
                 for (final datumBos in tpmt2) {
                   final datumDb = tpmt2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().creditCardDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -645,12 +648,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (toplnDb.isNotEmpty) {
                 final toplnDbMap = {for (var datum in toplnDb) datum.docId: datum};
 
-                topln = await GetIt.instance<PricelistApi>().fetchData(lastSyncDate);
+                topln = await GetIt.instance<PricelistApi>().fetchData(utcLastSync);
                 for (final datumBos in topln) {
                   final datumDb = toplnDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().pricelistDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -685,12 +688,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tostrDb.isNotEmpty) {
                 final tostrDbMap = {for (var datum in tostrDb) datum.docId: datum};
 
-                tostr = await GetIt.instance<StoreMasterApi>().fetchData(lastSyncDate);
+                tostr = await GetIt.instance<StoreMasterApi>().fetchData(utcLastSync);
                 for (final datumBos in tostr) {
                   final datumDb = tostrDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().storeMasterDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -725,12 +728,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpmt3Db.isNotEmpty) {
                 final tpmt3DbMap = {for (var datum in tpmt3Db) datum.docId: datum};
 
-                tpmt3 = await GetIt.instance<MOPByStoreApi>().fetchData(lastSyncDate);
+                tpmt3 = await GetIt.instance<MOPByStoreApi>().fetchData(utcLastSync);
                 for (final datumBos in tpmt3) {
                   final datumDb = tpmt3DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().mopByStoreDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -765,12 +768,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tocsrDb.isNotEmpty) {
                 final tocsrDbMap = {for (var datum in tocsrDb) datum.docId: datum};
 
-                tocsr = await GetIt.instance<CashRegisterApi>().fetchData(lastSyncDate);
+                tocsr = await GetIt.instance<CashRegisterApi>().fetchData(utcLastSync);
                 for (final datumBos in tocsr) {
                   final datumDb = tocsrDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().cashRegisterDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -805,12 +808,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (touomDb.isNotEmpty) {
                 final touomDbMap = {for (var datum in touomDb) datum.docId: datum};
 
-                touom = await GetIt.instance<UoMApi>().fetchData(lastSyncDate);
+                touom = await GetIt.instance<UoMApi>().fetchData(utcLastSync);
                 for (final datumBos in touom) {
                   final datumDb = touomDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().uomDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -845,12 +848,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (torolDb.isNotEmpty) {
                 final torolDbMap = {for (var datum in torolDb) datum.docId: datum};
 
-                torol = await GetIt.instance<UserRoleApi>().fetchData(lastSyncDate);
+                torol = await GetIt.instance<UserRoleApi>().fetchData(utcLastSync);
                 for (final datumBos in torol) {
                   final datumDb = torolDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().userRoleDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -885,12 +888,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tousrDb.isNotEmpty) {
                 final tousrDbMap = {for (var datum in tousrDb) datum.docId: datum};
 
-                tousr = await GetIt.instance<UserApi>().fetchData(lastSyncDate);
+                tousr = await GetIt.instance<UserApi>().fetchData(utcLastSync);
                 for (final datumBos in tousr) {
                   final datumDb = tousrDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().userDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -925,12 +928,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpln1Db.isNotEmpty) {
                 final tpln1DbMap = {for (var datum in tpln1Db) datum.docId: datum};
 
-                tpln1 = await GetIt.instance<PricelistPeriodApi>().fetchData(lastSyncDate);
+                tpln1 = await GetIt.instance<PricelistPeriodApi>().fetchData(utcLastSync);
                 for (final datumBos in tpln1) {
                   final datumDb = tpln1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .pricelistPeriodDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -967,12 +970,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tocatDb.isNotEmpty) {
                 final tocatDbMap = {for (var datum in tocatDb) datum.docId: datum};
 
-                tocat = await GetIt.instance<ItemCategoryApi>().fetchData(lastSyncDate);
+                tocat = await GetIt.instance<ItemCategoryApi>().fetchData(utcLastSync);
                 for (final datumBos in tocat) {
                   final datumDb = tocatDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().itemCategoryDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -1007,12 +1010,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (toitmDb.isNotEmpty) {
                 final toitmDbMap = {for (var datum in toitmDb) datum.docId: datum};
 
-                toitm = await GetIt.instance<ItemMasterApi>().fetchData(lastSyncDate);
+                toitm = await GetIt.instance<ItemMasterApi>().fetchData(utcLastSync);
                 for (final datumBos in toitm) {
                   final datumDb = toitmDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().itemMasterDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -1047,12 +1050,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tsitmDb.isNotEmpty) {
                 final tsitmDbMap = {for (var datum in tsitmDb) datum.docId: datum};
 
-                tsitm = await GetIt.instance<ItemByStoreApi>().fetchData(lastSyncDate);
+                tsitm = await GetIt.instance<ItemByStoreApi>().fetchData(utcLastSync);
                 for (final datumBos in tsitm) {
                   final datumDb = tsitmDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().itemByStoreDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -1087,12 +1090,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tbitmDb.isNotEmpty) {
                 final tbitmDbMap = {for (var datum in tbitmDb) datum.docId: datum};
 
-                tbitm = await GetIt.instance<ItemBarcodeApi>().fetchData(lastSyncDate);
+                tbitm = await GetIt.instance<ItemBarcodeApi>().fetchData(utcLastSync);
                 for (final datumBos in tbitm) {
                   final datumDb = tbitmDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().itemBarcodeDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -1127,12 +1130,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tritmDb.isNotEmpty) {
                 final tritmDbMap = {for (var datum in tritmDb) datum.docId: datum};
 
-                tritm = await GetIt.instance<ItemRemarksApi>().fetchData(lastSyncDate);
+                tritm = await GetIt.instance<ItemRemarksApi>().fetchData(utcLastSync);
                 for (final datumBos in tritm) {
                   final datumDb = tritmDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().itemRemarkDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -1167,12 +1170,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tovdgDb.isNotEmpty) {
                 final tovdgDbMap = {for (var datum in tovdgDb) datum.docId: datum};
 
-                tovdg = await GetIt.instance<VendorGroupApi>().fetchData(lastSyncDate);
+                tovdg = await GetIt.instance<VendorGroupApi>().fetchData(utcLastSync);
                 for (final datumBos in tovdg) {
                   final datumDb = tovdgDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().vendorGroupDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -1207,12 +1210,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tovenDb.isNotEmpty) {
                 final tovenDbMap = {for (var datum in tovenDb) datum.docId: datum};
 
-                toven = await GetIt.instance<VendorApi>().fetchData(lastSyncDate);
+                toven = await GetIt.instance<VendorApi>().fetchData(utcLastSync);
                 for (final datumBos in toven) {
                   final datumDb = tovenDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().vendorDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -1247,12 +1250,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tvitmDb.isNotEmpty) {
                 final tvitmDbMap = {for (var datum in tvitmDb) datum.docId: datum};
 
-                tvitm = await GetIt.instance<PreferredVendorApi>().fetchData(lastSyncDate);
+                tvitm = await GetIt.instance<PreferredVendorApi>().fetchData(utcLastSync);
                 for (final datumBos in tvitm) {
                   final datumDb = tvitmDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .preferredVendorDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1289,12 +1292,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tocrgDb.isNotEmpty) {
                 final tocrgDbMap = {for (var datum in tocrgDb) datum.docId: datum};
 
-                tocrg = await GetIt.instance<CustomerGroupApi>().fetchData(lastSyncDate);
+                tocrg = await GetIt.instance<CustomerGroupApi>().fetchData(utcLastSync);
                 for (final datumBos in tocrg) {
                   final datumDb = tocrgDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().customerGroupDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -1329,12 +1332,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tocusDb.isNotEmpty) {
                 final tocusDbMap = {for (var datum in tocusDb) datum.docId: datum};
 
-                tocus = await GetIt.instance<CustomerApi>().fetchData(lastSyncDate);
+                tocus = await GetIt.instance<CustomerApi>().fetchData(utcLastSync);
                 for (final datumBos in tocus) {
                   final datumDb = tocusDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().customerCstDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -1369,12 +1372,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpln2Db.isNotEmpty) {
                 final tpln2DbMap = {for (var datum in tpln2Db) datum.docId: datum};
 
-                tpln2 = await GetIt.instance<PriceByItemApi>().fetchData(lastSyncDate);
+                tpln2 = await GetIt.instance<PriceByItemApi>().fetchData(utcLastSync);
                 for (final datumBos in tpln2) {
                   final datumDb = tpln2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().priceByItemDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -1409,12 +1412,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpln3Db.isNotEmpty) {
                 final tpln3DbMap = {for (var datum in tpln3Db) datum.docId: datum};
 
-                tpln3 = await GetIt.instance<APMPSApi>().fetchData(lastSyncDate);
+                tpln3 = await GetIt.instance<APMPSApi>().fetchData(utcLastSync);
                 for (final datumBos in tpln3) {
                   final datumDb = tpln3DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .assignPriceMemberPerStoreDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1451,12 +1454,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpln4Db.isNotEmpty) {
                 final tpln4DbMap = {for (var datum in tpln4Db) datum.docId: datum};
 
-                tpln4 = await GetIt.instance<PriceByItemBarcodeApi>().fetchData(lastSyncDate);
+                tpln4 = await GetIt.instance<PriceByItemBarcodeApi>().fetchData(utcLastSync);
                 for (final datumBos in tpln4) {
                   final datumDb = tpln4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .priceByItemBarcodeDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1493,12 +1496,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tastrDb.isNotEmpty) {
                 final tastrDbMap = {for (var datum in tastrDb) datum.docId: datum};
 
-                tastr = await GetIt.instance<AuthStoreApi>().fetchData(lastSyncDate);
+                tastr = await GetIt.instance<AuthStoreApi>().fetchData(utcLastSync);
                 for (final datumBos in tastr) {
                   final datumDb = tastrDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().authStoreDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -1533,12 +1536,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (topsbDb.isNotEmpty) {
                 final topsbDbMap = {for (var datum in topsbDb) datum.docId: datum};
 
-                topsb = await GetIt.instance<PromoHargaSpesialApi>().fetchData(lastSyncDate);
+                topsb = await GetIt.instance<PromoHargaSpesialApi>().fetchData(utcLastSync);
                 for (final datumBos in topsb) {
                   final datumDb = topsbDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoHargaSpesialHeaderDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1576,12 +1579,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpsb1Db.isNotEmpty) {
                 final tpsb1DbMap = {for (var datum in tpsb1Db) datum.docId: datum};
 
-                tpsb1 = await GetIt.instance<PromoHargaSpesialBuyApi>().fetchData(lastSyncDate);
+                tpsb1 = await GetIt.instance<PromoHargaSpesialBuyApi>().fetchData(utcLastSync);
                 for (final datumBos in tpsb1) {
                   final datumDb = tpsb1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoHargaSpesialBuyDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1618,12 +1621,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpsb2Db.isNotEmpty) {
                 final tpsb2DbMap = {for (var datum in tpsb2Db) datum.docId: datum};
 
-                tpsb2 = await GetIt.instance<PromoHargaSpesialAssignStoreApi>().fetchData(lastSyncDate);
+                tpsb2 = await GetIt.instance<PromoHargaSpesialAssignStoreApi>().fetchData(utcLastSync);
                 for (final datumBos in tpsb2) {
                   final datumDb = tpsb2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoHargaSpesialAssignStoreDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1660,12 +1663,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpsb4Db.isNotEmpty) {
                 final tpsb4DbMap = {for (var datum in tpsb4Db) datum.docId: datum};
 
-                tpsb4 = await GetIt.instance<PromoHargaSpesialCustomerGroupApi>().fetchData(lastSyncDate);
+                tpsb4 = await GetIt.instance<PromoHargaSpesialCustomerGroupApi>().fetchData(utcLastSync);
                 for (final datumBos in tpsb4) {
                   final datumDb = tpsb4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoHargaSpesialCustomerGroupDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1702,12 +1705,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (topmiDb.isNotEmpty) {
                 final topmiDbMap = {for (var datum in topmiDb) datum.docId: datum};
 
-                topmi = await GetIt.instance<PromoBonusMultiItemHeaderApi>().fetchData(lastSyncDate);
+                topmi = await GetIt.instance<PromoBonusMultiItemHeaderApi>().fetchData(utcLastSync);
                 for (final datumBos in topmi) {
                   final datumDb = topmiDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoMultiItemHeaderDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1745,12 +1748,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpmi1Db.isNotEmpty) {
                 final tpmi1DbMap = {for (var datum in tpmi1Db) datum.docId: datum};
 
-                tpmi1 = await GetIt.instance<PromoBonusMultiItemBuyConditionApi>().fetchData(lastSyncDate);
+                tpmi1 = await GetIt.instance<PromoBonusMultiItemBuyConditionApi>().fetchData(utcLastSync);
                 for (final datumBos in tpmi1) {
                   final datumDb = tpmi1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoMultiItemBuyConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1787,12 +1790,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpmi2Db.isNotEmpty) {
                 final tpmi2DbMap = {for (var datum in tpmi2Db) datum.docId: datum};
 
-                tpmi2 = await GetIt.instance<PromoBonusMultiItemAssignStoreApi>().fetchData(lastSyncDate);
+                tpmi2 = await GetIt.instance<PromoBonusMultiItemAssignStoreApi>().fetchData(utcLastSync);
                 for (final datumBos in tpmi2) {
                   final datumDb = tpmi2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoMultiItemAssignStoreDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1829,12 +1832,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpmi4Db.isNotEmpty) {
                 final tpmi4DbMap = {for (var datum in tpmi4Db) datum.docId: datum};
 
-                tpmi4 = await GetIt.instance<PromoBonusMultiItemGetConditionApi>().fetchData(lastSyncDate);
+                tpmi4 = await GetIt.instance<PromoBonusMultiItemGetConditionApi>().fetchData(utcLastSync);
                 for (final datumBos in tpmi4) {
                   final datumDb = tpmi4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoMultiItemGetConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1871,12 +1874,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpmi5Db.isNotEmpty) {
                 final tpmi5DbMap = {for (var datum in tpmi5Db) datum.docId: datum};
 
-                tpmi5 = await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>().fetchData(lastSyncDate);
+                tpmi5 = await GetIt.instance<PromoBonusMultiItemCustomerGroupApi>().fetchData(utcLastSync);
                 for (final datumBos in tpmi5) {
                   final datumDb = tpmi5DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoMultiItemCustomerGroupDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1913,12 +1916,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (topdiDb.isNotEmpty) {
                 final topdiDbMap = {for (var datum in topdiDb) datum.docId: datum};
 
-                topdi = await GetIt.instance<PromoDiskonItemHeaderApi>().fetchData(lastSyncDate);
+                topdi = await GetIt.instance<PromoDiskonItemHeaderApi>().fetchData(utcLastSync);
                 for (final datumBos in topdi) {
                   final datumDb = topdiDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonItemHeaderDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1956,12 +1959,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpdi1Db.isNotEmpty) {
                 final tpdi1DbMap = {for (var datum in tpdi1Db) datum.docId: datum};
 
-                tpdi1 = await GetIt.instance<PromoDiskonItemBuyConditionApi>().fetchData(lastSyncDate);
+                tpdi1 = await GetIt.instance<PromoDiskonItemBuyConditionApi>().fetchData(utcLastSync);
                 for (final datumBos in tpdi1) {
                   final datumDb = tpdi1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonItemBuyConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -1998,12 +2001,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpdi2Db.isNotEmpty) {
                 final tpdi2DbMap = {for (var datum in tpdi2Db) datum.docId: datum};
 
-                tpdi2 = await GetIt.instance<PromoDiskonItemAssignStoreApi>().fetchData(lastSyncDate);
+                tpdi2 = await GetIt.instance<PromoDiskonItemAssignStoreApi>().fetchData(utcLastSync);
                 for (final datumBos in tpdi2) {
                   final datumDb = tpdi2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonItemAssignStoreDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2040,12 +2043,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpdi4Db.isNotEmpty) {
                 final tpdi4DbMap = {for (var datum in tpdi4Db) datum.docId: datum};
 
-                tpdi4 = await GetIt.instance<PromoDiskonItemGetConditionApi>().fetchData(lastSyncDate);
+                tpdi4 = await GetIt.instance<PromoDiskonItemGetConditionApi>().fetchData(utcLastSync);
                 for (final datumBos in tpdi4) {
                   final datumDb = tpdi4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonItemGetConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2082,12 +2085,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpdi5Db.isNotEmpty) {
                 final tpdi5DbMap = {for (var datum in tpdi5Db) datum.docId: datum};
 
-                tpdi5 = await GetIt.instance<PromoDiskonItemCustomerGroupApi>().fetchData(lastSyncDate);
+                tpdi5 = await GetIt.instance<PromoDiskonItemCustomerGroupApi>().fetchData(utcLastSync);
                 for (final datumBos in tpdi5) {
                   final datumDb = tpdi5DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonItemCustomerGroupDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2124,12 +2127,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (topdgDb.isNotEmpty) {
                 final topdgDbMap = {for (var datum in topdgDb) datum.docId: datum};
 
-                topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>().fetchData(lastSyncDate);
+                topdg = await GetIt.instance<PromoDiskonGroupItemHeaderApi>().fetchData(utcLastSync);
                 for (final datumBos in topdg) {
                   final datumDb = topdgDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonGroupItemHeaderDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2167,12 +2170,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpdg1Db.isNotEmpty) {
                 final tpdg1DbMap = {for (var datum in tpdg1Db) datum.docId: datum};
 
-                tpdg1 = await GetIt.instance<PromoDiskonGroupItemBuyConditionApi>().fetchData(lastSyncDate);
+                tpdg1 = await GetIt.instance<PromoDiskonGroupItemBuyConditionApi>().fetchData(utcLastSync);
                 for (final datumBos in tpdg1) {
                   final datumDb = tpdg1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonGroupItemBuyConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2209,12 +2212,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpdg2Db.isNotEmpty) {
                 final tpdg2DbMap = {for (var datum in tpdg2Db) datum.docId: datum};
 
-                tpdg2 = await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>().fetchData(lastSyncDate);
+                tpdg2 = await GetIt.instance<PromoDiskonGroupItemAssignStoreApi>().fetchData(utcLastSync);
                 for (final datumBos in tpdg2) {
                   final datumDb = tpdg2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonGroupItemAssignStoreDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2251,12 +2254,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpdg4Db.isNotEmpty) {
                 final tpdg4DbMap = {for (var datum in tpdg4Db) datum.docId: datum};
 
-                tpdg4 = await GetIt.instance<PromoDiskonGroupItemGetConditionApi>().fetchData(lastSyncDate);
+                tpdg4 = await GetIt.instance<PromoDiskonGroupItemGetConditionApi>().fetchData(utcLastSync);
                 for (final datumBos in tpdg4) {
                   final datumDb = tpdg4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonGroupItemGetConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2293,12 +2296,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpdg5Db.isNotEmpty) {
                 final tpdg5DbMap = {for (var datum in tpdg5Db) datum.docId: datum};
 
-                tpdg5 = await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>().fetchData(lastSyncDate);
+                tpdg5 = await GetIt.instance<PromoDiskonGroupItemCustomerGroupApi>().fetchData(utcLastSync);
                 for (final datumBos in tpdg5) {
                   final datumDb = tpdg5DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoDiskonGroupItemCustomerGroupDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2336,12 +2339,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (toprbDb.isNotEmpty) {
                 final toprbDbMap = {for (var datum in toprbDb) datum.docId: datum};
 
-                toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>().fetchData(lastSyncDate);
+                toprb = await GetIt.instance<PromoBuyXGetYHeaderApi>().fetchData(utcLastSync);
                 for (final datumBos in toprb) {
                   final datumDb = toprbDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoBuyXGetYHeaderDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2379,12 +2382,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tprb1Db.isNotEmpty) {
                 final tprb1DbMap = {for (var datum in tprb1Db) datum.docId: datum};
 
-                tprb1 = await GetIt.instance<PromoBuyXGetYBuyConditionApi>().fetchData(lastSyncDate);
+                tprb1 = await GetIt.instance<PromoBuyXGetYBuyConditionApi>().fetchData(utcLastSync);
                 for (final datumBos in tprb1) {
                   final datumDb = tprb1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoBuyXGetYBuyConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2421,12 +2424,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tprb2Db.isNotEmpty) {
                 final tprb2DbMap = {for (var datum in tprb2Db) datum.docId: datum};
 
-                tprb2 = await GetIt.instance<PromoBuyXGetYAssignStoreApi>().fetchData(lastSyncDate);
+                tprb2 = await GetIt.instance<PromoBuyXGetYAssignStoreApi>().fetchData(utcLastSync);
                 for (final datumBos in tprb2) {
                   final datumDb = tprb2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoBuyXGetYAssignStoreDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2463,12 +2466,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tprb4Db.isNotEmpty) {
                 final tprb4DbMap = {for (var datum in tprb4Db) datum.docId: datum};
 
-                tprb4 = await GetIt.instance<PromoBuyXGetYGetConditionApi>().fetchData(lastSyncDate);
+                tprb4 = await GetIt.instance<PromoBuyXGetYGetConditionApi>().fetchData(utcLastSync);
                 for (final datumBos in tprb4) {
                   final datumDb = tprb4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoBuyXGetYGetConditionDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2505,12 +2508,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tprb5Db.isNotEmpty) {
                 final tprb5DbMap = {for (var datum in tprb5Db) datum.docId: datum};
 
-                tprb5 = await GetIt.instance<PromoBuyXGetYCustomerGroupApi>().fetchData(lastSyncDate);
+                tprb5 = await GetIt.instance<PromoBuyXGetYCustomerGroupApi>().fetchData(utcLastSync);
                 for (final datumBos in tprb5) {
                   final datumDb = tprb5DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoBuyXGetYCustomerGroupDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2547,12 +2550,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (toittDb.isNotEmpty) {
                 final toittDbMap = {for (var datum in toittDb) datum.docId: datum};
 
-                toitt = await GetIt.instance<BillOfMaterialApi>().fetchData(lastSyncDate);
+                toitt = await GetIt.instance<BillOfMaterialApi>().fetchData(utcLastSync);
                 for (final datumBos in toitt) {
                   final datumDb = toittDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .billOfMaterialDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2589,12 +2592,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (titt1Db.isNotEmpty) {
                 final titt1DbMap = {for (var datum in titt1Db) datum.docId: datum};
 
-                titt1 = await GetIt.instance<BillOfMaterialLineItemApi>().fetchData(lastSyncDate);
+                titt1 = await GetIt.instance<BillOfMaterialLineItemApi>().fetchData(utcLastSync);
                 for (final datumBos in titt1) {
                   final datumDb = titt1DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .billOfMaterialLineItemDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2631,12 +2634,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpmt4Db.isNotEmpty) {
                 final tpmt4DbMap = {for (var datum in tpmt4Db) datum.docId: datum};
 
-                tpmt4 = await GetIt.instance<EDCApi>().fetchData(lastSyncDate);
+                tpmt4 = await GetIt.instance<EDCApi>().fetchData(utcLastSync);
                 for (final datumBos in tpmt4) {
                   final datumDb = tpmt4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().edcDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -2671,12 +2674,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpmt5Db.isNotEmpty) {
                 final tpmt5DbMap = {for (var datum in tpmt5Db) datum.docId: datum};
 
-                tpmt5 = await GetIt.instance<BankIssuerApi>().fetchData(lastSyncDate);
+                tpmt5 = await GetIt.instance<BankIssuerApi>().fetchData(utcLastSync);
                 for (final datumBos in tpmt5) {
                   final datumDb = tpmt5DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().bankIssuerDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -2711,12 +2714,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tpmt6Db.isNotEmpty) {
                 final tpmt6DbMap = {for (var datum in tpmt6Db) datum.docId: datum};
 
-                tpmt6 = await GetIt.instance<CampaignApi>().fetchData(lastSyncDate);
+                tpmt6 = await GetIt.instance<CampaignApi>().fetchData(utcLastSync);
                 for (final datumBos in tpmt6) {
                   final datumDb = tpmt6DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>().campaignDao.update(docId: datumDb.docId, data: datumBos);
                     }
                   } else {
@@ -2751,12 +2754,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (toprnDb.isNotEmpty) {
                 final toprnDbMap = {for (var datum in toprnDb) datum.docId: datum};
 
-                toprn = await GetIt.instance<PromoCouponHeaderApi>().fetchData(lastSyncDate);
+                toprn = await GetIt.instance<PromoCouponHeaderApi>().fetchData(utcLastSync);
                 for (final datumBos in toprn) {
                   final datumDb = toprnDbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoCouponHeaderDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2793,12 +2796,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tprn2Db.isNotEmpty) {
                 final tprn2DbMap = {for (var datum in tprn2Db) datum.docId: datum};
 
-                tprn2 = await GetIt.instance<PromoCouponAssignStoreApi>().fetchData(lastSyncDate);
+                tprn2 = await GetIt.instance<PromoCouponAssignStoreApi>().fetchData(utcLastSync);
                 for (final datumBos in tprn2) {
                   final datumDb = tprn2DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoCouponAssignStoreDao
                           .update(docId: datumDb.docId, data: datumBos);
@@ -2835,12 +2838,12 @@ class _FetchScreenState extends State<FetchScreen> {
               if (tprn4Db.isNotEmpty) {
                 final tprn4DbMap = {for (var datum in tprn4Db) datum.docId: datum};
 
-                tprn4 = await GetIt.instance<PromoCouponCustomerGroupApi>().fetchData(lastSyncDate);
+                tprn4 = await GetIt.instance<PromoCouponCustomerGroupApi>().fetchData(utcLastSync);
                 for (final datumBos in tprn4) {
                   final datumDb = tprn4DbMap[datumBos.docId];
 
                   if (datumDb != null) {
-                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(lastSyncDate)) ?? false)) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
                       await GetIt.instance<AppDatabase>()
                           .promoCouponCustomerGroupDao
                           .update(docId: datumDb.docId, data: datumBos);
