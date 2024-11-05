@@ -1087,15 +1087,18 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     return;
   }
 
-  Future<void> applyRounding(RoundingMode mode, double? input) async {
+  Future<void> applyManualRounding(RoundingMode mode, double? input) async {
     try {
       ReceiptEntity receiptRounded;
       if (mode == RoundingMode.down) {
         receiptRounded = await _applyManualRoundingDownUseCase.call(params: state);
       } else {
-        receiptRounded = await _applyManualRoundingUpUseCase.call(params: state);
+        receiptRounded = await _applyManualRoundingUpUseCase.call(params: state, amount: input);
       }
-      emit(state.copyWith(grandTotal: receiptRounded.grandTotal, rounding: receiptRounded.rounding));
+      emit(receiptRounded.copyWith(
+          grandTotal: receiptRounded.grandTotal,
+          rounding: receiptRounded.rounding,
+          previousReceiptEntity: state.previousReceiptEntity));
     } catch (e) {
       dev.log('Error during rounding: $e');
       rethrow;
@@ -1103,7 +1106,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   void resetRounding(double originalValue) {
-    emit(state.copyWith(grandTotal: originalValue, rounding: 0));
+    emit(state.copyWith(grandTotal: originalValue, rounding: state.previousReceiptEntity?.rounding ?? 0));
   }
 }
 

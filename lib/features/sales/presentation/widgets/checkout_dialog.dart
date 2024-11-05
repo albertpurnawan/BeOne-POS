@@ -403,10 +403,12 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       }
 
       await showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => DiscountAndRoundingDialog(docnum: context.read<ReceiptCubit>().state.docNum))
-          .then((value) {
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => DiscountAndRoundingDialog(
+                docnum: context.read<ReceiptCubit>().state.docNum,
+                manualRounded: _isRoundedDown || _isRoundedUp,
+              )).then((value) {
         if (value != null) {
           SnackBarHelper.presentSuccessSnackBar(childContext, "Discount Applied", 3);
         }
@@ -426,8 +428,17 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
       await showDialog(context: context, barrierDismissible: false, builder: (context) => const RoundingUpDialog())
           .then((value) {
-        if (value != null) {
-          SnackBarHelper.presentSuccessSnackBar(childContext, "Discount Applied", 3);
+        if (value != null && value == true) {
+          SnackBarHelper.presentSuccessSnackBar(childContext, "Rounding Applied", 3);
+          setState(() {
+            _isRoundedUp = true;
+            _isRoundedDown = false;
+          });
+        } else if (value == false) {
+          setState(() {
+            _isRoundedUp = false;
+            _isRoundedDown = false;
+          });
         }
       });
     } catch (e) {
@@ -468,7 +479,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
             _isRoundedDown = false;
           });
         } else {
-          await cubit.applyRounding(RoundingMode.down, null);
+          await cubit.applyManualRounding(RoundingMode.down, null);
           setState(() {
             _isRoundedDown = true;
             _isRoundedUp = false;
@@ -484,7 +495,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
             _isRoundedDown = false;
           });
         } else {
-          await cubit.applyRounding(RoundingMode.up, null);
+          await cubit.applyManualRounding(RoundingMode.up, null);
           setState(() {
             _isRoundedUp = true;
             _isRoundedDown = false;
@@ -587,7 +598,6 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                 ),
                                 onPressed: () async {
                                   await manualRounding(RoundingMode.down);
-                                  dev.log("${context.read<ReceiptCubit>().state.rounding}");
                                 },
                                 child: Row(
                                   children: [
@@ -637,6 +647,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                 ),
                                 onPressed: () async {
                                   await showRoundUpDialog(childContext);
+                                  dev.log("manualRoundDown 222 - $_isRoundedDown - manualRoundUp - $_isRoundedUp");
                                 },
                                 child: Row(
                                   children: [
@@ -685,12 +696,12 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                 ),
                                 onPressed: () async {
+                                  await showDiscountAndRoundingDialog(childContext);
                                   setState(() {
                                     _isRoundedUp = false;
                                     _isRoundedDown = false;
                                     _originalValue = null;
                                   });
-                                  await showDiscountAndRoundingDialog(childContext);
                                 },
                                 child: Row(
                                   children: [
@@ -1686,10 +1697,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
   List<int> generateCashAmountSuggestions(int targetAmount) {
     List<int> cashAmountSuggestions = [targetAmount];
-    dev.log("cashAmountSuggestion - $cashAmountSuggestions");
     if (voucherIsExceedPurchase) {
-      dev.log("cashAmountSuggestion - voucherIsExceedPurchase");
-
       cashAmountSuggestions = [0];
     } else if (context.read<ReceiptCubit>().state.grandTotal > 0) {
       final List<int> multipliers = [5000, 10000, 50000, 100000];
@@ -1698,7 +1706,6 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
         if (cashAmountSuggestions.last % multiplier != 0) {
           cashAmountSuggestions.add(targetAmount + multiplier - (targetAmount % multiplier));
         }
-        dev.log("cashAmountSuggestion - voucherIsExceedPurchase");
       }
     }
     return cashAmountSuggestions;
@@ -1861,21 +1868,20 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          receipt.rounding != 0
-                                              ? _noteChip((receipt.rounding), 1)
-                                              : const SizedBox.shrink(),
-                                          (receipt.downPayments != null &&
-                                                  receipt.downPayments!.isNotEmpty &&
-                                                  receipt.downPayments!
-                                                      .any((dp) => dp.isReceive == false && dp.isSelected == true))
-                                              ? _noteChip(
-                                                  (receipt.downPayments ?? []).fold(
-                                                      0.0,
-                                                      (total, dp) => (dp.isSelected == true && dp.amount != 0)
-                                                          ? total + dp.amount
-                                                          : total),
-                                                  2)
-                                              : const SizedBox.shrink(),
+                                          (receipt.rounding.abs() != 0)
+                                              ? _noteChip((receipt.rounding).roundToDouble(), 1)
+                                              : (receipt.downPayments != null &&
+                                                      receipt.downPayments!.isNotEmpty &&
+                                                      receipt.downPayments!
+                                                          .any((dp) => dp.isReceive == false && dp.isSelected == true))
+                                                  ? _noteChip(
+                                                      (receipt.downPayments ?? []).fold(
+                                                          0.0,
+                                                          (total, dp) => (dp.isSelected == true && dp.amount != 0)
+                                                              ? total + dp.amount
+                                                              : total),
+                                                      2)
+                                                  : const SizedBox.shrink(),
                                           (receipt.discHeaderManual ?? 0) != 0
                                               ? _noteChip((receipt.discHeaderManual ?? 0), 3)
                                               : const SizedBox.shrink(),

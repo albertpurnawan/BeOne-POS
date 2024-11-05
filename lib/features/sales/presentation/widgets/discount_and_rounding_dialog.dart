@@ -27,7 +27,8 @@ import 'package:toggle_switch/toggle_switch.dart';
 
 class DiscountAndRoundingDialog extends StatefulWidget {
   final String docnum;
-  const DiscountAndRoundingDialog({super.key, required this.docnum});
+  final bool manualRounded;
+  const DiscountAndRoundingDialog({super.key, required this.docnum, required this.manualRounded});
 
   @override
   State<DiscountAndRoundingDialog> createState() => _DiscountAndRoundingDialogState();
@@ -44,6 +45,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   int count = 0;
 
   bool isHeaderDiscount = true;
+  bool isManualRounded = false;
   double initialGrandTotal = 0;
   List<LineDiscountParameter> lineDiscountInputs = [];
   List<LineDiscountParameter> searchedLineDiscountInputs = [];
@@ -52,17 +54,21 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   @override
   void initState() {
     super.initState();
+
     final ReceiptEntity state = context.read<ReceiptCubit>().state;
-    initialGrandTotal = state.grandTotal +
-        (state.discHeaderManual ?? 0) +
-        state.receiptItems.fold(
-            0.0,
-            (previousValue, e1) =>
-                previousValue +
-                (((100 + e1.itemEntity.taxRate) / 100) *
-                    e1.promos
-                        .where((e2) => e2.promoType == 998)
-                        .fold(0.0, (previousValue, e3) => previousValue + (e3.discAmount ?? 0))));
+
+    initialGrandTotal = (state.grandTotal -
+            state.rounding +
+            (state.discHeaderManual ?? 0) +
+            state.receiptItems.fold(
+                0.0,
+                (previousValue, e1) =>
+                    previousValue +
+                    (((100 + e1.itemEntity.taxRate) / 100) *
+                        e1.promos
+                            .where((e2) => e2.promoType == 998)
+                            .fold(0.0, (previousValue, e3) => previousValue + (e3.discAmount ?? 0)))))
+        .roundToDouble();
     lineDiscountInputs = context
         .read<ReceiptCubit>()
         .state
@@ -78,6 +84,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
         .toList();
     searchedLineDiscountInputs = lineDiscountInputs;
     _textEditorHeaderDiscountController.text = Helpers.parseMoney(state.discHeaderManual ?? 0);
+    isManualRounded = widget.manualRounded;
   }
 
   @override
@@ -103,12 +110,12 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
 
   double getSimulatedGrandTotal() {
     try {
-      // final ReceiptEntity state = context.read<ReceiptCubit>().state;
       final double simulatedGrandTotal = initialGrandTotal -
           Helpers.revertMoneyToDecimalFormatDouble(_textEditorHeaderDiscountController.text) -
-          lineDiscountInputs.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
+          lineDiscountInputs.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount) +
+          context.read<ReceiptCubit>().state.rounding;
 
-      return simulatedGrandTotal;
+      return simulatedGrandTotal.roundToDouble();
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
       context.pop();
@@ -154,6 +161,13 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                 ));
       } else {
         await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
+        if (isManualRounded) {
+          await showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return _warningResetRounding(isManualRounded);
+              });
+        }
         context.pop(input);
       }
     } catch (e) {
@@ -406,6 +420,35 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                 ),
                               ],
                             ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                  child: Text(
+                                    "Rounding",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                                TableCell(
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          Helpers.parseMoney(
+                                              (context.read<ReceiptCubit>().state.rounding).roundToDouble()),
+                                          textAlign: TextAlign.right,
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                             const TableRow(children: [
                               SizedBox(
                                 height: 10,
@@ -482,7 +525,9 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                           )),
                           backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                           overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                      onPressed: () async => await onSubmit(),
+                      onPressed: () async {
+                        await onSubmit();
+                      },
                       child: Center(
                         child: RichText(
                           text: const TextSpan(
@@ -936,6 +981,133 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
           ),
         )
     ];
+  }
+
+  Widget _warningResetRounding(bool manualRounded) {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+      title: Container(
+        decoration: const BoxDecoration(
+          color: ProjectColors.primary,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+        ),
+        padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+        child: const Text(
+          'Caution',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+        ),
+      ),
+      titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      contentPadding: const EdgeInsets.fromLTRB(40, 20, 30, 10),
+      content: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            "assets/images/caution.png",
+            width: 70,
+          ),
+          const SizedBox(
+            width: 30,
+          ),
+          SizedBox(
+            width: 400,
+            child: RichText(
+              text: const TextSpan(
+                children: [
+                  TextSpan(
+                    text: "Rounding will be reset, you'll need to reinput\nthe discount and rounding again.\nProceed?",
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                ],
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
+              overflow: TextOverflow.clip,
+            ),
+          )
+        ],
+      ),
+      actions: <Widget>[
+        Row(
+          children: [
+            Expanded(
+                flex: 1,
+                child: TextButton(
+                  style: ButtonStyle(
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          side: const BorderSide(color: ProjectColors.primary))),
+                      backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                  onPressed: () {
+                    context.pop(false);
+                  },
+                  child: Center(
+                    child: RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Cancel",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                        style: TextStyle(color: ProjectColors.primary),
+                      ),
+                      overflow: TextOverflow.clip,
+                    ),
+                  ),
+                )),
+            const SizedBox(
+              width: 10,
+            ),
+            Expanded(
+                child: TextButton(
+              style: ButtonStyle(
+                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+              onPressed: () async {
+                if (mounted && manualRounded == false) {
+                  context.pop(true);
+                } else if (manualRounded == true) {
+                  context.pop(true);
+                  await showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => DiscountAndRoundingDialog(
+                            docnum: context.read<ReceiptCubit>().state.docNum,
+                            manualRounded: manualRounded,
+                          ));
+                  setState(() {
+                    _textEditorHeaderDiscountController.text = '0';
+                    isManualRounded = false;
+                    _discountFocusNode.requestFocus();
+                  });
+                }
+              },
+              child: Center(
+                child: RichText(
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Proceed",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                  overflow: TextOverflow.clip,
+                ),
+              ),
+            )),
+          ],
+        ),
+      ],
+      actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+    );
   }
 }
 

@@ -12,7 +12,6 @@ class ApplyManualRoundingUseCase implements UseCase<ReceiptEntity, ReceiptEntity
   Future<ReceiptEntity> call({ReceiptEntity? params, double? amount}) async {
     try {
       if (params == null) throw "ApplyManualRoundingUseCase requires params";
-
       int roundingSetting = 1000;
       final double beforeRounding =
           params.subtotal - (params.discAmount ?? 0) - params.couponDiscount + params.taxAmount;
@@ -22,14 +21,13 @@ class ApplyManualRoundingUseCase implements UseCase<ReceiptEntity, ReceiptEntity
       double rounding;
       if (roundingMode == RoundingMode.down) {
         rounding = remainder == 0 ? 0 : -1 * remainder;
-      } else if (roundingMode == RoundingMode.up) {
-        rounding = remainder == 0 ? 0 : roundingSetting - remainder;
+      } else if (roundingMode == RoundingMode.up && amount != null) {
+        rounding = amount;
       } else {
         rounding = 0;
       }
 
-      final double grandTotal = beforeRounding + rounding;
-      log("rounding - $rounding - grandTotal - $grandTotal");
+      final double grandTotal = (beforeRounding + rounding).roundToDouble();
       return params.copyWith(grandTotal: grandTotal, rounding: rounding);
     } catch (e) {
       log(e.toString());

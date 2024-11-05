@@ -29,18 +29,9 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
   void initState() {
     super.initState();
     final ReceiptEntity receiptEntity = context.read<ReceiptCubit>().state;
+    initialGrandTotal = ((receiptEntity.grandTotal - receiptEntity.rounding)).roundToDouble();
 
-    initialGrandTotal = receiptEntity.grandTotal +
-        (receiptEntity.discHeaderManual ?? 0) +
-        receiptEntity.receiptItems.fold(
-            0.0,
-            (previousValue, e1) =>
-                previousValue +
-                (((100 + e1.itemEntity.taxRate) / 100) *
-                    e1.promos
-                        .where((e2) => e2.promoType == 998)
-                        .fold(0.0, (previousValue, e3) => previousValue + (e3.discAmount ?? 0))));
-    _textEditorAmountRoundUpController.text = Helpers.parseMoney(receiptEntity.rounding);
+    _textEditorAmountRoundUpController.text = Helpers.parseMoney(receiptEntity.rounding.round());
   }
 
   @override
@@ -54,7 +45,8 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
   double getSimulatedGrandTotal() {
     try {
       final double simulatedGrandTotal =
-          initialGrandTotal + Helpers.revertMoneyToDecimalFormatDouble(_textEditorAmountRoundUpController.text);
+          (initialGrandTotal + Helpers.revertMoneyToDecimalFormatDouble(_textEditorAmountRoundUpController.text))
+              .roundToDouble();
 
       return simulatedGrandTotal;
     } catch (e) {
@@ -78,7 +70,8 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
         _amountRoundUpFocusNode.unfocus();
         throw "Rounding up is inapplicable on negative grand total";
       }
-      await cubit.applyRounding(RoundingMode.up, input);
+      await cubit.applyManualRounding(RoundingMode.up, input);
+      context.pop(true);
     } catch (e) {
       if (childContext.mounted) {
         SnackBarHelper.presentErrorSnackBar(childContext, e.toString());
@@ -166,7 +159,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                       onFieldSubmitted: (value) async => await onSubmit(childContext),
                       onChanged: (value) => setState(() {}),
                       autofocus: true,
-                      inputFormatters: [NegativeMoneyInputFormatter()],
+                      inputFormatters: [MoneyInputFormatter()],
                       textAlign: TextAlign.center,
                       style: const TextStyle(fontSize: 24),
                       decoration: const InputDecoration(
@@ -198,7 +191,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                             children: [
                               const TableCell(
                                 child: Text(
-                                  "Initial Grand Total",
+                                  "Grand Total (No Rounding)",
                                   style: TextStyle(fontSize: 14),
                                 ),
                               ),
@@ -215,7 +208,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                             children: [
                               const TableCell(
                                 child: Text(
-                                  "Rounding Amount",
+                                  "Rounding",
                                   style: TextStyle(fontSize: 14),
                                 ),
                               ),
@@ -297,7 +290,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                         overlayColor:
                             MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      Navigator.of(context).pop(false);
                     },
                     child: Center(
                       child: RichText(

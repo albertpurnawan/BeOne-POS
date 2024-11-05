@@ -3008,17 +3008,19 @@ class _SalesPageState extends State<SalesPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        state.rounding != 0 ? _noteChip((state.rounding), 1) : const SizedBox.shrink(),
-                        (state.downPayments != null &&
-                                state.downPayments!.isNotEmpty &&
-                                state.downPayments!.any((dp) => dp.isReceive == false && dp.isSelected == true))
-                            ? _noteChip(
-                                (state.downPayments ?? []).fold(
-                                  0.0,
-                                  (total, dp) => (dp.isSelected == true && dp.amount != 0) ? total + dp.amount : total,
-                                ),
-                                2)
-                            : const SizedBox.shrink(),
+                        (state.rounding.abs() != 0)
+                            ? _noteChip((state.rounding).roundToDouble(), 1)
+                            : (state.downPayments != null &&
+                                    state.downPayments!.isNotEmpty &&
+                                    state.downPayments!.any((dp) => dp.isReceive == false && dp.isSelected == true))
+                                ? _noteChip(
+                                    (state.downPayments ?? []).fold(
+                                      0.0,
+                                      (total, dp) =>
+                                          (dp.isSelected == true && dp.amount != 0) ? total + dp.amount : total,
+                                    ),
+                                    2)
+                                : const SizedBox.shrink(),
                         (state.discHeaderManual ?? 0) != 0
                             ? _noteChip((state.discHeaderManual ?? 0), 3)
                             : const SizedBox.shrink(),
