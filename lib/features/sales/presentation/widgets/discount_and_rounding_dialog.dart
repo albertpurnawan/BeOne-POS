@@ -41,6 +41,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   final FocusNode _discountFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
+  final FocusScopeNode _focusScopeWarningNode = FocusScopeNode();
   final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   int count = 0;
 
@@ -92,6 +93,8 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     _textEditorHeaderDiscountController.dispose();
     _discountFocusNode.dispose();
     _keyboardListenerFocusNode.dispose();
+    _focusScopeNode.dispose();
+    _focusScopeWarningNode.dispose();
     super.dispose();
   }
 
@@ -984,129 +987,171 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   }
 
   Widget _warningResetRounding(bool manualRounded) {
-    return AlertDialog(
-      backgroundColor: Colors.white,
-      surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
-      title: Container(
-        decoration: const BoxDecoration(
-          color: ProjectColors.primary,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
-        ),
-        padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-        child: const Text(
-          'Caution',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
-        ),
-      ),
-      titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-      contentPadding: const EdgeInsets.fromLTRB(40, 20, 30, 10),
-      content: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.asset(
-            "assets/images/caution.png",
-            width: 70,
+    return FocusScope(
+      autofocus: false,
+      skipTraversal: true,
+      node: _focusScopeWarningNode,
+      onKeyEvent: (node, event) {
+        if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
+        if (event.physicalKey == PhysicalKeyboardKey.f12) {
+          if (manualRounded == false) {
+            context.pop(true);
+          } else if (manualRounded == true) {
+            context.pop(true);
+            showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => DiscountAndRoundingDialog(
+                      docnum: context.read<ReceiptCubit>().state.docNum,
+                      manualRounded: manualRounded,
+                    ));
+            setState(() {
+              _textEditorHeaderDiscountController.text = '0';
+              isManualRounded = false;
+              _discountFocusNode.requestFocus();
+            });
+          }
+          return KeyEventResult.handled;
+        } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
+          context.pop(false);
+          return KeyEventResult.handled;
+        }
+
+        return KeyEventResult.ignored;
+      },
+      child: AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        title: Container(
+          decoration: const BoxDecoration(
+            color: ProjectColors.primary,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
-          const SizedBox(
-            width: 30,
+          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+          child: const Text(
+            'Caution',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
-          SizedBox(
-            width: 400,
-            child: RichText(
-              text: const TextSpan(
-                children: [
-                  TextSpan(
-                    text: "Rounding will be reset, you'll need to reinput\nthe discount and rounding again.\nProceed?",
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                ],
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                ),
-              ),
-              overflow: TextOverflow.clip,
-            ),
-          )
-        ],
-      ),
-      actions: <Widget>[
-        Row(
+        ),
+        titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        contentPadding: const EdgeInsets.fromLTRB(40, 20, 30, 10),
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-                flex: 1,
-                child: TextButton(
-                  style: ButtonStyle(
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side: const BorderSide(color: ProjectColors.primary))),
-                      backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
-                  onPressed: () {
-                    context.pop(false);
-                  },
-                  child: Center(
-                    child: RichText(
-                      text: const TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Cancel",
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                        style: TextStyle(color: ProjectColors.primary),
-                      ),
-                      overflow: TextOverflow.clip,
-                    ),
-                  ),
-                )),
-            const SizedBox(
-              width: 10,
+            Image.asset(
+              "assets/images/caution.png",
+              width: 70,
             ),
-            Expanded(
-                child: TextButton(
-              style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-              onPressed: () async {
-                if (mounted && manualRounded == false) {
-                  context.pop(true);
-                } else if (manualRounded == true) {
-                  context.pop(true);
-                  await showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) => DiscountAndRoundingDialog(
-                            docnum: context.read<ReceiptCubit>().state.docNum,
-                            manualRounded: manualRounded,
-                          ));
-                  setState(() {
-                    _textEditorHeaderDiscountController.text = '0';
-                    isManualRounded = false;
-                    _discountFocusNode.requestFocus();
-                  });
-                }
-              },
-              child: Center(
-                child: RichText(
-                  text: const TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Proceed",
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ],
+            const SizedBox(
+              width: 30,
+            ),
+            SizedBox(
+              width: 400,
+              child: RichText(
+                text: const TextSpan(
+                  children: [
+                    TextSpan(
+                      text:
+                          "Rounding will be reset, you'll need to reinput\nthe discount and rounding again.\nProceed?",
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
                   ),
-                  overflow: TextOverflow.clip,
                 ),
+                overflow: TextOverflow.clip,
               ),
-            )),
+            )
           ],
         ),
-      ],
-      actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+        actions: <Widget>[
+          Row(
+            children: [
+              Expanded(
+                  flex: 1,
+                  child: TextButton(
+                    style: ButtonStyle(
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            side: const BorderSide(color: ProjectColors.primary))),
+                        backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                    onPressed: () {
+                      context.pop(false);
+                    },
+                    child: Center(
+                      child: RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "Cancel",
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            TextSpan(
+                              text: "  (Esc)",
+                              style: TextStyle(fontWeight: FontWeight.w300),
+                            ),
+                          ],
+                          style: TextStyle(color: ProjectColors.primary),
+                        ),
+                        overflow: TextOverflow.clip,
+                      ),
+                    ),
+                  )),
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                  child: TextButton(
+                style: ButtonStyle(
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                onPressed: () async {
+                  if (mounted && manualRounded == false) {
+                    context.pop(true);
+                  } else if (manualRounded == true) {
+                    context.pop(true);
+                    await showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (context) => DiscountAndRoundingDialog(
+                              docnum: context.read<ReceiptCubit>().state.docNum,
+                              manualRounded: manualRounded,
+                            ));
+                    setState(() {
+                      _textEditorHeaderDiscountController.text = '0';
+                      isManualRounded = false;
+                      _discountFocusNode.requestFocus();
+                    });
+                  }
+                },
+                child: Center(
+                  child: RichText(
+                    text: const TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Proceed",
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        TextSpan(
+                          text: "  (F12)",
+                          style: TextStyle(fontWeight: FontWeight.w300),
+                        ),
+                      ],
+                    ),
+                    overflow: TextOverflow.clip,
+                  ),
+                ),
+              )),
+            ],
+          ),
+        ],
+        actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      ),
     );
   }
 }

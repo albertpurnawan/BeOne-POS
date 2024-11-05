@@ -542,8 +542,20 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
             } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && node.hasPrimaryFocus) {
               node.nextFocus();
               return KeyEventResult.handled;
+            } else if (event.physicalKey == PhysicalKeyboardKey.f4 && !isCharged) {
+              manualRounding(RoundingMode.down);
+              return KeyEventResult.handled;
+            } else if (event.physicalKey == PhysicalKeyboardKey.f5 && !isCharged) {
+              showRoundUpDialog(childContext);
+              return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.f6 && !isCharged) {
               showDiscountAndRoundingDialog(childContext);
+              setState(() {
+                _isRoundedUp = false;
+                _isRoundedDown = false;
+                _originalValue = null;
+              });
+              return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.f7 && !isCharged) {
               showAppliedPromotions().then((value) => _focusScopeNode.requestFocus());
               return KeyEventResult.handled;
@@ -647,7 +659,6 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                 ),
                                 onPressed: () async {
                                   await showRoundUpDialog(childContext);
-                                  dev.log("manualRoundDown 222 - $_isRoundedDown - manualRoundUp - $_isRoundedUp");
                                 },
                                 child: Row(
                                   children: [

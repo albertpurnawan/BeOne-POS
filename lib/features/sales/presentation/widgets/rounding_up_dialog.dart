@@ -21,7 +21,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
   final TextEditingController _textEditorAmountRoundUpController = TextEditingController();
   final FocusNode _amountRoundUpFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
-  final FocusScopeNode _focusScopeNode = FocusScopeNode();
+  final FocusScopeNode _focusScopeWarningNode = FocusScopeNode();
 
   double initialGrandTotal = 0;
 
@@ -39,6 +39,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
     _textEditorAmountRoundUpController.dispose();
     _amountRoundUpFocusNode.dispose();
     _keyboardListenerFocusNode.dispose();
+    _focusScopeWarningNode.dispose();
     super.dispose();
   }
 
@@ -108,14 +109,14 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
         body: FocusScope(
           autofocus: true,
           skipTraversal: true,
-          node: _focusScopeNode,
+          node: _focusScopeWarningNode,
           onKeyEvent: (node, event) {
             if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
             if (event.physicalKey == PhysicalKeyboardKey.f12) {
               onSubmit(childContext);
               return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
-              context.pop();
+              context.pop(false);
               return KeyEventResult.handled;
             }
 
