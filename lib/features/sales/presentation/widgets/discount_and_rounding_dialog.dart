@@ -16,6 +16,7 @@ import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -48,6 +49,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   bool isHeaderDiscount = true;
   bool isManualRounded = false;
   double initialGrandTotal = 0;
+  double initialRounding = 0;
   List<LineDiscountParameter> lineDiscountInputs = [];
   List<LineDiscountParameter> searchedLineDiscountInputs = [];
   final FocusNode _searchLineDiscountFocusNode = FocusNode();
@@ -86,6 +88,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     searchedLineDiscountInputs = lineDiscountInputs;
     _textEditorHeaderDiscountController.text = Helpers.parseMoney(state.discHeaderManual ?? 0);
     isManualRounded = widget.manualRounded;
+    initialRounding = state.rounding.roundToDouble();
   }
 
   @override
@@ -148,6 +151,21 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
       final StoreMasterEntity? storeMasterEntity =
           await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity.tostrId);
       if (storeMasterEntity == null) throw "Store master not found";
+      if (isManualRounded) {
+        await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return _warningResetRounding(isManualRounded, onComplete: () async {
+                context.read<ReceiptCubit>().resetRounding(initialGrandTotal);
+                context.read<ReceiptCubit>().replaceState(
+                    await GetIt.instance<ApplyRoundingUseCase>().call(params: context.read<ReceiptCubit>().state));
+                setState(() {
+                  initialRounding = context.read<ReceiptCubit>().state.rounding;
+                });
+              });
+            });
+        return;
+      }
 
       if (input < (storeMasterEntity.minDiscount ?? 0) ||
           input > (storeMasterEntity.maxDiscount ?? 0) ||
@@ -164,13 +182,6 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                 ));
       } else {
         await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
-        if (isManualRounded) {
-          await showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return _warningResetRounding(isManualRounded);
-              });
-        }
         context.pop(input);
       }
     } catch (e) {
@@ -438,8 +449,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          Helpers.parseMoney(
-                                              (context.read<ReceiptCubit>().state.rounding).roundToDouble()),
+                                          Helpers.parseMoney(initialRounding),
                                           textAlign: TextAlign.right,
                                           style: const TextStyle(fontSize: 14),
                                         ),
@@ -986,7 +996,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     ];
   }
 
-  Widget _warningResetRounding(bool manualRounded) {
+  Widget _warningResetRounding(bool manualRounded, {required Function onComplete}) {
     return FocusScope(
       autofocus: false,
       skipTraversal: true,
@@ -994,22 +1004,17 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
       onKeyEvent: (node, event) {
         if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
         if (event.physicalKey == PhysicalKeyboardKey.f12) {
-          if (manualRounded == false) {
+          if (mounted && manualRounded == false) {
             context.pop(true);
+            onComplete();
           } else if (manualRounded == true) {
-            context.pop(true);
-            showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => DiscountAndRoundingDialog(
-                      docnum: context.read<ReceiptCubit>().state.docNum,
-                      manualRounded: manualRounded,
-                    ));
             setState(() {
-              _textEditorHeaderDiscountController.text = '0';
               isManualRounded = false;
-              _discountFocusNode.requestFocus();
             });
+
+            onComplete();
+            context.pop(true);
+            _discountFocusNode.requestFocus();
           }
           return KeyEventResult.handled;
         } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
@@ -1113,20 +1118,15 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                 onPressed: () async {
                   if (mounted && manualRounded == false) {
                     context.pop(true);
+                    onComplete();
                   } else if (manualRounded == true) {
-                    context.pop(true);
-                    await showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) => DiscountAndRoundingDialog(
-                              docnum: context.read<ReceiptCubit>().state.docNum,
-                              manualRounded: manualRounded,
-                            ));
                     setState(() {
-                      _textEditorHeaderDiscountController.text = '0';
                       isManualRounded = false;
-                      _discountFocusNode.requestFocus();
                     });
+
+                    await onComplete();
+                    context.pop(true);
+                    _discountFocusNode.requestFocus();
                   }
                 },
                 child: Center(

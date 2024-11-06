@@ -3010,17 +3010,17 @@ class _SalesPageState extends State<SalesPage> {
                       children: [
                         (state.rounding.abs() != 0)
                             ? _noteChip((state.rounding).roundToDouble(), 1)
-                            : (state.downPayments != null &&
-                                    state.downPayments!.isNotEmpty &&
-                                    state.downPayments!.any((dp) => dp.isReceive == false && dp.isSelected == true))
-                                ? _noteChip(
-                                    (state.downPayments ?? []).fold(
-                                      0.0,
-                                      (total, dp) =>
-                                          (dp.isSelected == true && dp.amount != 0) ? total + dp.amount : total,
-                                    ),
-                                    2)
-                                : const SizedBox.shrink(),
+                            : const SizedBox.shrink(),
+                        (state.downPayments != null &&
+                                state.downPayments!.isNotEmpty &&
+                                state.downPayments!.any((dp) => dp.isReceive == false && dp.isSelected == true))
+                            ? _noteChip(
+                                (state.downPayments ?? []).fold(
+                                  0.0,
+                                  (total, dp) => (dp.isSelected == true && dp.amount != 0) ? total + dp.amount : total,
+                                ),
+                                2)
+                            : const SizedBox.shrink(),
                         (state.discHeaderManual ?? 0) != 0
                             ? _noteChip((state.discHeaderManual ?? 0), 3)
                             : const SizedBox.shrink(),
@@ -3178,6 +3178,8 @@ class _SalesPageState extends State<SalesPage> {
               child: SizedBox.expand(
                 child: OutlinedButton(
                   onPressed: () async {
+                    log("state ${context.read<ReceiptCubit>().state.discHeaderManual}");
+                    log("prevvv ${context.read<ReceiptCubit>().state.previousReceiptEntity}");
                     setState(() {
                       isEditingNewReceiptItemCode = false;
                       isEditingNewReceiptItemQty = false;

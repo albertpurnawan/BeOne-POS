@@ -132,6 +132,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   Future<void> addUpdateReceiptItems(AddUpdateReceiptItemsParams params) async {
     try {
+      dev.log("state b4 - ${state.previousReceiptEntity}");
       // Validate params
       if (params.context == null) {
         throw "Params invalid";
@@ -323,7 +324,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // Recalculate receipt
       newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt);
 
-      emit(newReceipt.copyWith(previousReceiptEntity: null));
+      emit(newReceipt.copyWith(previousReceiptEntity: null, rounding: 0));
+      dev.log("state - ${state.previousReceiptEntity}");
+      dev.log("round - ${newReceipt.previousReceiptEntity}");
+      dev.log("newReceipt - ${newReceipt.discHeaderManual}");
     } catch (e, s) {
       dev.log(s.toString());
       rethrow;
@@ -742,7 +746,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   Future<void> updateTotalAmountFromDiscount(
       double discValue, List<LineDiscountParameter> lineDiscountParameters) async {
     try {
-      dev.log("Before emit discount: $state");
+      // dev.log("Before emit discount: $state");
 
       // Apply line discount
       final List<ReceiptItemEntity> appliedLineDiscReceiptItems = [];
@@ -811,7 +815,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       updatedReceipt = await _applyRoundingUseCase.call(params: updatedReceipt);
 
       emit(updatedReceipt.copyWith(previousReceiptEntity: state.previousReceiptEntity));
-      dev.log("After emit discount: $state");
+      // dev.log("After emit discount: $state");
     } catch (e) {
       dev.log("Error during tax recalculation: $e");
       rethrow;
@@ -1106,7 +1110,10 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   }
 
   void resetRounding(double originalValue) {
-    emit(state.copyWith(grandTotal: originalValue, rounding: state.previousReceiptEntity?.rounding ?? 0));
+    emit(state.copyWith(
+        grandTotal: originalValue,
+        rounding: state.previousReceiptEntity?.rounding ?? 0,
+        previousReceiptEntity: state.previousReceiptEntity));
   }
 }
 
