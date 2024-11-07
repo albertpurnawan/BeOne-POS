@@ -37,15 +37,6 @@ class RecalculateTaxUseCase implements UseCase<ReceiptEntity, ReceiptEntity> {
     double discAmountAfterHeaderDiscount = 0;
     double couponDiscPrctg = (params.couponDiscount) / (subtotal - (params.discAmount ?? 0) - returnAmountGross);
 
-    log("params.subtotal ${params.subtotal}");
-    log("discHeaderManual: $discHeaderManual");
-    log("grandTotal: $grandTotal");
-    log("discHprctg: $discHprctg");
-    log("params.disamount: ${params.discAmount}");
-    log("taxAfterHeaderDiscount: $taxAfterHeaderDiscount");
-    log("discAmountAfterHeaderDiscount: $discAmountAfterHeaderDiscount");
-    log("couponDiscPrctg: $couponDiscPrctg");
-
     for (final item in params.receiptItems.map((e) => e.copyWith())) {
       if (item.itemEntity.barcode != "99" && item.refpos3 == null) {
         item.discHeaderAmount =
@@ -58,12 +49,6 @@ class RecalculateTaxUseCase implements UseCase<ReceiptEntity, ReceiptEntity> {
         taxAfterHeaderDiscount += item.taxAmount;
         discAmountAfterHeaderDiscount += (item.discAmount ?? 0) + (item.discHeaderAmount ?? 0);
       }
-
-      log("item.discHeaderAmount ${item.discHeaderAmount}");
-      log("item.subtotalAfterDiscHeader ${item.subtotalAfterDiscHeader}");
-      log("item.taxAmount ${item.taxAmount}");
-      log("taxAfterHeaderDiscount ${taxAfterHeaderDiscount}");
-      log("item.discHeaderAmount ${item.discHeaderAmount}");
     }
 
     params.taxAmount = returnTax + taxAfterHeaderDiscount;
@@ -73,13 +58,6 @@ class RecalculateTaxUseCase implements UseCase<ReceiptEntity, ReceiptEntity> {
     params.rounding *= (1 - discHprctg);
     params.grandTotal =
         params.subtotal - (params.discAmount ?? 0) - params.couponDiscount + params.taxAmount + params.rounding;
-
-    log("{params.taxAmount}: ${params.taxAmount}");
-    log("{params.subtotal}: ${params.subtotal}");
-    log("{params.grandTotal}: ${params.grandTotal}");
-    log("{params.discAmount}: ${params.discAmount}");
-    log("{params.couponDiscount}: ${params.couponDiscount}");
-    log("{params.discPrctg}: ${params.discPrctg}");
 
     return params;
   }

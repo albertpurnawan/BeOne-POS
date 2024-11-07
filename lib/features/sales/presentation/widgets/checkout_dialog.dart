@@ -34,6 +34,7 @@ import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/entities/vouchers_selection.dart';
 import 'package:pos_fe/features/sales/domain/repository/mop_selection_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_manual_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_receipt.dart';
@@ -48,6 +49,7 @@ import 'package:pos_fe/features/sales/presentation/widgets/input_duitku_va_dialo
 import 'package:pos_fe/features/sales/presentation/widgets/input_mop_amount.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/qris_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/rounding_up_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/voucher_redeem_dialog.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/duitku_va_list_service.dart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,6 +78,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
   bool isCharging = false;
   bool isMultiMOPs = true;
   bool isConnected = true;
+  bool _isRoundedUp = false;
+  bool _isRoundedDown = false;
+  double? _originalValue;
   int cancelCount = 0;
   List<PaymentTypeEntity> paymentType = [];
   final FocusNode _keyboardListenerFocusNode = FocusNode();
@@ -402,12 +407,42 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       }
 
       await showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => DiscountAndRoundingDialog(docnum: context.read<ReceiptCubit>().state.docNum))
-          .then((value) {
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => DiscountAndRoundingDialog(
+                docnum: context.read<ReceiptCubit>().state.docNum,
+                manualRounded: _isRoundedDown || _isRoundedUp,
+              )).then((value) {
         if (value != null) {
-          SnackBarHelper.presentSuccessSnackBar(childContext, "Discount or Rounding Applied", 3);
+          SnackBarHelper.presentSuccessSnackBar(childContext, "Discount Applied", 3);
+        }
+      });
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
+  }
+
+  Future<void> showRoundUpDialog(BuildContext childContext) async {
+    try {
+      final ReceiptItemEntity? dpItem =
+          context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
+      if (dpItem != null && dpItem.quantity > 0) {
+        throw "Rounding cannot be applied on Receive DP";
+      }
+
+      await showDialog(context: context, barrierDismissible: false, builder: (context) => const RoundingUpDialog())
+          .then((value) {
+        if (value != null && value == true) {
+          SnackBarHelper.presentSuccessSnackBar(childContext, "Rounding Applied", 3);
+          setState(() {
+            _isRoundedUp = true;
+            _isRoundedDown = false;
+          });
+        } else if (value == false) {
+          setState(() {
+            _isRoundedUp = false;
+            _isRoundedDown = false;
+          });
         }
       });
     } catch (e) {
@@ -419,6 +454,59 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     setState(() {
       isMultiMOPs = !isMultiMOPs;
     });
+  }
+
+  Future<void> manualRounding(RoundingMode mode) async {
+    try {
+      final cubit = context.read<ReceiptCubit>();
+      final ReceiptItemEntity? dpItem = cubit.state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
+      if (dpItem != null && dpItem.quantity > 0) {
+        throw "Rounding cannot be applied on Receive DP";
+      }
+
+      final double beforeRounding =
+          cubit.state.subtotal - (cubit.state.discAmount ?? 0) - cubit.state.couponDiscount + cubit.state.taxAmount;
+
+      _originalValue ??= beforeRounding;
+
+      if (mode == RoundingMode.down) {
+        if (_isRoundedDown) {
+          cubit.resetRounding(_originalValue!);
+          setState(() {
+            _isRoundedUp = false;
+            _isRoundedDown = false;
+          });
+        } else if (_isRoundedUp) {
+          cubit.resetRounding(_originalValue!);
+          setState(() {
+            _isRoundedUp = false;
+            _isRoundedDown = false;
+          });
+        } else {
+          await cubit.applyManualRounding(RoundingMode.down, null);
+          setState(() {
+            _isRoundedDown = true;
+            _isRoundedUp = false;
+          });
+        }
+      } else if (mode == RoundingMode.up) {
+        if (_isRoundedUp) {
+          return;
+        } else if (_isRoundedDown) {
+          cubit.resetRounding(_originalValue!);
+          setState(() {
+            _isRoundedUp = false;
+            _isRoundedDown = false;
+          });
+        } else {
+          await cubit.applyManualRounding(RoundingMode.up, null);
+          setState(() {
+            _isRoundedUp = true;
+            _isRoundedDown = false;
+          });
+        }
+      }
+    } catch (e) {}
   }
 
   @override
@@ -458,8 +546,20 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
             } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && node.hasPrimaryFocus) {
               node.nextFocus();
               return KeyEventResult.handled;
+            } else if (event.physicalKey == PhysicalKeyboardKey.f4 && !isCharged) {
+              manualRounding(RoundingMode.down);
+              return KeyEventResult.handled;
+            } else if (event.physicalKey == PhysicalKeyboardKey.f5 && !isCharged) {
+              showRoundUpDialog(childContext);
+              return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.f6 && !isCharged) {
               showDiscountAndRoundingDialog(childContext);
+              setState(() {
+                _isRoundedUp = false;
+                _isRoundedDown = false;
+                _originalValue = null;
+              });
+              return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.f7 && !isCharged) {
               showAppliedPromotions().then((value) => _focusScopeNode.requestFocus());
               return KeyEventResult.handled;
@@ -512,7 +612,112 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   ),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                 ),
-                                onPressed: () async => await showDiscountAndRoundingDialog(childContext),
+                                onPressed: () async {
+                                  await manualRounding(RoundingMode.down);
+                                },
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.arrow_downward_outlined,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(
+                                      width: 6,
+                                    ),
+                                    RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Round \nDown",
+                                            style: TextStyle(fontWeight: FontWeight.w600),
+                                          ),
+                                          TextSpan(
+                                            text: " (F4)",
+                                            style: TextStyle(fontWeight: FontWeight.w300),
+                                          ),
+                                        ],
+                                        style: TextStyle(height: 1, fontSize: 12),
+                                      ),
+                                      overflow: TextOverflow.clip,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              OutlinedButton(
+                                focusNode: FocusNode(skipTraversal: true),
+                                style: OutlinedButton.styleFrom(
+                                  elevation: 5,
+                                  shadowColor: Colors.black87,
+                                  backgroundColor: ProjectColors.primary,
+                                  padding: const EdgeInsets.all(10),
+                                  foregroundColor: Colors.white,
+                                  side: const BorderSide(
+                                    color: Colors.white,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                ),
+                                onPressed: () async {
+                                  await showRoundUpDialog(childContext);
+                                },
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.arrow_upward_outlined,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(
+                                      width: 6,
+                                    ),
+                                    RichText(
+                                      text: const TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: "Round \nUp",
+                                            style: TextStyle(fontWeight: FontWeight.w600),
+                                          ),
+                                          TextSpan(
+                                            text: " (F5)",
+                                            style: TextStyle(fontWeight: FontWeight.w300),
+                                          ),
+                                        ],
+                                        style: TextStyle(height: 1, fontSize: 12),
+                                      ),
+                                      overflow: TextOverflow.clip,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              OutlinedButton(
+                                focusNode: FocusNode(skipTraversal: true),
+                                style: OutlinedButton.styleFrom(
+                                  elevation: 5,
+                                  shadowColor: Colors.black87,
+                                  backgroundColor: ProjectColors.primary,
+                                  padding: const EdgeInsets.all(10),
+                                  foregroundColor: Colors.white,
+                                  side: const BorderSide(
+                                    color: Colors.white,
+                                    width: 1.5,
+                                  ),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                ),
+                                onPressed: () async {
+                                  await showDiscountAndRoundingDialog(childContext);
+                                  setState(() {
+                                    _isRoundedUp = false;
+                                    _isRoundedDown = false;
+                                    _originalValue = null;
+                                  });
+                                },
                                 child: Row(
                                   children: [
                                     const Icon(
@@ -527,11 +732,11 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                       text: const TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: "Discount &\nRounding",
+                                            text: "Disc.\n",
                                             style: TextStyle(fontWeight: FontWeight.w600),
                                           ),
                                           TextSpan(
-                                            text: " (F6)",
+                                            text: "(F6)",
                                             style: TextStyle(fontWeight: FontWeight.w300),
                                           ),
                                         ],
@@ -622,11 +827,11 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                             text: const TextSpan(
                                               children: [
                                                 TextSpan(
-                                                  text: "Print Pending\nOrder",
+                                                  text: "Print\nOrder",
                                                   style: TextStyle(fontWeight: FontWeight.w600),
                                                 ),
                                                 TextSpan(
-                                                  text: " (F8)",
+                                                  text: "(F8)",
                                                   style: TextStyle(fontWeight: FontWeight.w300),
                                                 ),
                                               ],
@@ -658,9 +863,13 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   RichText(
                                     text: TextSpan(
                                       children: [
+                                        const TextSpan(
+                                          text: "Multi MOPs\n",
+                                          style: TextStyle(fontWeight: FontWeight.w300),
+                                        ),
                                         TextSpan(
-                                          text: isMultiMOPs ? "Multi MOPs ON" : "Multi MOPs OFF",
-                                          style: const TextStyle(fontWeight: FontWeight.w600),
+                                          text: isMultiMOPs ? "ON" : "OFF",
+                                          style: const TextStyle(fontWeight: FontWeight.w700),
                                         ),
                                         const TextSpan(
                                           text: " (F9)",
@@ -850,6 +1059,9 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   }
                                   setState(() {
                                     cancelCount = 0;
+                                    _isRoundedUp = false;
+                                    _isRoundedDown = false;
+                                    _originalValue = null;
                                   });
                                   context.pop(false);
                                 },
@@ -887,7 +1099,14 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                 ? null
                                 : isLoadingQRIS
                                     ? null
-                                    : () async => await charge(),
+                                    : () async {
+                                        await charge();
+                                        setState(() {
+                                          _isRoundedUp = false;
+                                          _isRoundedDown = false;
+                                          _originalValue = null;
+                                        });
+                                      },
                             child: Center(
                               child: isLoadingQRIS
                                   ? const SizedBox(
@@ -1493,10 +1712,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
   List<int> generateCashAmountSuggestions(int targetAmount) {
     List<int> cashAmountSuggestions = [targetAmount];
-    dev.log("cashAmountSuggestion - $cashAmountSuggestions");
     if (voucherIsExceedPurchase) {
-      dev.log("cashAmountSuggestion - voucherIsExceedPurchase");
-
       cashAmountSuggestions = [0];
     } else if (context.read<ReceiptCubit>().state.grandTotal > 0) {
       final List<int> multipliers = [5000, 10000, 50000, 100000];
@@ -1505,7 +1721,6 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
         if (cashAmountSuggestions.last % multiplier != 0) {
           cashAmountSuggestions.add(targetAmount + multiplier - (targetAmount % multiplier));
         }
-        dev.log("cashAmountSuggestion - voucherIsExceedPurchase");
       }
     }
     return cashAmountSuggestions;
@@ -1668,21 +1883,20 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          // (receipt.discHeaderManual ?? 0) != 0
-                                          //     ? _noteChip((1000000), 1)
-                                          //     : const SizedBox.shrink(),
-                                          (receipt.downPayments != null &&
-                                                  receipt.downPayments!.isNotEmpty &&
-                                                  receipt.downPayments!
-                                                      .any((dp) => dp.isReceive == false && dp.isSelected == true))
-                                              ? _noteChip(
-                                                  (receipt.downPayments ?? []).fold(
-                                                      0.0,
-                                                      (total, dp) => (dp.isSelected == true && dp.amount != 0)
-                                                          ? total + dp.amount
-                                                          : total),
-                                                  2)
-                                              : const SizedBox.shrink(),
+                                          (receipt.rounding.abs() != 0)
+                                              ? _noteChip((receipt.rounding).roundToDouble(), 1)
+                                              : (receipt.downPayments != null &&
+                                                      receipt.downPayments!.isNotEmpty &&
+                                                      receipt.downPayments!
+                                                          .any((dp) => dp.isReceive == false && dp.isSelected == true))
+                                                  ? _noteChip(
+                                                      (receipt.downPayments ?? []).fold(
+                                                          0.0,
+                                                          (total, dp) => (dp.isSelected == true && dp.amount != 0)
+                                                              ? total + dp.amount
+                                                              : total),
+                                                      2)
+                                                  : const SizedBox.shrink(),
                                           (receipt.discHeaderManual ?? 0) != 0
                                               ? _noteChip((receipt.discHeaderManual ?? 0), 3)
                                               : const SizedBox.shrink(),
@@ -2428,16 +2642,15 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              // type == 1
-              //     ? "RT ${Helpers.parseMoney(amount)}"
-              //     :
-              type == 2
-                  ? "DP ${Helpers.parseMoney(amount)}"
-                  : type == 3
-                      ? "HD ${Helpers.parseMoney(amount)}"
-                      : type == 4
-                          ? "TLD ${Helpers.parseMoney(amount)}"
-                          : "",
+              type == 1
+                  ? "RD ${Helpers.parseMoney(amount)}"
+                  : type == 2
+                      ? "DP ${Helpers.parseMoney(amount)}"
+                      : type == 3
+                          ? "HD ${Helpers.parseMoney(amount)}"
+                          : type == 4
+                              ? "TLD ${Helpers.parseMoney(amount)}"
+                              : "",
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,

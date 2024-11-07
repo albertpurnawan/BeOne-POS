@@ -6,7 +6,6 @@ import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/usecases/generate_device_number_usecase.dart';
-
 import 'package:pos_fe/features/home/domain/usecases/get_app_version.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/login/data/repository/user_auth_repository_impl.dart';
@@ -54,6 +53,7 @@ import 'package:pos_fe/features/sales/domain/repository/return_receipt_repositor
 import 'package:pos_fe/features/sales/domain/repository/store_master_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/user_repository.dart';
 import 'package:pos_fe/features/sales/domain/repository/vouchers_selection_repository.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_manual_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdg.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdi.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_toprn.dart';
@@ -450,6 +450,15 @@ Future<void> initializeDependencies() async {
       dependsOn: [SharedPreferences]);
   sl.registerSingletonWithDependencies<ApplyRoundingUseCase>(() => ApplyRoundingUseCase(sl(), sl()),
       dependsOn: [AppDatabase]);
+  sl.registerSingleton<ApplyManualRoundingUseCase>(
+    ApplyManualRoundingUseCase(roundingMode: RoundingMode.down),
+    instanceName: 'roundingDown',
+  );
+  sl.registerSingleton<ApplyManualRoundingUseCase>(
+    ApplyManualRoundingUseCase(roundingMode: RoundingMode.up),
+    instanceName: 'roundingUp',
+  );
+
   sl.registerSingletonWithDependencies<CheckCredentialActiveStatusUseCase>(
       () => CheckCredentialActiveStatusUseCase(sl()),
       dependsOn: [SharedPreferences]);

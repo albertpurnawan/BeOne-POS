@@ -1,9 +1,7 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get_it/get_it.dart';
@@ -18,6 +16,7 @@ import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -29,7 +28,8 @@ import 'package:toggle_switch/toggle_switch.dart';
 
 class DiscountAndRoundingDialog extends StatefulWidget {
   final String docnum;
-  const DiscountAndRoundingDialog({super.key, required this.docnum});
+  final bool manualRounded;
+  const DiscountAndRoundingDialog({super.key, required this.docnum, required this.manualRounded});
 
   @override
   State<DiscountAndRoundingDialog> createState() => _DiscountAndRoundingDialogState();
@@ -42,11 +42,14 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   final FocusNode _discountFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
+  final FocusScopeNode _focusScopeWarningNode = FocusScopeNode();
   final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   int count = 0;
 
   bool isHeaderDiscount = true;
+  bool isManualRounded = false;
   double initialGrandTotal = 0;
+  double initialRounding = 0;
   List<LineDiscountParameter> lineDiscountInputs = [];
   List<LineDiscountParameter> searchedLineDiscountInputs = [];
   final FocusNode _searchLineDiscountFocusNode = FocusNode();
@@ -54,17 +57,21 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   @override
   void initState() {
     super.initState();
+
     final ReceiptEntity state = context.read<ReceiptCubit>().state;
-    initialGrandTotal = state.grandTotal +
-        (state.discHeaderManual ?? 0) +
-        state.receiptItems.fold(
-            0.0,
-            (previousValue, e1) =>
-                previousValue +
-                (((100 + e1.itemEntity.taxRate) / 100) *
-                    e1.promos
-                        .where((e2) => e2.promoType == 998)
-                        .fold(0.0, (previousValue, e3) => previousValue + (e3.discAmount ?? 0))));
+
+    initialGrandTotal = (state.grandTotal -
+            state.rounding +
+            (state.discHeaderManual ?? 0) +
+            state.receiptItems.fold(
+                0.0,
+                (previousValue, e1) =>
+                    previousValue +
+                    (((100 + e1.itemEntity.taxRate) / 100) *
+                        e1.promos
+                            .where((e2) => e2.promoType == 998)
+                            .fold(0.0, (previousValue, e3) => previousValue + (e3.discAmount ?? 0)))))
+        .roundToDouble();
     lineDiscountInputs = context
         .read<ReceiptCubit>()
         .state
@@ -80,6 +87,8 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
         .toList();
     searchedLineDiscountInputs = lineDiscountInputs;
     _textEditorHeaderDiscountController.text = Helpers.parseMoney(state.discHeaderManual ?? 0);
+    isManualRounded = widget.manualRounded;
+    initialRounding = state.rounding.roundToDouble();
   }
 
   @override
@@ -87,6 +96,8 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     _textEditorHeaderDiscountController.dispose();
     _discountFocusNode.dispose();
     _keyboardListenerFocusNode.dispose();
+    _focusScopeNode.dispose();
+    _focusScopeWarningNode.dispose();
     super.dispose();
   }
 
@@ -105,12 +116,12 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
 
   double getSimulatedGrandTotal() {
     try {
-      final ReceiptEntity state = context.read<ReceiptCubit>().state;
       final double simulatedGrandTotal = initialGrandTotal -
           Helpers.revertMoneyToDecimalFormatDouble(_textEditorHeaderDiscountController.text) -
-          lineDiscountInputs.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
+          lineDiscountInputs.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount) +
+          context.read<ReceiptCubit>().state.rounding;
 
-      return simulatedGrandTotal;
+      return simulatedGrandTotal.roundToDouble();
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
       context.pop();
@@ -140,6 +151,21 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
       final StoreMasterEntity? storeMasterEntity =
           await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity.tostrId);
       if (storeMasterEntity == null) throw "Store master not found";
+      if (isManualRounded) {
+        await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return _warningResetRounding(isManualRounded, onComplete: () async {
+                context.read<ReceiptCubit>().resetRounding(initialGrandTotal);
+                context.read<ReceiptCubit>().replaceState(
+                    await GetIt.instance<ApplyRoundingUseCase>().call(params: context.read<ReceiptCubit>().state));
+                setState(() {
+                  initialRounding = context.read<ReceiptCubit>().state.rounding;
+                });
+              });
+            });
+        return;
+      }
 
       if (input < (storeMasterEntity.minDiscount ?? 0) ||
           input > (storeMasterEntity.maxDiscount ?? 0) ||
@@ -246,7 +272,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                 child: Row(
                   children: [
                     const Text(
-                      'Discount & Rounding',
+                      'Discount',
                       style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                     ),
                     const Spacer(),
@@ -408,6 +434,34 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                 ),
                               ],
                             ),
+                            TableRow(
+                              children: [
+                                const TableCell(
+                                  child: Text(
+                                    "Rounding",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                ),
+                                TableCell(
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          Helpers.parseMoney(initialRounding),
+                                          textAlign: TextAlign.right,
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                        const SizedBox(
+                                          width: 5,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                             const TableRow(children: [
                               SizedBox(
                                 height: 10,
@@ -484,7 +538,9 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                           )),
                           backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                           overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                      onPressed: () async => await onSubmit(),
+                      onPressed: () async {
+                        await onSubmit();
+                      },
                       child: Center(
                         child: RichText(
                           text: const TextSpan(
@@ -938,6 +994,165 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
           ),
         )
     ];
+  }
+
+  Widget _warningResetRounding(bool manualRounded, {required Function onComplete}) {
+    return FocusScope(
+      autofocus: false,
+      skipTraversal: true,
+      node: _focusScopeWarningNode,
+      onKeyEvent: (node, event) {
+        if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
+        if (event.physicalKey == PhysicalKeyboardKey.f12) {
+          if (mounted && manualRounded == false) {
+            context.pop(true);
+            onComplete();
+          } else if (manualRounded == true) {
+            setState(() {
+              isManualRounded = false;
+            });
+
+            onComplete();
+            context.pop(true);
+            _discountFocusNode.requestFocus();
+          }
+          return KeyEventResult.handled;
+        } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
+          context.pop(false);
+          return KeyEventResult.handled;
+        }
+
+        return KeyEventResult.ignored;
+      },
+      child: AlertDialog(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        title: Container(
+          decoration: const BoxDecoration(
+            color: ProjectColors.primary,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+          ),
+          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+          child: const Text(
+            'Caution',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          ),
+        ),
+        titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        contentPadding: const EdgeInsets.fromLTRB(40, 20, 30, 10),
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              "assets/images/caution.png",
+              width: 70,
+            ),
+            const SizedBox(
+              width: 30,
+            ),
+            SizedBox(
+              width: 400,
+              child: RichText(
+                text: const TextSpan(
+                  children: [
+                    TextSpan(
+                      text:
+                          "Rounding will be reset, you'll need to reinput\nthe discount and rounding again.\nProceed?",
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+                ),
+                overflow: TextOverflow.clip,
+              ),
+            )
+          ],
+        ),
+        actions: <Widget>[
+          Row(
+            children: [
+              Expanded(
+                  flex: 1,
+                  child: TextButton(
+                    style: ButtonStyle(
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            side: const BorderSide(color: ProjectColors.primary))),
+                        backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                    onPressed: () {
+                      context.pop(false);
+                    },
+                    child: Center(
+                      child: RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "Cancel",
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            TextSpan(
+                              text: "  (Esc)",
+                              style: TextStyle(fontWeight: FontWeight.w300),
+                            ),
+                          ],
+                          style: TextStyle(color: ProjectColors.primary),
+                        ),
+                        overflow: TextOverflow.clip,
+                      ),
+                    ),
+                  )),
+              const SizedBox(
+                width: 10,
+              ),
+              Expanded(
+                  child: TextButton(
+                style: ButtonStyle(
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                onPressed: () async {
+                  if (mounted && manualRounded == false) {
+                    context.pop(true);
+                    onComplete();
+                  } else if (manualRounded == true) {
+                    setState(() {
+                      isManualRounded = false;
+                    });
+
+                    await onComplete();
+                    context.pop(true);
+                    _discountFocusNode.requestFocus();
+                  }
+                },
+                child: Center(
+                  child: RichText(
+                    text: const TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Proceed",
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        TextSpan(
+                          text: "  (F12)",
+                          style: TextStyle(fontWeight: FontWeight.w300),
+                        ),
+                      ],
+                    ),
+                    overflow: TextOverflow.clip,
+                  ),
+                ),
+              )),
+            ],
+          ),
+        ],
+        actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      ),
+    );
   }
 }
 

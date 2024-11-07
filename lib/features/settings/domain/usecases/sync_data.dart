@@ -235,7 +235,9 @@ Future<void> syncData() async {
       log("lastSyncDate $lastSyncDate");
       prefs.setString("autoSyncStart", Helpers.formatDate(DateTime.now().toLocal()));
 
-      final nextSyncDate = DateTime.now().toUtc().toIso8601String();
+      final nextSync = DateTime.now();
+      final noSeconds = DateTime(nextSync.year, nextSync.month, nextSync.day, nextSync.hour, nextSync.minute, 0);
+      final nextSyncDate = noSeconds.toIso8601String();
 
       final fetchFunctions = [
         () async {
