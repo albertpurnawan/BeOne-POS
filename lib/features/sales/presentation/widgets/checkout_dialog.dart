@@ -44,7 +44,6 @@ import 'package:pos_fe/features/sales/presentation/widgets/confirm_reset_voucher
 import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/duitku_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/edc_dialog.dart';
-import 'package:pos_fe/features/sales/presentation/widgets/input_discount_manual.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_duitku_va_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_mop_amount.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/promotion_summary_dialog.dart';
@@ -214,7 +213,6 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       final List<MopSelectionEntity> qrisMop = selectedMOPs.where((element) => element.payTypeCode == '5').toList();
       final List<MopSelectionEntity> duitkuMop = selectedMOPs.where((element) => element.mopAlias == 'duitku').toList();
       final String duitkuTs = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-      dev.log(duitkuTs);
       final String merchantOrderId = duitkuTs + Helpers.generateRandomString(10);
 
       if (qrisMop.isNotEmpty) {
@@ -304,13 +302,18 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
         final docnumDuitku = const Uuid().v4();
         final duitkuVA = await GetIt.instance<DuitkuApi>().createTransactionVA((duitkuMop.first.cardHolder ?? ""),
             duitkuSignature, duitkuAmount, (custId ?? ""), merchantOrderId, docnumDuitku);
+        final topos = await GetIt.instance<GetPosParameterUseCase>().call();
+        if (topos == null) throw "POS Parameter not found";
+        final store = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos.tostrId ?? "", null);
+        if (store == null) throw "Store Parameter not found";
 
         setState(() {
           isLoadingDuitku = false;
         });
 
         final String createdTs = Helpers.dateddMMMyyyyHHmmss(DateTime.now());
-        final String expiredTs = Helpers.dateddMMMyyyyHHmmss(DateTime.now().add(const Duration(minutes: 129600)));
+        final String expiredTs =
+            Helpers.dateddMMMyyyyHHmmss(DateTime.now().add(Duration(minutes: store.duitkuExpiryPeriod ?? 60)));
 
         DuitkuVADetailsEntity vaDuitku = DuitkuVADetailsEntity(
           docId: duitkuMop.first.tpmt7Id ?? "",
