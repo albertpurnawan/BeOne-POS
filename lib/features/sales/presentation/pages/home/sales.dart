@@ -948,7 +948,10 @@ class _SalesPageState extends State<SalesPage> {
                                                                       ),
                                                                     ),
                                                                     Text(
-                                                                      e.itemEntity.shortName ?? e.itemEntity.itemName,
+                                                                      ((e.itemEntity.shortName != "")
+                                                                          ? e.itemEntity.shortName ??
+                                                                              e.itemEntity.itemName
+                                                                          : e.itemEntity.itemName),
                                                                       style: const TextStyle(
                                                                           fontSize: 16, fontWeight: FontWeight.w500),
                                                                     ),
