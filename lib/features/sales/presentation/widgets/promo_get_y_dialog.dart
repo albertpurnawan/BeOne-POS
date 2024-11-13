@@ -195,9 +195,7 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                   color: Colors.white,
                   child: Column(
                     children: [
-                      const SizedBox(
-                        height: 25,
-                      ),
+                      const SizedBox(height: 25),
                       ExcludeFocus(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -205,9 +203,7 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const SizedBox(
-                                  width: 15,
-                                ),
+                                const SizedBox(width: 15),
                                 Text(
                                   "Get Items (${isAndYCondition ? "AND" : "OR"})",
                                   style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
@@ -234,9 +230,7 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                                         style:
                                             TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white),
                                       ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
+                                      const SizedBox(width: 10),
                                       Text(
                                         Helpers.cleanDecimal(remainingQty, 5),
                                         style: const TextStyle(
@@ -245,41 +239,34 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(
-                                  width: 30,
-                                )
+                                const SizedBox(width: 30)
                               ],
-                            )
+                            ),
                           ],
                         ),
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
+                      const SizedBox(height: 10),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         child: TextField(
                           textInputAction: TextInputAction.search,
                           controller: _textEditingController,
                           onSubmitted: (value) {
-                            // log("value - $value");
                             try {
                               if (context.read<ReceiptCubit>().state.customerEntity == null) throw "Customer required";
-
                               log(_textEditingController.text);
                               searchItemYs();
-                              log("displayedItemYs");
-                              log(displayedItemYs.toString());
-
                               if (_scrollController.hasClients) {
                                 Future.delayed(const Duration(milliseconds: 300)).then((value) {
                                   SchedulerBinding.instance.addPostFrameCallback((_) {
-                                    _scrollController.animateTo(_scrollController.position.minScrollExtent,
-                                        duration: const Duration(milliseconds: 400), curve: Curves.fastOutSlowIn);
+                                    _scrollController.animateTo(
+                                      _scrollController.position.minScrollExtent,
+                                      duration: const Duration(milliseconds: 400),
+                                      curve: Curves.fastOutSlowIn,
+                                    );
                                   });
                                 });
                               }
-
                               _searchInputFocusNode.requestFocus();
                             } catch (e) {
                               SnackBarHelper.presentErrorSnackBar(context, e.toString());
@@ -288,29 +275,18 @@ class _PromoGetYDialog extends State<PromoGetYDialog> {
                           autofocus: true,
                           focusNode: _searchInputFocusNode,
                           decoration: const InputDecoration(
-                            suffixIcon: Icon(
-                              Icons.search,
-                              size: 16,
-                            ),
+                            suffixIcon: Icon(Icons.search, size: 16),
                             hintText: "Enter item name, code, or barcode",
-                            hintStyle: TextStyle(
-                              fontSize: 16,
-                              fontStyle: FontStyle.italic,
-                            ),
-                            // isCollapsed: true,
-                            // contentPadding:
-                            //     EdgeInsets.fromLTRB(0, 0, 0, 0),
+                            hintStyle: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
                           ),
                         ),
                       ),
-                      const SizedBox(
-                        height: 10,
-                      ),
+                      const SizedBox(height: 10),
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.45,
+                Expanded(
+                  // height: MediaQuery.of(context).size.height * 0.45,
                   child: SingleChildScrollView(
                     child: Column(
                         children: ([
