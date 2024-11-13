@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ItemBarcodeApi {
   final Dio _dio;
   String? tenantId;
-  String? storeId;
   String? url;
   String? token;
 
@@ -25,10 +24,8 @@ class ItemBarcodeApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
-      storeId = pos[0].tostrId;
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -48,7 +45,6 @@ class ItemBarcodeApi {
               tenantId,
               lastSync,
               lastSync,
-              storeId,
             ]
           };
         }
@@ -64,9 +60,8 @@ class ItemBarcodeApi {
         log("--- Item Barcode ---");
         log(resp.data['data'][0].toString());
 
-        List<ItemBarcodeModel> data = (resp.data['data'] as List)
-            .map((e) => ItemBarcodeModel.fromMapRemote(e))
-            .toList();
+        List<ItemBarcodeModel> data =
+            (resp.data['data'] as List).map((e) => ItemBarcodeModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 

@@ -11,14 +11,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PromoBuyXGetYBuyConditionApi {
   final Dio _dio;
   String? tenantId;
-  String? tostrId;
   String? url;
   String? token;
 
   PromoBuyXGetYBuyConditionApi(this._dio);
 
-  Future<List<PromoBuyXGetYBuyConditionModel>> fetchData(
-      String lastSync) async {
+  Future<List<PromoBuyXGetYBuyConditionModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TPRB1";
       Map<String, dynamic> exeData = {};
@@ -26,10 +24,8 @@ class PromoBuyXGetYBuyConditionApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
-      tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
@@ -45,7 +41,6 @@ class PromoBuyXGetYBuyConditionApi {
               tenantId,
               lastSync,
               lastSync,
-              tostrId,
             ]
           };
         }
@@ -65,9 +60,8 @@ class PromoBuyXGetYBuyConditionApi {
         //   print('$key: ${value.runtimeType} - $value');
         // });
 
-        List<PromoBuyXGetYBuyConditionModel> data = (resp.data['data'] as List)
-            .map((e) => PromoBuyXGetYBuyConditionModel.fromMapRemote(e))
-            .toList();
+        List<PromoBuyXGetYBuyConditionModel> data =
+            (resp.data['data'] as List).map((e) => PromoBuyXGetYBuyConditionModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 

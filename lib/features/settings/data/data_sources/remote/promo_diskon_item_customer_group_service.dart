@@ -11,14 +11,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PromoDiskonItemCustomerGroupApi {
   final Dio _dio;
   String? tenantId;
-  String? tostrId;
   String? url;
   String? token;
 
   PromoDiskonItemCustomerGroupApi(this._dio);
 
-  Future<List<PromoDiskonItemCustomerGroupModel>> fetchData(
-      String lastSync) async {
+  Future<List<PromoDiskonItemCustomerGroupModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TPDI5";
       Map<String, dynamic> exeData = {};
@@ -26,10 +24,8 @@ class PromoDiskonItemCustomerGroupApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
-      tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -46,7 +42,6 @@ class PromoDiskonItemCustomerGroupApi {
               tenantId,
               lastSync,
               lastSync,
-              tostrId,
             ]
           };
         }
@@ -67,9 +62,7 @@ class PromoDiskonItemCustomerGroupApi {
         // });
 
         List<PromoDiskonItemCustomerGroupModel> data =
-            (resp.data['data'] as List)
-                .map((e) => PromoDiskonItemCustomerGroupModel.fromMapRemote(e))
-                .toList();
+            (resp.data['data'] as List).map((e) => PromoDiskonItemCustomerGroupModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 

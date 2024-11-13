@@ -11,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PromoDiskonItemHeaderApi {
   final Dio _dio;
   String? tenantId;
-  String? tostrId;
   String? url;
   String? token;
 
@@ -25,10 +24,8 @@ class PromoDiskonItemHeaderApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
-      tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
@@ -44,7 +41,6 @@ class PromoDiskonItemHeaderApi {
               tenantId,
               lastSync,
               lastSync,
-              tostrId,
             ]
           };
         }
@@ -64,9 +60,8 @@ class PromoDiskonItemHeaderApi {
         //   print('$key: ${value.runtimeType} - $value');
         // });
 
-        List<PromoDiskonItemHeaderModel> data = (resp.data['data'] as List)
-            .map((e) => PromoDiskonItemHeaderModel.fromMapRemote(e))
-            .toList();
+        List<PromoDiskonItemHeaderModel> data =
+            (resp.data['data'] as List).map((e) => PromoDiskonItemHeaderModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 

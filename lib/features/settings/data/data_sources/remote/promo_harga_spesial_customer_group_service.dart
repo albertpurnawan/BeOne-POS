@@ -11,14 +11,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PromoHargaSpesialCustomerGroupApi {
   final Dio _dio;
   String? tenantId;
-  String? tostrId;
   String? url;
   String? token;
 
   PromoHargaSpesialCustomerGroupApi(this._dio);
 
-  Future<List<PromoHargaSpesialCustomerGroupModel>> fetchData(
-      String lastSync) async {
+  Future<List<PromoHargaSpesialCustomerGroupModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TPSB4";
       Map<String, dynamic> exeData = {};
@@ -26,10 +24,8 @@ class PromoHargaSpesialCustomerGroupApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
-      tostrId = pos[0].tostrId;
       url = pos[0].baseUrl;
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
@@ -45,7 +41,6 @@ class PromoHargaSpesialCustomerGroupApi {
               tenantId,
               lastSync,
               lastSync,
-              tostrId,
             ]
           };
         }
@@ -65,10 +60,8 @@ class PromoHargaSpesialCustomerGroupApi {
         //   print('$key: ${value.runtimeType}');
         // });
 
-        List<PromoHargaSpesialCustomerGroupModel> data = (resp.data['data']
-                as List)
-            .map((e) => PromoHargaSpesialCustomerGroupModel.fromMapRemote(e))
-            .toList();
+        List<PromoHargaSpesialCustomerGroupModel> data =
+            (resp.data['data'] as List).map((e) => PromoHargaSpesialCustomerGroupModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 

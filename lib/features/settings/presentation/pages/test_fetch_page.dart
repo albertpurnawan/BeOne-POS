@@ -269,6 +269,7 @@ class _FetchScreenState extends State<FetchScreen> {
         prefs.setBool('isSyncing', true);
         final singleTopos = _posParameterEntity;
         final toposId = singleTopos!.docId;
+        final String storeId = singleTopos.tostrId ?? "";
         final lastSyncDate = startSync?.toIso8601String() ?? _posParameterEntity!.lastSync!;
         final dtLastSync = DateTime.parse(lastSyncDate).toUtc();
         final utcLastSync = dtLastSync.toIso8601String();
@@ -2913,9 +2914,13 @@ class _FetchScreenState extends State<FetchScreen> {
         final int today = DateTime.now().weekday;
         final DateTime now = DateTime.now();
 
+        final tpsb2Store =
+            await GetIt.instance<AppDatabase>().promoHargaSpesialAssignStoreDao.readByStoreId(storeId, null);
         topsb = await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readAll();
+
         for (final header in topsb) {
-          if (header.statusActive != 1) continue;
+          if (header.statusActive != 1 || !tpsb2Store.any((store) => store.topsbId == header.docId)) continue;
+
           final DateTime endDateTime = DateTime(
             header.endDate.year,
             header.endDate.month,
@@ -2962,9 +2967,12 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
+        final tpmi2Store =
+            await GetIt.instance<AppDatabase>().promoMultiItemAssignStoreDao.readByStoreId(storeId, null);
         topmi = await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
+
         for (final header in topmi) {
-          if (header.statusActive != 1) continue;
+          if (header.statusActive != 1 || !tpmi2Store.any((store) => store.topmiId == header.docId)) continue;
           final DateTime endDateTime = DateTime(
             header.endDate.year,
             header.endDate.month,
@@ -3014,10 +3022,12 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
+        final tpdi2Store =
+            await GetIt.instance<AppDatabase>().promoDiskonItemAssignStoreDao.readByStoreId(storeId, null);
         topdi = await GetIt.instance<AppDatabase>().promoDiskonItemHeaderDao.readAll();
 
         for (final header in topdi) {
-          if (header.statusActive != 1) continue;
+          if (header.statusActive != 1 || !tpdi2Store.any((store) => store.topdiId == header.docId)) continue;
           final DateTime endDateTime = DateTime(
             header.endDate.year,
             header.endDate.month,
@@ -3067,10 +3077,12 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
+        final tpdg2Store =
+            await GetIt.instance<AppDatabase>().promoDiskonGroupItemAssignStoreDao.readByStoreId(storeId, null);
         topdg = await GetIt.instance<AppDatabase>().promoDiskonGroupItemHeaderDao.readAll();
 
         for (final header in topdg) {
-          if (header.statusActive != 1) continue;
+          if (header.statusActive != 1 || !tpdg2Store.any((store) => store.topdgId == header.docId)) continue;
           final DateTime endDateTime = DateTime(
             header.endDate.year,
             header.endDate.month,
@@ -3125,9 +3137,10 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
+        final tprb2Store = await GetIt.instance<AppDatabase>().promoBuyXGetYAssignStoreDao.readByStoreId(storeId, null);
         toprb = await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readAll();
         for (final header in toprb) {
-          if (header.statusActive != 1) continue;
+          if (header.statusActive != 1 || !tprb2Store.any((store) => store.toprbId == header.docId)) continue;
           final DateTime endDateTime = DateTime(
             header.endDate.year,
             header.endDate.month,
@@ -3175,9 +3188,10 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
+        final tprn2Store = await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.readByStoreId(storeId, null);
         toprn = await GetIt.instance<AppDatabase>().promoCouponHeaderDao.readAll();
         for (final header in toprn) {
-          if (header.statusActive != 1) continue;
+          if (header.statusActive != 1 || !tprn2Store.any((store) => store.toprnId == header.docId)) continue;
           final DateTime endDateTime = DateTime(
             header.endDate.year,
             header.endDate.month,
