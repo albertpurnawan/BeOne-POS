@@ -3011,7 +3011,7 @@ class _SalesPageState extends State<SalesPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        (state.rounding.abs() != 0)
+                        (state.rounding.roundToDouble().abs() != 0)
                             ? _noteChip((state.rounding).roundToDouble(), 1)
                             : const SizedBox.shrink(),
                         (state.downPayments != null &&
@@ -3181,8 +3181,6 @@ class _SalesPageState extends State<SalesPage> {
               child: SizedBox.expand(
                 child: OutlinedButton(
                   onPressed: () async {
-                    log("state ${context.read<ReceiptCubit>().state.discHeaderManual}");
-                    log("prevvv ${context.read<ReceiptCubit>().state.previousReceiptEntity}");
                     setState(() {
                       isEditingNewReceiptItemCode = false;
                       isEditingNewReceiptItemQty = false;

@@ -1883,20 +1883,22 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          (receipt.rounding.abs() != 0)
+                                          (receipt.rounding.roundToDouble().abs() != 0.0)
                                               ? _noteChip((receipt.rounding).roundToDouble(), 1)
-                                              : (receipt.downPayments != null &&
-                                                      receipt.downPayments!.isNotEmpty &&
-                                                      receipt.downPayments!
-                                                          .any((dp) => dp.isReceive == false && dp.isSelected == true))
-                                                  ? _noteChip(
-                                                      (receipt.downPayments ?? []).fold(
-                                                          0.0,
-                                                          (total, dp) => (dp.isSelected == true && dp.amount != 0)
-                                                              ? total + dp.amount
-                                                              : total),
-                                                      2)
-                                                  : const SizedBox.shrink(),
+                                              : const SizedBox.shrink(),
+                                          (receipt.downPayments != null &&
+                                                  receipt.downPayments!.isNotEmpty &&
+                                                  receipt.downPayments!
+                                                      .any((dp) => dp.isReceive == false && dp.isSelected == true))
+                                              ? _noteChip(
+                                                  (receipt.downPayments ?? []).fold(
+                                                    0.0,
+                                                    (total, dp) => (dp.isSelected == true && dp.amount != 0)
+                                                        ? total + dp.amount
+                                                        : total,
+                                                  ),
+                                                  2)
+                                              : const SizedBox.shrink(),
                                           (receipt.discHeaderManual ?? 0) != 0
                                               ? _noteChip((receipt.discHeaderManual ?? 0), 3)
                                               : const SizedBox.shrink(),
