@@ -196,7 +196,9 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                             controlAffinity: ListTileControlAffinity.trailing,
                                             value: state[index],
                                             groupValue: radioValue,
-                                            title: Text(itemEntity.shortName ?? itemEntity.itemName),
+                                            title: Text((itemEntity.shortName != "")
+                                                ? itemEntity.shortName ?? itemEntity.itemName
+                                                : itemEntity.itemName),
                                             subtitle: SizedBox(
                                               height: 25,
                                               child: Row(

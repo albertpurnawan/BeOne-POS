@@ -31,25 +31,15 @@ class PromoCouponAssignStoreDao extends BaseDao<PromoCouponAssignStoreModel> {
     return result.map((itemData) => PromoCouponAssignStoreModel.fromMap(itemData)).toList();
   }
 
-  Future<PromoCouponAssignStoreModel> readByToprnId(String toprnId, Transaction? txn) async {
-    if (txn != null) {
-      final result = await txn.query(
-        tableName,
-        columns: modelFields,
-        where: 'toprnId = ?',
-        whereArgs: [toprnId],
-      );
+  Future<PromoCouponAssignStoreModel?> readByToprnId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'toprnId = ?',
+      whereArgs: [docId],
+    );
 
-      return PromoCouponAssignStoreModel.fromMap(result.first);
-    } else {
-      final result = await db.query(
-        tableName,
-        columns: modelFields,
-        where: 'toprnId = ?',
-        whereArgs: [toprnId],
-      );
-
-      return PromoCouponAssignStoreModel.fromMap(result.first);
-    }
+    return res.isNotEmpty ? PromoCouponAssignStoreModel.fromMap(res[0]) : null;
   }
 }

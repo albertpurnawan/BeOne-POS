@@ -231,8 +231,9 @@ Future<void> syncData() async {
       final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       final singleTopos = topos[0];
       final toposId = singleTopos.docId;
+      final String storeId = singleTopos.tostrId ?? "";
       final lastSyncDate = singleTopos.lastSync!;
-      log("lastSyncDate $lastSyncDate");
+      // log("lastSyncDate $lastSyncDate");
       prefs.setString("autoSyncStart", Helpers.formatDate(DateTime.now().toLocal()));
 
       final nextSync = DateTime.now();
@@ -2494,6 +2495,7 @@ Future<void> syncData() async {
 
         final tpsb2 =
             await GetIt.instance<AppDatabase>().promoHargaSpesialAssignStoreDao.readByTopsbId(header.docId, null);
+        if (tpsb2 == null) continue;
         final tpsb4 =
             await GetIt.instance<AppDatabase>().promoHargaSpesialCustomerGroupDao.readByTopsbId(header.docId, null);
 
@@ -2537,6 +2539,7 @@ Future<void> syncData() async {
             await GetIt.instance<AppDatabase>().promoMultiItemBuyConditionDao.readByTopmiId(header.docId, null);
         final tpmi2 =
             await GetIt.instance<AppDatabase>().promoMultiItemAssignStoreDao.readByTopmiId(header.docId, null);
+        if (tpmi2 == null) continue;
         final tpmi5 =
             await GetIt.instance<AppDatabase>().promoMultiItemCustomerGroupDao.readByTopmiId(header.docId, null);
 
@@ -2581,6 +2584,7 @@ Future<void> syncData() async {
             await GetIt.instance<AppDatabase>().promoDiskonItemBuyConditionDao.readByTopdiId(header.docId, null);
         final tpdi2 =
             await GetIt.instance<AppDatabase>().promoDiskonItemAssignStoreDao.readByTopdiId(header.docId, null);
+        if (tpdi2 == null) continue;
         final tpdi5 =
             await GetIt.instance<AppDatabase>().promoDiskonItemCustomerGroupDao.readByTopdiId(header.docId, null);
 
@@ -2626,6 +2630,7 @@ Future<void> syncData() async {
             await GetIt.instance<AppDatabase>().promoDiskonGroupItemBuyConditionDao.readByTopdgId(header.docId, null);
         final tpdg2 =
             await GetIt.instance<AppDatabase>().promoDiskonGroupItemAssignStoreDao.readByTodgId(header.docId, null);
+        if (tpdg2 == null) continue;
         final tpdg5 =
             await GetIt.instance<AppDatabase>().promoDiskonGroupItemCustomerGroupDao.readByTopdgId(header.docId, null);
         final dayProperties = {
@@ -2673,6 +2678,7 @@ Future<void> syncData() async {
         final tprb1 =
             await GetIt.instance<AppDatabase>().promoBuyXGetYBuyConditionDao.readByToprbId(header.docId, null);
         final tprb2 = await GetIt.instance<AppDatabase>().promoBuyXGetYAssignStoreDao.readByToprbId(header.docId, null);
+        if (tprb2 == null) continue;
 
         final dayProperties = {
           1: tprb2.day1,
@@ -2712,6 +2718,7 @@ Future<void> syncData() async {
         if (header.endDate.isBefore(now) || header.startDate.isAfter(now)) continue;
 
         final tprn2 = await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.readByToprnId(header.docId, null);
+        if (tprn2 == null) continue;
 
         final dayProperties = {
           1: tprn2.day1,

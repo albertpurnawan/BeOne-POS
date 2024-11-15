@@ -10,8 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ItemMasterApi {
   final Dio _dio;
-  String? storeId;
   String? tenantId;
+  String? storeId;
   String? url;
   String? token;
 
@@ -25,10 +25,9 @@ class ItemMasterApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
-      storeId = pos[0].tostrId;
+      storeId = "%%";
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -64,9 +63,7 @@ class ItemMasterApi {
         log("--- Item Master ---");
         log(resp.data['data'][0].toString());
 
-        List<ItemMasterModel> data = (resp.data['data'] as List)
-            .map((e) => ItemMasterModel.fromMapRemote(e))
-            .toList();
+        List<ItemMasterModel> data = (resp.data['data'] as List).map((e) => ItemMasterModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 

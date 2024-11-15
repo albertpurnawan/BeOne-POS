@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PromoHargaSpesialBuyApi {
   final Dio _dio;
   String? tenantId;
-  String? tostrId;
+  String? storeId;
   String? url;
   String? token;
 
@@ -25,10 +25,9 @@ class PromoHargaSpesialBuyApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
-      tostrId = pos[0].tostrId;
+      storeId = "%%";
       url = pos[0].baseUrl;
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
@@ -44,7 +43,7 @@ class PromoHargaSpesialBuyApi {
               tenantId,
               lastSync,
               lastSync,
-              tostrId,
+              storeId,
             ]
           };
         }
@@ -64,9 +63,8 @@ class PromoHargaSpesialBuyApi {
         //   print('$key: ${value.runtimeType}');
         // });
 
-        List<PromoHargaSpesialBuyModel> data = (resp.data['data'] as List)
-            .map((e) => PromoHargaSpesialBuyModel.fromMapRemote(e))
-            .toList();
+        List<PromoHargaSpesialBuyModel> data =
+            (resp.data['data'] as List).map((e) => PromoHargaSpesialBuyModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 

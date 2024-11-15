@@ -269,6 +269,7 @@ class _FetchScreenState extends State<FetchScreen> {
         prefs.setBool('isSyncing', true);
         final singleTopos = _posParameterEntity;
         final toposId = singleTopos!.docId;
+        final String storeId = singleTopos.tostrId ?? "";
         final lastSyncDate = startSync?.toIso8601String() ?? _posParameterEntity!.lastSync!;
         final dtLastSync = DateTime.parse(lastSyncDate).toUtc();
         final utcLastSync = dtLastSync.toIso8601String();
@@ -2914,8 +2915,10 @@ class _FetchScreenState extends State<FetchScreen> {
         final DateTime now = DateTime.now();
 
         topsb = await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readAll();
+
         for (final header in topsb) {
           if (header.statusActive != 1) continue;
+
           final DateTime endDateTime = DateTime(
             header.endDate.year,
             header.endDate.month,
@@ -2928,6 +2931,7 @@ class _FetchScreenState extends State<FetchScreen> {
 
           final tpsb2 =
               await GetIt.instance<AppDatabase>().promoHargaSpesialAssignStoreDao.readByTopsbId(header.docId, null);
+          if (tpsb2 == null) continue;
           final tpsb4 =
               await GetIt.instance<AppDatabase>().promoHargaSpesialCustomerGroupDao.readByTopsbId(header.docId, null);
 
@@ -2963,6 +2967,7 @@ class _FetchScreenState extends State<FetchScreen> {
         }
 
         topmi = await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
+
         for (final header in topmi) {
           if (header.statusActive != 1) continue;
           final DateTime endDateTime = DateTime(
@@ -2979,6 +2984,7 @@ class _FetchScreenState extends State<FetchScreen> {
               await GetIt.instance<AppDatabase>().promoMultiItemBuyConditionDao.readByTopmiId(header.docId, null);
           final tpmi2 =
               await GetIt.instance<AppDatabase>().promoMultiItemAssignStoreDao.readByTopmiId(header.docId, null);
+          if (tpmi2 == null) continue;
           final tpmi5 =
               await GetIt.instance<AppDatabase>().promoMultiItemCustomerGroupDao.readByTopmiId(header.docId, null);
 
@@ -3032,6 +3038,7 @@ class _FetchScreenState extends State<FetchScreen> {
               await GetIt.instance<AppDatabase>().promoDiskonItemBuyConditionDao.readByTopdiId(header.docId, null);
           final tpdi2 =
               await GetIt.instance<AppDatabase>().promoDiskonItemAssignStoreDao.readByTopdiId(header.docId, null);
+          if (tpdi2 == null) continue;
           final tpdi5 =
               await GetIt.instance<AppDatabase>().promoDiskonItemCustomerGroupDao.readByTopdiId(header.docId, null);
 
@@ -3085,6 +3092,7 @@ class _FetchScreenState extends State<FetchScreen> {
               await GetIt.instance<AppDatabase>().promoDiskonGroupItemBuyConditionDao.readByTopdgId(header.docId, null);
           final tpdg2 =
               await GetIt.instance<AppDatabase>().promoDiskonGroupItemAssignStoreDao.readByTodgId(header.docId, null);
+          if (tpdg2 == null) continue;
           final tpdg5 = await GetIt.instance<AppDatabase>()
               .promoDiskonGroupItemCustomerGroupDao
               .readByTopdgId(header.docId, null);
@@ -3142,6 +3150,7 @@ class _FetchScreenState extends State<FetchScreen> {
               await GetIt.instance<AppDatabase>().promoBuyXGetYBuyConditionDao.readByToprbId(header.docId, null);
           final tprb2 =
               await GetIt.instance<AppDatabase>().promoBuyXGetYAssignStoreDao.readByToprbId(header.docId, null);
+          if (tprb2 == null) continue;
 
           final dayProperties = {
             1: tprb2.day1,
@@ -3189,6 +3198,7 @@ class _FetchScreenState extends State<FetchScreen> {
           if (endDateTime.isBefore(now) || header.startDate.isAfter(now)) continue;
 
           final tprn2 = await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.readByToprnId(header.docId, null);
+          if (tprn2 == null) continue;
 
           final dayProperties = {
             1: tprn2.day1,

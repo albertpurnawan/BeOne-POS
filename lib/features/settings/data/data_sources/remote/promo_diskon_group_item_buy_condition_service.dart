@@ -11,14 +11,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PromoDiskonGroupItemBuyConditionApi {
   final Dio _dio;
   String? tenantId;
-  String? tostrId;
+  String? storeId;
   String? url;
   String? token;
 
   PromoDiskonGroupItemBuyConditionApi(this._dio);
 
-  Future<List<PromoDiskonGroupItemBuyConditionModel>> fetchData(
-      String lastSync) async {
+  Future<List<PromoDiskonGroupItemBuyConditionModel>> fetchData(String lastSync) async {
     try {
       String apiName = "API-TPDG1";
       Map<String, dynamic> exeData = {};
@@ -26,10 +25,9 @@ class PromoDiskonGroupItemBuyConditionApi {
       SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       token = prefs.getString('adminToken');
 
-      List<POSParameterModel> pos =
-          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
-      tostrId = pos[0].tostrId;
+      storeId = "%%";
       url = pos[0].baseUrl;
       final response = await _dio.get(
         "$url/tenant-custom-query/list",
@@ -45,7 +43,7 @@ class PromoDiskonGroupItemBuyConditionApi {
               tenantId,
               lastSync,
               lastSync,
-              tostrId,
+              storeId,
             ]
           };
         }
@@ -65,10 +63,8 @@ class PromoDiskonGroupItemBuyConditionApi {
         //   print('$key: ${value.runtimeType} - $value');
         // });
 
-        List<PromoDiskonGroupItemBuyConditionModel> data = (resp.data['data']
-                as List)
-            .map((e) => PromoDiskonGroupItemBuyConditionModel.fromMapRemote(e))
-            .toList();
+        List<PromoDiskonGroupItemBuyConditionModel> data =
+            (resp.data['data'] as List).map((e) => PromoDiskonGroupItemBuyConditionModel.fromMapRemote(e)).toList();
         allData.addAll(data);
       }
 

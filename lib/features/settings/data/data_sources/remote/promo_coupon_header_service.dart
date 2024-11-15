@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PromoCouponHeaderApi {
   final Dio _dio;
   String? tenantId;
-  String? tostrId;
+  String? storeId;
   String? url;
   String? token;
 
@@ -27,7 +27,7 @@ class PromoCouponHeaderApi {
 
       List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
-      tostrId = pos[0].tostrId;
+      storeId = "%%";
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -44,7 +44,7 @@ class PromoCouponHeaderApi {
               tenantId,
               lastSync,
               lastSync,
-              tostrId,
+              storeId,
             ]
           };
         }
