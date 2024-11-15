@@ -30,43 +30,15 @@ class PromoHargaSpesialAssignStoreDao extends BaseDao<PromoHargaSpesialAssignSto
     return result.map((itemData) => PromoHargaSpesialAssignStoreModel.fromMap(itemData)).toList();
   }
 
-  Future<PromoHargaSpesialAssignStoreModel> readByTopsbId(String topsbId, Transaction? txn) async {
-    if (txn != null) {
-      final result = await txn.query(
-        tableName,
-        columns: modelFields,
-        where: 'topsbId = ?',
-        whereArgs: [topsbId],
-      );
+  Future<PromoHargaSpesialAssignStoreModel?> readByTopsbId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'topsbId = ?',
+      whereArgs: [docId],
+    );
 
-      return PromoHargaSpesialAssignStoreModel.fromMap(result.first);
-    } else {
-      final result = await db.query(
-        tableName,
-        columns: modelFields,
-        where: 'topsbId = ?',
-        whereArgs: [topsbId],
-      );
-
-      return PromoHargaSpesialAssignStoreModel.fromMap(result.first);
-    }
-  }
-
-  Future<List<PromoHargaSpesialAssignStoreModel>> readByStoreId(String tostrId, Transaction? txn) async {
-    final result = txn != null
-        ? await txn.query(
-            tableName,
-            columns: modelFields,
-            where: 'tostrId = ?',
-            whereArgs: [tostrId],
-          )
-        : await db.query(
-            tableName,
-            columns: modelFields,
-            where: 'tostrId = ?',
-            whereArgs: [tostrId],
-          );
-
-    return result.map((item) => PromoHargaSpesialAssignStoreModel.fromMap(item)).toList();
+    return res.isNotEmpty ? PromoHargaSpesialAssignStoreModel.fromMap(res[0]) : null;
   }
 }

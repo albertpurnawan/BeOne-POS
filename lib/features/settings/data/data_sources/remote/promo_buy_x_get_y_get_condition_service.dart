@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PromoBuyXGetYGetConditionApi {
   final Dio _dio;
   String? tenantId;
+  String? storeId;
   String? url;
   String? token;
 
@@ -26,6 +27,7 @@ class PromoBuyXGetYGetConditionApi {
 
       List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       tenantId = pos[0].gtentId;
+      storeId = "%%";
       url = pos[0].baseUrl;
 
       final response = await _dio.get(
@@ -42,6 +44,7 @@ class PromoBuyXGetYGetConditionApi {
               tenantId,
               lastSync,
               lastSync,
+              storeId,
             ]
           };
         }

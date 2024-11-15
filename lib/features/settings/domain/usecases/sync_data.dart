@@ -2488,15 +2488,14 @@ Future<void> syncData() async {
       final int today = DateTime.now().weekday;
       final DateTime now = DateTime.now();
 
-      final tpsb2Store =
-          await GetIt.instance<AppDatabase>().promoHargaSpesialAssignStoreDao.readByStoreId(storeId, null);
       topsb = await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readAll();
       for (final header in topsb) {
-        if (header.statusActive != 1 || !tpsb2Store.any((store) => store.topsbId == header.docId)) continue;
+        if (header.statusActive != 1) continue;
         if (header.endDate.isBefore(now) || header.startDate.isAfter(now)) continue;
 
         final tpsb2 =
             await GetIt.instance<AppDatabase>().promoHargaSpesialAssignStoreDao.readByTopsbId(header.docId, null);
+        if (tpsb2 == null) continue;
         final tpsb4 =
             await GetIt.instance<AppDatabase>().promoHargaSpesialCustomerGroupDao.readByTopsbId(header.docId, null);
 
@@ -2531,16 +2530,16 @@ Future<void> syncData() async {
         }
       }
 
-      final tpmi2Store = await GetIt.instance<AppDatabase>().promoMultiItemAssignStoreDao.readByStoreId(storeId, null);
       topmi = await GetIt.instance<AppDatabase>().promoMultiItemHeaderDao.readAll();
       for (final header in topmi) {
-        if (header.statusActive != 1 || !tpmi2Store.any((store) => store.topmiId == header.docId)) continue;
+        if (header.statusActive != 1) continue;
         if (header.endDate.isBefore(now) || header.startDate.isAfter(now)) continue;
 
         final tpmi1 =
             await GetIt.instance<AppDatabase>().promoMultiItemBuyConditionDao.readByTopmiId(header.docId, null);
         final tpmi2 =
             await GetIt.instance<AppDatabase>().promoMultiItemAssignStoreDao.readByTopmiId(header.docId, null);
+        if (tpmi2 == null) continue;
         final tpmi5 =
             await GetIt.instance<AppDatabase>().promoMultiItemCustomerGroupDao.readByTopmiId(header.docId, null);
 
@@ -2576,16 +2575,16 @@ Future<void> syncData() async {
         }
       }
 
-      final tpdi2Store = await GetIt.instance<AppDatabase>().promoDiskonItemAssignStoreDao.readByStoreId(storeId, null);
       topdi = await GetIt.instance<AppDatabase>().promoDiskonItemHeaderDao.readAll();
       for (final header in topdi) {
-        if (header.statusActive != 1 || !tpdi2Store.any((store) => store.topdiId == header.docId)) continue;
+        if (header.statusActive != 1) continue;
         if (header.endDate.isBefore(now) || header.startDate.isAfter(now)) continue;
 
         final tpdi1 =
             await GetIt.instance<AppDatabase>().promoDiskonItemBuyConditionDao.readByTopdiId(header.docId, null);
         final tpdi2 =
             await GetIt.instance<AppDatabase>().promoDiskonItemAssignStoreDao.readByTopdiId(header.docId, null);
+        if (tpdi2 == null) continue;
         final tpdi5 =
             await GetIt.instance<AppDatabase>().promoDiskonItemCustomerGroupDao.readByTopdiId(header.docId, null);
 
@@ -2621,18 +2620,17 @@ Future<void> syncData() async {
         }
       }
 
-      final tpdg2Store =
-          await GetIt.instance<AppDatabase>().promoDiskonGroupItemAssignStoreDao.readByStoreId(storeId, null);
       topdg = await GetIt.instance<AppDatabase>().promoDiskonGroupItemHeaderDao.readAll();
 
       for (final header in topdg) {
-        if (header.statusActive != 1 || !tpdg2Store.any((store) => store.topdgId == header.docId)) continue;
+        if (header.statusActive != 1) continue;
         if (header.endDate.isBefore(now) || header.startDate.isAfter(now)) continue;
 
         final tpdg1 =
             await GetIt.instance<AppDatabase>().promoDiskonGroupItemBuyConditionDao.readByTopdgId(header.docId, null);
         final tpdg2 =
             await GetIt.instance<AppDatabase>().promoDiskonGroupItemAssignStoreDao.readByTodgId(header.docId, null);
+        if (tpdg2 == null) continue;
         final tpdg5 =
             await GetIt.instance<AppDatabase>().promoDiskonGroupItemCustomerGroupDao.readByTopdgId(header.docId, null);
         final dayProperties = {
@@ -2672,15 +2670,15 @@ Future<void> syncData() async {
         }
       }
 
-      final tprb2Store = await GetIt.instance<AppDatabase>().promoBuyXGetYAssignStoreDao.readByStoreId(storeId, null);
       toprb = await GetIt.instance<AppDatabase>().promoBuyXGetYHeaderDao.readAll();
       for (final header in toprb) {
-        if (header.statusActive != 1 || !tprb2Store.any((store) => store.toprbId == header.docId)) continue;
+        if (header.statusActive != 1) continue;
         if (header.endDate.isBefore(now) || header.startDate.isAfter(now)) continue;
 
         final tprb1 =
             await GetIt.instance<AppDatabase>().promoBuyXGetYBuyConditionDao.readByToprbId(header.docId, null);
         final tprb2 = await GetIt.instance<AppDatabase>().promoBuyXGetYAssignStoreDao.readByToprbId(header.docId, null);
+        if (tprb2 == null) continue;
 
         final dayProperties = {
           1: tprb2.day1,
@@ -2714,13 +2712,13 @@ Future<void> syncData() async {
         }
       }
 
-      final tprn2Store = await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.readByStoreId(storeId, null);
       toprn = await GetIt.instance<AppDatabase>().promoCouponHeaderDao.readAll();
       for (final header in toprn) {
-        if (header.statusActive != 1 || !tprn2Store.any((store) => store.toprnId == header.docId)) continue;
+        if (header.statusActive != 1) continue;
         if (header.endDate.isBefore(now) || header.startDate.isAfter(now)) continue;
 
         final tprn2 = await GetIt.instance<AppDatabase>().promoCouponAssignStoreDao.readByToprnId(header.docId, null);
+        if (tprn2 == null) continue;
 
         final dayProperties = {
           1: tprn2.day1,

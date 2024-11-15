@@ -36,43 +36,15 @@ class PromoBuyXGetYAssignStoreDao extends BaseDao<PromoBuyXGetYAssignStoreModel>
     }
   }
 
-  Future<PromoBuyXGetYAssignStoreModel> readByToprbId(String toprbId, Transaction? txn) async {
-    if (txn != null) {
-      final result = await txn.query(
-        tableName,
-        columns: modelFields,
-        where: 'toprbId = ?',
-        whereArgs: [toprbId],
-      );
+  Future<PromoBuyXGetYAssignStoreModel?> readByToprbId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'toprbId = ?',
+      whereArgs: [docId],
+    );
 
-      return PromoBuyXGetYAssignStoreModel.fromMap(result.first);
-    } else {
-      final result = await db.query(
-        tableName,
-        columns: modelFields,
-        where: 'toprbId = ?',
-        whereArgs: [toprbId],
-      );
-
-      return PromoBuyXGetYAssignStoreModel.fromMap(result.first);
-    }
-  }
-
-  Future<List<PromoBuyXGetYAssignStoreModel>> readByStoreId(String tostrId, Transaction? txn) async {
-    final result = txn != null
-        ? await txn.query(
-            tableName,
-            columns: modelFields,
-            where: 'tostrId = ?',
-            whereArgs: [tostrId],
-          )
-        : await db.query(
-            tableName,
-            columns: modelFields,
-            where: 'tostrId = ?',
-            whereArgs: [tostrId],
-          );
-
-    return result.map((item) => PromoBuyXGetYAssignStoreModel.fromMap(item)).toList();
+    return res.isNotEmpty ? PromoBuyXGetYAssignStoreModel.fromMap(res[0]) : null;
   }
 }

@@ -36,43 +36,15 @@ class PromoDiskonItemAssignStoreDao extends BaseDao<PromoDiskonItemAssignStoreMo
     }
   }
 
-  Future<PromoDiskonItemAssignStoreModel> readByTopdiId(String topdiId, Transaction? txn) async {
-    if (txn != null) {
-      final result = await txn.query(
-        tableName,
-        columns: modelFields,
-        where: 'topdiId = ?',
-        whereArgs: [topdiId],
-      );
+  Future<PromoDiskonItemAssignStoreModel?> readByTopdiId(String docId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'topdiId = ?',
+      whereArgs: [docId],
+    );
 
-      return PromoDiskonItemAssignStoreModel.fromMap(result.first);
-    } else {
-      final result = await db.query(
-        tableName,
-        columns: modelFields,
-        where: 'topdiId = ?',
-        whereArgs: [topdiId],
-      );
-
-      return PromoDiskonItemAssignStoreModel.fromMap(result.first);
-    }
-  }
-
-  Future<List<PromoDiskonItemAssignStoreModel>> readByStoreId(String tostrId, Transaction? txn) async {
-    final result = txn != null
-        ? await txn.query(
-            tableName,
-            columns: modelFields,
-            where: 'tostrId = ?',
-            whereArgs: [tostrId],
-          )
-        : await db.query(
-            tableName,
-            columns: modelFields,
-            where: 'tostrId = ?',
-            whereArgs: [tostrId],
-          );
-
-    return result.map((item) => PromoDiskonItemAssignStoreModel.fromMap(item)).toList();
+    return res.isNotEmpty ? PromoDiskonItemAssignStoreModel.fromMap(res[0]) : null;
   }
 }
