@@ -4049,6 +4049,29 @@ class _SalesPageState extends State<SalesPage> {
     }
   }
 
+  // fungsi check item timbangan
+  Future<void> checkScallableItem(String barcode) async {
+    final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+    if (topos == null) throw "Failed to retrieve POS Parameter";
+    final store = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos.tostrId ?? "", null);
+    if (store == null) throw "Failed to retrieve Store Parameter";
+
+    final storeScaleActive = store.scaleActive;
+    final storeScaleFlag = store.scaleFlag;
+    final storeScaleFlagLength = (storeScaleFlag ?? "").length;
+    final storeItemCodeLength = store.scaleItemCodeLength;
+    final storeQuantityLength = store.scaleQuantityLength;
+    final storeQtyDivider = store.scaleQtyDivider;
+
+    final itemScaleFlag = barcode.substring(0, storeScaleFlagLength);
+    final itemCode = barcode.substring(storeScaleFlagLength, storeItemCodeLength);
+    final itemQty = barcode.substring(storeScaleFlagLength + (storeItemCodeLength ?? 0), storeQuantityLength);
+
+    // final item = await GetIt.instance<AppDatabase>().itemMasterDao.readByItemCode();
+
+    // final StoreMasterEntity store = await GetIt.instance
+  }
+
   Future<void> addUpdateReceiptItems(AddUpdateReceiptItemsParams params) async {
     try {
       if (params.barcode == "99") throw "Warning: Modifying the Down Payment quantity is not allowed";
@@ -4058,6 +4081,9 @@ class _SalesPageState extends State<SalesPage> {
         SnackBarHelper.presentErrorSnackBar(context, "Down payment has to be excluded from other transactions");
         return;
       }
+
+      // insert fungsi check item timbangan here
+      // if params.itemEntity. params.barcode == store.scaleFlag
 
       if (mounted) {
         await context.read<ReceiptCubit>().addUpdateReceiptItems(params);

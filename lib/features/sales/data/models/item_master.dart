@@ -45,6 +45,7 @@ class ItemMasterFields {
     mergeQuantity,
     form,
     shortName,
+    scaleActive,
   ];
 
   static const String docId = "docid";
@@ -87,6 +88,7 @@ class ItemMasterFields {
   static const String mergeQuantity = "mergequantity";
   static const String form = "form";
   static const String shortName = "shortname";
+  static const String scaleActive = "scaleactive";
 }
 
 class ItemMasterModel extends ItemMasterEntity implements BaseModel {
@@ -131,6 +133,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
     required super.mergeQuantity,
     required super.form,
     required super.shortName,
+    required super.scaleActive,
   });
 
   @override
@@ -176,6 +179,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
       'mergequantity': mergeQuantity,
       'form': form,
       'shortname': shortName,
+      'scaleactive': scaleActive,
     };
   }
 
@@ -233,6 +237,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
       mergeQuantity: map['mergequantity'] as int,
       form: map['form'] as String,
       shortName: map['shortname'] != null ? map['shortname'] as String : null,
+      scaleActive: map['scaleactive'] as int,
     );
   }
 
@@ -254,6 +259,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
       "property8": map['property8']?.toString(),
       "property9": map['property9']?.toString(),
       "property10": map['property10']?.toString(),
+      "scaleactive": map['scaleactive'] != null ? map['scaleactive'] as int : 0,
     });
   }
 
@@ -299,6 +305,7 @@ class ItemMasterModel extends ItemMasterEntity implements BaseModel {
       mergeQuantity: entity.mergeQuantity,
       form: entity.form,
       shortName: entity.shortName,
+      scaleActive: entity.scaleActive,
     );
   }
 }

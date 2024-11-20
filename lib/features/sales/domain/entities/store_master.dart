@@ -77,6 +77,11 @@ class StoreMasterEntity {
   final String? duitkuApiKey;
   final String? duitkuMerchantCode;
   final int? duitkuExpiryPeriod;
+  final int scaleActive;
+  final String? scaleFlag;
+  final int? scaleItemCodeLength;
+  final int? scaleQuantityLength;
+  final double? scaleQtyDivider;
   final String form;
   // final String defaultTocusId;
 
@@ -156,6 +161,11 @@ class StoreMasterEntity {
     this.duitkuApiKey,
     this.duitkuMerchantCode,
     this.duitkuExpiryPeriod,
+    required this.scaleActive,
+    this.scaleFlag,
+    this.scaleItemCodeLength,
+    this.scaleQuantityLength,
+    this.scaleQtyDivider,
     required this.form,
     // required this.defaultTocusId,
   });
@@ -236,6 +246,11 @@ class StoreMasterEntity {
     String? duitkuApiKey,
     String? duitkuMerchantCode,
     int? duitkuExpiryPeriod,
+    int? scaleActive,
+    String? scaleFlag,
+    int? scaleItemCodeLength,
+    int? scaleQuantityLength,
+    double? scaleQtyDivider,
     String? form,
     // String? defaultTocusId,
   }) {
@@ -315,6 +330,11 @@ class StoreMasterEntity {
       duitkuApiKey: duitkuApiKey ?? this.duitkuApiKey,
       duitkuMerchantCode: duitkuMerchantCode ?? this.duitkuMerchantCode,
       duitkuExpiryPeriod: duitkuExpiryPeriod ?? this.duitkuExpiryPeriod,
+      scaleActive: scaleActive ?? this.scaleActive,
+      scaleFlag: scaleFlag ?? this.scaleFlag,
+      scaleItemCodeLength: scaleItemCodeLength ?? this.scaleItemCodeLength,
+      scaleQuantityLength: scaleQuantityLength ?? this.scaleQuantityLength,
+      scaleQtyDivider: scaleQtyDivider ?? this.scaleQtyDivider,
       form: form ?? this.form,
       // defaultTocusId: defaultTocusId ?? this.defaultTocusId,
     );
@@ -397,6 +417,11 @@ class StoreMasterEntity {
       'duitkuApiKey': duitkuApiKey,
       'duitkuMerchantCode': duitkuMerchantCode,
       'duitkuExpiryPeriod': duitkuExpiryPeriod,
+      'scaleActive': scaleActive,
+      'scaleFlag': scaleFlag,
+      'scaleItemCodeLength': scaleItemCodeLength,
+      'scaleQuantityLength': scaleQuantityLength,
+      'scaleQtyDivider': scaleQtyDivider,
       'form': form,
       // 'defaultTocusId': defaultTocusId,
     };
@@ -479,6 +504,11 @@ class StoreMasterEntity {
       duitkuApiKey: map['duitkuApiKey'] != null ? map['duitkuApiKey'] as String : null,
       duitkuMerchantCode: map['duitkuMerchantCode'] != null ? map['duitkuMerchantCode'] as String : null,
       duitkuExpiryPeriod: map['duitkuExpiryPeriod'] != null ? map['duitkuExpiryPeriod'] as int : null,
+      scaleActive: map['scaleActive'] as int,
+      scaleFlag: map['scaleFlag'] != null ? map['scaleFlag'] as String : null,
+      scaleItemCodeLength: map['scaleItemCodeLength'] != null ? map['scaleItemCodeLength'] as int : null,
+      scaleQuantityLength: map['scaleQuantityLength'] != null ? map['scaleQuantityLength'] as int : null,
+      scaleQtyDivider: map['scaleQtyDivider'] != null ? map['scaleQtyDivider'] as double : null,
       form: map['form'] as String,
       // defaultTocusId: map['defaultTocusId'] != null ? map['defaultTocusId'] as String : "c2ee5bb8-9850-4014-b7bf-fd5492a60d84",
     );
@@ -491,7 +521,7 @@ class StoreMasterEntity {
 
   @override
   String toString() {
-    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpening: $storeOpening, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04, salesViewType: $salesViewType, otpChannel: $otpChannel, otpUrl: $otpUrl, netzmeUrl: $netzmeUrl, netzmeClientKey: $netzmeClientKey, netzmeClientSecret: $netzmeClientSecret, netzmeClientPrivateKey: $netzmeClientPrivateKey, netzmeCustidMerchant: $netzmeCustidMerchant, netzmeChannelId: $netzmeChannelId, minDiscount: $minDiscount, maxDiscount: $maxDiscount, duitkuUrl: $duitkuUrl, duitkuApiKey: $duitkuApiKey, duitkuMerchantCode: $duitkuMerchantCode, duitkuExpiryPeriod: $duitkuExpiryPeriod, form: $form,)';
+    return 'StoreMasterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, storeCode: $storeCode, storeName: $storeName, email: $email, phone: $phone, addr1: $addr1, addr2: $addr2, addr3: $addr3, city: $city, remarks: $remarks, toprvId: $toprvId, tocryId: $tocryId, tozcdId: $tozcdId, tohemId: $tohemId, sqm: $sqm, tcurrId: $tcurrId, toplnId: $toplnId, storePic: $storePic, tovatId: $tovatId, storeOpening: $storeOpening, statusActive: $statusActive, activated: $activated, prefixDoc: $prefixDoc, header01: $header01, header02: $header02, header03: $header03, header04: $header04, header05: $header05, footer01: $footer01, footer02: $footer02, footer03: $footer03, footer04: $footer04, footer05: $footer05, sellingTax: $sellingTax, openingBalance: $openingBalance, autoRounding: $autoRounding, roundingValue: $roundingValue, totalMinus: $totalMinus, totalZero: $totalZero, holdStruck: $holdStruck, holdClose: $holdClose, autoPrintStruk: $autoPrintStruk, barcode1: $barcode1, barcode2: $barcode2, barcode3: $barcode3, barcode4: $barcode4, connectBack: $connectBack, maxUserKassa: $maxUserKassa, stockLevel: $stockLevel, minConst: $minConst, maxConst: $maxConst, orderCycle: $orderCycle, taxBy: $taxBy, tpmt1Id: $tpmt1Id, mtxline01: $mtxline01, mtxline02: $mtxline02, mtxline03: $mtxline03, mtxline04: $mtxline04, salesViewType: $salesViewType, otpChannel: $otpChannel, otpUrl: $otpUrl, netzmeUrl: $netzmeUrl, netzmeClientKey: $netzmeClientKey, netzmeClientSecret: $netzmeClientSecret, netzmeClientPrivateKey: $netzmeClientPrivateKey, netzmeCustidMerchant: $netzmeCustidMerchant, netzmeChannelId: $netzmeChannelId, minDiscount: $minDiscount, maxDiscount: $maxDiscount, duitkuUrl: $duitkuUrl, duitkuApiKey: $duitkuApiKey, duitkuMerchantCode: $duitkuMerchantCode, duitkuExpiryPeriod: $duitkuExpiryPeriod, scaleActive: $scaleActive, scaleFlag: $scaleFlag, scaleItemCodeLength: $scaleItemCodeLength, scaleQuantityLength: $scaleQuantityLength, scaleQtyDivider: $scaleQtyDivider, form: $form,)';
   }
 
   @override
@@ -573,6 +603,11 @@ class StoreMasterEntity {
         other.duitkuApiKey == duitkuApiKey &&
         other.duitkuMerchantCode == duitkuMerchantCode &&
         other.duitkuExpiryPeriod == duitkuExpiryPeriod &&
+        other.scaleActive == scaleActive &&
+        other.scaleFlag == scaleFlag &&
+        other.scaleItemCodeLength == scaleItemCodeLength &&
+        other.scaleQuantityLength == scaleQuantityLength &&
+        other.scaleQtyDivider == scaleQtyDivider &&
         other.form == form;
   }
 
@@ -653,6 +688,11 @@ class StoreMasterEntity {
         duitkuApiKey.hashCode ^
         duitkuMerchantCode.hashCode ^
         duitkuExpiryPeriod.hashCode ^
+        scaleActive.hashCode ^
+        scaleFlag.hashCode ^
+        scaleItemCodeLength.hashCode ^
+        scaleQuantityLength.hashCode ^
+        scaleQtyDivider.hashCode ^
         form.hashCode;
   }
 }

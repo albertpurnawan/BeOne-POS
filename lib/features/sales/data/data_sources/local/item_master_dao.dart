@@ -85,4 +85,16 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
       rethrow;
     }
   }
+
+  Future<ItemMasterModel?> readByItemCode(String itemCode, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'itemcode = ?',
+      whereArgs: [itemCode],
+    );
+
+    return res.isNotEmpty ? ItemMasterModel.fromMap(res[0]) : null;
+  }
 }

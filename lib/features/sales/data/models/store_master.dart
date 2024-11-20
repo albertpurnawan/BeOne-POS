@@ -80,6 +80,11 @@ class StoreMasterFields {
     duitkuApiKey,
     duitkuMerchantCode,
     duitkuExpiryPeriod,
+    scaleActive,
+    scaleFlag,
+    scaleItemCodeLength,
+    scaleQuantityLength,
+    scaleQtyDivider,
     form,
     // defaultTocusId,
   ];
@@ -159,6 +164,11 @@ class StoreMasterFields {
   static const String duitkuApiKey = 'duitkuapikey';
   static const String duitkuMerchantCode = 'duitkumerchantcode';
   static const String duitkuExpiryPeriod = 'duitkuexpiryperiod';
+  static const String scaleActive = 'scaleactive';
+  static const String scaleFlag = 'scaleflag';
+  static const String scaleItemCodeLength = 'scaleitemcodelength';
+  static const String scaleQuantityLength = 'scalequantitylength';
+  static const String scaleQtyDivider = 'scaleqtydivider';
   static const String form = 'form';
   // static const String defaultTocusId = 'defaulttocusid';
 }
@@ -240,7 +250,13 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
     required super.duitkuApiKey,
     required super.duitkuMerchantCode,
     required super.duitkuExpiryPeriod,
+    required super.scaleActive,
+    required super.scaleFlag,
+    required super.scaleItemCodeLength,
+    required super.scaleQuantityLength,
+    required super.scaleQtyDivider,
     required super.form,
+
     // required super.defaultTocusId,
   });
 
@@ -322,6 +338,11 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       'duitkuapikey': duitkuApiKey,
       'duitkumerchantcode': duitkuMerchantCode,
       'duitkuexpiryperiod': duitkuExpiryPeriod,
+      'scaleactive': scaleActive,
+      'scaleflag': scaleFlag,
+      'scaleitemcodelength': scaleItemCodeLength,
+      'scalequantitylength': scaleQuantityLength,
+      'scaleqtydivider': scaleQtyDivider,
       'form': form,
       // 'defaulttocusid': defaultTocusId,
     };
@@ -404,6 +425,11 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       duitkuApiKey: map['duitkuapikey'] != null ? map['duitkuapikey'] as String : null,
       duitkuMerchantCode: map['duitkumerchantcode'] != null ? map['duitkumerchantcode'] as String : null,
       duitkuExpiryPeriod: map['duitkuexpiryperiod'] != null ? map['duitkuexpiryperiod'] as int : null,
+      scaleActive: map['scaleactive'] as int,
+      scaleFlag: map['scaleflag'] != null ? map['scaleflag'] as String : null,
+      scaleItemCodeLength: map['scaleitemcodelength'] != null ? map['scaleitemcodelength'] as int : null,
+      scaleQuantityLength: map['scalequantitylength'] != null ? map['scalequantitylength'] as int : null,
+      scaleQtyDivider: map['scaleqtydivider'] != null ? map['scaleqtydivider'] as double : null,
       form: map['form'] as String,
       // defaultTocusId: map['defaulttocusId'] as String,
     );
@@ -428,6 +454,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       "maxconst": map['maxconst'].toDouble() as double,
       "tpmt1Id": map['tpmt1docid'] != null ? map['tpmt1docid'] as String : null,
       "duitkuexpiryperiod": map['duitkuexpiryperiod'] != null ? int.parse(map['duitkuexpiryperiod']) : null,
+      "scaleactive": map['scaleactive'] != null ? map['scaleactive'] as int : 0,
     });
   }
 
@@ -508,6 +535,11 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       duitkuApiKey: entity.duitkuApiKey,
       duitkuMerchantCode: entity.duitkuMerchantCode,
       duitkuExpiryPeriod: entity.duitkuExpiryPeriod,
+      scaleActive: entity.scaleActive,
+      scaleFlag: entity.scaleFlag,
+      scaleItemCodeLength: entity.scaleItemCodeLength,
+      scaleQuantityLength: entity.scaleQuantityLength,
+      scaleQtyDivider: entity.scaleQtyDivider,
       form: entity.form,
       // defaultTocusId: entity.defaultTocusId,
     );

@@ -234,7 +234,7 @@ import 'package:pos_fe/features/settings/data/models/receipt_content.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
-  final int databaseVersion = 4;
+  final int databaseVersion = 5;
   final _databaseName = "pos_fe.db";
 
   Database? _database;
@@ -1097,6 +1097,7 @@ CREATE TABLE $tableItemMasters (
   ${ItemMasterFields.mergeQuantity} int NOT NULL DEFAULT '0',
   ${ItemMasterFields.form} varchar(1) NOT NULL,
   ${ItemMasterFields.shortName} varchar(20) DEFAULT NULL,
+  ${ItemMasterFields.scaleActive} tinyint NOT NULL DEFAULT '0',
   $createdAtDefinition
   
 )
@@ -1634,6 +1635,11 @@ CREATE TABLE $tableStoreMasters (
   ${StoreMasterFields.duitkuApiKey} text DEFAULT NULL,
   ${StoreMasterFields.duitkuMerchantCode} text DEFAULT NULL,
   ${StoreMasterFields.duitkuExpiryPeriod} int DEFAULT NULL,
+  ${StoreMasterFields.scaleActive} tinyint NOT NULL DEFAULT '0',
+  ${StoreMasterFields.scaleFlag} varchar(10) DEFAULT NULL,
+  ${StoreMasterFields.scaleItemCodeLength} tinyint DEFAULT NULL,
+  ${StoreMasterFields.scaleQuantityLength} tinyint DEFAULT NULL,
+  ${StoreMasterFields.scaleQtyDivider} double DEFAULT NULL,
   ${StoreMasterFields.form} varchar(1) NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `tostr_tcurrId_fkey` FOREIGN KEY (`tcurrId`) REFERENCES `tcurr` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
@@ -3743,7 +3749,7 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       )
     """);
 
-      // alter table tostr
+      // alter table tostr duitku
       await db.execute('''ALTER TABLE $tableStoreMasters 
         ADD COLUMN ${StoreMasterFields.duitkuUrl} TEXT DEFAULT NULL''');
       await db.execute('''ALTER TABLE $tableStoreMasters 
@@ -3759,6 +3765,22 @@ CREATE TABLE $tableDuitkuVAAssignStore (
           '''ALTER TABLE $tableInvoiceDetail ADD COLUMN ${QueuedInvoiceDetailFields.refpos3} text DEFAULT NULL''');
 
       await db.execute(createTinv7);
+    },
+    'from_version_4_to_version_5': (Database db) async {
+      // alter table tostr timbangan
+      await db.execute(
+          '''ALTER TABLE $tableStoreMasters ADD COLUMN ${StoreMasterFields.scaleActive} tinyint NOT NULL DEFAULT '0' ''');
+      await db.execute(
+          '''ALTER TABLE $tableStoreMasters ADD COLUMN ${StoreMasterFields.scaleFlag} varchar(10) DEFAULT NULL''');
+      await db.execute(
+          '''ALTER TABLE $tableStoreMasters ADD COLUMN ${StoreMasterFields.scaleItemCodeLength} tinyint DEFAULT NULL''');
+      await db.execute(
+          '''ALTER TABLE $tableStoreMasters ADD COLUMN ${StoreMasterFields.scaleQuantityLength} tinyint DEFAULT NULL''');
+      await db.execute(
+          '''ALTER TABLE $tableStoreMasters ADD COLUMN ${StoreMasterFields.scaleQtyDivider} double DEFAULT NULL''');
+      // alter table tostr timbangan
+      await db.execute(
+          '''ALTER TABLE $tableStoreMasters ADD COLUMN ${ItemMasterFields.scaleActive} tinyint NOT NULL DEFAULT '0' ''');
     },
   };
 
