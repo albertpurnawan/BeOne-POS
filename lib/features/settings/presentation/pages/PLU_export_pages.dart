@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:csv/csv.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PLUExportScreen extends StatefulWidget {
   const PLUExportScreen({super.key});
@@ -16,12 +17,33 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   String? selectedFolderPath;
   double exportProgress = 0.0;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedFolderPath = prefs.getString('folderPath');
+    });
+  }
+
+  Future<void> _saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (selectedFolderPath != null) {
+      await prefs.setString('folderPath', selectedFolderPath!);
+    }
+  }
+
   Future<void> _navigateToFolder() async {
     String? folderPath = await FilePicker.platform.getDirectoryPath();
     if (folderPath != null) {
       setState(() {
         selectedFolderPath = folderPath;
       });
+      await _saveData();
     }
   }
 
@@ -47,7 +69,10 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
       'Item Name Line 4',
       'Item Name Line 5',
       'Item Name Line 6',
-      'Item Name Line 7'
+      'Item Name Line 7',
+      '',
+      '',
+      '',
     ],
     [
       '131',
@@ -58,9 +83,12 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
       'Item Name Line 4',
       'Item Name Line 5',
       'Item Name Line 6',
-      'Item Name Line 7'
+      'Item Name Line 7',
+      '',
+      '',
+      '',
     ],
-    // Add more rows here
+    // Tambahkan data lainnya sesuai kebutuhan
   ];
 
   Future<void> _exportFile() async {
@@ -82,14 +110,26 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         'Nama1',
         'Nama2',
         'Nama3',
-        'Nama4',
-        'Nama5',
-        'Nama6',
-        'Nama7'
+        'Harga',
+        'Expired',
+        'type discount',
+        'dis.date',
+        'end.date',
+        'limit1',
+        'limit2',
       ],
       // Add the data rows
       ...tableData,
     ];
+
+    List<DataRow> dataRows = tableData.map((row) {
+      while (row.length < 12) {
+        row.add('');
+      }
+      return DataRow(
+        cells: row.map((e) => DataCell(Text(e.isEmpty ? "" : e))).toList(),
+      );
+    }).toList();
 
     String csvData = const ListToCsvConverter().convert(rows);
 
@@ -222,10 +262,9 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                   ),
                   Center(
                     child: Container(
-                      padding: const EdgeInsets.all(5),
+                      padding: const EdgeInsets.all(1),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black, width: 1),
-                        borderRadius: BorderRadius.circular(5),
                       ),
                       child: SizedBox(
                         height: 400,
@@ -235,33 +274,34 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: DataTable(
+                              headingRowColor:
+                                  WidgetStateProperty.all(Colors.grey[300]),
                               columns: const [
                                 DataColumn(label: Text("PLU")),
                                 DataColumn(label: Text("Barcode")),
                                 DataColumn(label: Text("Nama1")),
                                 DataColumn(label: Text("Nama2")),
                                 DataColumn(label: Text("Nama3")),
-                                DataColumn(label: Text("Nama4")),
-                                DataColumn(label: Text("Nama5")),
-                                DataColumn(label: Text("Nama6")),
-                                DataColumn(label: Text("Nama7")),
+                                DataColumn(label: Text("Harga")),
+                                DataColumn(label: Text("Expired")),
+                                DataColumn(label: Text("type discount")),
+                                DataColumn(label: Text("dis.date")),
+                                DataColumn(label: Text("end.date")),
+                                DataColumn(label: Text("limit1")),
+                                DataColumn(label: Text("limit2")),
                               ],
-                              rows: List<DataRow>.generate(
-                                20,
-                                (index) => const DataRow(
-                                  cells: [
-                                    DataCell(Text("130")),
-                                    DataCell(Text("130")),
-                                    DataCell(Text("Item Name Line 1")),
-                                    DataCell(Text("Item Name Line 2")),
-                                    DataCell(Text("Item Name Line 3")),
-                                    DataCell(Text("Item Name Line 4")),
-                                    DataCell(Text("Item Name Line 5")),
-                                    DataCell(Text("Item Name Line 6")),
-                                    DataCell(Text("Item Name Line 7")),
-                                  ],
-                                ),
-                              ),
+                              rows: tableData.map((row) {
+                                for (int i = 0; i < row.length; i++) {
+                                  if (row[i].isEmpty) {
+                                    row[i] = '';
+                                  }
+                                }
+                                return DataRow(
+                                  cells: row
+                                      .map((e) => DataCell(Text(e)))
+                                      .toList(),
+                                );
+                              }).toList(),
                             ),
                           ),
                         ),
