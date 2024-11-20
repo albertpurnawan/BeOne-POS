@@ -1,8 +1,9 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:csv/csv.dart';
+import 'package:intl/intl.dart';
 
 class PLUExportScreen extends StatefulWidget {
   const PLUExportScreen({super.key});
@@ -36,6 +37,32 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
     }
   }
 
+  List<List<String>> tableData = [
+    [
+      '130',
+      '130',
+      'Item Name Line 1',
+      'Item Name Line 2',
+      'Item Name Line 3',
+      'Item Name Line 4',
+      'Item Name Line 5',
+      'Item Name Line 6',
+      'Item Name Line 7'
+    ],
+    [
+      '131',
+      '131',
+      'Item Name Line 1',
+      'Item Name Line 2',
+      'Item Name Line 3',
+      'Item Name Line 4',
+      'Item Name Line 5',
+      'Item Name Line 6',
+      'Item Name Line 7'
+    ],
+    // Add more rows here
+  ];
+
   Future<void> _exportFile() async {
     if (selectedFolderPath == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -48,8 +75,28 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
       exportProgress = 0.0;
     });
 
+    List<List<String>> rows = [
+      [
+        'PLU',
+        'Barcode',
+        'Nama1',
+        'Nama2',
+        'Nama3',
+        'Nama4',
+        'Nama5',
+        'Nama6',
+        'Nama7'
+      ],
+      // Add the data rows
+      ...tableData,
+    ];
+
+    String csvData = const ListToCsvConverter().convert(rows);
+
     try {
-      final file = File('$selectedFolderPath/plu_export.txt');
+      String dateFormatted = DateFormat('yyMMdd_HHmmss').format(DateTime.now());
+
+      final file = File('$selectedFolderPath/timbangan_$dateFormatted.csv');
 
       for (int i = 0; i <= 100; i++) {
         await Future.delayed(const Duration(milliseconds: 30), () {
@@ -59,19 +106,14 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         });
       }
 
-      await file.writeAsString(
-        'PLU Export Data\n'
-        'PLU, Barcode, Nama1, Nama2, Nama3\n'
-        '130, 130, Item Name Line 1, Item Name Line 2, Item Name Line 3\n'
-        '131, 131, Item Name Line 1, Item Name Line 2, Item Name Line 3\n',
-      );
+      await file.writeAsString(csvData);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('File exported to $selectedFolderPath')),
+        SnackBar(content: Text('CSV file exported to $selectedFolderPath')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to export file!")),
+        const SnackBar(content: Text("Failed to export CSV file!")),
       );
     }
 
@@ -133,14 +175,17 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ProjectColors.primary,
-                    foregroundColor: Colors.white,
+                const SizedBox(width: 20),
+                Padding(
+                  padding: const EdgeInsets.only(right: 30),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ProjectColors.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: _saveExportPath,
+                    child: const Text("Save"),
                   ),
-                  onPressed: _saveExportPath,
-                  child: const Text("Save"),
                 ),
               ],
             ),
