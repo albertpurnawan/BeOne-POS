@@ -4050,26 +4050,45 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   // fungsi check item timbangan
-  Future<void> checkScallableItem(String barcode) async {
+  Future<AddUpdateReceiptItemsParams?> checkScallableItem(String barcode) async {
     final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
     if (topos == null) throw "Failed to retrieve POS Parameter";
     final store = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos.tostrId ?? "", null);
     if (store == null) throw "Failed to retrieve Store Parameter";
 
     final storeScaleActive = store.scaleActive;
-    final storeScaleFlag = store.scaleFlag;
-    final storeScaleFlagLength = (storeScaleFlag ?? "").length;
-    final storeItemCodeLength = store.scaleItemCodeLength;
-    final storeQuantityLength = store.scaleQuantityLength;
-    final storeQtyDivider = store.scaleQtyDivider;
+    final storeScaleFlag = store.scaleFlag ?? "";
+    final storeScaleFlagLength = storeScaleFlag.length;
+    final storeItemCodeLength = store.scaleItemCodeLength ?? 0;
+    final storeQuantityLength = store.scaleQuantityLength ?? 0;
+    final storeQtyDivider = store.scaleQtyDivider ?? 1000;
 
     final itemScaleFlag = barcode.substring(0, storeScaleFlagLength);
-    final itemCode = barcode.substring(storeScaleFlagLength, storeItemCodeLength);
-    final itemQty = barcode.substring(storeScaleFlagLength + (storeItemCodeLength ?? 0), storeQuantityLength);
 
-    // final item = await GetIt.instance<AppDatabase>().itemMasterDao.readByItemCode();
+    final itemCode = barcode.substring(storeScaleFlagLength, storeScaleFlagLength + storeItemCodeLength);
 
-    // final StoreMasterEntity store = await GetIt.instance
+    final itemQty = double.parse(barcode.substring(storeScaleFlagLength + (storeItemCodeLength),
+            storeScaleFlagLength + storeItemCodeLength + storeQuantityLength)) /
+        storeQtyDivider;
+
+    final itemEntity = await GetIt.instance<AppDatabase>().itemMasterDao.readByItemCode(itemCode, null);
+
+    if (itemEntity == null) throw "Failed to retrieve Item Parameter";
+
+    if (storeScaleActive == 1 && itemEntity.scaleActive == 1 && itemScaleFlag == storeScaleFlag) {
+      final updatedParams = AddUpdateReceiptItemsParams(
+          barcode: itemCode,
+          itemEntity: null,
+          quantity: itemQty,
+          context: context,
+          onOpenPriceInputted: () => setState(() {
+                isEditingNewReceiptItemCode = true;
+                _newReceiptItemCodeFocusNode.requestFocus();
+              }));
+      return updatedParams;
+    } else {
+      return null;
+    }
   }
 
   Future<void> addUpdateReceiptItems(AddUpdateReceiptItemsParams params) async {
@@ -4082,11 +4101,15 @@ class _SalesPageState extends State<SalesPage> {
         return;
       }
 
-      // insert fungsi check item timbangan here
-      // if params.itemEntity. params.barcode == store.scaleFlag
+      final updatedParams = await checkScallableItem(params.barcode ?? "");
+      log("updatedParams - ${updatedParams!.barcode}");
 
       if (mounted) {
-        await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+        if (updatedParams != null) {
+          await context.read<ReceiptCubit>().addUpdateReceiptItems(updatedParams);
+        } else {
+          await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+        }
       }
 
       indexIsSelect = [-1, 0];
