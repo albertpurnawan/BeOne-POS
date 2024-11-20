@@ -97,7 +97,8 @@ class _QRISDialogState extends State<QRISDialog> {
   }
 
   String generateRandomString(int length) {
-    const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const characters =
+        'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     Random random = Random();
     return String.fromCharCodes(Iterable.generate(
       length,
@@ -108,7 +109,9 @@ class _QRISDialogState extends State<QRISDialog> {
   Future<String> _checkQRISStatus() async {
     if (!mounted) return "";
     final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-    final tostr = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos[0].tostrId!, null);
+    final tostr = await GetIt.instance<AppDatabase>()
+        .storeMasterDao
+        .readByDocId(topos[0].tostrId!, null);
     final url = tostr!.netzmeUrl;
     final clientKey = tostr.netzmeClientKey;
     final clientSecret = tostr.netzmeClientSecret;
@@ -118,8 +121,15 @@ class _QRISDialogState extends State<QRISDialog> {
       "originalPartnerReferenceNo": widget.data.trxId,
       "additionalInfo": {"partnerReferenceNo": generateRandomString(10)}
     };
-    final serviceSignature = await GetIt.instance<NetzmeApi>().createSignatureService(url!, clientKey!, clientSecret!,
-        privateKey!, widget.accessToken, "api-invoice/v1.0/transaction-history-detail", bodyDetail);
+    final serviceSignature = await GetIt.instance<NetzmeApi>()
+        .createSignatureService(
+            url!,
+            clientKey!,
+            clientSecret!,
+            privateKey!,
+            widget.accessToken,
+            "api-invoice/v1.0/transaction-history-detail",
+            bodyDetail);
 
     final paymentStatus = await GetIt.instance<NetzmeApi>().checkPaymentStatus(
       url,
@@ -175,9 +185,11 @@ class _QRISDialogState extends State<QRISDialog> {
     if (isPrinting.value == true) return;
     isPrinting.value = true;
 
-    final RenderRepaintBoundary boundary = _globalKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+    final RenderRepaintBoundary boundary =
+        _globalKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
     final ui.Image image = await boundary.toImage();
-    final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    final ByteData? byteData =
+        await image.toByteData(format: ui.ImageByteFormat.png);
     final Uint8List pngBytes = byteData!.buffer.asUint8List();
     // print("capture $pngBytes");
 
@@ -216,7 +228,8 @@ class _QRISDialogState extends State<QRISDialog> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -228,7 +241,10 @@ class _QRISDialogState extends State<QRISDialog> {
             children: [
               const Text(
                 'QRIS Payment',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white),
               ),
               ValueListenableBuilder(
                 valueListenable: isPrinting,
@@ -243,11 +259,15 @@ class _QRISDialogState extends State<QRISDialog> {
                       color: Colors.white,
                       width: 1.5,
                     ),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5)),
                   ),
                   onPressed: () async => await _printQris(),
                   child: value
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator.adaptive())
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator.adaptive())
                       : Row(
                           children: [
                             const Icon(
@@ -263,11 +283,13 @@ class _QRISDialogState extends State<QRISDialog> {
                                 children: [
                                   TextSpan(
                                     text: "Print QR",
-                                    style: TextStyle(fontWeight: FontWeight.w600),
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w600),
                                   ),
                                   TextSpan(
                                     text: " (F9)",
-                                    style: TextStyle(fontWeight: FontWeight.w300),
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w300),
                                   ),
                                 ],
                                 style: TextStyle(height: 1),
@@ -300,7 +322,8 @@ class _QRISDialogState extends State<QRISDialog> {
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                         TextSpan(
-                          text: "  ${Helpers.dateYYYYmmDD(widget.data.expiredTs)}",
+                          text:
+                              "  ${Helpers.dateYYYYmmDD(widget.data.expiredTs)}",
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                       ],
@@ -330,8 +353,10 @@ class _QRISDialogState extends State<QRISDialog> {
                               style: TextStyle(fontWeight: FontWeight.w500),
                             ),
                             TextSpan(
-                              text: "  Rp ${Helpers.parseMoney(widget.data.totalAmount)}",
-                              style: const TextStyle(fontWeight: FontWeight.w700),
+                              text:
+                                  "  Rp ${Helpers.parseMoney(widget.data.totalAmount)}",
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w700),
                             ),
                           ],
                           style: const TextStyle(
@@ -368,10 +393,13 @@ class _QRISDialogState extends State<QRISDialog> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
-                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                    overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
+                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        side: const BorderSide(color: ProjectColors.primary))),
+                    backgroundColor:
+                        WidgetStateColor.resolveWith((states) => Colors.white),
+                    overlayColor: WidgetStateColor.resolveWith(
+                        (states) => ProjectColors.primary.withOpacity(.2))),
                 onPressed: () {
                   context.pop(false);
                 },
@@ -398,11 +426,17 @@ class _QRISDialogState extends State<QRISDialog> {
               Expanded(
                 child: TextButton(
                   style: ButtonStyle(
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                      backgroundColor: MaterialStateColor.resolveWith(
-                          (states) => isCheckingStatus ? Colors.grey : ProjectColors.primary),
-                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                  onPressed: isCheckingStatus ? null : () async => await _manualCheckQrisStatus(),
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5))),
+                      backgroundColor: WidgetStateColor.resolveWith((states) =>
+                          isCheckingStatus
+                              ? Colors.grey
+                              : ProjectColors.primary),
+                      overlayColor: WidgetStateColor.resolveWith(
+                          (states) => Colors.white.withOpacity(.2))),
+                  onPressed: isCheckingStatus
+                      ? null
+                      : () async => await _manualCheckQrisStatus(),
                   child: Center(
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -419,13 +453,17 @@ class _QRISDialogState extends State<QRISDialog> {
                                   text: "Check Status",
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
-                                    color: isCheckingStatus ? ProjectColors.lightBlack : Colors.white,
+                                    color: isCheckingStatus
+                                        ? ProjectColors.lightBlack
+                                        : Colors.white,
                                   )),
                               TextSpan(
                                   text: "  (F12)",
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
-                                    color: isCheckingStatus ? ProjectColors.lightBlack : Colors.white,
+                                    color: isCheckingStatus
+                                        ? ProjectColors.lightBlack
+                                        : Colors.white,
                                   )),
                             ],
                           ),

@@ -27,7 +27,8 @@ class PermissionHandler {
         return AlertDialog(
           backgroundColor: Colors.white,
           surfaceTintColor: Colors.transparent,
-          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(5.0))),
           title: Container(
             decoration: const BoxDecoration(
               color: ProjectColors.primary,
@@ -36,7 +37,10 @@ class PermissionHandler {
             padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
             child: const Text(
               "Permission Required",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+              style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white),
             ),
           ),
           titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -57,7 +61,8 @@ class PermissionHandler {
                   text: const TextSpan(
                     children: [
                       TextSpan(
-                        text: "This app needs file access permission to manage its database.",
+                        text:
+                            "This app needs file access permission to manage its database.",
                         style: TextStyle(fontWeight: FontWeight.w700),
                       ),
                       TextSpan(
@@ -81,11 +86,14 @@ class PermissionHandler {
                     flex: 1,
                     child: TextButton(
                       style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(color: ProjectColors.primary))),
-                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                              side: const BorderSide(
+                                  color: ProjectColors.primary))),
+                          backgroundColor: WidgetStateColor.resolveWith(
+                              (states) => Colors.white),
+                          overlayColor: WidgetStateColor.resolveWith(
+                              (states) => Colors.black.withOpacity(.2))),
                       onPressed: () {
                         context.pop(false);
                       },
@@ -101,9 +109,12 @@ class PermissionHandler {
                 Expanded(
                     child: TextButton(
                   style: ButtonStyle(
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                      backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5))),
+                      backgroundColor: WidgetStateColor.resolveWith(
+                          (states) => ProjectColors.primary),
+                      overlayColor: WidgetStateColor.resolveWith(
+                          (states) => Colors.white.withOpacity(.2))),
                   onPressed: () async {
                     context.pop();
                     await Permission.manageExternalStorage.request();

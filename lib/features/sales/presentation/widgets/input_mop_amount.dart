@@ -23,7 +23,8 @@ class InputMopAmountDialog extends StatefulWidget {
 }
 
 class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
-  TextEditingController _textEditingControllerOpenPrice = TextEditingController();
+  TextEditingController _textEditingControllerOpenPrice =
+      TextEditingController();
   bool isErr = false;
   String errMsg = "Invalid";
 
@@ -34,7 +35,8 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
       }
 
       if (event.physicalKey == PhysicalKeyboardKey.f12) {
-        final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text);
+        final double mopAmount = Helpers.revertMoneyToDecimalFormat(
+            _textEditingControllerOpenPrice.text);
         if (mopAmount > widget.max) {
           setState(() {
             isErr = true;
@@ -58,8 +60,11 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
     super.initState();
     if (widget.max != double.infinity) {
       final String initialAmount = Helpers.parseMoney(widget.max);
-      _textEditingControllerOpenPrice = TextEditingController.fromValue(TextEditingValue(
-          text: initialAmount, selection: TextSelection(baseOffset: 0, extentOffset: initialAmount.length)));
+      _textEditingControllerOpenPrice = TextEditingController.fromValue(
+          TextEditingValue(
+              text: initialAmount,
+              selection: TextSelection(
+                  baseOffset: 0, extentOffset: initialAmount.length)));
     }
   }
 
@@ -76,7 +81,8 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
     return AlertDialog(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(5.0))),
       title: Container(
         decoration: const BoxDecoration(
           color: ProjectColors.primary,
@@ -85,7 +91,8 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
         padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
         child: const Text(
           'Input Amount',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          style: TextStyle(
+              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
         ),
       ),
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -144,7 +151,8 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 18),
                   onChanged: (value) {
-                    final double mopAmount = Helpers.revertMoneyToDecimalFormat(value);
+                    final double mopAmount =
+                        Helpers.revertMoneyToDecimalFormat(value);
                     if (mopAmount == double.infinity) return;
                     if (mopAmount > widget.max) {
                       setState(() {
@@ -157,7 +165,8 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                     }
                   },
                   onEditingComplete: () {
-                    final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text);
+                    final double mopAmount = Helpers.revertMoneyToDecimalFormat(
+                        _textEditingControllerOpenPrice.text);
                     if (mopAmount == double.infinity) return;
                     if (mopAmount > widget.max) return;
                     context.pop(mopAmount);
@@ -165,7 +174,8 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                   decoration: InputDecoration(
                       contentPadding: const EdgeInsets.all(10),
                       hintText: "Enter Amount",
-                      hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16),
+                      hintStyle: const TextStyle(
+                          fontStyle: FontStyle.italic, fontSize: 16),
                       border: const OutlineInputBorder(),
                       suffix: Container(
                         alignment: Alignment.centerRight,
@@ -204,10 +214,13 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
             Expanded(
                 child: TextButton(
               style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
-                  backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      side: const BorderSide(color: ProjectColors.primary))),
+                  backgroundColor:
+                      WidgetStateColor.resolveWith((states) => Colors.white),
+                  overlayColor: WidgetStateColor.resolveWith(
+                      (states) => Colors.black.withOpacity(.2))),
               onPressed: () {
                 setState(() {
                   Navigator.of(context).pop();
@@ -240,12 +253,16 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
             Expanded(
                 child: TextButton(
               style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5))),
+                  backgroundColor: WidgetStateColor.resolveWith(
+                      (states) => ProjectColors.primary),
+                  overlayColor: WidgetStateColor.resolveWith(
+                      (states) => Colors.white.withOpacity(.2))),
               onPressed: () {
                 if (isErr) return;
-                final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text);
+                final double mopAmount = Helpers.revertMoneyToDecimalFormat(
+                    _textEditingControllerOpenPrice.text);
                 context.pop(mopAmount);
               },
               child: Center(

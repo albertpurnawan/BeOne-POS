@@ -7,10 +7,12 @@ class ConfirmResetVouchersDialog extends StatefulWidget {
   const ConfirmResetVouchersDialog({super.key});
 
   @override
-  State<ConfirmResetVouchersDialog> createState() => _ConfirmResetVouchersDialogState();
+  State<ConfirmResetVouchersDialog> createState() =>
+      _ConfirmResetVouchersDialogState();
 }
 
-class _ConfirmResetVouchersDialogState extends State<ConfirmResetVouchersDialog> {
+class _ConfirmResetVouchersDialogState
+    extends State<ConfirmResetVouchersDialog> {
   final FocusNode _keyboardListenerFocusNode = FocusNode();
 
   @override
@@ -46,7 +48,8 @@ class _ConfirmResetVouchersDialogState extends State<ConfirmResetVouchersDialog>
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -55,7 +58,8 @@ class _ConfirmResetVouchersDialogState extends State<ConfirmResetVouchersDialog>
           padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
           child: const Text(
             'Caution',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(
+                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -80,7 +84,8 @@ class _ConfirmResetVouchersDialogState extends State<ConfirmResetVouchersDialog>
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                     TextSpan(
-                      text: "\n\nAfter proceeding, redeemed vouchers cannot be reapplied. Are you sure to proceed?",
+                      text:
+                          "\n\nAfter proceeding, redeemed vouchers cannot be reapplied. Are you sure to proceed?",
                     )
                   ],
                   style: TextStyle(
@@ -103,11 +108,14 @@ class _ConfirmResetVouchersDialogState extends State<ConfirmResetVouchersDialog>
                   flex: 1,
                   child: TextButton(
                     style: ButtonStyle(
-                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
-                            side: const BorderSide(color: ProjectColors.primary))),
-                        backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                            side: const BorderSide(
+                                color: ProjectColors.primary))),
+                        backgroundColor: WidgetStateColor.resolveWith(
+                            (states) => Colors.white),
+                        overlayColor: WidgetStateColor.resolveWith(
+                            (states) => Colors.black.withOpacity(.2))),
                     onPressed: () {
                       context.pop(false);
                     },
@@ -136,9 +144,12 @@ class _ConfirmResetVouchersDialogState extends State<ConfirmResetVouchersDialog>
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5))),
+                    backgroundColor: WidgetStateColor.resolveWith(
+                        (states) => ProjectColors.primary),
+                    overlayColor: WidgetStateColor.resolveWith(
+                        (states) => Colors.white.withOpacity(.2))),
                 onPressed: () {
                   context.pop(true);
                 },

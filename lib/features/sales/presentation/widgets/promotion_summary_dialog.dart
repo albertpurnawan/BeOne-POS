@@ -30,15 +30,19 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
       final List<Widget> widgets = [
         const Text(
           "Buy X Get Y",
-          style: TextStyle(fontWeight: FontWeight.w700, color: ProjectColors.primary, fontSize: 16),
+          style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: ProjectColors.primary,
+              fontSize: 16),
         ),
         const SizedBox(
           height: 15,
         ),
       ];
 
-      final List<PromotionsEntity> buyXGetYpromos =
-          widget.receiptEntity.promos.where((element) => element.promoType == 103).toList();
+      final List<PromotionsEntity> buyXGetYpromos = widget.receiptEntity.promos
+          .where((element) => element.promoType == 103)
+          .toList();
       if (buyXGetYpromos.isEmpty) return [];
 
       widgets.addAll([
@@ -134,7 +138,9 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
         // log(buyXGetYpromo.toString());
         final List<ReceiptItemEntity> itemYs = widget.receiptEntity.receiptItems
             .where((e1) => e1.promos
-                .where((e2) => e2.promoId == buyXGetYpromo.promoId && (e2.promotionDetails as PromoBuyXGetYDetails).isY)
+                .where((e2) =>
+                    e2.promoId == buyXGetYpromo.promoId &&
+                    (e2.promotionDetails as PromoBuyXGetYDetails).isY)
                 .isNotEmpty)
             .toList();
         final List<Widget> itemYUIs = [];
@@ -144,13 +150,15 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
           // log("amosmdao");
           final PromoBuyXGetYDetails? associatedPromo = itemY.promos
               .where((element) =>
-                  element.promoId == buyXGetYpromo.promoId && (element.promotionDetails as PromoBuyXGetYDetails).isY)
+                  element.promoId == buyXGetYpromo.promoId &&
+                  (element.promotionDetails as PromoBuyXGetYDetails).isY)
               .firstOrNull
               ?.promotionDetails as PromoBuyXGetYDetails?;
           if (associatedPromo == null) throw "Problems during reading promos";
-          log("amosmdaos ${associatedPromo}");
+          log("amosmdaos $associatedPromo");
 
-          final priceQty = associatedPromo.sellingPrice * associatedPromo.quantity;
+          final priceQty =
+              associatedPromo.sellingPrice * associatedPromo.quantity;
           subtotal += priceQty;
           taxAmount += (itemY.itemEntity.taxRate / 100) * priceQty;
 
@@ -203,9 +211,12 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                       alignment: Alignment.centerRight,
                       child: Text(
                         (itemY.itemEntity.includeTax == 1)
-                            ? Helpers.parseMoney(
-                                (((associatedPromo.sellingPrice) * ((100 + itemY.itemEntity.taxRate) / 100)).round()))
-                            : Helpers.parseMoney(((associatedPromo.sellingPrice).round())),
+                            ? Helpers.parseMoney((((associatedPromo
+                                        .sellingPrice) *
+                                    ((100 + itemY.itemEntity.taxRate) / 100))
+                                .round()))
+                            : Helpers.parseMoney(
+                                ((associatedPromo.sellingPrice).round())),
                         style: const TextStyle(fontSize: 14),
                       ))),
               const SizedBox(
@@ -217,7 +228,9 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                       alignment: Alignment.centerRight,
                       child: Text(
                         (itemY.itemEntity.includeTax == 1)
-                            ? Helpers.parseMoney((((priceQty) * ((100 + itemY.itemEntity.taxRate) / 100)).round()))
+                            ? Helpers.parseMoney((((priceQty) *
+                                    ((100 + itemY.itemEntity.taxRate) / 100))
+                                .round()))
                             : Helpers.parseMoney(priceQty.round()),
                         style: const TextStyle(fontSize: 14),
                       ))),
@@ -345,15 +358,20 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
     final List<Widget> widgets = [
       const Text(
         "Discount Item (Item)",
-        style: TextStyle(fontWeight: FontWeight.w700, color: ProjectColors.primary, fontSize: 16),
+        style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: ProjectColors.primary,
+            fontSize: 16),
       ),
       const SizedBox(
         height: 15,
       ),
     ];
 
-    final List<PromotionsEntity> discountItemByItemPromos =
-        widget.receiptEntity.promos.where((element) => element.promoType == 203).toList();
+    final List<PromotionsEntity> discountItemByItemPromos = widget
+        .receiptEntity.promos
+        .where((element) => element.promoType == 203)
+        .toList();
     if (discountItemByItemPromos.isEmpty) return [];
 
     widgets.addAll([
@@ -392,13 +410,19 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
     double totalDisc = 0;
 
     for (final discountItemByItemPromo in discountItemByItemPromos) {
-      final List<ReceiptItemEntity> appliedItems = widget.receiptEntity.receiptItems
-          .where((e1) => e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).isNotEmpty)
+      final List<ReceiptItemEntity> appliedItems = widget
+          .receiptEntity.receiptItems
+          .where((e1) => e1.promos
+              .where((e2) => e2.promoId == discountItemByItemPromo.promoId)
+              .isNotEmpty)
           .toList();
       if (appliedItems.isEmpty) break;
       final double totalDiscByPromoId = appliedItems.map((e1) {
-        final double discAmount =
-            e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).first.discAmount ?? 0;
+        final double discAmount = e1.promos
+                .where((e2) => e2.promoId == discountItemByItemPromo.promoId)
+                .first
+                .discAmount ??
+            0;
 
         return discAmount;
       }).reduce((value, e3) => value + e3);
@@ -483,15 +507,20 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
     final List<Widget> widgets = [
       const Text(
         "Discount Item (Group)",
-        style: TextStyle(fontWeight: FontWeight.w700, color: ProjectColors.primary, fontSize: 16),
+        style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: ProjectColors.primary,
+            fontSize: 16),
       ),
       const SizedBox(
         height: 15,
       ),
     ];
 
-    final List<PromotionsEntity> discountItemByItemPromos =
-        widget.receiptEntity.promos.where((element) => element.promoType == 204).toList();
+    final List<PromotionsEntity> discountItemByItemPromos = widget
+        .receiptEntity.promos
+        .where((element) => element.promoType == 204)
+        .toList();
     if (discountItemByItemPromos.isEmpty) return [];
 
     widgets.addAll([
@@ -529,15 +558,21 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
 
     double totalDisc = 0;
     for (final discountItemByItemPromo in discountItemByItemPromos) {
-      final List<ReceiptItemEntity> appliedItems = widget.receiptEntity.receiptItems
+      final List<ReceiptItemEntity> appliedItems = widget
+          .receiptEntity.receiptItems
           .where((e1) => e1.promos
-              .where((e2) => e2.promoId == discountItemByItemPromo.promoId && (e2.discAmount ?? 0) >= 0)
+              .where((e2) =>
+                  e2.promoId == discountItemByItemPromo.promoId &&
+                  (e2.discAmount ?? 0) >= 0)
               .isNotEmpty)
           .toList();
       if (appliedItems.isEmpty) break;
       final double totalDiscByPromoId = appliedItems.map((e1) {
-        final double discAmount =
-            e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).first.discAmount ?? 0;
+        final double discAmount = e1.promos
+                .where((e2) => e2.promoId == discountItemByItemPromo.promoId)
+                .first
+                .discAmount ??
+            0;
 
         return discAmount;
       }).reduce((value, e3) => value + e3);
@@ -619,15 +654,19 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
     final List<Widget> widgets = [
       const Text(
         "Coupons",
-        style: TextStyle(fontWeight: FontWeight.w700, color: ProjectColors.primary, fontSize: 16),
+        style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: ProjectColors.primary,
+            fontSize: 16),
       ),
       const SizedBox(
         height: 15,
       ),
     ];
 
-    final List<PromotionsEntity> couponPromos =
-        widget.receiptEntity.promos.where((element) => element.promoType == 107).toList();
+    final List<PromotionsEntity> couponPromos = widget.receiptEntity.promos
+        .where((element) => element.promoType == 107)
+        .toList();
     if (couponPromos.isEmpty) return [];
 
     widgets.addAll([
@@ -755,7 +794,8 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
     previousGrandTotal = widget.receiptEntity.previousReceiptEntity != null
         ? widget.receiptEntity.previousReceiptEntity!.grandTotal
         : widget.receiptEntity.grandTotal;
-    if (widget.receiptEntity.downPayments != null && widget.receiptEntity.downPayments!.isNotEmpty) {
+    if (widget.receiptEntity.downPayments != null &&
+        widget.receiptEntity.downPayments!.isNotEmpty) {
       for (DownPaymentEntity dp in (widget.receiptEntity.downPayments ?? [])) {
         totalDP += dp.amount;
       }
@@ -787,7 +827,8 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -796,7 +837,8 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
           padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
           child: const Text(
             'Promotion Check',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(
+                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -848,7 +890,8 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                       width: 150,
                       alignment: Alignment.centerRight,
                       child: Text(
-                        Helpers.parseMoney((widget.receiptEntity.discHeaderManual ?? 0) * -1),
+                        Helpers.parseMoney(
+                            (widget.receiptEntity.discHeaderManual ?? 0) * -1),
                         style: const TextStyle(fontSize: 14),
                       ),
                     )
@@ -915,7 +958,8 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                       width: 200,
                       child: Text(
                         "Final Grand Total",
-                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 14),
                       ),
                     ),
                     const SizedBox(
@@ -964,9 +1008,12 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5))),
+                    backgroundColor: WidgetStateColor.resolveWith(
+                        (states) => ProjectColors.primary),
+                    overlayColor: WidgetStateColor.resolveWith(
+                        (states) => Colors.white.withOpacity(.2))),
                 onPressed: () {
                   context.pop(true);
                 },

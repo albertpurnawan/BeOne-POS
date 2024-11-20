@@ -45,7 +45,8 @@ class AuthInputDiscountDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<AuthInputDiscountDialog> createState() => _AuthInputDiscountDialogState();
+  State<AuthInputDiscountDialog> createState() =>
+      _AuthInputDiscountDialogState();
 }
 
 class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
@@ -69,10 +70,14 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     String check = "";
     String category = "discandround";
 
-    final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(username, null);
+    final UserModel? user = await GetIt.instance<AppDatabase>()
+        .userDao
+        .readByUsername(username, null);
 
     if (user != null) {
-      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, category, null);
+      final tastr = await GetIt.instance<AppDatabase>()
+          .authStoreDao
+          .readByTousrId(user.docId, category, null);
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
         if (tastr.statusActive != 1) {
@@ -91,32 +96,38 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     return check;
   }
 
-  Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
+  Future<void> onSubmit(
+      BuildContext childContext, BuildContext parentContext) async {
     FocusScope.of(context).unfocus();
     if (!formKey.currentState!.validate()) return;
-    String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
+    String passwordCorrect =
+        await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
       await updateReceiptApprovals(childContext);
-      await childContext
-          .read<ReceiptCubit>()
-          .updateTotalAmountFromDiscount(widget.discountValue, widget.lineDiscountParameters);
+      await childContext.read<ReceiptCubit>().updateTotalAmountFromDiscount(
+          widget.discountValue, widget.lineDiscountParameters);
       Navigator.of(childContext).pop();
       Navigator.of(childContext).pop(widget.discountValue);
     } else {
-      final message = passwordCorrect == "Wrong Password" ? "Invalid username or password" : "Unauthorized";
+      final message = passwordCorrect == "Wrong Password"
+          ? "Invalid username or password"
+          : "Unauthorized";
       SnackBarHelper.presentErrorSnackBar(childContext, message);
       if (Platform.isWindows) _usernameFocusNode.requestFocus();
     }
   }
 
   Future<void> updateReceiptApprovals(BuildContext context) async {
-    final user = await GetIt.instance<AppDatabase>().userDao.readByUsername(usernameController.text, null);
+    final user = await GetIt.instance<AppDatabase>()
+        .userDao
+        .readByUsername(usernameController.text, null);
     final receiptCubit = context.read<ReceiptCubit>();
 
-    final double lineDiscountsTotal =
-        widget.lineDiscountParameters.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
-    final int appliedLineDiscountsCount =
-        widget.lineDiscountParameters.where((element) => element.lineDiscountAmount != 0).length;
+    final double lineDiscountsTotal = widget.lineDiscountParameters.fold(0,
+        (previousValue, element) => previousValue + element.lineDiscountAmount);
+    final int appliedLineDiscountsCount = widget.lineDiscountParameters
+        .where((element) => element.lineDiscountAmount != 0)
+        .length;
 
     final approval = ApprovalInvoiceModel(
       docId: const Uuid().v4(),
@@ -133,21 +144,29 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
 
   Future<String> createOTP() async {
     try {
-      final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+      final POSParameterEntity? topos =
+          await GetIt.instance<GetPosParameterUseCase>().call();
       if (topos == null) throw "Failed to retrieve POS Parameter";
 
-      final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
+      final StoreMasterEntity? store =
+          await GetIt.instance<GetStoreMasterUseCase>()
+              .call(params: topos.tostrId);
       if (store == null) throw "Failed to retrieve Store Master";
 
-      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
+      final cashierMachine = await GetIt.instance<AppDatabase>()
+          .cashRegisterDao
+          .readByDocId(topos.tocsrId!, null);
       if (cashierMachine == null) throw "Failed to retrieve Cash Register";
 
       final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       final userId = prefs.getString('tousrId') ?? "";
       final employeeId = prefs.getString('tohemId') ?? "";
-      final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
+      final user =
+          await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
       if (user == null) throw "User Not Found";
-      final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
+      final employee = await GetIt.instance<AppDatabase>()
+          .employeeDao
+          .readByDocId(employeeId, null);
 
       final receipt = context.read<ReceiptCubit>().state;
 
@@ -160,14 +179,17 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
       //   "Total After Discount": Helpers.parseMoney(receipt.grandTotal - widget.discountValue),
       // };
 
-      final String subject = "OTP RUBY POS Discount or Rounding - [${store.storeCode}]";
+      final String subject =
+          "OTP RUBY POS Discount or Rounding - [${store.storeCode}]";
       final String lineDiscountsString = widget.lineDiscountParameters
           .where((element) => element.lineDiscountAmount != 0)
           .map((e) =>
               "${e.receiptItemEntity.itemEntity.barcode} - ${e.receiptItemEntity.itemEntity.itemName}\n      Qty. ${Helpers.cleanDecimal(e.receiptItemEntity.quantity, 5)}\n      Total Amount: ${Helpers.parseMoney(e.receiptItemEntity.totalAmount)}\n      Discount: ${Helpers.parseMoney(e.lineDiscountAmount)}\n      Final Total Amount: ${Helpers.parseMoney(e.receiptItemEntity.totalAmount - e.lineDiscountAmount)}")
           .join(",\n\n      ");
-      final double lineDiscountsTotal =
-          widget.lineDiscountParameters.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
+      final double lineDiscountsTotal = widget.lineDiscountParameters.fold(
+          0,
+          (previousValue, element) =>
+              previousValue + element.lineDiscountAmount);
 
       final String body = '''
 
@@ -182,7 +204,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     Total Line Discounts: ${Helpers.parseMoney(lineDiscountsTotal)},
     Final Grand Total: ${Helpers.parseMoney(widget.finalGrandTotal)},
 ''';
-      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
+      final response = await GetIt.instance<OTPServiceAPi>()
+          .createSendOTP(context, null, subject, body);
       log("RESPONSE OTP - $response");
       return response['Requester'];
     } catch (e) {
@@ -260,16 +283,21 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
             child: AlertDialog(
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
-              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
               title: Container(
                 decoration: const BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
                 child: const Text(
                   'Header Discount Authorization',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white),
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -295,13 +323,17 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                 _usernameFocusNode.unfocus();
                                 await onSubmit(childContext, parentContext);
                               },
-                              validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
+                              validator: (val) => val == null || val.isEmpty
+                                  ? "Username is required"
+                                  : null,
                               textAlign: TextAlign.left,
                               style: const TextStyle(fontSize: 20),
                               decoration: const InputDecoration(
                                   contentPadding: EdgeInsets.all(10),
                                   hintText: "Username",
-                                  hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
+                                  hintStyle: TextStyle(
+                                      fontStyle: FontStyle.italic,
+                                      fontSize: 20),
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(
                                     Icons.person_4,
@@ -322,13 +354,16 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                 _passwordFocusNode.unfocus();
                                 await onSubmit(childContext, parentContext);
                               },
-                              validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
+                              validator: (val) => val == null || val.isEmpty
+                                  ? "Password is required"
+                                  : null,
                               textAlign: TextAlign.left,
                               style: const TextStyle(fontSize: 20),
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.all(10),
                                 hintText: "Password",
-                                hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
+                                hintStyle: const TextStyle(
+                                    fontStyle: FontStyle.italic, fontSize: 20),
                                 border: const OutlineInputBorder(),
                                 prefixIcon: const Icon(
                                   Icons.lock,
@@ -336,7 +371,9 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureText ? Icons.visibility : Icons.visibility_off,
+                                    _obscureText
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
                                     size: 20,
                                   ),
                                   onPressed: () {
@@ -358,7 +395,9 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                     TextSpan(
                                       text: 'Use OTP Instead',
                                       style: TextStyle(
-                                        color: _isOTPClicked ? Colors.grey : ProjectColors.lightBlack,
+                                        color: _isOTPClicked
+                                            ? Colors.grey
+                                            : ProjectColors.lightBlack,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 16,
                                       ),
@@ -371,7 +410,9 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                     TextSpan(
                                       text: " (F11)",
                                       style: TextStyle(
-                                          color: _isOTPClicked ? Colors.grey : ProjectColors.lightBlack,
+                                          color: _isOTPClicked
+                                              ? Colors.grey
+                                              : ProjectColors.lightBlack,
                                           fontSize: 16,
                                           fontWeight: FontWeight.w300),
                                     ),
@@ -395,12 +436,18 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                               Expanded(
                                   child: TextButton(
                                 style: ButtonStyle(
-                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5),
-                                        side: const BorderSide(color: ProjectColors.primary))),
-                                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                                    overlayColor: MaterialStateColor.resolveWith(
-                                        (states) => ProjectColors.primary.withOpacity(.2))),
+                                    shape: WidgetStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            side: const BorderSide(
+                                                color: ProjectColors.primary))),
+                                    backgroundColor:
+                                        WidgetStateColor.resolveWith(
+                                            (states) => Colors.white),
+                                    overlayColor: WidgetStateColor.resolveWith(
+                                        (states) => ProjectColors.primary
+                                            .withOpacity(.2))),
                                 onPressed: () {
                                   Navigator.of(childContext).pop();
                                 },
@@ -410,14 +457,17 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                       children: [
                                         TextSpan(
                                           text: "Cancel",
-                                          style: TextStyle(fontWeight: FontWeight.w600),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600),
                                         ),
                                         TextSpan(
                                           text: "  (Esc)",
-                                          style: TextStyle(fontWeight: FontWeight.w300),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w300),
                                         ),
                                       ],
-                                      style: TextStyle(color: ProjectColors.primary),
+                                      style: TextStyle(
+                                          color: ProjectColors.primary),
                                     ),
                                     overflow: TextOverflow.clip,
                                   ),
@@ -427,12 +477,18 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                               Expanded(
                                   child: TextButton(
                                 style: ButtonStyle(
-                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5),
-                                        side: const BorderSide(color: ProjectColors.primary))),
-                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                                    overlayColor:
-                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                                    shape: WidgetStatePropertyAll(
+                                        RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            side: const BorderSide(
+                                                color: ProjectColors.primary))),
+                                    backgroundColor:
+                                        WidgetStateColor.resolveWith(
+                                            (states) => ProjectColors.primary),
+                                    overlayColor: WidgetStateColor.resolveWith(
+                                        (states) =>
+                                            Colors.white.withOpacity(.2))),
                                 onPressed: () async {
                                   FocusScope.of(childContext).unfocus();
                                   await onSubmit(childContext, parentContext);
@@ -443,11 +499,13 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                       children: [
                                         TextSpan(
                                           text: "Confirm",
-                                          style: TextStyle(fontWeight: FontWeight.w600),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w600),
                                         ),
                                         TextSpan(
                                           text: "  (Enter)",
-                                          style: TextStyle(fontWeight: FontWeight.w300),
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w300),
                                         ),
                                       ],
                                     ),

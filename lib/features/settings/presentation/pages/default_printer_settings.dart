@@ -47,9 +47,18 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
     if (Platform.isWindows) defaultPrinterType = PrinterType.usb;
     super.initState();
 
-    if (GetIt.instance<SharedPreferences>().getStringList("defaultPrinter") != null) {
-      final [deviceName, address, port, vendorId, productId, isBle, typePrinter, state] =
-          GetIt.instance<SharedPreferences>().getStringList("defaultPrinter")!;
+    if (GetIt.instance<SharedPreferences>().getStringList("defaultPrinter") !=
+        null) {
+      final [
+        deviceName,
+        address,
+        port,
+        vendorId,
+        productId,
+        isBle,
+        typePrinter,
+        state
+      ] = GetIt.instance<SharedPreferences>().getStringList("defaultPrinter")!;
 
       selectedPrinter = BluetoothPrinter(
         deviceName: deviceName == "null" ? null : deviceName,
@@ -74,7 +83,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
     _scan();
 
     // subscription to listen change status of bluetooth connection
-    _subscriptionBtStatus = PrinterManager.instance.stateBluetooth.listen((status) {
+    _subscriptionBtStatus =
+        PrinterManager.instance.stateBluetooth.listen((status) {
       log(' ----------------- status bt $status ------------------ ');
       _currentStatus = status;
       if (status == BTStatus.connected) {
@@ -90,11 +100,13 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
       if (status == BTStatus.connected && pendingTask != null) {
         if (Platform.isAndroid) {
           Future.delayed(const Duration(milliseconds: 1000), () {
-            PrinterManager.instance.send(type: PrinterType.bluetooth, bytes: pendingTask!);
+            PrinterManager.instance
+                .send(type: PrinterType.bluetooth, bytes: pendingTask!);
             pendingTask = null;
           });
         } else if (Platform.isIOS) {
-          PrinterManager.instance.send(type: PrinterType.bluetooth, bytes: pendingTask!);
+          PrinterManager.instance
+              .send(type: PrinterType.bluetooth, bytes: pendingTask!);
           pendingTask = null;
         }
       }
@@ -106,7 +118,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
       if (Platform.isAndroid) {
         if (status == USBStatus.connected && pendingTask != null) {
           Future.delayed(const Duration(milliseconds: 1000), () {
-            PrinterManager.instance.send(type: PrinterType.usb, bytes: pendingTask!);
+            PrinterManager.instance
+                .send(type: PrinterType.usb, bytes: pendingTask!);
             pendingTask = null;
           });
         }
@@ -134,7 +147,9 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
   // method to scan devices according PrinterType
   void _scan() {
     devices.clear();
-    _subscription = printerManager.discovery(type: defaultPrinterType, isBle: _isBle).listen((device) {
+    _subscription = printerManager
+        .discovery(type: defaultPrinterType, isBle: _isBle)
+        .listen((device) {
       devices.add(BluetoothPrinter(
         deviceName: device.name,
         address: device.address,
@@ -175,8 +190,10 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
   void selectDevice(BluetoothPrinter device) async {
     if (selectedPrinter != null) {
       if ((device.address != selectedPrinter!.address) ||
-          (device.typePrinter == PrinterType.usb && selectedPrinter!.vendorId != device.vendorId)) {
-        await PrinterManager.instance.disconnect(type: selectedPrinter!.typePrinter);
+          (device.typePrinter == PrinterType.usb &&
+              selectedPrinter!.vendorId != device.vendorId)) {
+        await PrinterManager.instance
+            .disconnect(type: selectedPrinter!.typePrinter);
       }
     }
 
@@ -223,7 +240,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
     // PaperSize.mm80 or PaperSize.mm58
     final generator = Generator(PaperSize.mm58, profile);
     bytes += generator.setGlobalCodeTable('CP1252');
-    bytes += generator.text('Test Print', styles: const PosStyles(align: PosAlign.left));
+    bytes += generator.text('Test Print',
+        styles: const PosStyles(align: PosAlign.left));
     bytes += generator.text('Product 1');
     bytes += generator.text('Product 2');
 
@@ -236,7 +254,10 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
           width: 8,
           text: 'Lemon lime export quality per pound x 5 units',
           styles: const PosStyles(align: PosAlign.left, codeTable: 'CP1252')),
-      PosColumn(width: 4, text: 'USD 2.00', styles: const PosStyles(align: PosAlign.right, codeTable: 'CP1252')),
+      PosColumn(
+          width: 4,
+          text: 'USD 2.00',
+          styles: const PosStyles(align: PosAlign.right, codeTable: 'CP1252')),
     ]);
 
     // final ByteData data = await rootBundle.load('assets/ic_launcher.png');
@@ -267,8 +288,16 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
 
     // // Chinese characters
     bytes += generator.row([
-      PosColumn(width: 8, text: '豚肉・木耳と玉子炒め弁当', styles: const PosStyles(align: PosAlign.left), containsChinese: true),
-      PosColumn(width: 4, text: '￥1,990', styles: const PosStyles(align: PosAlign.right), containsChinese: true),
+      PosColumn(
+          width: 8,
+          text: '豚肉・木耳と玉子炒め弁当',
+          styles: const PosStyles(align: PosAlign.left),
+          containsChinese: true),
+      PosColumn(
+          width: 4,
+          text: '￥1,990',
+          styles: const PosStyles(align: PosAlign.right),
+          containsChinese: true),
     ]);
 
     // final List<int> barData = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 4];
@@ -316,12 +345,14 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
         bytes += generator.feed(2);
         bytes += generator.cut();
         connectedTCP = await printerManager.connect(
-            type: bluetoothPrinter.typePrinter, model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
+            type: bluetoothPrinter.typePrinter,
+            model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
         if (!connectedTCP) log(' --- please review your connection ---');
         break;
       default:
     }
-    if (bluetoothPrinter.typePrinter == PrinterType.bluetooth && Platform.isAndroid) {
+    if (bluetoothPrinter.typePrinter == PrinterType.bluetooth &&
+        Platform.isAndroid) {
       if (_currentStatus == BTStatus.connected) {
         printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
         pendingTask = null;
@@ -356,7 +387,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
         break;
       case PrinterType.network:
         await printerManager.connect(
-            type: selectedPrinter!.typePrinter, model: TcpPrinterInput(ipAddress: selectedPrinter!.address!));
+            type: selectedPrinter!.typePrinter,
+            model: TcpPrinterInput(ipAddress: selectedPrinter!.address!));
         _isConnected = true;
         break;
       default:
@@ -433,7 +465,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                 height: 30,
               ),
               Visibility(
-                visible: defaultPrinterType == PrinterType.bluetooth && Platform.isAndroid,
+                visible: defaultPrinterType == PrinterType.bluetooth &&
+                    Platform.isAndroid,
                 child: SwitchListTile.adaptive(
                   contentPadding: const EdgeInsets.all(10),
                   title: const Text(
@@ -453,7 +486,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                 ),
               ),
               Visibility(
-                visible: defaultPrinterType == PrinterType.bluetooth && Platform.isAndroid,
+                visible: defaultPrinterType == PrinterType.bluetooth &&
+                    Platform.isAndroid,
                 child: SwitchListTile.adaptive(
                   contentPadding: const EdgeInsets.all(10),
                   title: const Text(
@@ -470,7 +504,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                 ),
               ),
               Container(
-                constraints: BoxConstraints(maxHeight: 0.5 * MediaQuery.of(context).size.height),
+                constraints: BoxConstraints(
+                    maxHeight: 0.5 * MediaQuery.of(context).size.height),
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(),
                   child: Column(
@@ -482,19 +517,30 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                                   title: Text(
                                     '${device.deviceName}',
                                   ),
-                                  subtitle: Platform.isAndroid && defaultPrinterType == PrinterType.usb
+                                  subtitle: Platform.isAndroid &&
+                                          defaultPrinterType == PrinterType.usb
                                       ? null
-                                      : Visibility(visible: !Platform.isWindows, child: Text("${device.address}")),
+                                      : Visibility(
+                                          visible: !Platform.isWindows,
+                                          child: Text("${device.address}")),
                                   onTap: () {
                                     // do something
                                     selectDevice(device);
                                   },
                                   leading: selectedPrinter != null &&
-                                          ((device.typePrinter == PrinterType.usb && Platform.isWindows
-                                                  ? device.deviceName == selectedPrinter!.deviceName
+                                          ((device.typePrinter ==
+                                                          PrinterType.usb &&
+                                                      Platform.isWindows
+                                                  ? device.deviceName ==
+                                                      selectedPrinter!
+                                                          .deviceName
                                                   : device.vendorId != null &&
-                                                      selectedPrinter!.vendorId == device.vendorId) ||
-                                              (device.address != null && selectedPrinter!.address == device.address))
+                                                      selectedPrinter!
+                                                              .vendorId ==
+                                                          device.vendorId) ||
+                                              (device.address != null &&
+                                                  selectedPrinter!.address ==
+                                                      device.address))
                                       ? const Icon(
                                           Icons.check,
                                           color: Colors.green,
@@ -502,46 +548,58 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                                       : null,
                                   trailing: OutlinedButton(
                                     style: ButtonStyle(
-                                        shape: MaterialStatePropertyAll(
+                                        shape: WidgetStatePropertyAll(
                                           RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(5),
+                                            borderRadius:
+                                                BorderRadius.circular(5),
                                           ),
                                         ),
-                                        side:
-                                            selectedPrinter == null || device.deviceName != selectedPrinter?.deviceName
-                                                ? MaterialStateBorderSide.resolveWith((states) {
-                                                    states.map((e) => log(e.toString()));
-                                                    return const BorderSide(
-                                                      color: Color.fromARGB(255, 111, 111, 111),
-                                                    );
-                                                  })
-                                                : MaterialStateBorderSide.resolveWith((states) {
-                                                    states.map((e) => log(e.toString()));
-                                                    return const BorderSide(
-                                                      color: ProjectColors.primary,
-                                                    );
-                                                  })),
-                                    onPressed:
-                                        selectedPrinter == null || device.deviceName != selectedPrinter?.deviceName
-                                            ? null
-                                            : () async {
-                                                _printReceiveTest();
-                                              },
+                                        side: selectedPrinter == null ||
+                                                device.deviceName !=
+                                                    selectedPrinter?.deviceName
+                                            ? WidgetStateBorderSide.resolveWith(
+                                                (states) {
+                                                states.map(
+                                                    (e) => log(e.toString()));
+                                                return const BorderSide(
+                                                  color: Color.fromARGB(
+                                                      255, 111, 111, 111),
+                                                );
+                                              })
+                                            : WidgetStateBorderSide.resolveWith(
+                                                (states) {
+                                                states.map(
+                                                    (e) => log(e.toString()));
+                                                return const BorderSide(
+                                                  color: ProjectColors.primary,
+                                                );
+                                              })),
+                                    onPressed: selectedPrinter == null ||
+                                            device.deviceName !=
+                                                selectedPrinter?.deviceName
+                                        ? null
+                                        : () async {
+                                            _printReceiveTest();
+                                          },
                                     child: const Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 2, horizontal: 20),
-                                      child: Text("Print test ticket", textAlign: TextAlign.center),
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 2, horizontal: 20),
+                                      child: Text("Print test ticket",
+                                          textAlign: TextAlign.center),
                                     ),
                                   ),
                                 ),
                               )
                               .toList()),
                       Visibility(
-                        visible: defaultPrinterType == PrinterType.network && Platform.isWindows,
+                        visible: defaultPrinterType == PrinterType.network &&
+                            Platform.isWindows,
                         child: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
                           child: TextFormField(
                             controller: _ipController,
-                            keyboardType: const TextInputType.numberWithOptions(signed: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                signed: true),
                             decoration: const InputDecoration(
                               label: Text("Ip Address"),
                               prefixIcon: Icon(Icons.wifi, size: 24),
@@ -551,22 +609,26 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                         ),
                       ),
                       Visibility(
-                        visible: defaultPrinterType == PrinterType.network && Platform.isWindows,
+                        visible: defaultPrinterType == PrinterType.network &&
+                            Platform.isWindows,
                         child: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
                           child: TextFormField(
                             controller: _portController,
-                            keyboardType: const TextInputType.numberWithOptions(signed: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                signed: true),
                             decoration: const InputDecoration(
                               label: Text("Port"),
-                              prefixIcon: Icon(Icons.numbers_outlined, size: 24),
+                              prefixIcon:
+                                  Icon(Icons.numbers_outlined, size: 24),
                             ),
                             onChanged: setPort,
                           ),
                         ),
                       ),
                       Visibility(
-                        visible: defaultPrinterType == PrinterType.network && Platform.isWindows,
+                        visible: defaultPrinterType == PrinterType.network &&
+                            Platform.isWindows,
                         child: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
                           child: OutlinedButton(
@@ -577,8 +639,10 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                               _printReceiveTest();
                             },
                             child: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 4, horizontal: 50),
-                              child: Text("Print test ticket", textAlign: TextAlign.center),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 50),
+                              child: Text("Print test ticket",
+                                  textAlign: TextAlign.center),
                             ),
                           ),
                         ),
@@ -658,23 +722,29 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                     Expanded(
                       child: ElevatedButton(
                         style: ButtonStyle(
-                            padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 10)),
-                            shape: MaterialStatePropertyAll(
-                                RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                            padding: const WidgetStatePropertyAll(
+                                EdgeInsets.symmetric(vertical: 10)),
+                            shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5))),
                             backgroundColor: selectedPrinter == null || _isConnected
-                                ? MaterialStateColor.resolveWith((states) => const Color.fromARGB(255, 200, 200, 200))
-                                : MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                                ? WidgetStateColor.resolveWith((states) =>
+                                    const Color.fromARGB(255, 200, 200, 200))
+                                : WidgetStateColor.resolveWith(
+                                    (states) => ProjectColors.primary),
                             foregroundColor: selectedPrinter == null || _isConnected
-                                ? MaterialStateColor.resolveWith((states) => const Color.fromARGB(255, 111, 111, 111))
-                                : MaterialStateColor.resolveWith((states) => const Color.fromARGB(255, 255, 255, 255)),
-                            overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                                ? WidgetStateColor.resolveWith((states) =>
+                                    const Color.fromARGB(255, 111, 111, 111))
+                                : WidgetStateColor.resolveWith((states) =>
+                                    const Color.fromARGB(255, 255, 255, 255)),
+                            overlayColor: WidgetStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                         onPressed: selectedPrinter == null || _isConnected
                             ? null
                             : () {
                                 _setDeviceAsDefault();
                                 Navigator.pop(context);
                               },
-                        child: const Text("Set as Default", textAlign: TextAlign.center),
+                        child: const Text("Set as Default",
+                            textAlign: TextAlign.center),
                       ),
                     ),
                   ],

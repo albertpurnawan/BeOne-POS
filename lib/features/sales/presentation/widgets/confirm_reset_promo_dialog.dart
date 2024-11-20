@@ -7,7 +7,8 @@ class ConfirmResetPromoDialog extends StatefulWidget {
   const ConfirmResetPromoDialog({super.key});
 
   @override
-  State<ConfirmResetPromoDialog> createState() => _ConfirmResetPromoDialogState();
+  State<ConfirmResetPromoDialog> createState() =>
+      _ConfirmResetPromoDialogState();
 }
 
 class _ConfirmResetPromoDialogState extends State<ConfirmResetPromoDialog> {
@@ -44,7 +45,8 @@ class _ConfirmResetPromoDialogState extends State<ConfirmResetPromoDialog> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -53,7 +55,8 @@ class _ConfirmResetPromoDialogState extends State<ConfirmResetPromoDialog> {
           padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
           child: const Text(
             'Caution',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(
+                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -74,7 +77,8 @@ class _ConfirmResetPromoDialogState extends State<ConfirmResetPromoDialog> {
                 text: const TextSpan(
                   children: [
                     TextSpan(
-                      text: "Manual discount and several promotions will be resetted.",
+                      text:
+                          "Manual discount and several promotions will be resetted.",
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                     TextSpan(
@@ -102,11 +106,14 @@ class _ConfirmResetPromoDialogState extends State<ConfirmResetPromoDialog> {
                   flex: 1,
                   child: TextButton(
                     style: ButtonStyle(
-                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
-                            side: const BorderSide(color: ProjectColors.primary))),
-                        backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                            side: const BorderSide(
+                                color: ProjectColors.primary))),
+                        backgroundColor: WidgetStateColor.resolveWith(
+                            (states) => Colors.white),
+                        overlayColor: WidgetStateColor.resolveWith(
+                            (states) => Colors.black.withOpacity(.2))),
                     onPressed: () {
                       context.pop(false);
                     },
@@ -135,9 +142,12 @@ class _ConfirmResetPromoDialogState extends State<ConfirmResetPromoDialog> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5))),
+                    backgroundColor: WidgetStateColor.resolveWith(
+                        (states) => ProjectColors.primary),
+                    overlayColor: WidgetStateColor.resolveWith(
+                        (states) => Colors.white.withOpacity(.2))),
                 onPressed: () {
                   context.pop(true);
                 },

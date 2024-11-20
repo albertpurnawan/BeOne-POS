@@ -23,19 +23,22 @@ class InputLineDiscountDialog extends StatefulWidget {
       required this.lineDiscount});
 
   @override
-  State<InputLineDiscountDialog> createState() => _InputLineDiscountDialogState();
+  State<InputLineDiscountDialog> createState() =>
+      _InputLineDiscountDialogState();
 }
 
 class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
   final FocusNode _inputReturnedQtyFocusNode = FocusNode();
 
-  final TextEditingController _inputReturnedQtyEditingController = TextEditingController();
+  final TextEditingController _inputReturnedQtyEditingController =
+      TextEditingController();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _inputReturnedQtyEditingController.text = Helpers.parseMoney(widget.lineDiscount);
+    _inputReturnedQtyEditingController.text =
+        Helpers.parseMoney(widget.lineDiscount);
   }
 
   @override
@@ -59,7 +62,8 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -70,7 +74,10 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
             children: [
               const Text(
                 'Line Discount',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white),
               ),
               const Spacer(),
               ExcludeFocus(
@@ -109,11 +116,15 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                                 onSubmitted: (_) => _saveLineDiscount(),
                                 onChanged: (value) => setState(() {}),
                                 autofocus: true,
-                                inputFormatters: [NegativeMoneyInputFormatter()],
+                                inputFormatters: [
+                                  NegativeMoneyInputFormatter()
+                                ],
                                 keyboardType: TextInputType.number,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 66, 66, 66)),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color.fromARGB(255, 66, 66, 66)),
                                 controller: _inputReturnedQtyEditingController,
                                 focusNode: _inputReturnedQtyFocusNode,
                                 decoration: const InputDecoration(
@@ -168,10 +179,15 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Container(
                     padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(color: ProjectColors.background, borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(
+                        color: ProjectColors.background,
+                        borderRadius: BorderRadius.circular(5)),
                     child: Table(
                       // defaultColumnWidth: IntrinsicColumnWidth(),
-                      columnWidths: const {0: FixedColumnWidth(150), 1: FlexColumnWidth()},
+                      columnWidths: const {
+                        0: FixedColumnWidth(150),
+                        1: FlexColumnWidth()
+                      },
                       children: [
                         TableRow(
                           children: [
@@ -184,7 +200,8 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                             TableCell(
                               child: Text(
                                 widget.receiptItemEntity.itemEntity.barcode,
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 12),
                               ),
                             ),
                           ],
@@ -200,7 +217,8 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                             TableCell(
                               child: Text(
                                 widget.receiptItemEntity.itemEntity.itemName,
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 12),
                               ),
                             ),
                           ],
@@ -215,8 +233,10 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                             ),
                             TableCell(
                               child: Text(
-                                Helpers.cleanDecimal(widget.receiptItemEntity.quantity, 3),
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                Helpers.cleanDecimal(
+                                    widget.receiptItemEntity.quantity, 3),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 12),
                               ),
                             ),
                           ],
@@ -231,8 +251,11 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                             ),
                             TableCell(
                               child: Text(
-                                Helpers.parseMoney(widget.receiptItemEntity.totalAmount.round()),
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                Helpers.parseMoney(widget
+                                    .receiptItemEntity.totalAmount
+                                    .round()),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 12),
                               ),
                             ),
                           ],
@@ -250,7 +273,8 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                                 _inputReturnedQtyEditingController.text == ""
                                     ? "0"
                                     : _inputReturnedQtyEditingController.text,
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 12),
                               ),
                             ),
                           ],
@@ -272,16 +296,20 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                             const TableCell(
                               child: Text(
                                 "Total Amt. (Tax Inc.)",
-                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 12),
                               ),
                             ),
                             TableCell(
                               child: Text(
-                                Helpers.parseMoney((widget.receiptItemEntity.totalAmount -
+                                Helpers.parseMoney((widget
+                                            .receiptItemEntity.totalAmount -
                                         Helpers.revertMoneyToDecimalFormatDouble(
-                                            _inputReturnedQtyEditingController.text))
+                                            _inputReturnedQtyEditingController
+                                                .text))
                                     .round()),
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700, fontSize: 12),
                               ),
                             ),
                           ],
@@ -301,10 +329,13 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
-                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                    overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
+                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        side: const BorderSide(color: ProjectColors.primary))),
+                    backgroundColor:
+                        WidgetStateColor.resolveWith((states) => Colors.white),
+                    overlayColor: WidgetStateColor.resolveWith(
+                        (states) => ProjectColors.primary.withOpacity(.2))),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -331,12 +362,14 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                       side: const BorderSide(color: ProjectColors.primary),
                     )),
-                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                    backgroundColor: WidgetStateColor.resolveWith(
+                        (states) => ProjectColors.primary),
+                    overlayColor: WidgetStateColor.resolveWith(
+                        (states) => Colors.white.withOpacity(.2))),
                 onPressed: () => _saveLineDiscount(),
                 child: Center(
                   child: RichText(
@@ -365,9 +398,11 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
 
   void _saveLineDiscount({double? amount}) {
     try {
-      final double lineDiscountAmount =
-          amount ?? Helpers.revertMoneyToDecimalFormatDouble(_inputReturnedQtyEditingController.text);
-      if (lineDiscountAmount < widget.min || lineDiscountAmount > widget.max) throw "Invalid amount";
+      final double lineDiscountAmount = amount ??
+          Helpers.revertMoneyToDecimalFormatDouble(
+              _inputReturnedQtyEditingController.text);
+      if (lineDiscountAmount < widget.min || lineDiscountAmount > widget.max)
+        throw "Invalid amount";
       context.pop(lineDiscountAmount);
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());

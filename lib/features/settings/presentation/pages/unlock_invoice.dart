@@ -64,11 +64,14 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   }
 
   Future<List<InvoiceDetailModel>?> _searchInvoiceDetail(String docNum) async {
-    final invoiceDetail = await GetIt.instance<AppDatabase>().invoiceDetailDao.readByRefpos2(docNum, null);
+    final invoiceDetail = await GetIt.instance<AppDatabase>()
+        .invoiceDetailDao
+        .readByRefpos2(docNum, null);
     return invoiceDetail;
   }
 
-  Future<Map<InvoiceDetailModel, Map<String, dynamic>>> _fetchSearchResultsWithDetails() async {
+  Future<Map<InvoiceDetailModel, Map<String, dynamic>>>
+      _fetchSearchResultsWithDetails() async {
     final searchResults = invoiceFound;
 
     if (searchResults == null) {
@@ -78,7 +81,8 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
     final resultMap = <InvoiceDetailModel, Map<String, dynamic>>{};
 
     for (var invoice in searchResults) {
-      final additionalDetails = await _searchInvoiceDetail(invoice.refpos2 ?? "");
+      final additionalDetails =
+          await _searchInvoiceDetail(invoice.refpos2 ?? "");
 
       resultMap[invoice] = {
         'additionalDetails': additionalDetails ?? [],
@@ -99,32 +103,41 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
     }
   }
 
-  Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
+  Future<void> onSubmit(
+      BuildContext childContext, BuildContext parentContext) async {
     FocusScope.of(context).unfocus();
     if (_formKey.currentState == null) return;
     if (!_formKey.currentState!.validate()) return;
 
-    String passwordCorrect = await checkPassword(_usernameController.text, _passwordController.text);
+    String passwordCorrect =
+        await checkPassword(_usernameController.text, _passwordController.text);
     if (passwordCorrect == "Success") {
       if (!context.mounted) return;
 
       // unlock DP HERE
-      final String cashierName = GetIt.instance<SharedPreferences>().getString("username") ?? "";
-      final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(cashierName, null);
+      final String cashierName =
+          GetIt.instance<SharedPreferences>().getString("username") ?? "";
+      final UserModel? user = await GetIt.instance<AppDatabase>()
+          .userDao
+          .readByUsername(cashierName, null);
       List<String> docnumList = [selectedInvoice?.refpos2 ?? fullDocnum];
       if (user != null) {
-        String checkLock = await GetIt.instance<InvoiceApi>().unlockInvoice(user.docId, docnumList);
+        String checkLock = await GetIt.instance<InvoiceApi>()
+            .unlockInvoice(user.docId, docnumList);
         log("checkLock - $checkLock");
         if (checkLock != 'Unlock Down Payment success') {
-          SnackBarHelper.presentErrorSnackBar(
-              childContext, "Failed to process, please check your connection and try again");
+          SnackBarHelper.presentErrorSnackBar(childContext,
+              "Failed to process, please check your connection and try again");
           return;
         }
       }
-      SnackBarHelper.presentSuccessSnackBar(context, "Invoice unlocked successfully", 3);
+      SnackBarHelper.presentSuccessSnackBar(
+          context, "Invoice unlocked successfully", 3);
       Navigator.pop(childContext);
     } else {
-      final message = passwordCorrect == "Wrong Password" ? "Invalid username or password" : "Unauthorized";
+      final message = passwordCorrect == "Wrong Password"
+          ? "Invalid username or password"
+          : "Unauthorized";
       SnackBarHelper.presentErrorSnackBar(childContext, message);
       if (Platform.isWindows) _usernameFocusNode.requestFocus();
     }
@@ -135,10 +148,14 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
     String check = "";
     String category = "discandround";
 
-    final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(username, null);
+    final UserModel? user = await GetIt.instance<AppDatabase>()
+        .userDao
+        .readByUsername(username, null);
 
     if (user != null) {
-      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, category, null);
+      final tastr = await GetIt.instance<AppDatabase>()
+          .authStoreDao
+          .readByTousrId(user.docId, category, null);
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
         if (tastr.statusActive != 1) {
@@ -192,21 +209,29 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
     try {
       final DateTime now = DateTime.now();
 
-      final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+      final POSParameterEntity? topos =
+          await GetIt.instance<GetPosParameterUseCase>().call();
       if (topos == null) throw "Failed to retrieve POS Parameter";
 
-      final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
+      final StoreMasterEntity? store =
+          await GetIt.instance<GetStoreMasterUseCase>()
+              .call(params: topos.tostrId);
       if (store == null) throw "Failed to retrieve Store Master";
 
-      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
+      final cashierMachine = await GetIt.instance<AppDatabase>()
+          .cashRegisterDao
+          .readByDocId(topos.tocsrId!, null);
       if (cashierMachine == null) throw "Failed to retrieve Cash Register";
 
       final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       final userId = prefs.getString('tousrId') ?? "";
       final employeeId = prefs.getString('tohemId') ?? "";
-      final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
+      final user =
+          await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
       if (user == null) throw "User Not Found";
-      final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
+      final employee = await GetIt.instance<AppDatabase>()
+          .employeeDao
+          .readByDocId(employeeId, null);
 
       final String body = '''
     Approval For: Unlock Invoice,
@@ -217,9 +242,11 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
     Invoice Document Number: ${selectedInvoice?.refpos2 ?? fullDocnum}
 ''';
 
-      final String subject = "OTP RUBY POS Unlock Invoice - [${store.storeCode}]";
+      final String subject =
+          "OTP RUBY POS Unlock Invoice - [${store.storeCode}]";
 
-      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
+      final response = await GetIt.instance<OTPServiceAPi>()
+          .createSendOTP(context, null, subject, body);
 
       return response['Requester'];
     } catch (e) {
@@ -257,7 +284,8 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
           child: AlertDialog(
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.transparent,
-            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5.0))),
             title: Container(
               decoration: const BoxDecoration(
                 color: ProjectColors.primary,
@@ -266,7 +294,10 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
               padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
               child: const Text(
                 'Unlock Invoice',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white),
               ),
             ),
             titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -285,7 +316,8 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                       const Divider(),
                       if (!showInvoice)
                         Expanded(
-                          child: _searchResult(onInvoiceSelected: _handleInvoiceSelected),
+                          child: _searchResult(
+                              onInvoiceSelected: _handleInvoiceSelected),
                         ),
                       if (showInvoice)
                         SizedBox(
@@ -319,7 +351,8 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                     padding: EdgeInsets.only(left: 10),
                     child: Text(
                       "Search Invoice",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -334,22 +367,27 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                           decoration: InputDecoration(
                             contentPadding: const EdgeInsets.all(10),
                             hintText: "Type Invoice Document Number",
-                            hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
+                            hintStyle: const TextStyle(
+                                fontStyle: FontStyle.italic, fontSize: 18),
                             border: OutlineInputBorder(
-                              borderSide: const BorderSide(color: ProjectColors.mediumBlack, width: 2),
+                              borderSide: const BorderSide(
+                                  color: ProjectColors.mediumBlack, width: 2),
                               borderRadius: BorderRadius.circular(5),
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(color: ProjectColors.primary, width: 2),
+                              borderSide: const BorderSide(
+                                  color: ProjectColors.primary, width: 2),
                               borderRadius: BorderRadius.circular(5),
                             ),
                           ),
                           onTap: () {
-                            FocusScope.of(context).requestFocus(_invoiceDocNumFocusNode);
+                            FocusScope.of(context)
+                                .requestFocus(_invoiceDocNumFocusNode);
                           },
                           onEditingComplete: () async {
                             _invoiceDocNumFocusNode.unfocus();
-                            final invoiceSearched = await _searchInvoiceDetail(_invoiceDocNumTextController.text);
+                            final invoiceSearched = await _searchInvoiceDetail(
+                                _invoiceDocNumTextController.text);
                             setState(() {
                               invoiceFound = invoiceSearched;
                               showInvoice = false;
@@ -363,19 +401,24 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                       const SizedBox(width: 15),
                       ElevatedButton(
                         style: ButtonStyle(
-                          padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 11, horizontal: 20)),
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                            side: const BorderSide(color: ProjectColors.primary, width: 2),
+                          padding: const WidgetStatePropertyAll(
+                              EdgeInsets.symmetric(
+                                  vertical: 11, horizontal: 20)),
+                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                            side: const BorderSide(
+                                color: ProjectColors.primary, width: 2),
                             borderRadius: BorderRadius.circular(5),
                           )),
-                          backgroundColor: MaterialStateColor.resolveWith(
+                          backgroundColor: WidgetStateColor.resolveWith(
                             (states) => ProjectColors.primary,
                           ),
-                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2)),
+                          overlayColor: WidgetStateColor.resolveWith(
+                              (states) => Colors.white.withOpacity(.2)),
                         ),
                         onPressed: () async {
                           _invoiceDocNumFocusNode.unfocus();
-                          final invoiceSearched = await _searchInvoiceDetail(_invoiceDocNumTextController.text);
+                          final invoiceSearched = await _searchInvoiceDetail(
+                              _invoiceDocNumTextController.text);
                           setState(() {
                             invoiceFound = invoiceSearched;
                             showInvoice = false;
@@ -399,7 +442,8 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
     );
   }
 
-  Widget _searchResult({required Function(InvoiceDetailModel?) onInvoiceSelected}) {
+  Widget _searchResult(
+      {required Function(InvoiceDetailModel?) onInvoiceSelected}) {
     final query = _invoiceDocNumTextController.text.trim();
 
     // if (query.isEmpty) return const SizedBox.shrink();
@@ -412,7 +456,10 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
         // } else
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (snapshot.data == null || snapshot.data!.isEmpty && showInvoice == false && query.isNotEmpty) {
+        } else if (snapshot.data == null ||
+            snapshot.data!.isEmpty &&
+                showInvoice == false &&
+                query.isNotEmpty) {
           return Center(
             child: Column(
               children: [
@@ -436,22 +483,29 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                       Expanded(
                         child: ElevatedButton(
                           style: ButtonStyle(
-                            padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 11, horizontal: 20)),
-                            shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                              side: const BorderSide(color: ProjectColors.primary, width: 2),
+                            padding: const WidgetStatePropertyAll(
+                                EdgeInsets.symmetric(
+                                    vertical: 11, horizontal: 20)),
+                            shape:
+                                WidgetStatePropertyAll(RoundedRectangleBorder(
+                              side: const BorderSide(
+                                  color: ProjectColors.primary, width: 2),
                               borderRadius: BorderRadius.circular(5),
                             )),
-                            backgroundColor: MaterialStateColor.resolveWith(
+                            backgroundColor: WidgetStateColor.resolveWith(
                               (states) => ProjectColors.primary,
                             ),
-                            overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2)),
+                            overlayColor: WidgetStateColor.resolveWith(
+                                (states) => Colors.white.withOpacity(.2)),
                           ),
                           onPressed: () {
                             if (_invoiceDocNumTextController.text == "" ||
-                                _invoiceDocNumTextController.text.length != 24) {
+                                _invoiceDocNumTextController.text.length !=
+                                    24) {
                               log(_invoiceDocNumTextController.text);
                               _invoiceDocNumFocusNode.unfocus();
-                              SnackBarHelper.presentErrorSnackBar(context, "Please input the correct invoice number");
+                              SnackBarHelper.presentErrorSnackBar(context,
+                                  "Please input the correct invoice number");
                               return;
                             }
                             setState(() {
@@ -555,14 +609,18 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                       focusNode: _usernameFocusNode,
                       controller: _usernameController,
                       keyboardType: TextInputType.text,
-                      onFieldSubmitted: (value) async => await onSubmit(childContext, context),
-                      validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
+                      onFieldSubmitted: (value) async =>
+                          await onSubmit(childContext, context),
+                      validator: (val) => val == null || val.isEmpty
+                          ? "Username is required"
+                          : null,
                       textAlign: TextAlign.left,
                       style: const TextStyle(fontSize: 20),
                       decoration: const InputDecoration(
                           contentPadding: EdgeInsets.all(10),
                           hintText: "Username",
-                          hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
+                          hintStyle: TextStyle(
+                              fontStyle: FontStyle.italic, fontSize: 20),
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(
                             Icons.person_4,
@@ -580,13 +638,16 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                       onFieldSubmitted: (value) async {
                         await onSubmit(childContext, context);
                       },
-                      validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
+                      validator: (val) => val == null || val.isEmpty
+                          ? "Password is required"
+                          : null,
                       textAlign: TextAlign.left,
                       style: const TextStyle(fontSize: 20),
                       decoration: InputDecoration(
                         contentPadding: const EdgeInsets.all(10),
                         hintText: "Password",
-                        hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
+                        hintStyle: const TextStyle(
+                            fontStyle: FontStyle.italic, fontSize: 20),
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(
                           Icons.lock,
@@ -594,7 +655,9 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                         ),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _obscureText ? Icons.visibility : Icons.visibility_off,
+                            _obscureText
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                             size: 20,
                           ),
                           onPressed: () {
@@ -616,7 +679,9 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                             TextSpan(
                               text: 'Use OTP Instead',
                               style: TextStyle(
-                                color: _isOTPClicked ? Colors.grey : ProjectColors.lightBlack,
+                                color: _isOTPClicked
+                                    ? Colors.grey
+                                    : ProjectColors.lightBlack,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
                               ),
@@ -629,7 +694,9 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                             TextSpan(
                               text: " (F11)",
                               style: TextStyle(
-                                  color: _isOTPClicked ? Colors.grey : ProjectColors.lightBlack,
+                                  color: _isOTPClicked
+                                      ? Colors.grey
+                                      : ProjectColors.lightBlack,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w300),
                             ),
@@ -666,10 +733,13 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
             Expanded(
                 child: TextButton(
               style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
-                  backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                  overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      side: const BorderSide(color: ProjectColors.primary))),
+                  backgroundColor:
+                      WidgetStateColor.resolveWith((states) => Colors.white),
+                  overlayColor: WidgetStateColor.resolveWith(
+                      (states) => ProjectColors.primary.withOpacity(.2))),
               onPressed: () {
                 Navigator.of(childContext).pop();
               },
@@ -697,12 +767,16 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                 ? Expanded(
                     child: TextButton(
                       style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(color: ProjectColors.primary))),
-                          backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                      onPressed: () async => await onSubmit(childContext, context),
+                              side: const BorderSide(
+                                  color: ProjectColors.primary))),
+                          backgroundColor: WidgetStateColor.resolveWith(
+                              (states) => ProjectColors.primary),
+                          overlayColor: WidgetStateColor.resolveWith(
+                              (states) => Colors.white.withOpacity(.2))),
+                      onPressed: () async =>
+                          await onSubmit(childContext, context),
                       child: Center(
                         child: RichText(
                           text: const TextSpan(

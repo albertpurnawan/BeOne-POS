@@ -7,16 +7,19 @@ class CharactersPerLineSettings extends StatefulWidget {
   const CharactersPerLineSettings({super.key});
 
   @override
-  State<CharactersPerLineSettings> createState() => _CharachtersPerLineSettingsState();
+  State<CharactersPerLineSettings> createState() =>
+      _CharachtersPerLineSettingsState();
 }
 
-class _CharachtersPerLineSettingsState extends State<CharactersPerLineSettings> {
+class _CharachtersPerLineSettingsState
+    extends State<CharactersPerLineSettings> {
   int? radioValue;
 
   @override
   void initState() {
     super.initState();
-    final int? charactersPerLine = GetIt.instance<SharedPreferences>().getInt("charactersPerLine");
+    final int? charactersPerLine =
+        GetIt.instance<SharedPreferences>().getInt("charactersPerLine");
     radioValue = charactersPerLine == null || charactersPerLine == 42 ? 42 : 48;
   }
 
@@ -103,15 +106,22 @@ class _CharachtersPerLineSettingsState extends State<CharactersPerLineSettings> 
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ButtonStyle(
-                      padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 10)),
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                      padding: const WidgetStatePropertyAll(
+                          EdgeInsets.symmetric(vertical: 10)),
+                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5))),
                       backgroundColor: radioValue == null
-                          ? MaterialStateColor.resolveWith((states) => const Color.fromARGB(255, 200, 200, 200))
-                          : MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                          ? WidgetStateColor.resolveWith((states) =>
+                              const Color.fromARGB(255, 200, 200, 200))
+                          : WidgetStateColor.resolveWith(
+                              (states) => ProjectColors.primary),
                       foregroundColor: radioValue == null
-                          ? MaterialStateColor.resolveWith((states) => const Color.fromARGB(255, 111, 111, 111))
-                          : MaterialStateColor.resolveWith((states) => const Color.fromARGB(255, 255, 255, 255)),
-                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                          ? WidgetStateColor.resolveWith((states) =>
+                              const Color.fromARGB(255, 111, 111, 111))
+                          : WidgetStateColor.resolveWith((states) =>
+                              const Color.fromARGB(255, 255, 255, 255)),
+                      overlayColor: WidgetStateColor.resolveWith(
+                          (states) => Colors.white.withOpacity(.2))),
                   onPressed: radioValue == null
                       ? null
                       : () {

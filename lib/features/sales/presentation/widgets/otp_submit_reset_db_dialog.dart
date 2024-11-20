@@ -25,7 +25,8 @@ class OTPResetDBDialog extends StatefulWidget {
 }
 
 class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
-  final _otpControllers = List<TextEditingController>.generate(6, (index) => TextEditingController());
+  final _otpControllers = List<TextEditingController>.generate(
+      6, (index) => TextEditingController());
   String _otpCode = '';
   late Timer _timer;
   int _remainingSeconds = 30;
@@ -55,7 +56,8 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
 
   Future<String> getApprover(String email) async {
     try {
-      final UserEntity? user = await GetIt.instance<AppDatabase>().userDao.readbyEmail(email, null);
+      final UserEntity? user =
+          await GetIt.instance<AppDatabase>().userDao.readbyEmail(email, null);
       if (user == null) throw "User not found";
 
       return user.username;
@@ -65,8 +67,10 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
     return "";
   }
 
-  Future<void> onSubmit(BuildContext parentContext, BuildContext childContext, String otp, String requester) async {
-    final response = await GetIt.instance<OTPServiceAPi>().validateOTP(otp, requester);
+  Future<void> onSubmit(BuildContext parentContext, BuildContext childContext,
+      String otp, String requester) async {
+    final response =
+        await GetIt.instance<OTPServiceAPi>().validateOTP(otp, requester);
 
     if (response['status'] == "200") {
       if (childContext.mounted) {
@@ -89,7 +93,8 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
         parentContext.pop(true); // Close the input otp dialog
         parentContext.pop(true); // Close the input otp dialog
 
-        SnackBarHelper.presentSuccessSnackBar(parentContext, "Approval Success", 3);
+        SnackBarHelper.presentSuccessSnackBar(
+            parentContext, "Approval Success", 3);
         await GetIt.instance<AppDatabase>().resetDatabase();
         // exit(0);
       }
@@ -137,13 +142,18 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
 
   Future<void> resendOTP() async {
     try {
-      final POSParameterEntity topos = await GetIt.instance<GetPosParameterUseCase>().call();
+      final POSParameterEntity topos =
+          await GetIt.instance<GetPosParameterUseCase>().call();
       // if (topos == null) throw "Failed to retrieve POS Parameter";
 
-      final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
+      final StoreMasterEntity? store =
+          await GetIt.instance<GetStoreMasterUseCase>()
+              .call(params: topos.tostrId);
       if (store == null) throw "Failed to retrieve Store Master";
 
-      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
+      final cashierMachine = await GetIt.instance<AppDatabase>()
+          .cashRegisterDao
+          .readByDocId(topos.tocsrId!, null);
       if (cashierMachine == null) throw "Failed to retrieve Cash Register";
 
       final String body = '''
@@ -152,9 +162,11 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
     Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
 ''';
 
-      final String subject = "OTP RUBY POS Reset Database - [${store.storeCode}]";
+      final String subject =
+          "OTP RUBY POS Reset Database - [${store.storeCode}]";
 
-      await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
+      await GetIt.instance<OTPServiceAPi>()
+          .createSendOTP(context, null, subject, body);
 
       setState(() {
         _isOTPSent = true;
@@ -179,7 +191,8 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
               }
 
               if (value.physicalKey == PhysicalKeyboardKey.enter) {
-                onSubmit(parentContext, childContext, _otpCode, widget.requester);
+                onSubmit(
+                    parentContext, childContext, _otpCode, widget.requester);
                 return KeyEventResult.handled;
               } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
                 parentContext.pop();
@@ -209,16 +222,21 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
             child: AlertDialog(
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
-              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
               title: Container(
                 decoration: const BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
                 child: const Text(
                   'OTP Confirmation',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white),
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -226,7 +244,8 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
               content: SizedBox(
                 width: MediaQuery.of(childContext).size.width * 0.5,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                   child: IntrinsicHeight(
                     child: SingleChildScrollView(
                       child: Column(
@@ -241,11 +260,15 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
                             children: List.generate(6, (index) {
                               return Container(
                                 width: 60,
-                                margin: const EdgeInsets.symmetric(horizontal: 5),
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 5),
                                 child: TextField(
                                   focusNode: index == 0 ? _otpFocusNode : null,
                                   controller: _otpControllers[index],
-                                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'[0-9]'))
+                                  ],
                                   maxLength: 1,
                                   keyboardType: TextInputType.number,
                                   textAlign: TextAlign.center,
@@ -258,21 +281,29 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
                                     filled: true,
                                     fillColor: Colors.white,
                                     enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(color: ProjectColors.primary, width: 2),
+                                      borderSide: BorderSide(
+                                          color: ProjectColors.primary,
+                                          width: 2),
                                     ),
                                     focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(color: Colors.green, width: 2),
+                                      borderSide: BorderSide(
+                                          color: Colors.green, width: 2),
                                     ),
                                   ),
                                   onChanged: (value) async {
                                     if (value.isEmpty && index > 0) {
-                                      FocusScope.of(childContext).previousFocus();
+                                      FocusScope.of(childContext)
+                                          .previousFocus();
                                     } else if (value.isNotEmpty && index < 5) {
                                       FocusScope.of(childContext).nextFocus();
                                     } else if (value.isNotEmpty && index == 5) {
                                       _updateOtpCode();
                                       // FocusScope.of(context).unfocus();
-                                      await onSubmit(parentContext, childContext, _otpCode, widget.requester);
+                                      await onSubmit(
+                                          parentContext,
+                                          childContext,
+                                          _otpCode,
+                                          widget.requester);
                                     }
                                   },
                                 ),
@@ -280,7 +311,8 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
                             }),
                           ),
                           const SizedBox(height: 20),
-                          Text("Remaining Time: ${_formatDuration(Duration(seconds: _remainingSeconds))}"),
+                          Text(
+                              "Remaining Time: ${_formatDuration(Duration(seconds: _remainingSeconds))}"),
                           if (_isTimeUp && !_isSendingOTP) ...[
                             const SizedBox(height: 10),
                             RichText(
@@ -289,7 +321,9 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
                                   TextSpan(
                                     text: 'Resend OTP',
                                     style: TextStyle(
-                                      color: _isOTPClicked ? Colors.grey : ProjectColors.primary,
+                                      color: _isOTPClicked
+                                          ? Colors.grey
+                                          : ProjectColors.primary,
                                       fontWeight: FontWeight.w600,
                                       fontSize: 16,
                                     ),
@@ -317,7 +351,9 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
                                   TextSpan(
                                     text: " (F11)",
                                     style: TextStyle(
-                                        color: _isOTPClicked ? Colors.grey : ProjectColors.primary,
+                                        color: _isOTPClicked
+                                            ? Colors.grey
+                                            : ProjectColors.primary,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w300),
                                   ),
@@ -330,7 +366,8 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
                             (_isOTPSent)
                                 ? const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Text(
                                         "OTP SENT",
@@ -366,12 +403,14 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
                     Expanded(
                         child: TextButton(
                       style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(color: ProjectColors.primary))),
-                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                          overlayColor:
-                              MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
+                              side: const BorderSide(
+                                  color: ProjectColors.primary))),
+                          backgroundColor: WidgetStateColor.resolveWith(
+                              (states) => Colors.white),
+                          overlayColor: WidgetStateColor.resolveWith((states) =>
+                              ProjectColors.primary.withOpacity(.2))),
                       onPressed: () {
                         Navigator.of(childContext).pop();
                       },
@@ -398,14 +437,19 @@ class _OTPResetDBDialogState extends State<OTPResetDBDialog> {
                     Expanded(
                       child: TextButton(
                         style: ButtonStyle(
-                            shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                            shape:
+                                WidgetStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(color: ProjectColors.primary),
+                              side: const BorderSide(
+                                  color: ProjectColors.primary),
                             )),
-                            backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                            overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                            backgroundColor: WidgetStateColor.resolveWith(
+                                (states) => ProjectColors.primary),
+                            overlayColor: WidgetStateColor.resolveWith(
+                                (states) => Colors.white.withOpacity(.2))),
                         onPressed: () async {
-                          await onSubmit(parentContext, childContext, _otpCode, widget.requester);
+                          await onSubmit(parentContext, childContext, _otpCode,
+                              widget.requester);
                         },
                         child: Center(
                           child: RichText(

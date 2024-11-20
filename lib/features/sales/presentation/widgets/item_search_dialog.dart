@@ -56,7 +56,8 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                 _textEditingController.text += event.character!;
                 _searchInputFocusNode.requestFocus();
                 return KeyEventResult.handled;
-              } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && _searchInputFocusNode.hasPrimaryFocus) {
+              } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
+                  _searchInputFocusNode.hasPrimaryFocus) {
                 _searchInputFocusNode.nextFocus();
                 return KeyEventResult.handled;
               } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
@@ -79,16 +80,21 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
             child: AlertDialog(
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
-              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
               title: Container(
                 decoration: const BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
                 child: const Text(
                   'Item Search',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white),
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -97,7 +103,8 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                 data: ThemeData(
                   splashColor: const Color.fromARGB(40, 169, 0, 0),
                   highlightColor: const Color.fromARGB(40, 169, 0, 0),
-                  colorScheme: ColorScheme.fromSeed(seedColor: ProjectColors.primary),
+                  colorScheme:
+                      ColorScheme.fromSeed(seedColor: ProjectColors.primary),
                   fontFamily: 'Roboto',
                   useMaterial3: true,
                 ),
@@ -119,22 +126,37 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                           onSubmitted: (value) {
                             // log("value - $value");
                             try {
-                              if (context.read<ReceiptCubit>().state.customerEntity == null) throw "Customer required";
+                              if (context
+                                      .read<ReceiptCubit>()
+                                      .state
+                                      .customerEntity ==
+                                  null) throw "Customer required";
                               context.read<ItemsCubit>().getItems(
                                   searchKeyword: value,
-                                  customerEntity: context.read<ReceiptCubit>().state.customerEntity!);
+                                  customerEntity: context
+                                      .read<ReceiptCubit>()
+                                      .state
+                                      .customerEntity!);
                               _searchInputFocusNode.requestFocus();
 
                               if (_scrollController.hasClients) {
-                                Future.delayed(const Duration(milliseconds: 300)).then((value) {
-                                  SchedulerBinding.instance.addPostFrameCallback((_) {
-                                    _scrollController.animateTo(_scrollController.position.minScrollExtent,
-                                        duration: const Duration(milliseconds: 400), curve: Curves.fastOutSlowIn);
+                                Future.delayed(
+                                        const Duration(milliseconds: 300))
+                                    .then((value) {
+                                  SchedulerBinding.instance
+                                      .addPostFrameCallback((_) {
+                                    _scrollController.animateTo(
+                                        _scrollController
+                                            .position.minScrollExtent,
+                                        duration:
+                                            const Duration(milliseconds: 400),
+                                        curve: Curves.fastOutSlowIn);
                                   });
                                 });
                               }
                             } catch (e) {
-                              SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                              SnackBarHelper.presentErrorSnackBar(
+                                  context, e.toString());
                             }
                           },
                           autofocus: true,
@@ -168,7 +190,8 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                             if (state.isEmpty) {
                               return const EmptyList(
                                 imagePath: "assets/images/empty-search.svg",
-                                sentence: "Tadaa.. There is nothing here!\nEnter any keyword to search.",
+                                sentence:
+                                    "Tadaa.. There is nothing here!\nEnter any keyword to search.",
                               );
                             }
                             return Scrollbar(
@@ -178,7 +201,8 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                               thumbVisibility: true,
                               child: ListView.builder(
                                   controller: _scrollController,
-                                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 15),
                                   itemCount: state.length,
                                   itemBuilder: ((context, index) {
                                     final ItemEntity itemEntity = state[index];
@@ -189,15 +213,21 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                             activeColor: ProjectColors.primary,
                                             hoverColor: ProjectColors.primary,
                                             // selected: index == radioValue,
-                                            selectedTileColor: ProjectColors.primary,
-                                            contentPadding: const EdgeInsets.symmetric(
+                                            selectedTileColor:
+                                                ProjectColors.primary,
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
                                               horizontal: 15,
                                             ),
-                                            controlAffinity: ListTileControlAffinity.trailing,
+                                            controlAffinity:
+                                                ListTileControlAffinity
+                                                    .trailing,
                                             value: state[index],
                                             groupValue: radioValue,
-                                            title: Text((itemEntity.shortName != "")
-                                                ? itemEntity.shortName ?? itemEntity.itemName
+                                            title: Text((itemEntity.shortName !=
+                                                    "")
+                                                ? itemEntity.shortName ??
+                                                    itemEntity.itemName
                                                 : itemEntity.itemName),
                                             subtitle: SizedBox(
                                               height: 25,
@@ -214,7 +244,8 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                                     itemEntity.itemCode,
                                                     style: const TextStyle(
                                                       fontSize: 18,
-                                                      fontWeight: FontWeight.w500,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                     ),
                                                   ),
                                                   const SizedBox(
@@ -231,7 +262,8 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                                     itemEntity.barcode,
                                                     style: const TextStyle(
                                                       fontSize: 18,
-                                                      fontWeight: FontWeight.w500,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                     ),
                                                   ),
                                                   const SizedBox(
@@ -248,7 +280,8 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                                     "Rp ${Helpers.parseMoney(itemEntity.price.toInt())}",
                                                     style: const TextStyle(
                                                       fontSize: 18,
-                                                      fontWeight: FontWeight.w500,
+                                                      fontWeight:
+                                                          FontWeight.w500,
                                                     ),
                                                   ),
                                                 ],
@@ -262,7 +295,8 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                         const Divider(
                                           height: 1,
                                           thickness: 0.5,
-                                          color: Color.fromARGB(100, 118, 118, 118),
+                                          color: Color.fromARGB(
+                                              100, 118, 118, 118),
                                         ),
                                       ],
                                     );
@@ -283,11 +317,14 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                     Expanded(
                         child: TextButton(
                       style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(color: ProjectColors.primary))),
-                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                              side: const BorderSide(
+                                  color: ProjectColors.primary))),
+                          backgroundColor: WidgetStateColor.resolveWith(
+                              (states) => Colors.white),
+                          overlayColor: WidgetStateColor.resolveWith(
+                              (states) => Colors.black.withOpacity(.2))),
                       onPressed: () {
                         setState(() {
                           Navigator.of(context).pop();
@@ -320,16 +357,20 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                     Expanded(
                       child: TextButton(
                         style: ButtonStyle(
-                            shape: MaterialStatePropertyAll(
-                                RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                            backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                            overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                            shape: WidgetStatePropertyAll(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5))),
+                            backgroundColor: WidgetStateColor.resolveWith(
+                                (states) => ProjectColors.primary),
+                            overlayColor: WidgetStateColor.resolveWith(
+                                (states) => Colors.white.withOpacity(.2))),
                         onPressed: () {
                           FocusScope.of(childContext).unfocus();
                           if (radioValue == null) return;
 
                           // Handle Item DP
-                          if (radioValue!.itemCode == '99' || radioValue!.itemCode == '08700000002') {
+                          if (radioValue!.itemCode == '99' ||
+                              radioValue!.itemCode == '08700000002') {
                             SnackBarHelper.presentErrorSnackBar(childContext,
                                 "Please use the Down Payment button to process a down payment transaction");
                             return;

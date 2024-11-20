@@ -110,7 +110,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Future<void> checkAppVersion() async {
-    final appVersionUseCase = await GetIt.instance<GetAppVersionUseCase>().call();
+    final appVersionUseCase =
+        await GetIt.instance<GetAppVersionUseCase>().call();
     setState(() {
       appVersion = appVersionUseCase.version;
       buildNumber = appVersionUseCase.buildNumber;
@@ -144,7 +145,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   Container(
                     constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomButton(
-                      child: const Text("Login"),
                       onTap: haveTopos
                           ? () async {
                               isLoggedIn = prefs.getBool('logStatus') ?? false;
@@ -155,8 +155,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               }
                             }
                           : () {
-                              SnackBarHelper.presentErrorSnackBar(context, "Please Setup the Device First");
+                              SnackBarHelper.presentErrorSnackBar(
+                                  context, "Please Setup the Device First");
                             },
+                      child: const Text("Login"),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -178,7 +180,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   Container(
                     constraints: const BoxConstraints(maxWidth: 400),
                     child: CustomButton(
-                      child: const Text("Sync Data"),
                       onTap: haveTopos
                           ? () async {
                               await checkTopos();
@@ -190,14 +191,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                         )),
                               ).then((value) => Future.delayed(
                                   const Duration(milliseconds: 200),
-                                  () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-                                      statusBarColor: ProjectColors.primary,
-                                      statusBarBrightness: Brightness.light,
-                                      statusBarIconBrightness: Brightness.light))));
+                                  () => SystemChrome.setSystemUIOverlayStyle(
+                                      const SystemUiOverlayStyle(
+                                          statusBarColor: ProjectColors.primary,
+                                          statusBarBrightness: Brightness.light,
+                                          statusBarIconBrightness:
+                                              Brightness.light))));
                             }
                           : () {
-                              SnackBarHelper.presentErrorSnackBar(context, "Please Setup the Device First");
+                              SnackBarHelper.presentErrorSnackBar(
+                                  context, "Please Setup the Device First");
                             },
+                      child: const Text("Sync Data"),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -238,7 +243,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     children: [
                       const Text(
                         "Version  ",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       Text(appVersion, style: const TextStyle(fontSize: 16)),
                     ],

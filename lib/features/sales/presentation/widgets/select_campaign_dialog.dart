@@ -17,7 +17,8 @@ class _SelectCampaignState extends State<SelectCampaign> {
   CampaignEntity? radioValue;
   CampaignEntity? selectedCampaign;
   final FocusNode _campaignInputFocusNode = FocusNode();
-  late final TextEditingController _campaignTextController = TextEditingController();
+  late final TextEditingController _campaignTextController =
+      TextEditingController();
 
   @override
   void dispose() {
@@ -43,7 +44,8 @@ class _SelectCampaignState extends State<SelectCampaign> {
             _campaignTextController.text += event.character!;
             _campaignInputFocusNode.requestFocus();
             return KeyEventResult.handled;
-          } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && _campaignInputFocusNode.hasPrimaryFocus) {
+          } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
+              _campaignInputFocusNode.hasPrimaryFocus) {
             _campaignInputFocusNode.nextFocus();
             return KeyEventResult.handled;
           } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
@@ -64,7 +66,8 @@ class _SelectCampaignState extends State<SelectCampaign> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -73,7 +76,8 @@ class _SelectCampaignState extends State<SelectCampaign> {
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
           child: const Text(
             'Select Campaign',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(
+                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -98,7 +102,9 @@ class _SelectCampaignState extends State<SelectCampaign> {
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: TextField(
                       onSubmitted: (value) {
-                        context.read<CampaignCubit>().getCampaigns(searchKeyword: value);
+                        context
+                            .read<CampaignCubit>()
+                            .getCampaigns(searchKeyword: value);
                         _campaignInputFocusNode.requestFocus();
                       },
                       autofocus: true,
@@ -125,14 +131,16 @@ class _SelectCampaignState extends State<SelectCampaign> {
                         if (state.isEmpty) {
                           return const EmptyList(
                             imagePath: "assets/images/empty-search.svg",
-                            sentence: "Tadaa.. There is nothing here!\nEnter any keyword to search.",
+                            sentence:
+                                "Tadaa.. There is nothing here!\nEnter any keyword to search.",
                           );
                         }
                         return ListView.builder(
                             padding: const EdgeInsets.all(0),
                             itemCount: state.length,
                             itemBuilder: ((context, index) {
-                              final CampaignEntity campaignEntity = state[index];
+                              final CampaignEntity campaignEntity =
+                                  state[index];
 
                               return RadioListTile<CampaignEntity>(
                                   activeColor: ProjectColors.primary,
@@ -142,7 +150,8 @@ class _SelectCampaignState extends State<SelectCampaign> {
                                   contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 15,
                                   ),
-                                  controlAffinity: ListTileControlAffinity.trailing,
+                                  controlAffinity:
+                                      ListTileControlAffinity.trailing,
                                   value: state[index],
                                   groupValue: radioValue,
                                   title: Text(campaignEntity.description),
@@ -167,10 +176,13 @@ class _SelectCampaignState extends State<SelectCampaign> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
-                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        side: const BorderSide(color: ProjectColors.primary))),
+                    backgroundColor:
+                        WidgetStateColor.resolveWith((states) => Colors.white),
+                    overlayColor: WidgetStateColor.resolveWith(
+                        (states) => Colors.black.withOpacity(.2))),
                 onPressed: () {
                   setState(() {
                     Navigator.of(context).pop();
@@ -202,9 +214,12 @@ class _SelectCampaignState extends State<SelectCampaign> {
               Expanded(
                 child: TextButton(
                     style: ButtonStyle(
-                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                        backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5))),
+                        backgroundColor: WidgetStateColor.resolveWith(
+                            (states) => ProjectColors.primary),
+                        overlayColor: WidgetStateColor.resolveWith(
+                            (states) => Colors.white.withOpacity(.2))),
                     onPressed: () async {
                       selectedCampaign = radioValue;
                       Navigator.of(context).pop(selectedCampaign);

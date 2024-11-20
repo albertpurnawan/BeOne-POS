@@ -33,7 +33,8 @@ import 'package:uuid/uuid.dart';
 class CloseShiftScreen extends StatelessWidget {
   final String shiftId;
   final String? username;
-  const CloseShiftScreen({Key? key, required this.shiftId, this.username}) : super(key: key);
+  const CloseShiftScreen({Key? key, required this.shiftId, this.username})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +58,14 @@ class CloseShiftScreen extends StatelessWidget {
               Color.fromARGB(43, 234, 234, 234),
               Color.fromARGB(134, 234, 234, 234),
             ],
-            stops: [0.0, 0.04, 0.07, 0.93, 0.96, 1.0], // 10% purple, 80% transparent, 10% purple
+            stops: [
+              0.0,
+              0.04,
+              0.07,
+              0.93,
+              0.96,
+              1.0
+            ], // 10% purple, 80% transparent, 10% purple
           ).createShader(rect);
         },
         blendMode: BlendMode.dstOut,
@@ -65,7 +73,9 @@ class CloseShiftScreen extends StatelessWidget {
         // width: double.infinity,
         child: SingleChildScrollView(
           // clipBehavior: Clip.antiAliasWithSaveLayer,
-          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 40),
+          padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.2,
+              vertical: 40),
           child: SizedBox(
             width: double.infinity,
             child: Column(
@@ -88,7 +98,8 @@ class CloseShiftScreen extends StatelessWidget {
 class CloseShiftForm extends StatefulWidget {
   final String shiftId;
   final String? username;
-  const CloseShiftForm({Key? key, required this.shiftId, this.username}) : super(key: key);
+  const CloseShiftForm({Key? key, required this.shiftId, this.username})
+      : super(key: key);
 
   @override
   State<CloseShiftForm> createState() => _CloseShiftFormState();
@@ -137,7 +148,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   Future<void> fetchCloseShiftApprover() async {
     try {
-      final UserEntity? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(widget.username!, null);
+      final UserEntity? user = await GetIt.instance<AppDatabase>()
+          .userDao
+          .readByUsername(widget.username!, null);
 
       if (user == null) throw "User not found";
       setState(() {
@@ -145,7 +158,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       });
 
       if (user.tohemId == null) throw "Employee ID not found in user";
-      final EmployeeEntity? employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(user.tohemId!, null);
+      final EmployeeEntity? employee = await GetIt.instance<AppDatabase>()
+          .employeeDao
+          .readByDocId(user.tohemId!, null);
 
       if (employee == null) throw "Employee not found";
       setState(() {
@@ -161,7 +176,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   Future<void> fetchOpenShiftApprover() async {
     try {
       if (activeShift == null) throw "Active shift not found";
-      final UserEntity? user = await GetIt.instance<AppDatabase>().userDao.readByDocId(activeShift!.openedbyId!, null);
+      final UserEntity? user = await GetIt.instance<AppDatabase>()
+          .userDao
+          .readByDocId(activeShift!.openedbyId!, null);
 
       if (user == null) throw "User not found";
       setState(() {
@@ -169,7 +186,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       });
 
       if (user.tohemId == null) throw "Employee ID not found in user";
-      final EmployeeEntity? employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(user.tohemId!, null);
+      final EmployeeEntity? employee = await GetIt.instance<AppDatabase>()
+          .employeeDao
+          .readByDocId(user.tohemId!, null);
 
       if (employee == null) throw "Employee not found";
       setState(() {
@@ -183,17 +202,22 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   }
 
   Future<void> fetchActiveShift() async {
-    final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDocId(shiftId, null);
+    final shift = await GetIt.instance<AppDatabase>()
+        .cashierBalanceTransactionDao
+        .readByDocId(shiftId, null);
     setState(() {
       activeShift = shift;
       expectedCash = Helpers.parseMoney(shift?.openValue ?? 0);
       difference = Helpers.parseMoney(
-          Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) - Helpers.revertMoneyToDecimalFormat(expectedCash));
+          Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
+              Helpers.revertMoneyToDecimalFormat(expectedCash));
     });
   }
 
   Future<void> checkLastShiftId() async {
-    final lastShift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
+    final lastShift = await GetIt.instance<AppDatabase>()
+        .cashierBalanceTransactionDao
+        .readLastValue();
     log("lastShift - $checkLastShift");
     if (lastShift!.docId == activeShift!.docId) {
       setState(() {
@@ -210,7 +234,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   Future<void> backupDatabase() async {}
 
   Future<void> fetchInvoices() async {
-    final transaction = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift(shiftId);
+    final transaction = await GetIt.instance<AppDatabase>()
+        .invoiceHeaderDao
+        .readByShift(shiftId);
     log("transaction - $transaction");
     setState(() {
       transactions = transaction;
@@ -221,14 +247,16 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     setState(() {
       int totalCash = 0;
       for (String key in total.keys) {
-        totalCash += (Helpers.revertMoneyToDecimalFormat(total[key] == "" ? "0" : total[key]!) *
+        totalCash += (Helpers.revertMoneyToDecimalFormat(
+                    total[key] == "" ? "0" : total[key]!) *
                 int.parse(key.replaceAll('k', "000")))
             .round();
       }
       calculatedTotalCash = Helpers.parseMoney(totalCash);
       denomination = total;
       difference = Helpers.parseMoney(
-          Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) - Helpers.revertMoneyToDecimalFormat(expectedCash));
+          Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
+              Helpers.revertMoneyToDecimalFormat(expectedCash));
     });
   }
 
@@ -240,7 +268,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       double cashAmount = 0.0;
       double salesAmount = 0.0;
       final DateTime now = DateTime.now();
-      final start = activeShift!.openDate.subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
+      final start = activeShift!.openDate
+          .subtract(Duration(hours: DateTime.now().timeZoneOffset.inHours));
       final end = DateTime(
         now.year,
         now.month,
@@ -251,7 +280,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
         999,
       );
 
-      final fetched = await GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(start, end);
+      final fetched = await GetIt.instance<AppDatabase>()
+          .payMeansDao
+          .readByTpmt3BetweenDate(start, end);
       log("fetched - $fetched");
       for (final mop in fetched!) {
         if ((mop['topmtDesc'] != 'TUNAI')) {
@@ -309,9 +340,11 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             // totalVouchersUsed = NumberFormat.decimalPattern().format(totalVoucherUsed);
             totalSales = NumberFormat.decimalPattern().format(salesAmount);
             totalCashAmount = NumberFormat.decimalPattern().format(cashAmount);
-            expectedCash = NumberFormat.decimalPattern().format(data.openValue + (cashAmount));
-            difference = Helpers.parseMoney(Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
-                Helpers.revertMoneyToDecimalFormat(expectedCash));
+            expectedCash = NumberFormat.decimalPattern()
+                .format(data.openValue + (cashAmount));
+            difference = Helpers.parseMoney(
+                Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
+                    Helpers.revertMoneyToDecimalFormat(expectedCash));
           });
         }
       }
@@ -324,8 +357,10 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    String formattedOpenDate = Helpers.formatDateNoSeconds(activeShift!.openDate);
-    String formattedOpenValue = NumberFormat.decimalPattern().format(activeShift!.openValue.toInt());
+    String formattedOpenDate =
+        Helpers.formatDateNoSeconds(activeShift!.openDate);
+    String formattedOpenValue =
+        NumberFormat.decimalPattern().format(activeShift!.openValue.toInt());
 
     final cashier = prefs.getString('username');
 
@@ -349,9 +384,12 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
             TextButton(
               style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5))),
+                  backgroundColor: WidgetStateColor.resolveWith(
+                      (states) => ProjectColors.primary),
+                  overlayColor: WidgetStateColor.resolveWith(
+                      (states) => Colors.white.withOpacity(.2))),
               onPressed: isPrinting
                   ? null
                   : () async {
@@ -359,7 +397,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                         setState(() {
                           isPrinting = true;
                         });
-                        await GetIt.instance<PrintOpenShiftUsecase>().call(params: activeShift, printType: 2);
+                        await GetIt.instance<PrintOpenShiftUsecase>()
+                            .call(params: activeShift, printType: 2);
 
                         setState(() {
                           isPrinting = false;
@@ -369,7 +408,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                           isPrinting = false;
                         });
                         if (context.mounted) {
-                          SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                          SnackBarHelper.presentErrorSnackBar(
+                              context, e.toString());
                         }
                       }
                     },
@@ -485,7 +525,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             ),
             Expanded(
               child: Text(
-                closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "N/A",
+                closeShiftApproverEmployee?.empName ??
+                    closeShiftApproverUser?.username ??
+                    "N/A",
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -767,11 +809,14 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               onTap: () async {
                 try {
                   if (activeShift == null) throw "Current shift not found";
-                  final userId = await GetIt.instance<AppDatabase>().userDao.readByUsername(widget.username!, null);
+                  final userId = await GetIt.instance<AppDatabase>()
+                      .userDao
+                      .readByUsername(widget.username!, null);
                   if (userId == null) throw "Approver not found in local DB";
                   final String? currentUserId = prefs.getString("tousrId");
                   if (currentUserId == null) throw "Unauthenticated";
-                  final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
+                  final CashierBalanceTransactionModel shift =
+                      CashierBalanceTransactionModel(
                     docId: activeShift!.docId,
                     createDate: activeShift!.createDate,
                     updateDate: activeShift!.updateDate,
@@ -786,7 +831,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     closeTime: DateTime.now(),
                     timezone: activeShift!.timezone,
                     openValue: activeShift!.openValue,
-                    calcValue: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
+                    calcValue:
+                        Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
                     cashValue: activeShift!.cashValue,
                     closeValue: Helpers.revertMoneyToDecimalFormat(totalSales),
                     openedbyId: activeShift!.openedbyId,
@@ -797,7 +843,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     closedApproveById: userId.docId,
                   );
 
-                  List<MoneyDenominationModel> createDenominationList(Map<String, dynamic> denomination) {
+                  List<MoneyDenominationModel> createDenominationList(
+                      Map<String, dynamic> denomination) {
                     final list = <MoneyDenominationModel>[];
                     denomination.forEach((key, value) {
                       if (value.isNotEmpty) {
@@ -816,14 +863,17 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     return list;
                   }
 
-                  final denominationList = createDenominationList(denomination!);
+                  final denominationList =
+                      createDenominationList(denomination!);
 
                   final bool? isProceed = await showDialog(
                       context: context,
                       barrierDismissible: false,
                       builder: (context) {
-                        final double numDifference = Helpers.revertMoneyToDecimalFormat(difference);
-                        final String absDifference = Helpers.parseMoney(numDifference.abs());
+                        final double numDifference =
+                            Helpers.revertMoneyToDecimalFormat(difference);
+                        final String absDifference =
+                            Helpers.parseMoney(numDifference.abs());
                         return ConfirmationDialog(
                             primaryMsg: "Are you sure to close current shift?",
                             secondaryMsg: numDifference != 0
@@ -833,31 +883,51 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
                   if (isProceed != true) return;
 
-                  await GetIt.instance<AppDatabase>().moneyDenominationDao.bulkCreate(data: denominationList);
-                  await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.update(docId: shiftId, data: shift);
+                  await GetIt.instance<AppDatabase>()
+                      .moneyDenominationDao
+                      .bulkCreate(data: denominationList);
+                  await GetIt.instance<AppDatabase>()
+                      .cashierBalanceTransactionDao
+                      .update(docId: shiftId, data: shift);
                   try {
-                    GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(shift);
+                    GetIt.instance<CashierBalanceTransactionApi>()
+                        .sendTransactions(shift);
                   } catch (e) {
                     log(e.toString());
                   }
 
-                  final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
-                      await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDocId(shift.docId, null);
+                  final CashierBalanceTransactionEntity?
+                      cashierBalanceTransactionEntity =
+                      await GetIt.instance<AppDatabase>()
+                          .cashierBalanceTransactionDao
+                          .readByDocId(shift.docId, null);
                   if (cashierBalanceTransactionEntity == null) {
                     throw "Close shift failed, current shift not found";
                   }
-                  final PrintCloseShiftUsecaseParams printCloseShiftUsecaseParams = PrintCloseShiftUsecaseParams(
-                      cashierBalanceTransactionEntity: cashierBalanceTransactionEntity,
-                      totalCashSales: Helpers.revertMoneyToDecimalFormat(totalCashAmount),
-                      expectedCash: Helpers.revertMoneyToDecimalFormat(expectedCash),
-                      totalNonCashSales: Helpers.revertMoneyToDecimalFormat(totalNonCash),
-                      totalSales: Helpers.revertMoneyToDecimalFormat(totalSales),
-                      cashReceived: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
-                      difference: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
-                          Helpers.revertMoneyToDecimalFormat(expectedCash),
-                      approverName: closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "");
+                  final PrintCloseShiftUsecaseParams
+                      printCloseShiftUsecaseParams =
+                      PrintCloseShiftUsecaseParams(
+                          cashierBalanceTransactionEntity:
+                              cashierBalanceTransactionEntity,
+                          totalCashSales: Helpers.revertMoneyToDecimalFormat(
+                              totalCashAmount),
+                          expectedCash:
+                              Helpers.revertMoneyToDecimalFormat(expectedCash),
+                          totalNonCashSales:
+                              Helpers.revertMoneyToDecimalFormat(totalNonCash),
+                          totalSales:
+                              Helpers.revertMoneyToDecimalFormat(totalSales),
+                          cashReceived: Helpers.revertMoneyToDecimalFormat(
+                              calculatedTotalCash),
+                          difference: Helpers.revertMoneyToDecimalFormat(
+                                  calculatedTotalCash) -
+                              Helpers.revertMoneyToDecimalFormat(expectedCash),
+                          approverName: closeShiftApproverEmployee?.empName ??
+                              closeShiftApproverUser?.username ??
+                              "");
                   try {
-                    GetIt.instance<PrintCloseShiftUsecase>().call(params: printCloseShiftUsecaseParams, printType: 1);
+                    GetIt.instance<PrintCloseShiftUsecase>().call(
+                        params: printCloseShiftUsecaseParams, printType: 1);
                   } catch (e) {
                     log("$e");
                   }
@@ -868,7 +938,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     await GetIt.instance<LogoutUseCase>().call();
                     await context.read<ReceiptCubit>().resetReceipt();
                     if (context.mounted) {
-                      await BackupDatabaseUseCase().call(params: BackupDatabaseParams(context: context));
+                      await BackupDatabaseUseCase()
+                          .call(params: BackupDatabaseParams(context: context));
                     }
                     await showDialog(
                         context: NavigationHelper.context!,
@@ -877,7 +948,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                               canPop: false,
                               child: CloseShiftSuccessAlertDialog(
                                 closedShift: cashierBalanceTransactionEntity,
-                                printCloseShiftUsecaseParams: printCloseShiftUsecaseParams,
+                                printCloseShiftUsecaseParams:
+                                    printCloseShiftUsecaseParams,
                               ),
                             ));
                     if (context.mounted) {
@@ -893,7 +965,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                         context: NavigationHelper.context!,
                         builder: (context) => CloseShiftSuccessAlertDialog(
                               closedShift: cashierBalanceTransactionEntity,
-                              printCloseShiftUsecaseParams: printCloseShiftUsecaseParams,
+                              printCloseShiftUsecaseParams:
+                                  printCloseShiftUsecaseParams,
                             ));
                   }
                 } catch (e) {

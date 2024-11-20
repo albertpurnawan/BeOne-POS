@@ -25,7 +25,8 @@ class InputCouponsDialog extends StatefulWidget {
 }
 
 class _InputCouponsDialogState extends State<InputCouponsDialog> {
-  final TextEditingController _textEditorCouponController = TextEditingController();
+  final TextEditingController _textEditorCouponController =
+      TextEditingController();
   final FocusNode _couponFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
   bool isClaiming = false;
@@ -55,16 +56,18 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
         isClaiming = true;
       });
       final GetPromoToprnHeaderAndDetailUseCaseResult couponHeaderAndDetail =
-          await GetIt.instance<GetPromoToprnHeaderAndDetailUseCase>().call(params: couponCode);
+          await GetIt.instance<GetPromoToprnHeaderAndDetailUseCase>()
+              .call(params: couponCode);
       final CheckPromoToprnApplicabilityUseCaseResult checkCouponResult =
           await GetIt.instance<CheckPromoToprnApplicabilityUseCase>().call(
               params: CheckPromoToprnApplicabilityUseCaseParams(
                   checkDuplicate: true,
                   toprnHeaderAndDetail: couponHeaderAndDetail,
-                  handlePromosUseCaseParams:
-                      HandlePromosUseCaseParams(receiptEntity: context.read<ReceiptCubit>().state)));
+                  handlePromosUseCaseParams: HandlePromosUseCaseParams(
+                      receiptEntity: context.read<ReceiptCubit>().state)));
 
-      if (checkCouponResult.isApplicable == false) throw checkCouponResult.failMsg;
+      if (checkCouponResult.isApplicable == false)
+        throw checkCouponResult.failMsg;
 
       if (context.read<ReceiptCubit>().state.previousReceiptEntity != null) {
         final bool? isProceed = await showDialog<bool>(
@@ -76,12 +79,14 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
         if (isProceed == null) return;
         if (!isProceed) return;
         context.read<ReceiptCubit>().replaceState(
-            context.read<ReceiptCubit>().state.previousReceiptEntity ?? context.read<ReceiptCubit>().state);
+            context.read<ReceiptCubit>().state.previousReceiptEntity ??
+                context.read<ReceiptCubit>().state);
       }
 
-      _saveCoupons(context.read<ReceiptCubit>().state.coupons + [couponHeaderAndDetail.toprn]);
-      SnackBarHelper.presentSuccessSnackBar(
-          context, "Coupon '${couponHeaderAndDetail.toprn.couponCode}' claimed", null);
+      _saveCoupons(context.read<ReceiptCubit>().state.coupons +
+          [couponHeaderAndDetail.toprn]);
+      SnackBarHelper.presentSuccessSnackBar(context,
+          "Coupon '${couponHeaderAndDetail.toprn.couponCode}' claimed", null);
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
     } finally {
@@ -103,7 +108,8 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
           backgroundColor: Colors.transparent,
           body: Focus(
             onKeyEvent: (node, value) {
-              if (value.runtimeType == KeyUpEvent) return KeyEventResult.handled;
+              if (value.runtimeType == KeyUpEvent)
+                return KeyEventResult.handled;
 
               if (value.physicalKey == PhysicalKeyboardKey.enter) {
                 // apply key enter
@@ -112,8 +118,9 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                 return KeyEventResult.handled;
               } else if (value.physicalKey == PhysicalKeyboardKey.f9) {
                 log("f9");
-                _saveCoupons([])
-                    .then((value) => SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3));
+                _saveCoupons([]).then((value) =>
+                    SnackBarHelper.presentSuccessSnackBar(
+                        childContext, "Reset success", 3));
                 return KeyEventResult.handled;
               } else if (value.physicalKey == PhysicalKeyboardKey.f12) {
                 context.pop();
@@ -133,7 +140,8 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                 title: Container(
                   decoration: const BoxDecoration(
                     color: ProjectColors.primary,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(5.0)),
                   ),
                   padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
                   child: Row(
@@ -161,10 +169,12 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                             color: Colors.white,
                             width: 1.5,
                           ),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5)),
                         ),
-                        onPressed: () => _saveCoupons([])
-                            .then((value) => SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3)),
+                        onPressed: () => _saveCoupons([]).then((value) =>
+                            SnackBarHelper.presentSuccessSnackBar(
+                                childContext, "Reset success", 3)),
                         child: Row(
                           children: [
                             const Icon(
@@ -180,11 +190,13 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                 children: [
                                   TextSpan(
                                     text: "Reset",
-                                    style: TextStyle(fontWeight: FontWeight.w600),
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w600),
                                   ),
                                   TextSpan(
                                     text: " (F9)",
-                                    style: TextStyle(fontWeight: FontWeight.w300),
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.w300),
                                   ),
                                 ],
                                 style: TextStyle(height: 1, fontSize: 12),
@@ -217,12 +229,16 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                       Expanded(
                           child: TextButton(
                         style: ButtonStyle(
-                            shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                            shape:
+                                WidgetStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(color: ProjectColors.primary),
+                              side: const BorderSide(
+                                  color: ProjectColors.primary),
                             )),
-                            backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                            overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                            backgroundColor: WidgetStateColor.resolveWith(
+                                (states) => ProjectColors.primary),
+                            overlayColor: WidgetStateColor.resolveWith(
+                                (states) => Colors.white.withOpacity(.2))),
                         onPressed: () async {
                           if (context.mounted) {
                             context.pop();
@@ -373,7 +389,11 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                   customBorder: const CircleBorder(),
                   onTap: () async {
                     // Handle reset promo
-                    if (context.read<ReceiptCubit>().state.previousReceiptEntity != null) {
+                    if (context
+                            .read<ReceiptCubit>()
+                            .state
+                            .previousReceiptEntity !=
+                        null) {
                       final bool? isProceed = await showDialog<bool>(
                         context: context,
                         barrierDismissible: false,
@@ -382,9 +402,11 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                       // dev.log("isProceed $isProceed");
                       if (isProceed == null) return;
                       if (!isProceed) return;
-                      context.read<ReceiptCubit>().replaceState(
-                          context.read<ReceiptCubit>().state.previousReceiptEntity ??
-                              context.read<ReceiptCubit>().state);
+                      context.read<ReceiptCubit>().replaceState(context
+                              .read<ReceiptCubit>()
+                              .state
+                              .previousReceiptEntity ??
+                          context.read<ReceiptCubit>().state);
                     }
                     _saveCoupons(context
                         .read<ReceiptCubit>()
@@ -452,7 +474,8 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                             onFieldSubmitted: isClaiming
                                 ? null
                                 : (value) async {
-                                    await _checkCoupons(context, _textEditorCouponController.text);
+                                    await _checkCoupons(context,
+                                        _textEditorCouponController.text);
                                     _textEditorCouponController.text = "";
                                     _couponFocusNode.requestFocus();
                                   },
@@ -463,7 +486,8 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                             decoration: InputDecoration(
                               contentPadding: const EdgeInsets.all(5),
                               hintText: "Enter Coupon Code",
-                              hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+                              hintStyle: const TextStyle(
+                                  fontStyle: FontStyle.italic, fontSize: 24),
                               border: const OutlineInputBorder(),
                               prefixIcon: const Icon(
                                 Icons.confirmation_number_outlined,
@@ -479,12 +503,14 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                     backgroundColor: ProjectColors.primary,
                                     padding: const EdgeInsets.all(10),
                                     foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5)),
                                   ),
                                   onPressed: isClaiming
                                       ? null
                                       : () async {
-                                          await _checkCoupons(context, _textEditorCouponController.text);
+                                          await _checkCoupons(context,
+                                              _textEditorCouponController.text);
                                           _textEditorCouponController.text = "";
                                           _couponFocusNode.requestFocus();
                                         },
@@ -492,17 +518,25 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       isClaiming
-                                          ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator())
+                                          ? const SizedBox(
+                                              width: 12,
+                                              height: 12,
+                                              child:
+                                                  CircularProgressIndicator())
                                           : RichText(
                                               textAlign: TextAlign.center,
                                               text: const TextSpan(
                                                 children: [
                                                   TextSpan(
                                                     text: "Claim",
-                                                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        fontSize: 12),
                                                   ),
                                                 ],
-                                                style: TextStyle(height: 1, fontSize: 10),
+                                                style: TextStyle(
+                                                    height: 1, fontSize: 10),
                                               ),
                                               overflow: TextOverflow.clip,
                                             ),
@@ -528,13 +562,15 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                     const SizedBox(height: 30),
                     const Text(
                       "Coupons Applied",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const Divider(),
                     if (state.coupons.isNotEmpty)
                       const SizedBox(
                         width: double.infinity,
-                        child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        child:
+                            Column(mainAxisSize: MainAxisSize.min, children: [
                           Row(
                             children: [
                               SizedBox(
@@ -542,7 +578,9 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                 child: Text(
                                   "No",
                                   style: TextStyle(
-                                      fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: ProjectColors.lightBlack),
                                 ),
                               ),
                               SizedBox(
@@ -553,7 +591,9 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                 child: Text(
                                   "Coupon Code",
                                   style: TextStyle(
-                                      fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: ProjectColors.lightBlack),
                                 ),
                               ),
                               SizedBox(
@@ -567,7 +607,9 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                       "Inc.\nPromo",
                                       textAlign: TextAlign.right,
                                       style: TextStyle(
-                                          fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: ProjectColors.lightBlack),
                                     ),
                                   ],
                                 ),
@@ -582,7 +624,9 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                     Text(
                                       "% G.\nDisc.",
                                       style: TextStyle(
-                                          fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: ProjectColors.lightBlack),
                                     ),
                                   ],
                                 ),
@@ -598,7 +642,9 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                       "Max G.\nDisc.",
                                       textAlign: TextAlign.right,
                                       style: TextStyle(
-                                          fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: ProjectColors.lightBlack),
                                     ),
                                   ],
                                 ),
@@ -613,7 +659,9 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                     Text(
                                       "% M.\nDisc.",
                                       style: TextStyle(
-                                          fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: ProjectColors.lightBlack),
                                     ),
                                   ],
                                 ),
@@ -628,7 +676,9 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                     "Max M.\nDisc.",
                                     textAlign: TextAlign.right,
                                     style: TextStyle(
-                                        fontSize: 14, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                        color: ProjectColors.lightBlack),
                                   ),
                                 ),
                               ),
@@ -668,7 +718,8 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                             padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                             child: const EmptyList(
                                 imagePath: "assets/images/empty-search.svg",
-                                sentence: "Tadaa.. There is nothing here!\nInput a coupon code to start."),
+                                sentence:
+                                    "Tadaa.. There is nothing here!\nInput a coupon code to start."),
                           ),
                         ..._buildCouponRows(state.coupons)
                       ],

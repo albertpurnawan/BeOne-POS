@@ -7,10 +7,12 @@ class ConfirmRedeemVouchersSuccessDialog extends StatefulWidget {
   const ConfirmRedeemVouchersSuccessDialog({super.key});
 
   @override
-  State<ConfirmRedeemVouchersSuccessDialog> createState() => _ConfirmRedeemVouchersSuccessDialogState();
+  State<ConfirmRedeemVouchersSuccessDialog> createState() =>
+      _ConfirmRedeemVouchersSuccessDialogState();
 }
 
-class _ConfirmRedeemVouchersSuccessDialogState extends State<ConfirmRedeemVouchersSuccessDialog> {
+class _ConfirmRedeemVouchersSuccessDialogState
+    extends State<ConfirmRedeemVouchersSuccessDialog> {
   final FocusNode _keyboardListenerFocusNode = FocusNode();
 
   @override
@@ -46,7 +48,8 @@ class _ConfirmRedeemVouchersSuccessDialogState extends State<ConfirmRedeemVouche
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -55,7 +58,8 @@ class _ConfirmRedeemVouchersSuccessDialogState extends State<ConfirmRedeemVouche
           padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
           child: const Text(
             'Notification',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(
+                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -80,7 +84,8 @@ class _ConfirmRedeemVouchersSuccessDialogState extends State<ConfirmRedeemVouche
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                     TextSpan(
-                      text: "\n\nYou will be redirected to MOP selection dialog to finalize checkout",
+                      text:
+                          "\n\nYou will be redirected to MOP selection dialog to finalize checkout",
                     )
                   ],
                   style: TextStyle(
@@ -102,9 +107,12 @@ class _ConfirmRedeemVouchersSuccessDialogState extends State<ConfirmRedeemVouche
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5))),
+                    backgroundColor: WidgetStateColor.resolveWith(
+                        (states) => ProjectColors.primary),
+                    overlayColor: WidgetStateColor.resolveWith(
+                        (states) => Colors.white.withOpacity(.2))),
                 onPressed: () {
                   context.pop(true);
                 },

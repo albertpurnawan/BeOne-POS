@@ -69,7 +69,8 @@ class _EDCDialogState extends State<EDCDialog> {
       }
 
       if (event.physicalKey == PhysicalKeyboardKey.f12) {
-        final double mopAmount = Helpers.revertMoneyToDecimalFormat(_amountController.text);
+        final double mopAmount =
+            Helpers.revertMoneyToDecimalFormat(_amountController.text);
         if (mopAmount > widget.max) {
           setState(() {
             isErr = true;
@@ -110,7 +111,9 @@ class _EDCDialogState extends State<EDCDialog> {
 
   Future<void> fetchMOP() async {
     final edc = widget.mopSelectionEntity.edcDesc;
-    final tpmt1List = await GetIt.instance<AppDatabase>().meansOfPaymentDao.readByPaytypeCode("2", edc!);
+    final tpmt1List = await GetIt.instance<AppDatabase>()
+        .meansOfPaymentDao
+        .readByPaytypeCode("2", edc!);
 
     setState(() {
       mopList.addAll(tpmt1List);
@@ -144,16 +147,21 @@ class _EDCDialogState extends State<EDCDialog> {
             child: AlertDialog(
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
-              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
               title: Container(
                 decoration: const BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+                  borderRadius:
+                      BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
                 child: Text(
                   edcMachine,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+                  style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white),
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -163,7 +171,8 @@ class _EDCDialogState extends State<EDCDialog> {
                 height: MediaQuery.of(parentContext).size.height * 0.9,
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 20),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,7 +227,9 @@ class _EDCDialogState extends State<EDCDialog> {
                                     ),
                                   ),
                                   Text(
-                                    (mop.cardName != null) ? " - ${mop.cardName}" : "",
+                                    (mop.cardName != null)
+                                        ? " - ${mop.cardName}"
+                                        : "",
                                     style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w700,
@@ -243,7 +254,8 @@ class _EDCDialogState extends State<EDCDialog> {
                                     onTap: () {
                                       setState(() {
                                         mopsSelected.removeAt(index);
-                                        currentAmount = currentAmount! + mop.amount!;
+                                        currentAmount =
+                                            currentAmount! + mop.amount!;
                                       });
                                       widget.onEDCRemoved(mop);
                                     },
@@ -286,14 +298,18 @@ class _EDCDialogState extends State<EDCDialog> {
                                   spacing: 5,
                                   runSpacing: 5,
                                   children: mopList
-                                      .map((MopSelectionEntity mop) => ChoiceChip(
-                                            side: const BorderSide(color: ProjectColors.primary, width: 1),
+                                      .map((MopSelectionEntity mop) =>
+                                          ChoiceChip(
+                                            side: const BorderSide(
+                                                color: ProjectColors.primary,
+                                                width: 1),
                                             padding: const EdgeInsets.all(12),
                                             label: Text(mop.mopAlias),
                                             selected: mopSelected == mop,
                                             onSelected: (bool selected) {
                                               setState(() {
-                                                mopSelected = selected ? mop : null;
+                                                mopSelected =
+                                                    selected ? mop : null;
                                               });
                                             },
                                           ))
@@ -314,7 +330,8 @@ class _EDCDialogState extends State<EDCDialog> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Text(
                                         "Card Type",
@@ -325,39 +342,49 @@ class _EDCDialogState extends State<EDCDialog> {
                                       ),
                                       const SizedBox(height: 5),
                                       OutlinedButton(
-                                        onPressed: () => showDialog<CreditCardEntity>(
+                                        onPressed: () =>
+                                            showDialog<CreditCardEntity>(
                                           context: parentContext,
-                                          builder: (BuildContext parentContext) => const SelectCardType(),
+                                          builder:
+                                              (BuildContext parentContext) =>
+                                                  const SelectCardType(),
                                         ).then((selectedCard) {
                                           if (selectedCard != null) {
                                             setState(() {
                                               cardSelected = selectedCard;
-                                              cardName = selectedCard.description;
+                                              cardName =
+                                                  selectedCard.description;
                                             });
                                           }
                                         }),
                                         style: ButtonStyle(
-                                          padding: MaterialStateProperty.all<EdgeInsets>(
+                                          padding: WidgetStateProperty.all<
+                                              EdgeInsets>(
                                             const EdgeInsets.all(10.0),
                                           ),
-                                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                          shape: WidgetStateProperty.all<
+                                              RoundedRectangleBorder>(
                                             RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(5.0),
+                                              borderRadius:
+                                                  BorderRadius.circular(5.0),
                                             ),
                                           ),
                                         ),
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               cardName,
                                               style: const TextStyle(
                                                 fontSize: 18,
-                                                color: ProjectColors.mediumBlack,
+                                                color:
+                                                    ProjectColors.mediumBlack,
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
-                                            const Icon(Icons.arrow_right_outlined),
+                                            const Icon(
+                                                Icons.arrow_right_outlined),
                                           ],
                                         ),
                                       ),
@@ -365,7 +392,8 @@ class _EDCDialogState extends State<EDCDialog> {
                                   ),
                                   const SizedBox(height: 15),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Text(
                                         "Card Number",
@@ -379,25 +407,37 @@ class _EDCDialogState extends State<EDCDialog> {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      0, 0, 4, 0),
                                               child: TextFormField(
-                                                controller: _cardNumber1Controller,
+                                                controller:
+                                                    _cardNumber1Controller,
                                                 textAlign: TextAlign.center,
-                                                keyboardType: TextInputType.number,
-                                                style: const TextStyle(fontSize: 18),
-                                                decoration: const InputDecoration(
-                                                  contentPadding: EdgeInsets.all(2),
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                style: const TextStyle(
+                                                    fontSize: 18),
+                                                decoration:
+                                                    const InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.all(2),
                                                   hintText: "____",
                                                   hintStyle: TextStyle(
                                                     fontStyle: FontStyle.italic,
                                                     fontSize: 18,
                                                   ),
                                                   border: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  5))),
                                                 ),
                                                 inputFormatters: [
-                                                  LengthLimitingTextInputFormatter(4),
-                                                  FilteringTextInputFormatter.digitsOnly,
+                                                  LengthLimitingTextInputFormatter(
+                                                      4),
+                                                  FilteringTextInputFormatter
+                                                      .digitsOnly,
                                                 ],
                                               ),
                                             ),
@@ -415,25 +455,37 @@ class _EDCDialogState extends State<EDCDialog> {
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      0, 0, 4, 0),
                                               child: TextFormField(
-                                                controller: _cardNumber2Controller,
+                                                controller:
+                                                    _cardNumber2Controller,
                                                 textAlign: TextAlign.center,
-                                                keyboardType: TextInputType.number,
-                                                style: const TextStyle(fontSize: 18),
-                                                decoration: const InputDecoration(
-                                                  contentPadding: EdgeInsets.all(2),
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                style: const TextStyle(
+                                                    fontSize: 18),
+                                                decoration:
+                                                    const InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.all(2),
                                                   hintText: "____",
                                                   hintStyle: TextStyle(
                                                     fontStyle: FontStyle.italic,
                                                     fontSize: 18,
                                                   ),
                                                   border: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  5))),
                                                 ),
                                                 inputFormatters: [
-                                                  LengthLimitingTextInputFormatter(4),
-                                                  FilteringTextInputFormatter.digitsOnly,
+                                                  LengthLimitingTextInputFormatter(
+                                                      4),
+                                                  FilteringTextInputFormatter
+                                                      .digitsOnly,
                                                 ],
                                               ),
                                             ),
@@ -444,7 +496,8 @@ class _EDCDialogState extends State<EDCDialog> {
                                   ),
                                   const SizedBox(height: 15),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Text(
                                         "Card Holder",
@@ -458,20 +511,29 @@ class _EDCDialogState extends State<EDCDialog> {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      0, 0, 4, 0),
                                               child: TextFormField(
-                                                controller: _cardHolderController,
+                                                controller:
+                                                    _cardHolderController,
                                                 textAlign: TextAlign.left,
-                                                style: const TextStyle(fontSize: 18),
-                                                decoration: const InputDecoration(
-                                                  contentPadding: EdgeInsets.all(10),
+                                                style: const TextStyle(
+                                                    fontSize: 18),
+                                                decoration:
+                                                    const InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.all(10),
                                                   hintText: "Card Holder",
                                                   hintStyle: TextStyle(
                                                     fontStyle: FontStyle.italic,
                                                     fontSize: 18,
                                                   ),
                                                   border: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  5))),
                                                 ),
                                               ),
                                             ),
@@ -489,7 +551,8 @@ class _EDCDialogState extends State<EDCDialog> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Text(
                                         "Campaign",
@@ -500,39 +563,50 @@ class _EDCDialogState extends State<EDCDialog> {
                                       ),
                                       const SizedBox(height: 5),
                                       OutlinedButton(
-                                        onPressed: () => showDialog<CampaignEntity>(
+                                        onPressed: () =>
+                                            showDialog<CampaignEntity>(
                                           context: parentContext,
-                                          builder: (BuildContext parentContext) => const SelectCampaign(),
+                                          builder:
+                                              (BuildContext parentContext) =>
+                                                  const SelectCampaign(),
                                         ).then((selectedCampaign) {
                                           if (selectedCampaign != null) {
                                             setState(() {
-                                              campaignSelected = selectedCampaign;
-                                              campaignName = selectedCampaign.description;
+                                              campaignSelected =
+                                                  selectedCampaign;
+                                              campaignName =
+                                                  selectedCampaign.description;
                                             });
                                           }
                                         }),
                                         style: ButtonStyle(
-                                          padding: MaterialStateProperty.all<EdgeInsets>(
+                                          padding: WidgetStateProperty.all<
+                                              EdgeInsets>(
                                             const EdgeInsets.all(10.0),
                                           ),
-                                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                          shape: WidgetStateProperty.all<
+                                              RoundedRectangleBorder>(
                                             RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(5),
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
                                             ),
                                           ),
                                         ),
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               campaignName,
                                               style: const TextStyle(
                                                 fontSize: 18,
-                                                color: ProjectColors.mediumBlack,
+                                                color:
+                                                    ProjectColors.mediumBlack,
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
-                                            const Icon(Icons.arrow_right_outlined),
+                                            const Icon(
+                                                Icons.arrow_right_outlined),
                                           ],
                                         ),
                                       ),
@@ -540,7 +614,8 @@ class _EDCDialogState extends State<EDCDialog> {
                                   ),
                                   const SizedBox(height: 15),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Text(
                                         "Reference Number",
@@ -554,20 +629,29 @@ class _EDCDialogState extends State<EDCDialog> {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      0, 0, 4, 0),
                                               child: TextFormField(
-                                                controller: _refNumberController,
+                                                controller:
+                                                    _refNumberController,
                                                 textAlign: TextAlign.left,
-                                                style: const TextStyle(fontSize: 18),
-                                                decoration: const InputDecoration(
-                                                  contentPadding: EdgeInsets.all(10),
+                                                style: const TextStyle(
+                                                    fontSize: 18),
+                                                decoration:
+                                                    const InputDecoration(
+                                                  contentPadding:
+                                                      EdgeInsets.all(10),
                                                   hintText: "Reference Number",
                                                   hintStyle: TextStyle(
                                                     fontStyle: FontStyle.italic,
                                                     fontSize: 18,
                                                   ),
                                                   border: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  5))),
                                                 ),
                                               ),
                                             ),
@@ -578,7 +662,8 @@ class _EDCDialogState extends State<EDCDialog> {
                                   ),
                                   const SizedBox(height: 15),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Text(
                                         "Amount",
@@ -592,34 +677,57 @@ class _EDCDialogState extends State<EDCDialog> {
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      0, 0, 4, 0),
                                               child: TextFormField(
                                                 focusNode: _focusNodeAmount,
                                                 controller: _amountController,
                                                 textAlign: TextAlign.left,
-                                                keyboardType: TextInputType.number,
-                                                inputFormatters: [MoneyInputFormatter()],
-                                                style: const TextStyle(fontSize: 18),
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                inputFormatters: [
+                                                  MoneyInputFormatter()
+                                                ],
+                                                style: const TextStyle(
+                                                    fontSize: 18),
                                                 decoration: InputDecoration(
-                                                  contentPadding: const EdgeInsets.all(10),
+                                                  contentPadding:
+                                                      const EdgeInsets.all(10),
                                                   hintText: "$currentAmount",
-                                                  hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-                                                  border: const OutlineInputBorder(
-                                                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                                                  hintStyle: const TextStyle(
+                                                      fontStyle:
+                                                          FontStyle.italic,
+                                                      fontSize: 18),
+                                                  border:
+                                                      const OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          5))),
                                                   suffix: isErr
                                                       ? Text(
                                                           errMsg,
                                                           style: const TextStyle(
                                                               fontSize: 18,
-                                                              fontStyle: FontStyle.normal,
-                                                              fontWeight: FontWeight.w700,
-                                                              color: ProjectColors.swatch),
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .normal,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w700,
+                                                              color:
+                                                                  ProjectColors
+                                                                      .swatch),
                                                         )
                                                       : null,
                                                 ),
                                                 enabled: widget.isMultiMOPs,
                                                 onChanged: (value) {
-                                                  final double mopAmount = Helpers.revertMoneyToDecimalFormat(value);
+                                                  final double mopAmount = Helpers
+                                                      .revertMoneyToDecimalFormat(
+                                                          value);
                                                   if (mopAmount > widget.max) {
                                                     setState(() {
                                                       isErr = true;
@@ -654,11 +762,14 @@ class _EDCDialogState extends State<EDCDialog> {
                     Expanded(
                         child: TextButton(
                       style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(color: ProjectColors.primary))),
-                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                              side: const BorderSide(
+                                  color: ProjectColors.primary))),
+                          backgroundColor: WidgetStateColor.resolveWith(
+                              (states) => Colors.white),
+                          overlayColor: WidgetStateColor.resolveWith(
+                              (states) => Colors.black.withOpacity(.2))),
                       onPressed: () {
                         Navigator.of(parentContext).pop();
                       },
@@ -687,16 +798,19 @@ class _EDCDialogState extends State<EDCDialog> {
                     Expanded(
                         child: TextButton(
                       style: ButtonStyle(
-                          shape:
-                              MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                          backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5))),
+                          backgroundColor: WidgetStateColor.resolveWith(
+                              (states) => ProjectColors.primary),
+                          overlayColor: WidgetStateColor.resolveWith(
+                              (states) => Colors.white.withOpacity(.2))),
                       onPressed: () {
                         setState(() {
                           savePressed = true;
                         });
                         if (mopSelected == null) {
-                          SnackBarHelper.presentFailSnackBar(childContext, "Please select a means of payment");
+                          SnackBarHelper.presentFailSnackBar(
+                              childContext, "Please select a means of payment");
                           return;
                         }
 
@@ -708,19 +822,21 @@ class _EDCDialogState extends State<EDCDialog> {
                         final edcAmount = widget.isMultiMOPs
                             ? (_amountController.text.isEmpty)
                                 ? currentAmount
-                                : Helpers.revertMoneyToDecimalFormatDouble(_amountController.text)
+                                : Helpers.revertMoneyToDecimalFormatDouble(
+                                    _amountController.text)
                             : currentAmount;
 
                         if (edcAmount! > currentAmount! || edcAmount == 0) {
-                          SnackBarHelper.presentFailSnackBar(
-                              childContext, "Please Input Correct Amount (Max Amount: ${currentAmount!.toInt()})");
+                          SnackBarHelper.presentFailSnackBar(childContext,
+                              "Please Input Correct Amount (Max Amount: ${currentAmount!.toInt()})");
                           return;
                         }
                         final mopEDC = mopSelected!.copyWith(
                           amount: edcAmount,
                           tpmt2Id: cardSelected?.docId,
                           cardName: cardSelected?.description,
-                          cardNo: (_cardNumber1Controller.text.isEmpty || _cardNumber2Controller.text.isEmpty)
+                          cardNo: (_cardNumber1Controller.text.isEmpty ||
+                                  _cardNumber2Controller.text.isEmpty)
                               ? ""
                               : "${_cardNumber1Controller.text}-xxxx-xxxx-${_cardNumber2Controller.text}",
                           cardHolder: _cardHolderController.text,
@@ -747,7 +863,8 @@ class _EDCDialogState extends State<EDCDialog> {
                         widget.onEDCSelected(mopEDC);
                         (widget.isMultiMOPs)
                             ? (currentAmount! > 0)
-                                ? SnackBarHelper.presentSuccessSnackBar(childContext, "Success Add Card", 3)
+                                ? SnackBarHelper.presentSuccessSnackBar(
+                                    childContext, "Success Add Card", 3)
                                 : Navigator.of(childContext).pop()
                             : Navigator.of(childContext).pop();
                       },

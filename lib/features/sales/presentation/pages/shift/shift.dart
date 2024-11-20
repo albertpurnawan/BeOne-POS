@@ -30,7 +30,10 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
               ),
               const Text(
                 'Show Date Here',
-                style: TextStyle(color: ProjectColors.swatch, fontSize: 30, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: ProjectColors.swatch,
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 30),
               const StartShiftForm(),
@@ -42,7 +45,8 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const StartShiftScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const StartShiftScreen()),
                     );
                   },
                 ),
@@ -55,9 +59,10 @@ class _StartShiftScreenState extends State<StartShiftScreen> {
                     Navigator.pop(context);
                   },
                   style: ButtonStyle(
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0), // Adjust the borderRadius value as needed
+                        borderRadius: BorderRadius.circular(
+                            10.0), // Adjust the borderRadius value as needed
                       ),
                     ),
                   ),
@@ -105,7 +110,9 @@ class _StartShiftFormState extends State<StartShiftForm> {
             constraints: const BoxConstraints(maxWidth: 400),
             child: CustomInput(
               controller: openValueController,
-              validator: (val) => val == null || val.isEmpty ? "Opening Value is required" : null,
+              validator: (val) => val == null || val.isEmpty
+                  ? "Opening Value is required"
+                  : null,
               // label: "Openvalue",
               keyboardType: TextInputType.number,
               hint: "Enter Amount of Starting Cash",

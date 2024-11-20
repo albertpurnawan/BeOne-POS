@@ -57,23 +57,26 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
         if (isErr) return KeyEventResult.handled;
 
         if (selectedPaymentMethod == null || selectedPaymentMethod!.isEmpty) {
-          SnackBarHelper.presentErrorSnackBar(context, "Please select a payment method");
+          SnackBarHelper.presentErrorSnackBar(
+              context, "Please select a payment method");
           return KeyEventResult.handled;
         }
 
         if (amountText.isEmpty || mopAmount == 0) {
-          SnackBarHelper.presentErrorSnackBar(context, "Please input the amount");
+          SnackBarHelper.presentErrorSnackBar(
+              context, "Please input the amount");
           return KeyEventResult.handled;
         }
 
         if (mopAmount < 10000) {
-          SnackBarHelper.presentErrorSnackBar(context, "Minimal amount for Virtual Account is 10,000");
+          SnackBarHelper.presentErrorSnackBar(
+              context, "Minimal amount for Virtual Account is 10,000");
           return KeyEventResult.handled;
         }
 
         if (mopAmount > 100000000) {
-          SnackBarHelper.presentErrorSnackBar(
-              context, "Maximal amount is 100,000,000, please add other payment methods");
+          SnackBarHelper.presentErrorSnackBar(context,
+              "Maximal amount is 100,000,000, please add other payment methods");
           return KeyEventResult.handled;
         }
 
@@ -86,8 +89,8 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
         }
 
         if (isConnected == false) {
-          SnackBarHelper.presentErrorSnackBar(
-              context, "No internet connection detected. Please check your network settings and try again");
+          SnackBarHelper.presentErrorSnackBar(context,
+              "No internet connection detected. Please check your network settings and try again");
           return KeyEventResult.handled;
         }
 
@@ -133,7 +136,8 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
   }
 
   Future<void> _checkConnection() async {
-    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
+    final List<ConnectivityResult> connectivityResult =
+        await (Connectivity().checkConnectivity());
     if (connectivityResult.contains(ConnectivityResult.none)) {
       setState(() {
         isConnected = false;
@@ -156,7 +160,8 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
           body: AlertDialog(
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.transparent,
-            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5.0))),
             title: Container(
               decoration: const BoxDecoration(
                 color: ProjectColors.primary,
@@ -165,7 +170,10 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
               padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
               child: const Text(
                 'Select Virtual Account',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white),
               ),
             ),
             titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -173,7 +181,8 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
             content: SizedBox(
               width: MediaQuery.of(context).size.width * 0.4,
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 30, horizontal: 40),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -192,15 +201,19 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                           fontWeight: FontWeight.w700,
                         ),
                         decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 16),
                           hintText: "",
-                          hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16),
+                          hintStyle: const TextStyle(
+                              fontStyle: FontStyle.italic, fontSize: 16),
                           border: OutlineInputBorder(
-                            borderSide: const BorderSide(color: ProjectColors.mediumBlack, width: 2),
+                            borderSide: const BorderSide(
+                                color: ProjectColors.mediumBlack, width: 2),
                             borderRadius: BorderRadius.circular(5),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: ProjectColors.primary, width: 2),
+                            borderSide: const BorderSide(
+                                color: ProjectColors.primary, width: 2),
                             borderRadius: BorderRadius.circular(5),
                           ),
                           prefixIcon: const Icon(
@@ -218,8 +231,9 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                           setState(() {
                             selectedPaymentMethod = newValue;
 
-                            final selectedMethod =
-                                widget.paymentMethods.firstWhere((method) => method.paymentMethod == newValue);
+                            final selectedMethod = widget.paymentMethods
+                                .firstWhere((method) =>
+                                    method.paymentMethod == newValue);
 
                             log("selectedMethod = $selectedMethod");
 
@@ -239,7 +253,8 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                           (method) {
                             final paymentName = method.paymentName.trim();
                             return paymentName.contains(' VA ') ||
-                                paymentName.endsWith(' VA') && method.statusActive == 1;
+                                paymentName.endsWith(' VA') &&
+                                    method.statusActive == 1;
                           },
                         ).map((method) {
                           return DropdownMenuItem<String>(
@@ -282,7 +297,8 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                         textAlign: TextAlign.center,
                         style: const TextStyle(fontSize: 18),
                         onChanged: (value) {
-                          final double mopAmount = Helpers.revertMoneyToDecimalFormat(value);
+                          final double mopAmount =
+                              Helpers.revertMoneyToDecimalFormat(value);
                           if (mopAmount > widget.amount) {
                             setState(() {
                               isErr = true;
@@ -302,26 +318,31 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                         },
                         onEditingComplete: () async {
                           if (isErr) return;
-                          if (selectedPaymentMethod == null || selectedPaymentMethod!.isEmpty) {
-                            SnackBarHelper.presentErrorSnackBar(childContext, "Please select a payment method");
+                          if (selectedPaymentMethod == null ||
+                              selectedPaymentMethod!.isEmpty) {
+                            SnackBarHelper.presentErrorSnackBar(
+                                childContext, "Please select a payment method");
                             return;
                           }
                           if (mopVA == null) return;
                           final double mopAmount =
-                              Helpers.revertMoneyToDecimalFormat(_textEditingControllerVAAmount.text);
-                          if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) {
-                            SnackBarHelper.presentErrorSnackBar(childContext, "Please input the amount");
+                              Helpers.revertMoneyToDecimalFormat(
+                                  _textEditingControllerVAAmount.text);
+                          if (_textEditingControllerVAAmount.text.isEmpty ||
+                              mopAmount == 0) {
+                            SnackBarHelper.presentErrorSnackBar(
+                                childContext, "Please input the amount");
                             return;
                           }
                           if (mopAmount < 10000) {
-                            SnackBarHelper.presentErrorSnackBar(
-                                childContext, "Minimal amount for Virtual Account is 10,000");
+                            SnackBarHelper.presentErrorSnackBar(childContext,
+                                "Minimal amount for Virtual Account is 10,000");
                             return;
                           }
 
                           if (mopAmount > 100000000) {
-                            SnackBarHelper.presentErrorSnackBar(
-                                childContext, "Maximal amount is 100,000,000, please add other payment methods");
+                            SnackBarHelper.presentErrorSnackBar(childContext,
+                                "Maximal amount is 100,000,000, please add other payment methods");
                             return;
                           }
 
@@ -354,7 +375,8 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                         decoration: InputDecoration(
                             contentPadding: const EdgeInsets.all(10),
                             hintText: "Enter Amount (MAX: ${widget.amount})",
-                            hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16),
+                            hintStyle: const TextStyle(
+                                fontStyle: FontStyle.italic, fontSize: 16),
                             border: const OutlineInputBorder(),
                             suffix: isErr
                                 ? Text(
@@ -415,11 +437,14 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                   Expanded(
                       child: TextButton(
                     style: ButtonStyle(
-                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
-                            side: const BorderSide(color: ProjectColors.primary))),
-                        backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                            side: const BorderSide(
+                                color: ProjectColors.primary))),
+                        backgroundColor: WidgetStateColor.resolveWith(
+                            (states) => Colors.white),
+                        overlayColor: WidgetStateColor.resolveWith(
+                            (states) => Colors.black.withOpacity(.2))),
                     onPressed: () {
                       setState(() {
                         context.pop();
@@ -452,23 +477,32 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                   Expanded(
                       child: TextButton(
                     style: ButtonStyle(
-                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                        backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5))),
+                        backgroundColor: WidgetStateColor.resolveWith(
+                            (states) => ProjectColors.primary),
+                        overlayColor: WidgetStateColor.resolveWith(
+                            (states) => Colors.white.withOpacity(.2))),
                     onPressed: () async {
-                      final double mopAmount = Helpers.revertMoneyToDecimalFormat(_textEditingControllerVAAmount.text);
+                      final double mopAmount =
+                          Helpers.revertMoneyToDecimalFormat(
+                              _textEditingControllerVAAmount.text);
 
                       if (isErr) return;
 
-                      if (selectedPaymentMethod == null || selectedPaymentMethod!.isEmpty) {
-                        SnackBarHelper.presentErrorSnackBar(childContext, "Please select a payment method");
+                      if (selectedPaymentMethod == null ||
+                          selectedPaymentMethod!.isEmpty) {
+                        SnackBarHelper.presentErrorSnackBar(
+                            childContext, "Please select a payment method");
                         return;
                       }
 
                       if (mopVA == null) return;
 
-                      if (_textEditingControllerVAAmount.text.isEmpty || mopAmount == 0) {
-                        SnackBarHelper.presentErrorSnackBar(childContext, "Please input the amount");
+                      if (_textEditingControllerVAAmount.text.isEmpty ||
+                          mopAmount == 0) {
+                        SnackBarHelper.presentErrorSnackBar(
+                            childContext, "Please input the amount");
                         return;
                       }
 
@@ -476,14 +510,14 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                       log('Entered amount: $mopAmount');
 
                       if (mopAmount < 10000) {
-                        SnackBarHelper.presentErrorSnackBar(
-                            childContext, "Minimal amount for Virtual Account is 10,000");
+                        SnackBarHelper.presentErrorSnackBar(childContext,
+                            "Minimal amount for Virtual Account is 10,000");
                         return;
                       }
 
                       if (mopAmount > 100000000) {
-                        SnackBarHelper.presentErrorSnackBar(
-                            childContext, "Maximal amount is 100,000,000, please add other payment methods");
+                        SnackBarHelper.presentErrorSnackBar(childContext,
+                            "Maximal amount is 100,000,000, please add other payment methods");
                         return;
                       }
 
