@@ -18,11 +18,7 @@ class DuitkuDialog extends StatefulWidget {
   final String docnumDuitku;
 
   final void Function(String status) onPaymentSuccess;
-  const DuitkuDialog(
-      {super.key,
-      required this.data,
-      required this.onPaymentSuccess,
-      required this.docnumDuitku});
+  const DuitkuDialog({super.key, required this.data, required this.onPaymentSuccess, required this.docnumDuitku});
 
   @override
   State<DuitkuDialog> createState() => _DuitkuDialogState();
@@ -48,14 +44,12 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
   }
 
   Future<void> _checkConnection() async {
-    final List<ConnectivityResult> connectivityResult =
-        await (Connectivity().checkConnectivity());
+    final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult.contains(ConnectivityResult.none)) {
       setState(() {
         isConnected = false;
         isCheckingStatus = false;
-        errMsg =
-            "No internet connection detected.\nPlease check your network settings and try again";
+        errMsg = "No internet connection detected.\nPlease check your network settings and try again";
       });
       return;
     } else if (connectivityResult.contains(ConnectivityResult.wifi) ||
@@ -120,8 +114,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
     if (!isConnected) return "";
 
     // final signature = await GetIt.instance<DuitkuApi>().createCheckStatusSignature(widget.data.merchantOrderId);
-    final paymentStatus = await GetIt.instance<DuitkuApi>()
-        .checkVAPaymentStatusMicroS(widget.docnumDuitku);
+    final paymentStatus = await GetIt.instance<DuitkuApi>().checkVAPaymentStatusMicroS(widget.docnumDuitku);
     // await GetIt.instance<DuitkuApi>().checkVAPaymentStatus(signature, widget.data.merchantOrderId);
     // log("paymentStatus - ${paymentStatus['data']['status']}");
     return paymentStatus['data']['status'];
@@ -181,8 +174,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
             node: _focusScopeNode,
             autofocus: true,
             onKeyEvent: (node, event) {
-              if (event.runtimeType == KeyUpEvent)
-                return KeyEventResult.handled;
+              if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
 
               if (event.physicalKey == PhysicalKeyboardKey.f12) {
                 _manualCheckDuitkuStatus();
@@ -199,13 +191,11 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
             child: AlertDialog(
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
               title: Container(
                 decoration: const BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(5.0)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
                 child: const Row(
@@ -213,10 +203,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                   children: [
                     Text(
                       'Duitku Payment',
-                      style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white),
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                     ),
                   ],
                 ),
@@ -225,8 +212,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
               contentPadding: const EdgeInsets.all(0),
               content: SizedBox(
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
                   child: SingleChildScrollView(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -240,8 +226,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                               ),
                               TextSpan(
                                 text: "  ${widget.data.expiredTs}",
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700),
+                                style: const TextStyle(fontWeight: FontWeight.w700),
                               ),
                             ],
                             style: const TextStyle(
@@ -267,14 +252,11 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                                 children: [
                                   const TextSpan(
                                     text: "Total Payment",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontWeight: FontWeight.w500),
                                   ),
                                   TextSpan(
-                                    text:
-                                        "  Rp ${Helpers.parseMoney(widget.data.amount)}",
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w700),
+                                    text: "  Rp ${Helpers.parseMoney(widget.data.amount)}",
+                                    style: const TextStyle(fontWeight: FontWeight.w700),
                                   ),
                                 ],
                                 style: const TextStyle(
@@ -315,12 +297,8 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                                   const SizedBox(width: 8),
                                   GestureDetector(
                                     onTap: () {
-                                      Clipboard.setData(ClipboardData(
-                                          text: widget.data.vaNumber));
-                                      SnackBarHelper.presentSuccessSnackBar(
-                                          childContext,
-                                          "Copied to clipboard",
-                                          3);
+                                      Clipboard.setData(ClipboardData(text: widget.data.vaNumber));
+                                      SnackBarHelper.presentSuccessSnackBar(childContext, "Copied to clipboard", 3);
                                     },
                                     child: const Icon(
                                       Icons.copy,
@@ -362,8 +340,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                                 ),
                                 TextSpan(
                                   text: "  ${widget.data.reference}",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
                                 ),
                               ],
                               style: const TextStyle(
@@ -385,8 +362,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                                   children: [
                                     TextSpan(
                                       text: "Status",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w500),
+                                      style: TextStyle(fontWeight: FontWeight.w500),
                                     ),
                                   ],
                                   style: TextStyle(
@@ -407,8 +383,7 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                                       children: [
                                         TextSpan(
                                           text: checkedStatus,
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.w500),
+                                          style: const TextStyle(fontWeight: FontWeight.w500),
                                         ),
                                       ],
                                       style: TextStyle(
@@ -451,14 +426,12 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                     Expanded(
                         child: TextButton(
                       style: ButtonStyle(
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(
-                                  color: ProjectColors.primary))),
-                          backgroundColor: WidgetStateColor.resolveWith(
-                              (states) => Colors.white),
-                          overlayColor: WidgetStateColor.resolveWith((states) =>
-                              ProjectColors.primary.withOpacity(.2))),
+                              side: const BorderSide(color: ProjectColors.primary))),
+                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                          overlayColor:
+                              MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                       onPressed: () {
                         context.pop(false);
                       },
@@ -485,24 +458,18 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                     Expanded(
                       child: TextButton(
                         style: ButtonStyle(
-                            shape: WidgetStatePropertyAll(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5))),
-                            backgroundColor: WidgetStateColor.resolveWith(
-                                (states) => isCheckingStatus
-                                    ? Colors.grey
-                                    : ProjectColors.primary),
-                            overlayColor: WidgetStateColor.resolveWith(
-                                (states) => Colors.white.withOpacity(.2))),
+                            shape: MaterialStatePropertyAll(
+                                RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                            backgroundColor: MaterialStateColor.resolveWith(
+                                (states) => isCheckingStatus ? Colors.grey : ProjectColors.primary),
+                            overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                         onPressed: isCheckingStatus
                             ? null
                             : () async {
                                 await _checkConnection();
-                                final String check =
-                                    await _manualCheckDuitkuStatus();
+                                final String check = await _manualCheckDuitkuStatus();
                                 if (check == "PENDING") {
-                                  SnackBarHelper.presentErrorSnackBar(
-                                      childContext, "Payment Status: PENDING");
+                                  SnackBarHelper.presentErrorSnackBar(childContext, "Payment Status: PENDING");
                                 }
                               },
                         child: Center(
@@ -521,17 +488,13 @@ class _DuitkuDialogState extends State<DuitkuDialog> {
                                         text: "Check Status",
                                         style: TextStyle(
                                           fontWeight: FontWeight.w600,
-                                          color: isCheckingStatus
-                                              ? ProjectColors.lightBlack
-                                              : Colors.white,
+                                          color: isCheckingStatus ? ProjectColors.lightBlack : Colors.white,
                                         )),
                                     TextSpan(
                                         text: "  (F12)",
                                         style: TextStyle(
                                           fontWeight: FontWeight.w300,
-                                          color: isCheckingStatus
-                                              ? ProjectColors.lightBlack
-                                              : Colors.white,
+                                          color: isCheckingStatus ? ProjectColors.lightBlack : Colors.white,
                                         )),
                                   ],
                                 ),

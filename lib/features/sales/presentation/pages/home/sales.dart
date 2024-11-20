@@ -4102,7 +4102,6 @@ class _SalesPageState extends State<SalesPage> {
       }
 
       final updatedParams = await checkScallableItem(params.barcode ?? "");
-      log("updatedParams - ${updatedParams!.barcode}");
 
       if (mounted) {
         if (updatedParams != null) {

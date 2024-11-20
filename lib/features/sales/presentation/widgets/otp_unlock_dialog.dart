@@ -22,16 +22,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class OTPUnlockDialog extends StatefulWidget {
   final String requester;
   final String docnum;
-  const OTPUnlockDialog(
-      {super.key, required this.requester, required this.docnum});
+  const OTPUnlockDialog({super.key, required this.requester, required this.docnum});
 
   @override
   State<OTPUnlockDialog> createState() => _OTPUnlockDialogState();
 }
 
 class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
-  final _otpControllers = List<TextEditingController>.generate(
-      6, (index) => TextEditingController());
+  final _otpControllers = List<TextEditingController>.generate(6, (index) => TextEditingController());
   String _otpCode = '';
   late Timer _timer;
   int _remainingSeconds = 30;
@@ -79,10 +77,8 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
     return '${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds';
   }
 
-  Future<void> onSubmit(BuildContext parentContext, BuildContext childContext,
-      String otp, String requester) async {
-    final response =
-        await GetIt.instance<OTPServiceAPi>().validateOTP(otp, requester);
+  Future<void> onSubmit(BuildContext parentContext, BuildContext childContext, String otp, String requester) async {
+    final response = await GetIt.instance<OTPServiceAPi>().validateOTP(otp, requester);
 
     if (response['status'] == "200") {
       if (childContext.mounted) {
@@ -101,24 +97,19 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
       await Future.delayed(const Duration(seconds: 2));
 
       // unlock DP HERE
-      final String cashierName =
-          GetIt.instance<SharedPreferences>().getString("username") ?? "";
-      final UserModel? user = await GetIt.instance<AppDatabase>()
-          .userDao
-          .readByUsername(cashierName, null);
+      final String cashierName = GetIt.instance<SharedPreferences>().getString("username") ?? "";
+      final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(cashierName, null);
       List<String> docnumList = [widget.docnum];
       if (user != null) {
-        String checkLock = await GetIt.instance<InvoiceApi>()
-            .unlockInvoice(user.docId, docnumList);
+        String checkLock = await GetIt.instance<InvoiceApi>().unlockInvoice(user.docId, docnumList);
         log("checkLock - $checkLock");
         if (checkLock != 'Unlock Down Payment success') {
-          SnackBarHelper.presentErrorSnackBar(childContext,
-              "Failed to process, please check your connection and try again");
+          SnackBarHelper.presentErrorSnackBar(
+              childContext, "Failed to process, please check your connection and try again");
           return;
         }
       }
-      SnackBarHelper.presentSuccessSnackBar(
-          childContext, "Invoice unlocked successfully", 3);
+      SnackBarHelper.presentSuccessSnackBar(childContext, "Invoice unlocked successfully", 3);
 
       if (childContext.mounted) {
         parentContext.pop(true); // Close the input otp dialog
@@ -132,8 +123,7 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
         //       username: await getApprover(response['approver']!),
         //     ));
 
-        SnackBarHelper.presentSuccessSnackBar(
-            parentContext, "Unlock Invoice Success", 3);
+        SnackBarHelper.presentSuccessSnackBar(parentContext, "Unlock Invoice Success", 3);
       }
     } else {
       const message = "Wrong Code, Please Check Again";
@@ -148,29 +138,21 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
     try {
       final DateTime now = DateTime.now();
 
-      final POSParameterEntity? topos =
-          await GetIt.instance<GetPosParameterUseCase>().call();
+      final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
       if (topos == null) throw "Failed to retrieve POS Parameter";
 
-      final StoreMasterEntity? store =
-          await GetIt.instance<GetStoreMasterUseCase>()
-              .call(params: topos.tostrId);
+      final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
       if (store == null) throw "Failed to retrieve Store Master";
 
-      final cashierMachine = await GetIt.instance<AppDatabase>()
-          .cashRegisterDao
-          .readByDocId(topos.tocsrId!, null);
+      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
       if (cashierMachine == null) throw "Failed to retrieve Cash Register";
 
       final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
       final userId = prefs.getString('tousrId') ?? "";
       final employeeId = prefs.getString('tohemId') ?? "";
-      final user =
-          await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
+      final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
       if (user == null) throw "User Not Found";
-      final employee = await GetIt.instance<AppDatabase>()
-          .employeeDao
-          .readByDocId(employeeId, null);
+      final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
 
       final String body = '''
     Approval For: Unlock Invoice,
@@ -181,11 +163,9 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
     Invoice Document Number: ${widget.docnum}
 ''';
 
-      final String subject =
-          "OTP RUBY POS Unlock Invoice - [${store.storeCode}]";
+      final String subject = "OTP RUBY POS Unlock Invoice - [${store.storeCode}]";
 
-      await GetIt.instance<OTPServiceAPi>()
-          .createSendOTP(context, null, subject, body);
+      await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
 
       setState(() {
         _isOTPSent = true;
@@ -223,8 +203,7 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
               }
 
               if (value.physicalKey == PhysicalKeyboardKey.enter) {
-                onSubmit(
-                    parentContext, childContext, _otpCode, widget.requester);
+                onSubmit(parentContext, childContext, _otpCode, widget.requester);
                 return KeyEventResult.handled;
               } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
                 parentContext.pop();
@@ -254,21 +233,16 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
             child: AlertDialog(
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
               title: Container(
                 decoration: const BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(5.0)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
                 child: const Text(
                   'OTP Confirmation',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -276,8 +250,7 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
               content: SizedBox(
                 width: MediaQuery.of(childContext).size.width * 0.5,
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                   child: IntrinsicHeight(
                     child: Column(
                       children: [
@@ -295,10 +268,7 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
                               child: TextField(
                                 focusNode: index == 0 ? _otpFocusNode : null,
                                 controller: _otpControllers[index],
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.allow(
-                                      RegExp(r'[0-9]'))
-                                ],
+                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
                                 maxLength: 1,
                                 keyboardType: TextInputType.number,
                                 textAlign: TextAlign.center,
@@ -311,12 +281,10 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
                                   filled: true,
                                   fillColor: Colors.white,
                                   enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: ProjectColors.primary, width: 2),
+                                    borderSide: BorderSide(color: ProjectColors.primary, width: 2),
                                   ),
                                   focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Colors.green, width: 2),
+                                    borderSide: BorderSide(color: Colors.green, width: 2),
                                   ),
                                 ),
                                 onChanged: (value) async {
@@ -327,8 +295,7 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
                                   } else if (value.isNotEmpty && index == 5) {
                                     _updateOtpCode();
                                     // FocusScope.of(context).unfocus();
-                                    await onSubmit(parentContext, childContext,
-                                        _otpCode, widget.requester);
+                                    await onSubmit(parentContext, childContext, _otpCode, widget.requester);
                                   }
                                 },
                               ),
@@ -336,8 +303,7 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
                           }),
                         ),
                         const SizedBox(height: 20),
-                        Text(
-                            "Remaining Time: ${_formatDuration(Duration(seconds: _remainingSeconds))}"),
+                        Text("Remaining Time: ${_formatDuration(Duration(seconds: _remainingSeconds))}"),
                         if (_isTimeUp && !_isSendingOTP) ...[
                           const SizedBox(height: 10),
                           RichText(
@@ -346,9 +312,7 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
                                 TextSpan(
                                   text: 'Resend OTP',
                                   style: TextStyle(
-                                    color: _isOTPClicked
-                                        ? Colors.grey
-                                        : ProjectColors.primary,
+                                    color: _isOTPClicked ? Colors.grey : ProjectColors.primary,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 16,
                                   ),
@@ -376,9 +340,7 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
                                 TextSpan(
                                   text: " (F11)",
                                   style: TextStyle(
-                                      color: _isOTPClicked
-                                          ? Colors.grey
-                                          : ProjectColors.primary,
+                                      color: _isOTPClicked ? Colors.grey : ProjectColors.primary,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w300),
                                 ),
@@ -424,14 +386,12 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
                     Expanded(
                         child: TextButton(
                       style: ButtonStyle(
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(
-                                  color: ProjectColors.primary))),
-                          backgroundColor: WidgetStateColor.resolveWith(
-                              (states) => Colors.white),
-                          overlayColor: WidgetStateColor.resolveWith((states) =>
-                              ProjectColors.primary.withOpacity(.2))),
+                              side: const BorderSide(color: ProjectColors.primary))),
+                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                          overlayColor:
+                              MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                       onPressed: () {
                         Navigator.of(childContext).pop();
                       },
@@ -458,19 +418,14 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
                     Expanded(
                       child: TextButton(
                         style: ButtonStyle(
-                            shape:
-                                WidgetStatePropertyAll(RoundedRectangleBorder(
+                            shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(
-                                  color: ProjectColors.primary),
+                              side: const BorderSide(color: ProjectColors.primary),
                             )),
-                            backgroundColor: WidgetStateColor.resolveWith(
-                                (states) => ProjectColors.primary),
-                            overlayColor: WidgetStateColor.resolveWith(
-                                (states) => Colors.white.withOpacity(.2))),
+                            backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                            overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                         onPressed: () async {
-                          await onSubmit(parentContext, childContext, _otpCode,
-                              widget.requester);
+                          await onSubmit(parentContext, childContext, _otpCode, widget.requester);
                         },
                         child: Center(
                           child: RichText(

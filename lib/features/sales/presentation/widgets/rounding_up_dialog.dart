@@ -18,8 +18,7 @@ class RoundingUpDialog extends StatefulWidget {
 }
 
 class _RoundingUpDialogState extends State<RoundingUpDialog> {
-  final TextEditingController _textEditorAmountRoundUpController =
-      TextEditingController();
+  final TextEditingController _textEditorAmountRoundUpController = TextEditingController();
   final FocusNode _amountRoundUpFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
   final FocusScopeNode _focusScopeWarningNode = FocusScopeNode();
@@ -30,11 +29,9 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
   void initState() {
     super.initState();
     final ReceiptEntity receiptEntity = context.read<ReceiptCubit>().state;
-    initialGrandTotal =
-        ((receiptEntity.grandTotal - receiptEntity.rounding)).roundToDouble();
+    initialGrandTotal = ((receiptEntity.grandTotal - receiptEntity.rounding)).roundToDouble();
 
-    _textEditorAmountRoundUpController.text =
-        Helpers.parseMoney(receiptEntity.rounding.round());
+    _textEditorAmountRoundUpController.text = Helpers.parseMoney(receiptEntity.rounding.round());
   }
 
   @override
@@ -48,10 +45,9 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
 
   double getSimulatedGrandTotal() {
     try {
-      final double simulatedGrandTotal = (initialGrandTotal +
-              Helpers.revertMoneyToDecimalFormatDouble(
-                  _textEditorAmountRoundUpController.text))
-          .roundToDouble();
+      final double simulatedGrandTotal =
+          (initialGrandTotal + Helpers.revertMoneyToDecimalFormatDouble(_textEditorAmountRoundUpController.text))
+              .roundToDouble();
 
       return simulatedGrandTotal;
     } catch (e) {
@@ -67,8 +63,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
         _amountRoundUpFocusNode.unfocus();
         throw "Invalid discount amount";
       }
-      double input = Helpers.revertMoneyToDecimalFormat(
-          _textEditorAmountRoundUpController.text);
+      double input = Helpers.revertMoneyToDecimalFormat(_textEditorAmountRoundUpController.text);
       final ReceiptCubit cubit = context.read<ReceiptCubit>();
       final ReceiptEntity state = cubit.state;
 
@@ -94,8 +89,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
         _amountRoundUpFocusNode.unfocus();
         _textEditorAmountRoundUpController.text = "0";
       });
-      SnackBarHelper.presentSuccessSnackBar(
-          childContext, "Reset rounding success", null);
+      SnackBarHelper.presentSuccessSnackBar(childContext, "Reset rounding success", null);
       Future.delayed(const Duration(seconds: 3), () {
         _amountRoundUpFocusNode.requestFocus();
       });
@@ -131,8 +125,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
           child: AlertDialog(
             backgroundColor: Colors.white,
             surfaceTintColor: Colors.transparent,
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(5.0))),
+            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
             title: Container(
               decoration: const BoxDecoration(
                 color: ProjectColors.primary,
@@ -143,10 +136,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                 children: [
                   Text(
                     'Round Up ',
-                    style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white),
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                   ),
                 ],
               ),
@@ -167,8 +157,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                     child: TextFormField(
                       focusNode: _amountRoundUpFocusNode,
                       controller: _textEditorAmountRoundUpController,
-                      onFieldSubmitted: (value) async =>
-                          await onSubmit(childContext),
+                      onFieldSubmitted: (value) async => await onSubmit(childContext),
                       onChanged: (value) => setState(() {}),
                       autofocus: true,
                       inputFormatters: [MoneyInputFormatter()],
@@ -177,8 +166,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                       decoration: const InputDecoration(
                           contentPadding: EdgeInsets.all(10),
                           hintText: "Enter Rounding Amount",
-                          hintStyle: TextStyle(
-                              fontStyle: FontStyle.italic, fontSize: 24),
+                          hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(
                             Icons.arrow_upward_outlined,
@@ -196,9 +184,8 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                          color: ProjectColors.background,
-                          borderRadius: BorderRadius.circular(5)),
+                      decoration:
+                          BoxDecoration(color: ProjectColors.background, borderRadius: BorderRadius.circular(5)),
                       child: Table(
                         children: [
                           TableRow(
@@ -233,18 +220,11 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
-                                        _textEditorAmountRoundUpController
-                                                        .text ==
-                                                    "" ||
-                                                _textEditorAmountRoundUpController
-                                                        .text ==
-                                                    "0" ||
-                                                _textEditorAmountRoundUpController
-                                                        .text ==
-                                                    "-"
+                                        _textEditorAmountRoundUpController.text == "" ||
+                                                _textEditorAmountRoundUpController.text == "0" ||
+                                                _textEditorAmountRoundUpController.text == "-"
                                             ? "0"
-                                            : _textEditorAmountRoundUpController
-                                                .text,
+                                            : _textEditorAmountRoundUpController.text,
                                         textAlign: TextAlign.right,
                                         style: const TextStyle(fontSize: 14),
                                       ),
@@ -253,8 +233,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                                       ),
                                       ExcludeFocus(
                                         child: InkWell(
-                                            onTap: () =>
-                                                _resetRoundingUp(childContext),
+                                            onTap: () => _resetRoundingUp(childContext),
                                             child: const Icon(
                                               Icons.delete_outline_rounded,
                                               color: ProjectColors.swatch,
@@ -280,18 +259,14 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                               const TableCell(
                                 child: Text(
                                   "Grand Total",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 18),
+                                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
                                 ),
                               ),
                               TableCell(
                                 child: Text(
                                   Helpers.parseMoney(getSimulatedGrandTotal()),
                                   textAlign: TextAlign.right,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 18),
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
                                 ),
                               ),
                             ],
@@ -309,14 +284,12 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                   Expanded(
                       child: TextButton(
                     style: ButtonStyle(
-                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
-                            side: const BorderSide(
-                                color: ProjectColors.primary))),
-                        backgroundColor: WidgetStateColor.resolveWith(
-                            (states) => Colors.white),
-                        overlayColor: WidgetStateColor.resolveWith(
-                            (states) => ProjectColors.primary.withOpacity(.2))),
+                            side: const BorderSide(color: ProjectColors.primary))),
+                        backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                        overlayColor:
+                            MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                     onPressed: () {
                       Navigator.of(context).pop(false);
                     },
@@ -343,14 +316,12 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                   Expanded(
                       child: TextButton(
                     style: ButtonStyle(
-                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
                           side: const BorderSide(color: ProjectColors.primary),
                         )),
-                        backgroundColor: WidgetStateColor.resolveWith(
-                            (states) => ProjectColors.primary),
-                        overlayColor: WidgetStateColor.resolveWith(
-                            (states) => Colors.white.withOpacity(.2))),
+                        backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                     onPressed: () async => await onSubmit(childContext),
                     child: Center(
                       child: RichText(

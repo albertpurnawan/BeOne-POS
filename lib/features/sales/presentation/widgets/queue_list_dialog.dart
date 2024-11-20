@@ -29,12 +29,9 @@ class _QueueListDialogState extends State<QueueListDialog> {
   late final FocusNode _keyboardListenerFocusNode = FocusNode();
 
   final ItemScrollController itemScrollController = ItemScrollController();
-  final ScrollOffsetController scrollOffsetController =
-      ScrollOffsetController();
-  final ItemPositionsListener itemPositionsListener =
-      ItemPositionsListener.create();
-  final ScrollOffsetListener scrollOffsetListener =
-      ScrollOffsetListener.create();
+  final ScrollOffsetController scrollOffsetController = ScrollOffsetController();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+  final ScrollOffsetListener scrollOffsetListener = ScrollOffsetListener.create();
 
   @override
   void initState() {
@@ -56,9 +53,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
 
   Future<void> scrollToReceiptItemByIndex(int index) async {
     await itemScrollController.scrollTo(
-        index: index,
-        duration: const Duration(milliseconds: 10),
-        curve: Curves.easeInOutCubic);
+        index: index, duration: const Duration(milliseconds: 10), curve: Curves.easeInOutCubic);
   }
 
   @override
@@ -69,29 +64,23 @@ class _QueueListDialogState extends State<QueueListDialog> {
       onKeyEvent: (node, event) {
         if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
         // log("event queue list");
-        if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
-            currentIndex < queuedReceipts.length - 1) {
+        if (event.physicalKey == PhysicalKeyboardKey.arrowDown && currentIndex < queuedReceipts.length - 1) {
           scrollToReceiptItemByIndex(currentIndex + 1);
           currentIndex += 1;
           setState(() {});
 
           return KeyEventResult.skipRemainingHandlers;
-        } else if (event.physicalKey == PhysicalKeyboardKey.arrowUp &&
-            currentIndex > 0) {
+        } else if (event.physicalKey == PhysicalKeyboardKey.arrowUp && currentIndex > 0) {
           scrollToReceiptItemByIndex(currentIndex - 1);
           currentIndex -= 1;
           setState(() {});
 
           return KeyEventResult.skipRemainingHandlers;
-        } else if (event.physicalKey == PhysicalKeyboardKey.enter &&
-            queuedReceipts.isNotEmpty) {
-          context
-              .read<ReceiptCubit>()
-              .retrieveFromQueue(queuedReceipts[currentIndex], context);
+        } else if (event.physicalKey == PhysicalKeyboardKey.enter && queuedReceipts.isNotEmpty) {
+          context.read<ReceiptCubit>().retrieveFromQueue(queuedReceipts[currentIndex], context);
           Navigator.pop(context);
           return KeyEventResult.skipRemainingHandlers;
-        } else if (event.physicalKey == PhysicalKeyboardKey.f12 ||
-            event.physicalKey == PhysicalKeyboardKey.escape) {
+        } else if (event.physicalKey == PhysicalKeyboardKey.f12 || event.physicalKey == PhysicalKeyboardKey.escape) {
           Navigator.pop(context);
           return KeyEventResult.skipRemainingHandlers;
         }
@@ -101,8 +90,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -111,8 +99,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
           padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
           child: const Text(
             'Pending Orders',
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -142,19 +129,14 @@ class _QueueListDialogState extends State<QueueListDialog> {
                       padding: const EdgeInsets.all(15),
                       itemCount: queuedReceipts.length,
                       itemBuilder: (BuildContext context, int index) {
-                        final ReceiptEntity queuedReceipt =
-                            queuedReceipts[index];
+                        final ReceiptEntity queuedReceipt = queuedReceipts[index];
                         return InkWell(
                           onTap: () async {
-                            await context
-                                .read<ReceiptCubit>()
-                                .retrieveFromQueue(queuedReceipt, context);
+                            await context.read<ReceiptCubit>().retrieveFromQueue(queuedReceipt, context);
                             Navigator.pop(context);
                           },
                           child: Container(
-                            color: index == currentIndex
-                                ? const Color.fromARGB(20, 128, 0, 0)
-                                : null,
+                            color: index == currentIndex ? const Color.fromARGB(20, 128, 0, 0) : null,
                             child: Column(
                               children: [
                                 index == 0
@@ -170,18 +152,14 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                   children: [
                                     Expanded(
                                       child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           SizedBox(
                                               width: 60,
                                               child: Text(
                                                 (index + 1).toString(),
                                                 textAlign: TextAlign.center,
-                                                style: const TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.w500),
+                                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                                               )),
                                           const SizedBox(
                                             width: 15,
@@ -189,13 +167,11 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                           Expanded(
                                             flex: 3,
                                             child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
                                                   "${queuedReceipt.receiptItems.take(4).map((e) => e.itemEntity.shortName ?? e.itemEntity.itemName).join("   |   ")}${queuedReceipt.receiptItems.length > 4 ? "    |   ..." : ""}",
-                                                  style: const TextStyle(
-                                                      fontSize: 18),
+                                                  style: const TextStyle(fontSize: 18),
                                                 ),
                                                 const SizedBox(
                                                   height: 10,
@@ -224,11 +200,8 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                       child: InkWell(
                                         customBorder: const CircleBorder(),
                                         onTap: () async {
-                                          await GetIt.instance<
-                                                  DeleteQueuedReceiptUseCase>()
-                                              .call(
-                                                  params:
-                                                      queuedReceipt.toinvId);
+                                          await GetIt.instance<DeleteQueuedReceiptUseCase>()
+                                              .call(params: queuedReceipt.toinvId);
                                           await getQueuedReceipts();
                                         },
                                         splashColor: Colors.white38,
@@ -269,33 +242,21 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                                   "Total Qty",
                                                   style: TextStyle(
                                                       fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: Color.fromARGB(
-                                                          255, 139, 139, 139)),
+                                                      fontWeight: FontWeight.w700,
+                                                      color: Color.fromARGB(255, 139, 139, 139)),
                                                 ),
                                                 const SizedBox(
                                                   width: 10,
                                                 ),
                                                 Text(
                                                   Helpers.cleanDecimal(
-                                                      queuedReceipt.receiptItems
-                                                                  .length >
-                                                              1
-                                                          ? queuedReceipt
-                                                              .receiptItems
-                                                              .map((e) =>
-                                                                  e.quantity)
-                                                              .reduce((value,
-                                                                      element) =>
-                                                                  value +
-                                                                  element)
-                                                          : queuedReceipt
-                                                              .receiptItems[0]
-                                                              .quantity,
+                                                      queuedReceipt.receiptItems.length > 1
+                                                          ? queuedReceipt.receiptItems
+                                                              .map((e) => e.quantity)
+                                                              .reduce((value, element) => value + element)
+                                                          : queuedReceipt.receiptItems[0].quantity,
                                                       3),
-                                                  style: const TextStyle(
-                                                      fontSize: 16),
+                                                  style: const TextStyle(fontSize: 16),
                                                 ),
                                               ],
                                             ),
@@ -308,18 +269,15 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                                   "Grand Total",
                                                   style: TextStyle(
                                                       fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: Color.fromARGB(
-                                                          255, 139, 139, 139)),
+                                                      fontWeight: FontWeight.w700,
+                                                      color: Color.fromARGB(255, 139, 139, 139)),
                                                 ),
                                                 const SizedBox(
                                                   width: 10,
                                                 ),
                                                 Text(
                                                   "Rp ${Helpers.parseMoney(queuedReceipt.grandTotal.toInt())}",
-                                                  style: const TextStyle(
-                                                      fontSize: 16),
+                                                  style: const TextStyle(fontSize: 16),
                                                 ),
                                               ],
                                             ),
@@ -327,27 +285,21 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                           Expanded(
                                             flex: 1,
                                             child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
+                                              mainAxisAlignment: MainAxisAlignment.end,
                                               children: [
                                                 const Text(
                                                   "Queued at",
                                                   style: TextStyle(
                                                       fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w700,
-                                                      color: Color.fromARGB(
-                                                          255, 139, 139, 139)),
+                                                      fontWeight: FontWeight.w700,
+                                                      color: Color.fromARGB(255, 139, 139, 139)),
                                                 ),
                                                 const SizedBox(
                                                   width: 10,
                                                 ),
                                                 Text(
-                                                  DateFormat.Hm().format(
-                                                      queuedReceipt
-                                                          .transDateTime!),
-                                                  style: const TextStyle(
-                                                      fontSize: 16),
+                                                  DateFormat.Hm().format(queuedReceipt.transDateTime!),
+                                                  style: const TextStyle(fontSize: 16),
                                                 ),
                                               ],
                                             ),
@@ -371,8 +323,7 @@ class _QueueListDialogState extends State<QueueListDialog> {
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
-                                        color:
-                                            Color.fromARGB(255, 139, 139, 139),
+                                        color: Color.fromARGB(255, 139, 139, 139),
                                       ),
                                     ),
                                     const SizedBox(
@@ -412,17 +363,13 @@ class _QueueListDialogState extends State<QueueListDialog> {
                   flex: 1,
                   child: TextButton(
                     style: ButtonStyle(
-                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
-                            side: const BorderSide(
-                                color: ProjectColors.primary))),
-                        backgroundColor: WidgetStateColor.resolveWith(
-                            (states) => Colors.white),
-                        overlayColor: WidgetStateColor.resolveWith(
-                            (states) => Colors.black.withOpacity(.2))),
+                            side: const BorderSide(color: ProjectColors.primary))),
+                        backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                     onPressed: () async {
-                      await GetIt.instance<DeleteAllQueuedReceiptsUseCase>()
-                          .call();
+                      await GetIt.instance<DeleteAllQueuedReceiptsUseCase>().call();
 
                       setState(() {
                         queuedReceipts.clear();
@@ -441,12 +388,9 @@ class _QueueListDialogState extends State<QueueListDialog> {
                   flex: 3,
                   child: TextButton(
                     style: ButtonStyle(
-                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5))),
-                        backgroundColor: WidgetStateColor.resolveWith(
-                            (states) => ProjectColors.primary),
-                        overlayColor: WidgetStateColor.resolveWith(
-                            (states) => Colors.white.withOpacity(.2))),
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                        backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                     onPressed: () {
                       Navigator.pop(context);
                     },

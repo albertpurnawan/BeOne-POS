@@ -12,8 +12,7 @@ class QuantityReceiveDPDialog extends StatefulWidget {
   final double quantity;
 
   @override
-  State<QuantityReceiveDPDialog> createState() =>
-      _QuantityReceiveDPDialogState();
+  State<QuantityReceiveDPDialog> createState() => _QuantityReceiveDPDialogState();
 }
 
 class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
@@ -46,8 +45,7 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
   @override
   initState() {
     super.initState();
-    _textEditingControllerQuantity.text =
-        Helpers.cleanDecimal(widget.quantity, 1);
+    _textEditingControllerQuantity.text = Helpers.cleanDecimal(widget.quantity, 1);
   }
 
   @override
@@ -63,8 +61,7 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
     return AlertDialog(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
       title: Container(
         decoration: const BoxDecoration(
           color: ProjectColors.primary,
@@ -73,8 +70,7 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
         padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
         child: const Text(
           'Input Quantity',
-          style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
         ),
       ),
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -114,8 +110,7 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
                 decoration: const InputDecoration(
                   contentPadding: EdgeInsets.all(10),
                   hintText: "Enter Quantity",
-                  hintStyle:
-                      TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+                  hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(
                     Icons.numbers,
@@ -145,12 +140,9 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
             Expanded(
                 child: TextButton(
               style: ButtonStyle(
-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: WidgetStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: WidgetStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
+                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () {
                 if (_textEditingControllerQuantity.text == '0') {
                   setState(() {
