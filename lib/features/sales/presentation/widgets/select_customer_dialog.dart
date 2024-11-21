@@ -17,8 +17,7 @@ class SelectCustomerDialog extends StatefulWidget {
 
 class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
   late final FocusNode _customerInputFocusNode = FocusNode();
-  late final TextEditingController _textEditingControllerCustomer =
-      TextEditingController();
+  late final TextEditingController _textEditingControllerCustomer = TextEditingController();
   CustomerEntity? radioValue;
   CustomerEntity? selectedCustomer;
 
@@ -46,8 +45,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
             _textEditingControllerCustomer.text += event.character!;
             _customerInputFocusNode.requestFocus();
             return KeyEventResult.handled;
-          } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
-              _customerInputFocusNode.hasPrimaryFocus) {
+          } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && _customerInputFocusNode.hasPrimaryFocus) {
             _customerInputFocusNode.nextFocus();
             return KeyEventResult.handled;
           } else if (event.physicalKey == PhysicalKeyboardKey.f12) {
@@ -64,8 +62,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -74,8 +71,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
           child: const Text(
             'Select Customer',
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -100,9 +96,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: TextField(
                       onSubmitted: (value) {
-                        context
-                            .read<CustomersCubit>()
-                            .getActiveCustomers(searchKeyword: value);
+                        context.read<CustomersCubit>().getActiveCustomers(searchKeyword: value);
                         _customerInputFocusNode.requestFocus();
                       },
                       autofocus: true,
@@ -136,16 +130,14 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                         if (state.isEmpty) {
                           return const EmptyList(
                             imagePath: "assets/images/empty-search.svg",
-                            sentence:
-                                "Tadaa.. There is nothing here!\nEnter any keyword to search.",
+                            sentence: "Tadaa.. There is nothing here!\nEnter any keyword to search.",
                           );
                         }
                         return ListView.builder(
                             padding: const EdgeInsets.all(0),
                             itemCount: state.length,
                             itemBuilder: ((context, index) {
-                              final CustomerEntity customerEntity =
-                                  state[index];
+                              final CustomerEntity customerEntity = state[index];
 
                               return RadioListTile<CustomerEntity>(
                                   activeColor: ProjectColors.primary,
@@ -155,8 +147,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                                   contentPadding: const EdgeInsets.symmetric(
                                     horizontal: 15,
                                   ),
-                                  controlAffinity:
-                                      ListTileControlAffinity.trailing,
+                                  controlAffinity: ListTileControlAffinity.trailing,
                                   value: state[index],
                                   groupValue: radioValue,
                                   title: Text(
@@ -169,8 +160,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                                       Expanded(
                                         flex: 2,
                                         child: Wrap(
-                                          crossAxisAlignment:
-                                              WrapCrossAlignment.center,
+                                          crossAxisAlignment: WrapCrossAlignment.center,
                                           children: [
                                             const Icon(
                                               Icons.numbers_outlined,
@@ -179,8 +169,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                                             const SizedBox(width: 5),
                                             Text(
                                               customerEntity.custCode,
-                                              style:
-                                                  const TextStyle(fontSize: 14),
+                                              style: const TextStyle(fontSize: 14),
                                             ),
                                           ],
                                         ),
@@ -189,8 +178,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                                         flex: 1,
                                         child: Wrap(
                                           alignment: WrapAlignment.start,
-                                          crossAxisAlignment:
-                                              WrapCrossAlignment.center,
+                                          crossAxisAlignment: WrapCrossAlignment.center,
                                           children: [
                                             const Icon(
                                               Icons.phone_iphone_outlined,
@@ -198,10 +186,8 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                                             ),
                                             const SizedBox(width: 5),
                                             Text(
-                                              Helpers.formatPhoneNumber(
-                                                  customerEntity.phone),
-                                              style:
-                                                  const TextStyle(fontSize: 14),
+                                              Helpers.formatPhoneNumber(customerEntity.phone),
+                                              style: const TextStyle(fontSize: 14),
                                             ),
                                           ],
                                         ),
@@ -233,13 +219,10 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: const BorderSide(color: ProjectColors.primary))),
-                    backgroundColor:
-                        WidgetStateColor.resolveWith((states) => Colors.white),
-                    overlayColor: WidgetStateColor.resolveWith(
-                        (states) => Colors.black.withOpacity(.2))),
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                 onPressed: () {
                   setState(() {
                     Navigator.of(context).pop();
@@ -270,17 +253,12 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
               Expanded(
                 child: TextButton(
                     style: ButtonStyle(
-                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5))),
-                        backgroundColor: WidgetStateColor.resolveWith(
-                            (states) => ProjectColors.primary),
-                        overlayColor: WidgetStateColor.resolveWith(
-                            (states) => Colors.white.withOpacity(.2))),
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                        backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                     onPressed: () async {
                       selectedCustomer = radioValue;
-                      await context
-                          .read<ReceiptCubit>()
-                          .updateCustomer(selectedCustomer!, context);
+                      await context.read<ReceiptCubit>().updateCustomer(selectedCustomer!, context);
                       if (context.mounted) {
                         Navigator.of(context).pop();
                       }
@@ -316,9 +294,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
     FocusManager.instance.primaryFocus?.unfocus();
 
     selectedCustomer = radioValue;
-    await context
-        .read<ReceiptCubit>()
-        .updateCustomer(selectedCustomer!, context);
+    await context.read<ReceiptCubit>().updateCustomer(selectedCustomer!, context);
 
     Navigator.of(context).pop();
   }

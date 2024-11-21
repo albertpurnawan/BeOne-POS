@@ -47,8 +47,7 @@ class _ConfirmRestoreDBDialogState extends State<ConfirmRestoreDBDialog> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -57,8 +56,7 @@ class _ConfirmRestoreDBDialogState extends State<ConfirmRestoreDBDialog> {
           padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
           child: const Text(
             'Alert',
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -106,14 +104,11 @@ class _ConfirmRestoreDBDialogState extends State<ConfirmRestoreDBDialog> {
                   flex: 1,
                   child: TextButton(
                     style: ButtonStyle(
-                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
-                            side: const BorderSide(
-                                color: ProjectColors.primary))),
-                        backgroundColor: WidgetStateColor.resolveWith(
-                            (states) => Colors.white),
-                        overlayColor: WidgetStateColor.resolveWith(
-                            (states) => Colors.black.withOpacity(.2))),
+                            side: const BorderSide(color: ProjectColors.primary))),
+                        backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                     onPressed: () {
                       context.pop(false);
                     },
@@ -142,13 +137,10 @@ class _ConfirmRestoreDBDialogState extends State<ConfirmRestoreDBDialog> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: const BorderSide(color: ProjectColors.primary))),
-                    backgroundColor:
-                        WidgetStateColor.resolveWith((states) => Colors.white),
-                    overlayColor: WidgetStateColor.resolveWith(
-                        (states) => Colors.black.withOpacity(.2))),
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                 onPressed: () async {
                   showDialog(
                     context: context,

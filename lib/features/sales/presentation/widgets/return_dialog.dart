@@ -25,17 +25,14 @@ class ReturnDialog extends StatefulWidget {
 class _ReturnDialogState extends State<ReturnDialog> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _remarksController = TextEditingController();
-  final TextEditingController _invoiceNumberController =
-      TextEditingController();
+  final TextEditingController _invoiceNumberController = TextEditingController();
   final FocusNode _remarksFocusNode = FocusNode();
   final FocusNode _invoiceNumberFocusNode = FocusNode();
   final FocusNode _searchAvailableItemsInputFocusNode = FocusNode();
-  final TextEditingController _searchAvailableItemsInputTextController =
-      TextEditingController();
+  final TextEditingController _searchAvailableItemsInputTextController = TextEditingController();
 
   final FocusNode _searchReturnedItemsInputFocusNode = FocusNode();
-  final TextEditingController _searchReturnedItemsInputTextController =
-      TextEditingController();
+  final TextEditingController _searchReturnedItemsInputTextController = TextEditingController();
 
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
 
@@ -87,8 +84,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
       child: AlertDialog(
         backgroundColor: const Color.fromARGB(255, 244, 244, 244),
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -99,10 +95,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
             children: [
               Text(
                 'Return',
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
               ),
               Spacer(),
             ],
@@ -133,16 +126,12 @@ class _ReturnDialogState extends State<ReturnDialog> {
                             child: TextField(
                               textAlign: TextAlign.center,
                               style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color.fromARGB(255, 66, 66, 66)),
+                                  fontSize: 16, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 66, 66, 66)),
                               controller: _invoiceNumberController,
                               focusNode: _invoiceNumberFocusNode,
                               autofocus: true,
                               enabled: !isFetching,
-                              onSubmitted: isFetching
-                                  ? null
-                                  : (_) async => await _fetchInvoiceByDocNum(),
+                              onSubmitted: isFetching ? null : (_) async => await _fetchInvoiceByDocNum(),
                               decoration: InputDecoration(
                                 isDense: true,
                                 contentPadding: const EdgeInsets.all(10),
@@ -160,22 +149,13 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                       backgroundColor: ProjectColors.primary,
                                       padding: const EdgeInsets.all(5),
                                       foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5)),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                                     ),
-                                    onPressed: isFetching
-                                        ? null
-                                        : () async =>
-                                            await _fetchInvoiceByDocNum(),
+                                    onPressed: isFetching ? null : () async => await _fetchInvoiceByDocNum(),
                                     child: isFetching
-                                        ? const SizedBox(
-                                            width: 10,
-                                            height: 10,
-                                            child: CircularProgressIndicator())
+                                        ? const SizedBox(width: 10, height: 10, child: CircularProgressIndicator())
                                         : Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
+                                            mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
                                               RichText(
                                                 textAlign: TextAlign.center,
@@ -183,14 +163,10 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                                   children: [
                                                     TextSpan(
                                                       text: "Check",
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          fontSize: 12),
+                                                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
                                                     ),
                                                   ],
-                                                  style: TextStyle(
-                                                      height: 1, fontSize: 10),
+                                                  style: TextStyle(height: 1, fontSize: 10),
                                                 ),
                                                 overflow: TextOverflow.clip,
                                               ),
@@ -230,9 +206,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                   returnReceiptEntity == null
                                       ? "-"
                                       : "${Helpers.dateddMMMyyyyHHmmss(returnReceiptEntity!.transDateTime)} (${returnReceiptEntity!.timezone})",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 12),
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                                 ),
                               ],
                             ),
@@ -246,12 +220,8 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                   width: 8,
                                 ),
                                 Text(
-                                  returnReceiptEntity
-                                          ?.storeMasterEntity.storeCode ??
-                                      "-",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 12),
+                                  returnReceiptEntity?.storeMasterEntity.storeCode ?? "-",
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                                 ),
                               ],
                             ),
@@ -265,12 +235,8 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                   width: 8,
                                 ),
                                 Text(
-                                  returnReceiptEntity
-                                          ?.customerEntity.custName ??
-                                      "-",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 12),
+                                  returnReceiptEntity?.customerEntity.custName ?? "-",
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                                 ),
                               ],
                             ),
@@ -286,11 +252,8 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                 Text(
                                   returnReceiptEntity == null
                                       ? "-"
-                                      : Helpers.parseMoney(returnReceiptEntity!
-                                          .receiptEntity.grandTotal),
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 12),
+                                      : Helpers.parseMoney(returnReceiptEntity!.receiptEntity.grandTotal),
+                                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                                 ),
                               ],
                             )
@@ -307,8 +270,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
               if (returnReceiptEntity != null)
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -339,13 +301,10 @@ class _ReturnDialogState extends State<ReturnDialog> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: const BorderSide(color: ProjectColors.primary))),
-                    backgroundColor:
-                        WidgetStateColor.resolveWith((states) => Colors.white),
-                    overlayColor: WidgetStateColor.resolveWith(
-                        (states) => ProjectColors.primary.withOpacity(.2))),
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                    overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -372,16 +331,13 @@ class _ReturnDialogState extends State<ReturnDialog> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                       side: const BorderSide(color: ProjectColors.primary),
                     )),
-                    backgroundColor: WidgetStateColor.resolveWith(
-                        (states) => ProjectColors.primary),
-                    overlayColor: WidgetStateColor.resolveWith(
-                        (states) => Colors.white.withOpacity(.2))),
-                onPressed: () async =>
-                    await _saveReturnedReceiptItems().then((value) {
+                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                onPressed: () async => await _saveReturnedReceiptItems().then((value) {
                   if (value == true) context.pop(true);
                 }),
                 child: Center(
@@ -421,19 +377,13 @@ class _ReturnDialogState extends State<ReturnDialog> {
       if (existingReturns.isEmpty) return;
       if (context.read<ReturnReceiptCubit>().state == null ||
           (existingReturns.isNotEmpty &&
-              existingReturns.firstOrNull?.refpos3 !=
-                  context
-                      .read<ReturnReceiptCubit>()
-                      .state
-                      ?.receiptEntity
-                      .docNum)) {
+              existingReturns.firstOrNull?.refpos3 != context.read<ReturnReceiptCubit>().state?.receiptEntity.docNum)) {
         await _fetchInvoiceByDocNum(docNum: existingReturns.first.refpos3);
       } else {
         returnReceiptEntity = context.read<ReturnReceiptCubit>().state;
       }
       setState(() {
-        _invoiceNumberController.text =
-            returnReceiptEntity!.receiptEntity.docNum;
+        _invoiceNumberController.text = returnReceiptEntity!.receiptEntity.docNum;
         availableReceiptItems = returnReceiptEntity!.receiptEntity.receiptItems;
         returnedReceiptItems = existingReturns;
       });
@@ -459,34 +409,26 @@ class _ReturnDialogState extends State<ReturnDialog> {
             const Spacer(),
             TextButton(
               style: ButtonStyle(
-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                     side: const BorderSide(color: ProjectColors.primary),
                   )),
-                  backgroundColor: WidgetStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: WidgetStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () async {
                 try {
                   int count = 0;
                   for (final availableReceiptItem in availableReceiptItems) {
-                    if (availableReceiptItem.quantity < 0 ||
-                        availableReceiptItem.itemEntity.barcode == "99")
-                      continue;
+                    if (availableReceiptItem.quantity < 0 || availableReceiptItem.itemEntity.barcode == "99") continue;
                     await _saveDraftReturnedReceiptItems(
-                        availableReceiptItem.copyWith(
-                            quantity: _getRemainingQty(availableReceiptItem)),
+                        availableReceiptItem.copyWith(quantity: _getRemainingQty(availableReceiptItem)),
                         isSnackbarActive: false);
                     count++;
                   }
                   SnackBarHelper.presentSuccessSnackBar(
-                      context,
-                      "$count/${availableReceiptItems.length} items added to Return Items",
-                      null);
+                      context, "$count/${availableReceiptItems.length} items added to Return Items", null);
                 } catch (e) {
-                  SnackBarHelper.presentSuccessSnackBar(
-                      context, "One or more items failed to add", null);
+                  SnackBarHelper.presentSuccessSnackBar(context, "One or more items failed to add", null);
                 }
               },
               child: Center(
@@ -523,8 +465,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                 padding: const EdgeInsets.symmetric(horizontal: 15),
                 child: TextField(
                   textInputAction: TextInputAction.search,
-                  onSubmitted: (_) =>
-                      _searchAvailableItemsInputFocusNode.requestFocus(),
+                  onSubmitted: (_) => _searchAvailableItemsInputFocusNode.requestFocus(),
                   onChanged: (value) => setState(() {}),
                   controller: _searchAvailableItemsInputTextController,
                   // onSubmitted: (value) {
@@ -580,25 +521,24 @@ class _ReturnDialogState extends State<ReturnDialog> {
                   shrinkWrap: true,
                   itemCount: availableReceiptItems
                       .where((element) =>
-                          element.itemEntity.itemName.toLowerCase().contains(
-                              _searchAvailableItemsInputTextController.text
-                                  .toLowerCase()) ||
-                          element.itemEntity.barcode.toLowerCase().contains(
-                              _searchAvailableItemsInputTextController.text
-                                  .toLowerCase()))
+                          element.itemEntity.itemName
+                              .toLowerCase()
+                              .contains(_searchAvailableItemsInputTextController.text.toLowerCase()) ||
+                          element.itemEntity.barcode
+                              .toLowerCase()
+                              .contains(_searchAvailableItemsInputTextController.text.toLowerCase()))
                       .length,
                   itemBuilder: (context, index) {
                     final ReceiptItemEntity e = availableReceiptItems
                         .where((element) =>
-                            element.itemEntity.itemName.toLowerCase().contains(
-                                _searchAvailableItemsInputTextController.text
-                                    .toLowerCase()) ||
-                            element.itemEntity.barcode.toLowerCase().contains(
-                                _searchAvailableItemsInputTextController.text
-                                    .toLowerCase()))
+                            element.itemEntity.itemName
+                                .toLowerCase()
+                                .contains(_searchAvailableItemsInputTextController.text.toLowerCase()) ||
+                            element.itemEntity.barcode
+                                .toLowerCase()
+                                .contains(_searchAvailableItemsInputTextController.text.toLowerCase()))
                         .toList()[index];
-                    final bool isExistOnDraftReturnedReceiptItems =
-                        _isExistOnDraftReturnedReceiptItems(e);
+                    final bool isExistOnDraftReturnedReceiptItems = _isExistOnDraftReturnedReceiptItems(e);
 
                     return Material(
                       type: MaterialType.transparency,
@@ -607,12 +547,10 @@ class _ReturnDialogState extends State<ReturnDialog> {
                       shadowColor: Colors.grey[50],
                       child: InkWell(
                         focusColor: const Color.fromARGB(255, 237, 200, 200),
-                        onTap: _getRemainingQty(e) <= 0 ||
-                                e.itemEntity.barcode == "99"
+                        onTap: _getRemainingQty(e) <= 0 || e.itemEntity.barcode == "99"
                             ? () {}
                             : () async {
-                                final double? returnedQuantity =
-                                    await showDialog<double>(
+                                final double? returnedQuantity = await showDialog<double>(
                                   context: context,
                                   barrierDismissible: false,
                                   builder: (context) => ScaffoldMessenger(
@@ -620,18 +558,14 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                       return Scaffold(
                                         backgroundColor: Colors.transparent,
                                         body: InputReturnQuantityDialog(
-                                            receiptItemEntity: e.copyWith(
-                                                quantity: _getRemainingQty(e)),
-                                            min: (e.quantity -
-                                                    _getRemainingQty(e)) *
-                                                -1),
+                                            receiptItemEntity: e.copyWith(quantity: _getRemainingQty(e)),
+                                            min: (e.quantity - _getRemainingQty(e)) * -1),
                                       );
                                     }),
                                   ),
                                 );
                                 if (returnedQuantity != null) {
-                                  await _saveDraftReturnedReceiptItems(
-                                      e.copyWith(quantity: returnedQuantity));
+                                  await _saveDraftReturnedReceiptItems(e.copyWith(quantity: returnedQuantity));
                                 }
                               },
                         child: Column(
@@ -647,13 +581,11 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                 Expanded(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         e.itemEntity.barcode,
-                                        style: const TextStyle(
-                                            fontSize: 12, height: 1),
+                                        style: const TextStyle(fontSize: 12, height: 1),
                                       ),
                                       const SizedBox(
                                         height: 5,
@@ -676,19 +608,14 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                         alignment: Alignment.centerRight,
                                         width: 40,
                                         child: Text(
-                                          Helpers.cleanDecimal(
-                                              _getRemainingQty(e), 3),
+                                          Helpers.cleanDecimal(_getRemainingQty(e), 3),
                                           style: TextStyle(
-                                            fontWeight:
-                                                isExistOnDraftReturnedReceiptItems
-                                                    ? FontWeight.w700
-                                                    : null,
-                                            color:
-                                                isExistOnDraftReturnedReceiptItems
-                                                    ? _getRemainingQty(e) <= 0
-                                                        ? Colors.red
-                                                        : Colors.orange
-                                                    : null,
+                                            fontWeight: isExistOnDraftReturnedReceiptItems ? FontWeight.w700 : null,
+                                            color: isExistOnDraftReturnedReceiptItems
+                                                ? _getRemainingQty(e) <= 0
+                                                    ? Colors.red
+                                                    : Colors.orange
+                                                : null,
                                           ),
                                         )),
                                   ],
@@ -701,15 +628,13 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                     const SizedBox(
                                       height: 17,
                                     ),
-                                    if (_getRemainingQty(e) > 0 &&
-                                        e.itemEntity.barcode != "99")
+                                    if (_getRemainingQty(e) > 0 && e.itemEntity.barcode != "99")
                                       const Icon(
                                         Icons.arrow_forward_rounded,
                                         size: 20,
                                         color: ProjectColors.green,
                                       ),
-                                    if (_getRemainingQty(e) <= 0 ||
-                                        e.itemEntity.barcode == "99")
+                                    if (_getRemainingQty(e) <= 0 || e.itemEntity.barcode == "99")
                                       const SizedBox(
                                         width: 20,
                                       )
@@ -754,14 +679,12 @@ class _ReturnDialogState extends State<ReturnDialog> {
             const Spacer(),
             TextButton(
               style: ButtonStyle(
-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                     side: const BorderSide(color: ProjectColors.primary),
                   )),
-                  backgroundColor: WidgetStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: WidgetStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () => _resetDraftReturnedReceiptItems(),
               child: Center(
                 child: RichText(
@@ -798,8 +721,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                 child: TextField(
                   textInputAction: TextInputAction.search,
                   onChanged: (_) => setState(() {}),
-                  onSubmitted: (_) =>
-                      _searchReturnedItemsInputFocusNode.requestFocus(),
+                  onSubmitted: (_) => _searchReturnedItemsInputFocusNode.requestFocus(),
                   controller: _searchReturnedItemsInputTextController,
                   focusNode: _searchReturnedItemsInputFocusNode,
                   decoration: const InputDecoration(
@@ -827,25 +749,22 @@ class _ReturnDialogState extends State<ReturnDialog> {
                     shrinkWrap: true,
                     itemCount: returnedReceiptItems
                         .where((element) =>
-                            element.itemEntity.itemName.toLowerCase().contains(
-                                _searchReturnedItemsInputTextController.text
-                                    .toLowerCase()) ||
-                            element.itemEntity.barcode.toLowerCase().contains(
-                                _searchReturnedItemsInputTextController.text
-                                    .toLowerCase()))
+                            element.itemEntity.itemName
+                                .toLowerCase()
+                                .contains(_searchReturnedItemsInputTextController.text.toLowerCase()) ||
+                            element.itemEntity.barcode
+                                .toLowerCase()
+                                .contains(_searchReturnedItemsInputTextController.text.toLowerCase()))
                         .length,
                     itemBuilder: (context, index) {
                       final ReceiptItemEntity e = returnedReceiptItems
                           .where((element) =>
                               element.itemEntity.itemName
                                   .toLowerCase()
-                                  .contains(
-                                      _searchReturnedItemsInputTextController
-                                          .text
-                                          .toLowerCase()) ||
-                              element.itemEntity.barcode.toLowerCase().contains(
-                                  _searchReturnedItemsInputTextController.text
-                                      .toLowerCase()))
+                                  .contains(_searchReturnedItemsInputTextController.text.toLowerCase()) ||
+                              element.itemEntity.barcode
+                                  .toLowerCase()
+                                  .contains(_searchReturnedItemsInputTextController.text.toLowerCase()))
                           .toList()[index];
                       return Column(
                         mainAxisSize: MainAxisSize.min,
@@ -864,8 +783,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                   children: [
                                     Text(
                                       e.itemEntity.barcode,
-                                      style: const TextStyle(
-                                          fontSize: 12, height: 1),
+                                      style: const TextStyle(fontSize: 12, height: 1),
                                     ),
                                     const SizedBox(
                                       height: 5,
@@ -885,8 +803,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                   Container(
                                       alignment: Alignment.centerRight,
                                       width: 40,
-                                      child: Text(
-                                          Helpers.cleanDecimal(e.quantity, 3))),
+                                      child: Text(Helpers.cleanDecimal(e.quantity, 3))),
                                 ],
                               ),
                               const SizedBox(
@@ -899,8 +816,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                   ),
                                   InkWell(
                                     customBorder: const CircleBorder(),
-                                    onTap: () =>
-                                        _removeDraftReturnedReceiptItem(e),
+                                    onTap: () => _removeDraftReturnedReceiptItem(e),
                                     splashColor: Colors.white38,
                                     child: Ink(
                                       decoration: const BoxDecoration(
@@ -939,15 +855,13 @@ class _ReturnDialogState extends State<ReturnDialog> {
     try {
       docNum = docNum ?? _invoiceNumberController.text;
 
-      if (returnReceiptEntity != null &&
-          returnReceiptEntity?.receiptEntity.docNum != docNum) {
+      if (returnReceiptEntity != null && returnReceiptEntity?.receiptEntity.docNum != docNum) {
         final bool? isProceed = await showDialog<bool>(
           context: context,
           barrierDismissible: false,
           builder: (context) => const ConfirmationDialog(
             primaryMsg: "Different Invoice Detected",
-            secondaryMsg:
-                "Listed return items will be resetted if you proceed.",
+            secondaryMsg: "Listed return items will be resetted if you proceed.",
           ),
         );
         if (isProceed == null || isProceed == false) return;
@@ -958,16 +872,14 @@ class _ReturnDialogState extends State<ReturnDialog> {
         isFetching = true;
       });
 
-      final ReturnReceiptEntity targetReceipt =
-          await GetIt.instance<GetReturnReceiptUseCase>().call(params: docNum);
+      final ReturnReceiptEntity targetReceipt = await GetIt.instance<GetReturnReceiptUseCase>().call(params: docNum);
 
       setState(() {
         context.read<ReturnReceiptCubit>().replace(targetReceipt);
         returnReceiptEntity = targetReceipt;
         availableReceiptItems = targetReceipt.receiptEntity.receiptItems;
       });
-      SnackBarHelper.presentSuccessSnackBar(
-          context, "Fetch invoice success", null);
+      SnackBarHelper.presentSuccessSnackBar(context, "Fetch invoice success", null);
     } catch (e) {
       setState(() {
         context.read<ReturnReceiptCubit>().replace(null);
@@ -982,33 +894,26 @@ class _ReturnDialogState extends State<ReturnDialog> {
     }
   }
 
-  Future<void> _saveDraftReturnedReceiptItems(
-      ReceiptItemEntity receiptItemEntity,
+  Future<void> _saveDraftReturnedReceiptItems(ReceiptItemEntity receiptItemEntity,
       {bool isSnackbarActive = true}) async {
     try {
       final ReceiptItemEntity? existing = returnedReceiptItems
-          .where((element) =>
-              element.itemEntity.barcode ==
-              receiptItemEntity.itemEntity.barcode)
+          .where((element) => element.itemEntity.barcode == receiptItemEntity.itemEntity.barcode)
           .firstOrNull;
       returnedReceiptItems = returnedReceiptItems
-          .where((element) =>
-              element.itemEntity.barcode !=
-              receiptItemEntity.itemEntity.barcode)
+          .where((element) => element.itemEntity.barcode != receiptItemEntity.itemEntity.barcode)
           .toList();
       if (((existing?.quantity ?? 0) + receiptItemEntity.quantity) == 0) {
         _removeDraftReturnedReceiptItem(receiptItemEntity);
       } else {
         returnedReceiptItems.add(ReceiptHelper.updateReceiptItemAggregateFields(
-            receiptItemEntity.copyWith(
-                quantity:
-                    (existing?.quantity ?? 0) + receiptItemEntity.quantity)));
+            receiptItemEntity.copyWith(quantity: (existing?.quantity ?? 0) + receiptItemEntity.quantity)));
         returnedReceiptItems = returnedReceiptItems.reversed.toList();
       }
       setState(() {});
       if (!isSnackbarActive) return;
-      SnackBarHelper.presentSuccessSnackBar(context,
-          "${existing != null ? "Modify" : "Add"} return items success", null);
+      SnackBarHelper.presentSuccessSnackBar(
+          context, "${existing != null ? "Modify" : "Add"} return items success", null);
     } catch (e) {
       if (!isSnackbarActive) return;
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
@@ -1017,39 +922,26 @@ class _ReturnDialogState extends State<ReturnDialog> {
 
   Future<bool> _saveReturnedReceiptItems() async {
     try {
-      final List<ReceiptItemEntity> currentReturnedReceiptItems = context
-          .read<ReceiptCubit>()
-          .state
-          .receiptItems
-          .where((element) => element.refpos3 != null)
-          .toList();
+      final List<ReceiptItemEntity> currentReturnedReceiptItems =
+          context.read<ReceiptCubit>().state.receiptItems.where((element) => element.refpos3 != null).toList();
       for (final currentReturnedReceiptItem in currentReturnedReceiptItems) {
-        await context
-            .read<ReceiptCubit>()
-            .removeReceiptItem(currentReturnedReceiptItem, context);
+        await context.read<ReceiptCubit>().removeReceiptItem(currentReturnedReceiptItem, context);
       }
       for (final returnedReceiptItem in returnedReceiptItems) {
-        await context.read<ReceiptCubit>().addUpdateReceiptItems(
-            AddUpdateReceiptItemsParams(
-                barcode: null,
-                itemEntity: returnedReceiptItem.itemEntity,
-                quantity: returnedReceiptItem.quantity * -1,
-                context: context,
-                onOpenPriceInputted: () {},
-                refpos3: returnReceiptEntity?.receiptEntity.docNum));
+        await context.read<ReceiptCubit>().addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+            barcode: null,
+            itemEntity: returnedReceiptItem.itemEntity,
+            quantity: returnedReceiptItem.quantity * -1,
+            context: context,
+            onOpenPriceInputted: () {},
+            refpos3: returnReceiptEntity?.receiptEntity.docNum));
       }
       return true;
     } catch (e) {
-      final List<ReceiptItemEntity> currentReturnedReceiptItems = context
-          .read<ReceiptCubit>()
-          .state
-          .receiptItems
-          .where((element) => element.refpos3 != null)
-          .toList();
+      final List<ReceiptItemEntity> currentReturnedReceiptItems =
+          context.read<ReceiptCubit>().state.receiptItems.where((element) => element.refpos3 != null).toList();
       for (final currentReturnedReceiptItem in currentReturnedReceiptItems) {
-        await context
-            .read<ReceiptCubit>()
-            .removeReceiptItem(currentReturnedReceiptItem, context);
+        await context.read<ReceiptCubit>().removeReceiptItem(currentReturnedReceiptItem, context);
       }
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
       return false;
@@ -1061,20 +953,16 @@ class _ReturnDialogState extends State<ReturnDialog> {
       setState(() {
         returnedReceiptItems = [];
       });
-      SnackBarHelper.presentSuccessSnackBar(
-          context, "Reset return items success", null);
+      SnackBarHelper.presentSuccessSnackBar(context, "Reset return items success", null);
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
     }
   }
 
-  bool _isExistOnDraftReturnedReceiptItems(
-      ReceiptItemEntity receiptItemEntity) {
+  bool _isExistOnDraftReturnedReceiptItems(ReceiptItemEntity receiptItemEntity) {
     try {
       return returnedReceiptItems
-          .where((element) =>
-              element.itemEntity.barcode ==
-              receiptItemEntity.itemEntity.barcode)
+          .where((element) => element.itemEntity.barcode == receiptItemEntity.itemEntity.barcode)
           .isNotEmpty;
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
@@ -1085,9 +973,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
   double _getRemainingQty(ReceiptItemEntity receiptItemEntity) {
     try {
       final double returnedQuantity = returnedReceiptItems
-              .where((element) =>
-                  element.itemEntity.barcode ==
-                  receiptItemEntity.itemEntity.barcode)
+              .where((element) => element.itemEntity.barcode == receiptItemEntity.itemEntity.barcode)
               .firstOrNull
               ?.quantity ??
           0;
@@ -1101,9 +987,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
   void _removeDraftReturnedReceiptItem(ReceiptItemEntity receiptItemEntity) {
     try {
       returnedReceiptItems = returnedReceiptItems
-          .where((element) =>
-              element.itemEntity.barcode !=
-              receiptItemEntity.itemEntity.barcode)
+          .where((element) => element.itemEntity.barcode != receiptItemEntity.itemEntity.barcode)
           .toList();
       setState(() {});
     } catch (e) {
@@ -1116,11 +1000,9 @@ class InputReturnQuantityDialog extends StatelessWidget {
   final ReceiptItemEntity receiptItemEntity;
   final double min;
   final FocusNode _inputReturnedQtyFocusNode = FocusNode();
-  final TextEditingController _inputReturnedQtyEditingController =
-      TextEditingController();
+  final TextEditingController _inputReturnedQtyEditingController = TextEditingController();
 
-  InputReturnQuantityDialog(
-      {super.key, required this.receiptItemEntity, required this.min});
+  InputReturnQuantityDialog({super.key, required this.receiptItemEntity, required this.min});
 
   @override
   Widget build(BuildContext context) {
@@ -1142,8 +1024,7 @@ class InputReturnQuantityDialog extends StatelessWidget {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -1154,10 +1035,7 @@ class InputReturnQuantityDialog extends StatelessWidget {
             children: [
               Text(
                 'Return Quantity',
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
               ),
               Spacer(),
             ],
@@ -1191,9 +1069,7 @@ class InputReturnQuantityDialog extends StatelessWidget {
                                 keyboardType: TextInputType.number,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color.fromARGB(255, 66, 66, 66)),
+                                    fontSize: 16, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 66, 66, 66)),
                                 controller: _inputReturnedQtyEditingController,
                                 focusNode: _inputReturnedQtyFocusNode,
                                 decoration: const InputDecoration(
@@ -1247,15 +1123,10 @@ class InputReturnQuantityDialog extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Container(
                     padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                        color: ProjectColors.background,
-                        borderRadius: BorderRadius.circular(5)),
+                    decoration: BoxDecoration(color: ProjectColors.background, borderRadius: BorderRadius.circular(5)),
                     child: Table(
                       // defaultColumnWidth: IntrinsicColumnWidth(),
-                      columnWidths: const {
-                        0: FixedColumnWidth(100),
-                        1: FlexColumnWidth()
-                      },
+                      columnWidths: const {0: FixedColumnWidth(100), 1: FlexColumnWidth()},
                       children: [
                         TableRow(
                           children: [
@@ -1268,8 +1139,7 @@ class InputReturnQuantityDialog extends StatelessWidget {
                             TableCell(
                               child: Text(
                                 receiptItemEntity.itemEntity.barcode,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700, fontSize: 12),
+                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                               ),
                             ),
                           ],
@@ -1285,8 +1155,7 @@ class InputReturnQuantityDialog extends StatelessWidget {
                             TableCell(
                               child: Text(
                                 receiptItemEntity.itemEntity.itemName,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700, fontSize: 12),
+                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                               ),
                             ),
                           ],
@@ -1301,10 +1170,8 @@ class InputReturnQuantityDialog extends StatelessWidget {
                             ),
                             TableCell(
                               child: Text(
-                                Helpers.cleanDecimal(
-                                    receiptItemEntity.quantity, 3),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w700, fontSize: 12),
+                                Helpers.cleanDecimal(receiptItemEntity.quantity, 3),
+                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                               ),
                             ),
                           ],
@@ -1383,13 +1250,10 @@ class InputReturnQuantityDialog extends StatelessWidget {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: const BorderSide(color: ProjectColors.primary))),
-                    backgroundColor:
-                        WidgetStateColor.resolveWith((states) => Colors.white),
-                    overlayColor: WidgetStateColor.resolveWith(
-                        (states) => ProjectColors.primary.withOpacity(.2))),
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                    overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -1416,14 +1280,12 @@ class InputReturnQuantityDialog extends StatelessWidget {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
                       side: const BorderSide(color: ProjectColors.primary),
                     )),
-                    backgroundColor: WidgetStateColor.resolveWith(
-                        (states) => ProjectColors.primary),
-                    overlayColor: WidgetStateColor.resolveWith(
-                        (states) => Colors.white.withOpacity(.2))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                 onPressed: () => _saveQty(context),
                 child: Center(
                   child: RichText(
@@ -1452,12 +1314,10 @@ class InputReturnQuantityDialog extends StatelessWidget {
 
   void _saveQty(BuildContext context) {
     try {
-      final double parsed =
-          double.parse(_inputReturnedQtyEditingController.text);
+      final double parsed = double.parse(_inputReturnedQtyEditingController.text);
       // if (parsed <= 0) throw "Quantity must be positive";
       if (parsed < min) throw "Resulting quantity must be positive";
-      if (parsed > receiptItemEntity.quantity)
-        throw "Quantity exceeds available quantity";
+      if (parsed > receiptItemEntity.quantity) throw "Quantity exceeds available quantity";
       context.pop(double.parse(_inputReturnedQtyEditingController.text));
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());

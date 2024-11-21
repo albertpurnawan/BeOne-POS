@@ -6,8 +6,12 @@ class ItemsDao extends BaseDao<ItemModel> {
   ItemsDao(Database db) : super(db: db, tableName: tableItems, modelFields: ItemFields.values);
 
   Future<ItemModel?> readItemByBarcode(String barcode) async {
-    final maps = await db
-        .query(tableItems, columns: ItemFields.values, where: '${ItemFields.barcode} = ?', whereArgs: [barcode]);
+    final maps = await db.query(
+      tableItems,
+      columns: ItemFields.values,
+      where: '${ItemFields.barcode} = ?',
+      whereArgs: [barcode],
+    );
 
     if (maps.isNotEmpty) {
       return ItemModel.fromMap(maps.first);

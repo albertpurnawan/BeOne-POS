@@ -19,6 +19,7 @@ class ItemEntity {
   final String? tocatId;
   final String? shortName;
   final String toplnId;
+  final int scaleActive;
 
   ItemEntity({
     required this.id,
@@ -38,6 +39,7 @@ class ItemEntity {
     required this.tocatId,
     required this.shortName,
     required this.toplnId,
+    required this.scaleActive,
   });
 
   ItemEntity copyWith({
@@ -59,6 +61,7 @@ class ItemEntity {
     String? shortName,
     String? toplnId,
     String? refpos2,
+    int? scaleActive,
   }) {
     return ItemEntity(
       id: id ?? this.id,
@@ -78,6 +81,7 @@ class ItemEntity {
       tocatId: tocatId ?? this.tocatId,
       shortName: shortName ?? this.shortName,
       toplnId: toplnId ?? this.toplnId,
+      scaleActive: scaleActive ?? this.scaleActive,
     );
   }
 
@@ -100,6 +104,7 @@ class ItemEntity {
       'tocatId': tocatId,
       'shortName': shortName,
       'toplnId': toplnId,
+      'scaleActive': scaleActive,
     };
   }
 
@@ -122,6 +127,7 @@ class ItemEntity {
       tocatId: map['tocatId'] != null ? map['tocatId'] as String : null,
       shortName: map['shortName'] != null ? map['shortName'] as String : null,
       toplnId: map['toplnId'] as String,
+      scaleActive: map['scaleActive'] as int,
     );
   }
 
@@ -131,7 +137,7 @@ class ItemEntity {
 
   @override
   String toString() {
-    return 'ItemEntity(id: $id, itemName: $itemName, itemCode: $itemCode, barcode: $barcode, price: $price, toitmId: $toitmId, tbitmId: $tbitmId, tpln2Id: $tpln2Id, openPrice: $openPrice, tovenId: $tovenId, includeTax: $includeTax, tovatId: $tovatId, taxRate: $taxRate, dpp: $dpp, tocatId: $tocatId, shortName: $shortName, toplnId: $toplnId)';
+    return 'ItemEntity(id: $id, itemName: $itemName, itemCode: $itemCode, barcode: $barcode, price: $price, toitmId: $toitmId, tbitmId: $tbitmId, tpln2Id: $tpln2Id, openPrice: $openPrice, tovenId: $tovenId, includeTax: $includeTax, tovatId: $tovatId, taxRate: $taxRate, dpp: $dpp, tocatId: $tocatId, shortName: $shortName, toplnId: $toplnId, scaleActive: $scaleActive)';
   }
 
   @override
@@ -154,7 +160,8 @@ class ItemEntity {
         other.dpp == dpp &&
         other.tocatId == tocatId &&
         other.shortName == shortName &&
-        other.toplnId == toplnId;
+        other.toplnId == toplnId &&
+        other.scaleActive == scaleActive;
   }
 
   @override
@@ -175,6 +182,7 @@ class ItemEntity {
         dpp.hashCode ^
         tocatId.hashCode ^
         shortName.hashCode ^
-        toplnId.hashCode;
+        toplnId.hashCode ^
+        scaleActive.hashCode;
   }
 }

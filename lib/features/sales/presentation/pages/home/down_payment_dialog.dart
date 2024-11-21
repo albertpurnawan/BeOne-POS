@@ -98,9 +98,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   }
 
   void getEmployee(String tohemId) async {
-    final result = await GetIt.instance<AppDatabase>()
-        .employeeDao
-        .readByDocId(tohemId, null);
+    final result = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(tohemId, null);
     if (result != null) {
       setState(() {
         salesSelected = result.empName;
@@ -125,48 +123,45 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     });
     dp = await GetIt.instance<GetDownPaymentUseCase>().call();
     if (dp != null) {
-      currentReceiptItemEntity = stateInvoice.receiptItems
-          .where((e) => e.itemEntity.barcode == dp!.barcode)
-          .firstOrNull;
+      currentReceiptItemEntity =
+          stateInvoice.receiptItems.where((e) => e.itemEntity.barcode == dp!.barcode).firstOrNull;
 
       _remarksController.text = stateInvoice.remarks ?? "";
 
       if (currentReceiptItemEntity != null) {
-        _amountController.text =
-            Helpers.parseMoney(currentReceiptItemEntity!.itemEntity.price);
+        _amountController.text = Helpers.parseMoney(currentReceiptItemEntity!.itemEntity.price);
       } else {
         _amountController.text = "";
       }
-      if (stateInvoice.downPayments != null &&
-          stateInvoice.downPayments!.isNotEmpty) {
+      if (stateInvoice.downPayments != null && stateInvoice.downPayments!.isNotEmpty) {
         for (DownPaymentEntity dp in stateInvoice.downPayments!) {
           if (dp.isReceive == true) {
             final List<DownPaymentItemsEntity> dpItems = dp.tinv7 ?? [];
             for (int itemIndex = 0; itemIndex < dpItems.length; itemIndex++) {
               final DownPaymentItemsEntity item = dpItems[itemIndex];
               final String dpItemId = item.toitmId ?? "";
-              final ItemModel? dbItem = await GetIt.instance<AppDatabase>()
-                  .itemsDao
-                  .readByToitmId(dpItemId, null);
+              final ItemModel? dbItem = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(dpItemId, null);
               if (dbItem != null) {
                 itemsDP.add(ItemEntity(
-                    id: null,
-                    itemName: dbItem.itemName,
-                    itemCode: dbItem.itemCode,
-                    barcode: dbItem.barcode,
-                    price: item.sellingPrice,
-                    toitmId: item.toitmId ?? "",
-                    tbitmId: item.tbitmId ?? "",
-                    tpln2Id: dbItem.tpln2Id,
-                    openPrice: dbItem.openPrice,
-                    tovenId: item.tovenId,
-                    includeTax: item.includeTax,
-                    tovatId: item.tovatId ?? "",
-                    taxRate: dbItem.taxRate,
-                    dpp: dbItem.dpp,
-                    tocatId: dbItem.tocatId,
-                    shortName: dbItem.shortName,
-                    toplnId: dbItem.toplnId));
+                  id: null,
+                  itemName: dbItem.itemName,
+                  itemCode: dbItem.itemCode,
+                  barcode: dbItem.barcode,
+                  price: item.sellingPrice,
+                  toitmId: item.toitmId ?? "",
+                  tbitmId: item.tbitmId ?? "",
+                  tpln2Id: dbItem.tpln2Id,
+                  openPrice: dbItem.openPrice,
+                  tovenId: item.tovenId,
+                  includeTax: item.includeTax,
+                  tovatId: item.tovatId ?? "",
+                  taxRate: dbItem.taxRate,
+                  dpp: dbItem.dpp,
+                  tocatId: dbItem.tocatId,
+                  shortName: dbItem.shortName,
+                  toplnId: dbItem.toplnId,
+                  scaleActive: dbItem.scaleActive,
+                ));
 
                 qtyDP.add(item.quantity);
                 grandTotalReceiveDP += (item.sellingPrice * item.quantity);
@@ -178,8 +173,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     } else {
       _amountController.text = "";
       if (mounted) {
-        SnackBarHelper.presentErrorSnackBar(
-            context, "Item DP not found for this store");
+        SnackBarHelper.presentErrorSnackBar(context, "Item DP not found for this store");
       }
     }
     setState(() {
@@ -209,8 +203,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
               var tinv7List = membersDP[index].tinv7 ?? [];
               return List.generate(
                 tinv7List.length,
-                (innerIndex) =>
-                    tinv7List[innerIndex].isSelected == 1 ? true : false,
+                (innerIndex) => tinv7List[innerIndex].isSelected == 1 ? true : false,
               );
             },
           );
@@ -251,8 +244,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       await receipt.removeReceiptItem(receipt.state.receiptItems[0], context);
     }
     await receipt.updateSalesTohemIdRemarksOnReceipt("", "");
-    await receipt
-        .addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
   }
 
   Future<List<DownPaymentEntity>> getMembersDownPayments() async {
@@ -262,8 +254,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
         stateInvoice.downPayments!.any((dp) => dp.isReceive == false)) {
       return stateInvoice.downPayments!;
     }
-    return await GetIt.instance<DownPaymentApi>()
-        .fetchData(stateInvoice.customerEntity!.custCode);
+    return await GetIt.instance<DownPaymentApi>().fetchData(stateInvoice.customerEntity!.custCode);
   }
 
   void _setupControllers() {
@@ -275,16 +266,14 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       return controller;
     });
 
-    _drawAmountFocusNodes =
-        List.generate(membersDP.length, (index) => FocusNode());
+    _drawAmountFocusNodes = List.generate(membersDP.length, (index) => FocusNode());
 
     _isExceeding = List.generate(membersDP.length, (index) => false);
     _isZero = List.generate(membersDP.length, (index) => false);
 
     _selectedItems = List.generate(membersDP.length, (index) {
-      int selectedIndex = stateInvoice.downPayments?.indexWhere((dp) =>
-              dp.refpos2 == membersDP[index].refpos2 &&
-              dp.isSelected == true) ??
+      int selectedIndex = stateInvoice.downPayments
+              ?.indexWhere((dp) => dp.refpos2 == membersDP[index].refpos2 && dp.isSelected == true) ??
           -1;
 
       if (selectedIndex != -1) {
@@ -306,8 +295,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       }
     }
 
-    final double amount =
-        Helpers.revertMoneyToDecimalFormat(_amountController.text);
+    final double amount = Helpers.revertMoneyToDecimalFormat(_amountController.text);
     if (!mounted) return;
     final AddUpdateReceiptItemsParams params = AddUpdateReceiptItemsParams(
       barcode: null,
@@ -347,23 +335,19 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       ));
     }
 
-    final DownPaymentEntity dpEntity = DownPaymentEntity(
-        amount: amount, tempItems: itemsDP, isReceive: true, tinv7: dpItems);
+    final DownPaymentEntity dpEntity =
+        DownPaymentEntity(amount: amount, tempItems: itemsDP, isReceive: true, tinv7: dpItems);
 
     await receipt.addUpdateReceiptItems(params);
-    await receipt.updateSalesTohemIdRemarksOnReceipt(
-        tohemIdSelected ?? "", _remarksController.text);
-    await receipt.addOrUpdateDownPayments(
-        downPaymentEntities: [dpEntity], amountDifference: amount);
+    await receipt.updateSalesTohemIdRemarksOnReceipt(tohemIdSelected ?? "", _remarksController.text);
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [dpEntity], amountDifference: amount);
     // log("receipt 2 - ${receipt.state}");
   }
 
   Future<void> _addOrUpdateDrawDownPayment(BuildContext childContext) async {
     final receipt = context.read<ReceiptCubit>();
     double totalSelectedAmount = 0;
-    double previousSelectedAmount =
-        stateInvoice.downPayments?.fold(0.0, (sum, dp) => sum! + dp.amount) ??
-            0.0;
+    double previousSelectedAmount = stateInvoice.downPayments?.fold(0.0, (sum, dp) => sum! + dp.amount) ?? 0.0;
 
     List<DownPaymentEntity> selectedDownPayments = [];
     DownPaymentEntity? selectedDP;
@@ -373,20 +357,15 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     if (_selectedItems.isNotEmpty) {
       for (int i = 0; i < _selectedItems.length; i++) {
         selectedDP = membersDP[i].copyWith(isSelected: _selectedItems[i]);
-        double amount = double.tryParse(
-                _drawAmountControllers[i].text.replaceAll(',', '')) ??
-            0.0;
+        double amount = double.tryParse(_drawAmountControllers[i].text.replaceAll(',', '')) ?? 0.0;
         if (_selectedItems[i]) {
           List<DownPaymentItemsEntity>? tinv7List = selectedDP.tinv7;
-          List<DownPaymentItemsEntity> updatedTinv7List =
-              tinv7List!.map((tinv7Item) {
+          List<DownPaymentItemsEntity> updatedTinv7List = tinv7List!.map((tinv7Item) {
             int index = tinv7List.indexOf(tinv7Item);
-            return tinv7Item.copyWith(
-                isSelected: isCheckedBox[i][index] ? 1 : 0);
+            return tinv7Item.copyWith(isSelected: isCheckedBox[i][index] ? 1 : 0);
           }).toList();
 
-          selectedDP =
-              selectedDP.copyWith(tinv7: updatedTinv7List, amount: amount);
+          selectedDP = selectedDP.copyWith(tinv7: updatedTinv7List, amount: amount);
         }
         selectedDownPayments.add(selectedDP);
         totalSelectedAmount += amount;
@@ -395,19 +374,13 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
     if (selectedDownPayments.isNotEmpty) {
       for (DownPaymentEntity dp in selectedDownPayments) {
-        if (dp.isSelected != null &&
-            dp.isSelected == true &&
-            dp.tinv7 != null &&
-            dp.tinv7!.isNotEmpty) {
+        if (dp.isSelected != null && dp.isSelected == true && dp.tinv7 != null && dp.tinv7!.isNotEmpty) {
           log("dp.salesTohemId - ${dp.salesTohemId}");
           for (DownPaymentItemsEntity dpItem in dp.tinv7 ?? []) {
             if (dpItem.isSelected == 1) {
-              final itemEntity = await GetIt.instance<AppDatabase>()
-                  .itemsDao
-                  .readByToitmId(dpItem.toitmId ?? "", null);
+              final itemEntity = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(dpItem.toitmId ?? "", null);
               // log("dpItem.docNum  -${dpItem.docNum}");
-              final AddUpdateReceiptItemsParams paramAdd =
-                  AddUpdateReceiptItemsParams(
+              final AddUpdateReceiptItemsParams paramAdd = AddUpdateReceiptItemsParams(
                 barcode: itemEntity?.barcode ?? "",
                 itemEntity: itemEntity,
                 quantity: dpItem.quantity,
@@ -424,9 +397,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       }
     }
     double grandTotalDifference = previousSelectedAmount - totalSelectedAmount;
-    receipt.addOrUpdateDownPayments(
-        downPaymentEntities: selectedDownPayments,
-        amountDifference: grandTotalDifference);
+    receipt.addOrUpdateDownPayments(downPaymentEntities: selectedDownPayments, amountDifference: grandTotalDifference);
     context.pop();
   }
 
@@ -443,8 +414,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
             if (dpItem.toitmId == itemReceipt.itemEntity.toitmId &&
                 dpItem.tbitmId == itemReceipt.itemEntity.tbitmId &&
                 itemReceipt.refpos2 != null) {
-              final AddUpdateReceiptItemsParams param =
-                  AddUpdateReceiptItemsParams(
+              final AddUpdateReceiptItemsParams param = AddUpdateReceiptItemsParams(
                 barcode: itemReceipt.itemEntity.barcode,
                 itemEntity: itemReceipt.itemEntity,
                 quantity: dpItem.quantity * -1,
@@ -458,8 +428,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
         }
       }
     }
-    await receipt
-        .addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
     stateInvoice = receipt.state.copyWith();
   }
 
@@ -472,18 +441,15 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       _selectedItems = List.generate(membersDP.length, (_) => false);
       totalAmount = 0;
       for (int index = 0; index < _drawAmountControllers.length; index++) {
-        _drawAmountControllers[index].text =
-            Helpers.parseMoney(membersDP[index].amount);
+        _drawAmountControllers[index].text = Helpers.parseMoney(membersDP[index].amount);
       }
     });
     if (downPaymentList.isNotEmpty && receiptItemList.isNotEmpty) {
       for (DownPaymentEntity dp in downPaymentList) {
         for (DownPaymentItemsEntity dpItem in dp.tinv7 ?? []) {
           for (ReceiptItemEntity itemReceipt in receiptItemList) {
-            if (dpItem.toitmId == itemReceipt.itemEntity.toitmId &&
-                dpItem.tbitmId == itemReceipt.itemEntity.tbitmId) {
-              final AddUpdateReceiptItemsParams param =
-                  AddUpdateReceiptItemsParams(
+            if (dpItem.toitmId == itemReceipt.itemEntity.toitmId && dpItem.tbitmId == itemReceipt.itemEntity.tbitmId) {
+              final AddUpdateReceiptItemsParams param = AddUpdateReceiptItemsParams(
                 barcode: itemReceipt.itemEntity.barcode,
                 itemEntity: itemReceipt.itemEntity,
                 quantity: dpItem.quantity * -1,
@@ -498,8 +464,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       }
     }
 
-    await receipt
-        .addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
+    await receipt.addOrUpdateDownPayments(downPaymentEntities: [], amountDifference: 0);
     stateInvoice = receipt.state.copyWith();
   }
 
@@ -513,9 +478,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
   Future<bool> _checkReceiveDownPayment() async {
     final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
-    final bool itemDP = receiptItems.any((item) =>
-        item.itemEntity.itemCode == "99" ||
-        item.itemEntity.itemCode == "08700000002");
+    final bool itemDP =
+        receiptItems.any((item) => item.itemEntity.itemCode == "99" || item.itemEntity.itemCode == "08700000002");
 
     return itemDP;
   }
@@ -528,9 +492,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   }
 
   Future<ItemMasterModel> _getItem(String toitmId) async {
-    final item = await GetIt.instance<AppDatabase>()
-        .itemMasterDao
-        .readByDocId(toitmId, null);
+    final item = await GetIt.instance<AppDatabase>().itemMasterDao.readByDocId(toitmId, null);
     return item!;
   }
 
@@ -539,19 +501,14 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
     if (_selectedItems.isNotEmpty) {
       for (int i = 0; i < _selectedItems.length; i++) {
-        DownPaymentEntity dp =
-            membersDP[i].copyWith(isSelected: _selectedItems[i]);
-        double amount = double.tryParse(
-                _drawAmountControllers[i].text.replaceAll(',', '')) ??
-            0.0;
+        DownPaymentEntity dp = membersDP[i].copyWith(isSelected: _selectedItems[i]);
+        double amount = double.tryParse(_drawAmountControllers[i].text.replaceAll(',', '')) ?? 0.0;
 
         if (_selectedItems[i]) {
           List<DownPaymentItemsEntity>? tinv7List = dp.tinv7;
-          List<DownPaymentItemsEntity> updatedTinv7List =
-              tinv7List!.map((tinv7Item) {
+          List<DownPaymentItemsEntity> updatedTinv7List = tinv7List!.map((tinv7Item) {
             int index = tinv7List.indexOf(tinv7Item);
-            return tinv7Item.copyWith(
-                isSelected: isCheckedBox[i][index] ? 1 : 0);
+            return tinv7Item.copyWith(isSelected: isCheckedBox[i][index] ? 1 : 0);
           }).toList();
 
           dp = dp.copyWith(tinv7: updatedTinv7List, amount: amount);
@@ -564,21 +521,16 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     List<ReceiptItemEntity> receiptItems = receiptCubit.state.receiptItems;
 
     for (DownPaymentEntity dp in selectedDownPayments) {
-      for (int tinv7Index = 0;
-          tinv7Index < (dp.tinv7?.length ?? 0);
-          tinv7Index++) {
+      for (int tinv7Index = 0; tinv7Index < (dp.tinv7?.length ?? 0); tinv7Index++) {
         DownPaymentItemsEntity tinv7Item = dp.tinv7![tinv7Index];
 
-        for (int receiptIndex = 0;
-            receiptIndex < receiptItems.length;
-            receiptIndex++) {
+        for (int receiptIndex = 0; receiptIndex < receiptItems.length; receiptIndex++) {
           ReceiptItemEntity receiptItem = receiptItems[receiptIndex];
 
           if (tinv7Item.docNum == receiptItem.refpos2) {
             String tohemId = dp.salesTohemId ?? "";
             String remarks = tinv7Item.remarks ?? "";
-            await receiptCubit.updateTohemIdRemarksOnReceiptItem(
-                tohemId, remarks, receiptIndex);
+            await receiptCubit.updateTohemIdRemarksOnReceiptItem(tohemId, remarks, receiptIndex);
           }
         }
       }
@@ -628,35 +580,28 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
             autofocus: true,
             skipTraversal: true,
             onKeyEvent: (node, event) {
-              if (event.runtimeType == KeyUpEvent)
-                return KeyEventResult.handled;
+              if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
               if (event.physicalKey == PhysicalKeyboardKey.f12) {
                 isReceive
                     ? () async {
                         FocusScope.of(context).unfocus();
-                        final receiptItems =
-                            context.read<ReceiptCubit>().state.receiptItems;
-                        if (receiptItems.any(
-                                (item) => item.itemEntity.itemCode != "99") &&
-                            receiptItems.any((item) =>
-                                item.itemEntity.itemCode != "08700000002")) {
-                          SnackBarHelper.presentErrorSnackBar(childContext,
-                              "Down payment has to be excluded from other transactions");
+                        final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
+                        if (receiptItems.any((item) => item.itemEntity.itemCode != "99") &&
+                            receiptItems.any((item) => item.itemEntity.itemCode != "08700000002")) {
+                          SnackBarHelper.presentErrorSnackBar(
+                              childContext, "Down payment has to be excluded from other transactions");
                           return;
                         }
                         if (salesSelected == "Not Set*") {
-                          SnackBarHelper.presentErrorSnackBar(
-                              childContext, "Please select the salesperson");
+                          SnackBarHelper.presentErrorSnackBar(childContext, "Please select the salesperson");
                           return;
                         }
                         if (receiveZero || _amountController.text == "") {
-                          SnackBarHelper.presentErrorSnackBar(childContext,
-                              "Please input the Down Payment amount");
+                          SnackBarHelper.presentErrorSnackBar(childContext, "Please input the Down Payment amount");
                           return;
                         }
                         if (_remarksController.text.isEmpty) {
-                          SnackBarHelper.presentErrorSnackBar(
-                              childContext, "Please fill in the remarks");
+                          SnackBarHelper.presentErrorSnackBar(childContext, "Please fill in the remarks");
                           return;
                         }
                         if (await _checkDrawDownPayment()) {
@@ -699,23 +644,18 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
             child: AlertDialog(
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
               title: Container(
                 decoration: const BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(5.0)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
                 child: Row(
                   children: [
                     const Text(
                       'Down Payment',
-                      style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white),
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                     ),
                     const Spacer(),
                     ToggleSwitch(
@@ -767,9 +707,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                     thickness: 4,
                     radius: const Radius.circular(30),
                     thumbVisibility: true,
-                    child: isReceive
-                        ? _buildReceiveDownPayment()
-                        : _buildDrawDownPayment(),
+                    child: isReceive ? _buildReceiveDownPayment() : _buildDrawDownPayment(),
                   ),
                 ),
               ),
@@ -779,14 +717,12 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                     Expanded(
                         child: TextButton(
                       style: ButtonStyle(
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(
-                                  color: ProjectColors.primary))),
-                          backgroundColor: WidgetStateColor.resolveWith(
-                              (states) => Colors.white),
-                          overlayColor: WidgetStateColor.resolveWith((states) =>
-                              ProjectColors.primary.withOpacity(.2))),
+                              side: const BorderSide(color: ProjectColors.primary))),
+                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                          overlayColor:
+                              MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
@@ -813,53 +749,38 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                     Expanded(
                         child: TextButton(
                       style: ButtonStyle(
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
-                            side:
-                                const BorderSide(color: ProjectColors.primary),
+                            side: const BorderSide(color: ProjectColors.primary),
                           )),
-                          backgroundColor: WidgetStateColor.resolveWith(
-                              (states) => ProjectColors.primary),
-                          overlayColor: WidgetStateColor.resolveWith(
-                              (states) => Colors.white.withOpacity(.2))),
+                          backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                       onPressed: isReceive
                           ? () async {
                               FocusScope.of(context).unfocus();
-                              final receiptItems = context
-                                  .read<ReceiptCubit>()
-                                  .state
-                                  .receiptItems;
-                              if (receiptItems.any((item) =>
-                                      item.itemEntity.itemCode != "99") &&
-                                  receiptItems.any((item) =>
-                                      item.itemEntity.itemCode !=
-                                      "08700000002")) {
+                              final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
+                              if (receiptItems.any((item) => item.itemEntity.itemCode != "99") &&
+                                  receiptItems.any((item) => item.itemEntity.itemCode != "08700000002")) {
                                 SnackBarHelper.presentErrorSnackBar(
-                                    childContext,
-                                    "Down payment has to be excluded from other transactions");
+                                    childContext, "Down payment has to be excluded from other transactions");
                                 return;
                               }
                               if (salesSelected == "Not Set*") {
-                                SnackBarHelper.presentErrorSnackBar(
-                                    childContext,
-                                    "Please select the salesperson");
+                                SnackBarHelper.presentErrorSnackBar(childContext, "Please select the salesperson");
                                 return;
                               }
                               if (receiveZero || _amountController.text == "") {
                                 SnackBarHelper.presentErrorSnackBar(
-                                    childContext,
-                                    "Please input the Down Payment amount");
+                                    childContext, "Please input the Down Payment amount");
                                 return;
                               }
                               if (_remarksController.text.isEmpty) {
-                                SnackBarHelper.presentErrorSnackBar(
-                                    childContext, "Please fill in the remarks");
+                                SnackBarHelper.presentErrorSnackBar(childContext, "Please fill in the remarks");
                                 return;
                               }
                               if (await _checkDrawDownPayment()) {
                                 if (childContext.mounted) {
-                                  SnackBarHelper.presentErrorSnackBar(
-                                      childContext,
+                                  SnackBarHelper.presentErrorSnackBar(childContext,
                                       "Receiving and drawing down a payment cannot be processed in a single transaction");
                                 }
                                 return;
@@ -873,8 +794,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                               FocusScope.of(context).unfocus();
                               if (await _checkReceiveDownPayment()) {
                                 if (childContext.mounted) {
-                                  SnackBarHelper.presentErrorSnackBar(
-                                      childContext,
+                                  SnackBarHelper.presentErrorSnackBar(childContext,
                                       "Receiving and drawing down payment cannot be processed in a single transaction");
                                 }
                                 return;
@@ -986,8 +906,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                         GestureDetector(
                           onTap: () => showDialog<EmployeeEntity>(
                             context: context,
-                            builder: (BuildContext context) =>
-                                const SelectEmployee(),
+                            builder: (BuildContext context) => const SelectEmployee(),
                           ).then((selectedEmployee) {
                             if (selectedEmployee != null) {
                               setState(() {
@@ -1008,8 +927,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                 ),
                                 textAlign: TextAlign.start,
                               ),
-                              (salesSelected != "Not Set*" &&
-                                      salesSelected != null)
+                              (salesSelected != "Not Set*" && salesSelected != null)
                                   ? IconButton(
                                       icon: const Icon(
                                         Icons.delete_outline,
@@ -1024,19 +942,15 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                         Icons.navigate_next,
                                         color: Color.fromARGB(255, 66, 66, 66),
                                       ),
-                                      onPressed: () =>
-                                          showDialog<EmployeeEntity>(
+                                      onPressed: () => showDialog<EmployeeEntity>(
                                         context: context,
-                                        builder: (BuildContext context) =>
-                                            const SelectEmployee(),
+                                        builder: (BuildContext context) => const SelectEmployee(),
                                       ).then(
                                         (selectedEmployee) {
                                           if (selectedEmployee != null) {
                                             setState(() {
-                                              salesSelected =
-                                                  selectedEmployee.empName;
-                                              tohemIdSelected =
-                                                  selectedEmployee.docId;
+                                              salesSelected = selectedEmployee.empName;
+                                              tohemIdSelected = selectedEmployee.docId;
                                             });
                                           }
                                         },
@@ -1097,33 +1011,27 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                             if (mounted) {
                               FocusScope.of(context).unfocus();
                             }
-                            final ItemEntity? itemEntitySearch =
-                                await showDialog<ItemEntity>(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (context) =>
-                                        const ItemSearchDialog());
+                            final ItemEntity? itemEntitySearch = await showDialog<ItemEntity>(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => const ItemSearchDialog());
 
                             context.read<ItemsCubit>().clearItems();
 
                             if (itemEntitySearch != null) {
-                              final double quantity = double.parse(
-                                  (await showDialog(
-                                          context: context,
-                                          barrierDismissible: false,
-                                          builder: (context) =>
-                                              const QuantityReceiveDPDialog(
-                                                quantity: 0,
-                                              )))
-                                      .replaceAll(',', ''));
+                              final double quantity = double.parse((await showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => const QuantityReceiveDPDialog(
+                                            quantity: 0,
+                                          )))
+                                  .replaceAll(',', ''));
                               setState(() {
                                 itemsDP.add(itemEntitySearch);
                                 qtyDP.add(quantity);
-                                grandTotalReceiveDP +=
-                                    (itemEntitySearch.price * quantity);
+                                grandTotalReceiveDP += (itemEntitySearch.price * quantity);
                               });
-                              await _recalculateDownPayment(
-                                  grandTotalReceiveDP);
+                              await _recalculateDownPayment(grandTotalReceiveDP);
                             }
                           },
                           child: Container(
@@ -1167,15 +1075,13 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                           child: Column(
                             children: [
                               Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                                 child: Column(
                                   children: [
                                     Container(
                                       width: double.infinity,
                                       height: 250,
-                                      padding: const EdgeInsets.fromLTRB(
-                                          0, 10, 0, 10),
+                                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(5),
                                         color: Colors.white,
@@ -1183,23 +1089,19 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                           BoxShadow(
                                             spreadRadius: 0.5,
                                             blurRadius: 5,
-                                            color: Color.fromRGBO(
-                                                197, 197, 197, 1),
+                                            color: Color.fromRGBO(197, 197, 197, 1),
                                           ),
                                         ],
                                       ),
                                       child: Column(
                                         children: [
                                           (isLoadingReceive)
-                                              ? const Center(
-                                                  child:
-                                                      CircularProgressIndicator())
+                                              ? const Center(child: CircularProgressIndicator())
                                               : (groupedItems.isEmpty)
                                                   ? const Expanded(
                                                       child: Center(
                                                         child: EmptyList(
-                                                          imagePath:
-                                                              "assets/images/empty-item.svg",
+                                                          imagePath: "assets/images/empty-item.svg",
                                                           sentence:
                                                               "Tadaa.. There is nothing here!\nPress icon + to start adding item.",
                                                           height: 100,
@@ -1208,66 +1110,40 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                     )
                                                   : Expanded(
                                                       child: ListView.separated(
-                                                          itemBuilder:
-                                                              (BuildContext
-                                                                      context,
-                                                                  int index) {
+                                                          itemBuilder: (BuildContext context, int index) {
                                                             return Material(
-                                                              type: MaterialType
-                                                                  .transparency,
+                                                              type: MaterialType.transparency,
                                                               elevation: 6,
-                                                              color: Colors
-                                                                  .transparent,
-                                                              shadowColor:
-                                                                  Colors
-                                                                      .grey[50],
+                                                              color: Colors.transparent,
+                                                              shadowColor: Colors.grey[50],
                                                               child: InkWell(
-                                                                focusColor:
-                                                                    const Color
-                                                                        .fromRGBO(
-                                                                        255,
-                                                                        220,
-                                                                        221,
-                                                                        1.0),
+                                                                focusColor: const Color.fromRGBO(255, 220, 221, 1.0),
                                                                 onTap: () {},
                                                                 child: SizedBox(
                                                                   height: 50,
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: const EdgeInsets
-                                                                        .symmetric(
-                                                                        horizontal:
-                                                                            10),
+                                                                  child: Padding(
+                                                                    padding: const EdgeInsets.symmetric(horizontal: 10),
                                                                     child: Row(
-                                                                      mainAxisAlignment:
-                                                                          MainAxisAlignment
-                                                                              .start,
+                                                                      mainAxisAlignment: MainAxisAlignment.start,
                                                                       children: [
                                                                         SizedBox(
-                                                                          width:
-                                                                              30,
-                                                                          child:
-                                                                              Text(
+                                                                          width: 30,
+                                                                          child: Text(
                                                                             (index + 1).toString(),
-                                                                            textAlign:
-                                                                                TextAlign.center,
+                                                                            textAlign: TextAlign.center,
                                                                           ),
                                                                         ),
-                                                                        const SizedBox(
-                                                                            width:
-                                                                                10),
+                                                                        const SizedBox(width: 10),
                                                                         Expanded(
-                                                                          flex:
-                                                                              3,
-                                                                          child:
-                                                                              Column(
-                                                                            mainAxisAlignment:
-                                                                                MainAxisAlignment.center,
+                                                                          flex: 3,
+                                                                          child: Column(
+                                                                            mainAxisAlignment: MainAxisAlignment.center,
                                                                             crossAxisAlignment:
                                                                                 CrossAxisAlignment.start,
                                                                             children: [
                                                                               Row(
-                                                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                                                mainAxisAlignment:
+                                                                                    MainAxisAlignment.start,
                                                                                 children: [
                                                                                   SvgPicture.asset(
                                                                                     "assets/images/inventory.svg",
@@ -1281,7 +1157,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                                     style: const TextStyle(
                                                                                       fontSize: 12,
                                                                                       fontWeight: FontWeight.w500,
-                                                                                      color: Color.fromARGB(255, 66, 66, 66),
+                                                                                      color: Color.fromARGB(
+                                                                                          255, 66, 66, 66),
                                                                                     ),
                                                                                   ),
                                                                                   const SizedBox(
@@ -1299,7 +1176,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                                     style: const TextStyle(
                                                                                       fontSize: 12,
                                                                                       fontWeight: FontWeight.w500,
-                                                                                      color: Color.fromARGB(255, 66, 66, 66),
+                                                                                      color: Color.fromARGB(
+                                                                                          255, 66, 66, 66),
                                                                                     ),
                                                                                   ),
                                                                                 ],
@@ -1309,7 +1187,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                                 style: const TextStyle(
                                                                                   fontSize: 16,
                                                                                   fontWeight: FontWeight.w500,
-                                                                                  color: Color.fromARGB(255, 66, 66, 66),
+                                                                                  color:
+                                                                                      Color.fromARGB(255, 66, 66, 66),
                                                                                 ),
                                                                                 textAlign: TextAlign.start,
                                                                                 overflow: TextOverflow.ellipsis,
@@ -1318,15 +1197,12 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                           ),
                                                                         ),
                                                                         Expanded(
-                                                                          flex:
-                                                                              1,
-                                                                          child:
-                                                                              Text(
-                                                                            Helpers.parseMoney(groupedItems[index].price),
-                                                                            textAlign:
-                                                                                TextAlign.end,
-                                                                            style:
-                                                                                const TextStyle(
+                                                                          flex: 1,
+                                                                          child: Text(
+                                                                            Helpers.parseMoney(
+                                                                                groupedItems[index].price),
+                                                                            textAlign: TextAlign.end,
+                                                                            style: const TextStyle(
                                                                               fontSize: 16,
                                                                               fontWeight: FontWeight.w500,
                                                                               color: Color.fromARGB(255, 66, 66, 66),
@@ -1334,17 +1210,11 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                           ),
                                                                         ),
                                                                         Expanded(
-                                                                          flex:
-                                                                              1,
-                                                                          child:
-                                                                              Padding(
-                                                                            padding: const EdgeInsets.fromLTRB(
-                                                                                0,
-                                                                                0,
-                                                                                30,
-                                                                                0),
-                                                                            child:
-                                                                                Text(
+                                                                          flex: 1,
+                                                                          child: Padding(
+                                                                            padding:
+                                                                                const EdgeInsets.fromLTRB(0, 0, 30, 0),
+                                                                            child: Text(
                                                                               "${Helpers.cleanDecimal(groupedQtys[index], 1)} x",
                                                                               textAlign: TextAlign.end,
                                                                               style: const TextStyle(
@@ -1356,11 +1226,10 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                           ),
                                                                         ),
                                                                         Expanded(
-                                                                            flex:
-                                                                                1,
-                                                                            child:
-                                                                                Text(
-                                                                              Helpers.parseMoney(groupedQtys[index] * groupedItems[index].price),
+                                                                            flex: 1,
+                                                                            child: Text(
+                                                                              Helpers.parseMoney(groupedQtys[index] *
+                                                                                  groupedItems[index].price),
                                                                               textAlign: TextAlign.end,
                                                                               style: const TextStyle(
                                                                                 fontSize: 16,
@@ -1369,48 +1238,54 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                               ),
                                                                             )),
                                                                         Expanded(
-                                                                          flex:
-                                                                              1,
-                                                                          child:
-                                                                              Padding(
-                                                                            padding: const EdgeInsets.fromLTRB(
-                                                                                0,
-                                                                                0,
-                                                                                10,
-                                                                                0),
-                                                                            child:
-                                                                                Row(
+                                                                          flex: 1,
+                                                                          child: Padding(
+                                                                            padding:
+                                                                                const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                                                            child: Row(
                                                                               mainAxisAlignment: MainAxisAlignment.end,
                                                                               children: [
                                                                                 IntrinsicHeight(
                                                                                   child: GestureDetector(
                                                                                     onTap: () async {
-                                                                                      final double quantity = double.parse((await showDialog(
+                                                                                      final double quantity =
+                                                                                          double.parse(
+                                                                                              (await showDialog(
                                                                                         context: context,
                                                                                         barrierDismissible: false,
-                                                                                        builder: (context) => QuantityReceiveDPDialog(
+                                                                                        builder: (context) =>
+                                                                                            QuantityReceiveDPDialog(
                                                                                           quantity: groupedQtys[index],
                                                                                         ),
                                                                                       ))
-                                                                                          .replaceAll(',', ''));
+                                                                                                  .replaceAll(',', ''));
                                                                                       setState(() {
-                                                                                        grandTotalReceiveDP -= groupedItems[index].price * qtyDP[index];
+                                                                                        grandTotalReceiveDP -=
+                                                                                            groupedItems[index].price *
+                                                                                                qtyDP[index];
                                                                                         groupedQtys[index] = quantity;
-                                                                                        grandTotalReceiveDP += groupedItems[index].price * groupedQtys[index];
+                                                                                        grandTotalReceiveDP +=
+                                                                                            groupedItems[index].price *
+                                                                                                groupedQtys[index];
                                                                                       });
-                                                                                      await _recalculateDownPayment(grandTotalReceiveDP);
+                                                                                      await _recalculateDownPayment(
+                                                                                          grandTotalReceiveDP);
                                                                                     },
                                                                                     child: Container(
                                                                                       alignment: Alignment.center,
-                                                                                      padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                                                                      padding:
+                                                                                          const EdgeInsets.fromLTRB(
+                                                                                              6, 6, 6, 6),
                                                                                       decoration: BoxDecoration(
                                                                                         color: ProjectColors.blue,
-                                                                                        borderRadius: BorderRadius.circular(5),
+                                                                                        borderRadius:
+                                                                                            BorderRadius.circular(5),
                                                                                         boxShadow: const [
                                                                                           BoxShadow(
                                                                                             spreadRadius: 0.5,
                                                                                             blurRadius: 5,
-                                                                                            color: Color.fromRGBO(0, 0, 0, 0.222),
+                                                                                            color: Color.fromRGBO(
+                                                                                                0, 0, 0, 0.222),
                                                                                           ),
                                                                                         ],
                                                                                       ),
@@ -1432,26 +1307,39 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                                   child: GestureDetector(
                                                                                     onTap: () async {
                                                                                       setState(() {
-                                                                                        grandTotalReceiveDP -= (groupedItems[index].price * groupedQtys[index]);
-                                                                                        groupedItems.remove(itemsDP[index]);
-                                                                                        groupedQtys.remove(qtyDP[index]);
+                                                                                        grandTotalReceiveDP -=
+                                                                                            (groupedItems[index].price *
+                                                                                                groupedQtys[index]);
+                                                                                        groupedItems
+                                                                                            .remove(itemsDP[index]);
+                                                                                        groupedQtys
+                                                                                            .remove(qtyDP[index]);
                                                                                       });
-                                                                                      await _recalculateDownPayment(grandTotalReceiveDP);
+                                                                                      await _recalculateDownPayment(
+                                                                                          grandTotalReceiveDP);
                                                                                       if (context.mounted) {
-                                                                                        SnackBarHelper.presentSuccessSnackBar(context, "Item ${itemsDP[index].itemName} removed", 2);
+                                                                                        SnackBarHelper
+                                                                                            .presentSuccessSnackBar(
+                                                                                                context,
+                                                                                                "Item ${itemsDP[index].itemName} removed",
+                                                                                                2);
                                                                                       }
                                                                                     },
                                                                                     child: Container(
                                                                                       alignment: Alignment.center,
-                                                                                      padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                                                                      padding:
+                                                                                          const EdgeInsets.fromLTRB(
+                                                                                              6, 6, 6, 6),
                                                                                       decoration: BoxDecoration(
                                                                                         color: Colors.deepOrange,
-                                                                                        borderRadius: BorderRadius.circular(5),
+                                                                                        borderRadius:
+                                                                                            BorderRadius.circular(5),
                                                                                         boxShadow: const [
                                                                                           BoxShadow(
                                                                                             spreadRadius: 0.5,
                                                                                             blurRadius: 5,
-                                                                                            color: Color.fromRGBO(0, 0, 0, 0.222),
+                                                                                            color: Color.fromRGBO(
+                                                                                                0, 0, 0, 0.222),
                                                                                           ),
                                                                                         ],
                                                                                       ),
@@ -1479,25 +1367,13 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                               ),
                                                             );
                                                           },
-                                                          separatorBuilder:
-                                                              (BuildContext
-                                                                          context,
-                                                                      int
-                                                                          index) =>
-                                                                  const Divider(
-                                                                    height: 10,
-                                                                    thickness:
-                                                                        0.5,
-                                                                    color: Color
-                                                                        .fromARGB(
-                                                                            100,
-                                                                            118,
-                                                                            118,
-                                                                            117),
-                                                                  ),
-                                                          itemCount:
-                                                              groupedItems
-                                                                  .length),
+                                                          separatorBuilder: (BuildContext context, int index) =>
+                                                              const Divider(
+                                                                height: 10,
+                                                                thickness: 0.5,
+                                                                color: Color.fromARGB(100, 118, 118, 117),
+                                                              ),
+                                                          itemCount: groupedItems.length),
                                                     ),
                                         ],
                                       ),
@@ -1506,13 +1382,11 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                 ),
                               ),
                               Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(30, 15, 20, 15),
+                                padding: const EdgeInsets.fromLTRB(30, 15, 20, 15),
                                 child: Column(
                                   children: [
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.start,
                                       children: [
                                         const SizedBox(width: 30),
                                         const Expanded(
@@ -1522,8 +1396,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w700,
-                                              color: Color.fromARGB(
-                                                  255, 66, 66, 66),
+                                              color: Color.fromARGB(255, 66, 66, 66),
                                             ),
                                             textAlign: TextAlign.start,
                                           ),
@@ -1536,23 +1409,20 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,
-                                              color: Color.fromARGB(
-                                                  255, 66, 66, 66),
+                                              color: Color.fromARGB(255, 66, 66, 66),
                                             ),
                                           ),
                                         ),
                                         Expanded(
                                           flex: 1,
                                           child: Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                0, 0, 30, 0),
+                                            padding: const EdgeInsets.fromLTRB(0, 0, 30, 0),
                                             child: Text(
                                               "${Helpers.cleanDecimal((qtyDP.isEmpty) ? 0 : qtyDP.reduce((a, b) => a + b), 1)} x",
                                               style: const TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w700,
-                                                color: Color.fromARGB(
-                                                    255, 66, 66, 66),
+                                                color: Color.fromARGB(255, 66, 66, 66),
                                               ),
                                               textAlign: TextAlign.end,
                                             ),
@@ -1561,13 +1431,11 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                         Expanded(
                                           flex: 1,
                                           child: Text(
-                                            Helpers.parseMoney(
-                                                grandTotalReceiveDP),
+                                            Helpers.parseMoney(grandTotalReceiveDP),
                                             style: const TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w700,
-                                              color: Color.fromARGB(
-                                                  255, 66, 66, 66),
+                                              color: Color.fromARGB(255, 66, 66, 66),
                                             ),
                                             textAlign: TextAlign.end,
                                           ),
@@ -1575,11 +1443,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                         const Expanded(
                                           flex: 1,
                                           child: Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0, 0, 10, 0),
+                                            padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
                                             child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
+                                              mainAxisAlignment: MainAxisAlignment.end,
                                               children: [],
                                             ),
                                           ),
@@ -1588,8 +1454,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                     ),
                                     const SizedBox(height: 15),
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.start,
                                       children: [
                                         const SizedBox(width: 30),
                                         const Expanded(
@@ -1599,8 +1464,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,
-                                              color: Color.fromARGB(
-                                                  255, 66, 66, 66),
+                                              color: Color.fromARGB(255, 66, 66, 66),
                                             ),
                                           ),
                                         ),
@@ -1612,23 +1476,20 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,
-                                              color: Color.fromARGB(
-                                                  255, 66, 66, 66),
+                                              color: Color.fromARGB(255, 66, 66, 66),
                                             ),
                                           ),
                                         ),
                                         const Expanded(
                                           flex: 1,
                                           child: Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0, 0, 30, 0),
+                                            padding: EdgeInsets.fromLTRB(0, 0, 30, 0),
                                             child: Text(
                                               "",
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w700,
-                                                color: Color.fromARGB(
-                                                    255, 66, 66, 66),
+                                                color: Color.fromARGB(255, 66, 66, 66),
                                               ),
                                               textAlign: TextAlign.end,
                                             ),
@@ -1637,20 +1498,16 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                         Expanded(
                                           flex: 4,
                                           child: Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                0, 0, 35, 0),
+                                            padding: const EdgeInsets.fromLTRB(0, 0, 35, 0),
                                             child: TextField(
                                               maxLines: 1,
                                               maxLength: 21,
                                               style: const TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w500,
-                                                color: Color.fromARGB(
-                                                    255, 66, 66, 66),
+                                                color: Color.fromARGB(255, 66, 66, 66),
                                               ),
-                                              inputFormatters: [
-                                                MoneyInputFormatter()
-                                              ],
+                                              inputFormatters: [MoneyInputFormatter()],
                                               controller: _amountController,
                                               focusNode: _amountFocusNode,
                                               textAlign: TextAlign.end,
@@ -1661,10 +1518,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                   fontSize: 16,
                                                   fontStyle: FontStyle.italic,
                                                 ),
-                                                contentPadding:
-                                                    const EdgeInsets.all(10),
-                                                border:
-                                                    const OutlineInputBorder(),
+                                                contentPadding: const EdgeInsets.all(10),
+                                                border: const OutlineInputBorder(),
                                                 // enabledBorder: const UnderlineInputBorder(
                                                 //   borderSide: BorderSide(color: Colors.black, width: 1),
                                                 // ),
@@ -1672,9 +1527,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                 //   borderSide: BorderSide(color: ProjectColors.primary, width: 2),
                                                 // ),
                                                 counterText: "",
-                                                prefixText: receiveZero
-                                                    ? "Amount can't be zero"
-                                                    : null,
+                                                prefixText: receiveZero ? "Amount can't be zero" : null,
                                                 prefixStyle: const TextStyle(
                                                   fontSize: 12,
                                                   fontStyle: FontStyle.italic,
@@ -1683,10 +1536,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                 ),
                                               ),
                                               onChanged: (value) {
-                                                final amount = double.tryParse(
-                                                        value.replaceAll(
-                                                            ',', '')) ??
-                                                    0;
+                                                final amount = double.tryParse(value.replaceAll(',', '')) ?? 0;
                                                 setState(() {
                                                   receiveZero = amount == 0;
                                                 });
@@ -1697,11 +1547,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                         const Expanded(
                                           flex: 1,
                                           child: Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0, 0, 10, 0),
+                                            padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
                                             child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
+                                              mainAxisAlignment: MainAxisAlignment.end,
                                               children: [],
                                             ),
                                           ),
@@ -1710,8 +1558,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                     ),
                                     const SizedBox(height: 10),
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.start,
                                       children: [
                                         const SizedBox(width: 30),
                                         const Expanded(
@@ -1721,8 +1568,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,
-                                              color: Color.fromARGB(
-                                                  255, 66, 66, 66),
+                                              color: Color.fromARGB(255, 66, 66, 66),
                                             ),
                                           ),
                                         ),
@@ -1734,23 +1580,20 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w500,
-                                              color: Color.fromARGB(
-                                                  255, 66, 66, 66),
+                                              color: Color.fromARGB(255, 66, 66, 66),
                                             ),
                                           ),
                                         ),
                                         const Expanded(
                                           flex: 1,
                                           child: Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0, 0, 30, 0),
+                                            padding: EdgeInsets.fromLTRB(0, 0, 30, 0),
                                             child: Text(
                                               "",
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w700,
-                                                color: Color.fromARGB(
-                                                    255, 66, 66, 66),
+                                                color: Color.fromARGB(255, 66, 66, 66),
                                               ),
                                               textAlign: TextAlign.end,
                                             ),
@@ -1760,51 +1603,38 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                           flex: 4,
                                           child: SingleChildScrollView(
                                             child: Container(
-                                              decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5)),
+                                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
                                               child: Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                        0, 0, 35, 0),
+                                                padding: const EdgeInsets.fromLTRB(0, 0, 35, 0),
                                                 child: TextField(
                                                   maxLines: null,
                                                   maxLength: 300,
-                                                  controller:
-                                                      _remarksController,
+                                                  controller: _remarksController,
                                                   focusNode: _remarksFocusNode,
                                                   textAlign: TextAlign.start,
                                                   style: const TextStyle(
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.w500,
-                                                    color: Color.fromARGB(
-                                                        255, 66, 66, 66),
+                                                    color: Color.fromARGB(255, 66, 66, 66),
                                                   ),
-                                                  decoration:
-                                                      const InputDecoration(
-                                                    contentPadding:
-                                                        EdgeInsets.all(10),
+                                                  decoration: const InputDecoration(
+                                                    contentPadding: EdgeInsets.all(10),
                                                     isDense: true,
                                                     border: OutlineInputBorder(
                                                       borderSide: BorderSide(
-                                                        color: ProjectColors
-                                                            .lightBlack,
+                                                        color: ProjectColors.lightBlack,
                                                         width: 1.0,
                                                       ),
                                                     ),
-                                                    enabledBorder:
-                                                        OutlineInputBorder(
+                                                    enabledBorder: OutlineInputBorder(
                                                       borderSide: BorderSide(
-                                                        color: ProjectColors
-                                                            .lightBlack,
+                                                        color: ProjectColors.lightBlack,
                                                         width: 1.0,
                                                       ),
                                                     ),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
+                                                    focusedBorder: OutlineInputBorder(
                                                       borderSide: BorderSide(
-                                                        color: ProjectColors
-                                                            .primary,
+                                                        color: ProjectColors.primary,
                                                         width: 2.0,
                                                       ),
                                                     ),
@@ -1818,11 +1648,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                         const Expanded(
                                           flex: 1,
                                           child: Padding(
-                                            padding: EdgeInsets.fromLTRB(
-                                                0, 0, 10, 0),
+                                            padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
                                             child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
+                                              mainAxisAlignment: MainAxisAlignment.end,
                                               children: [],
                                             ),
                                           ),
@@ -1855,11 +1683,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 double itemHeight = 100.0;
-                double totalHeight =
-                    (membersDP.isEmpty) ? 60 : itemHeight * membersDP.length;
+                double totalHeight = (membersDP.isEmpty) ? 60 : itemHeight * membersDP.length;
                 double maxHeight = constraints.maxHeight;
-                double height =
-                    totalHeight < maxHeight ? (totalHeight * 1.75) : maxHeight;
+                double height = totalHeight < maxHeight ? (totalHeight * 1.75) : maxHeight;
 
                 return SizedBox(
                   width: MediaQuery.of(context).size.width * 0.6,
@@ -1874,8 +1700,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                             child: Container(
                               alignment: Alignment.center,
                               child: Container(
-                                padding:
-                                    const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                                padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
                                 decoration: BoxDecoration(
                                   color: ProjectColors.primary,
                                   borderRadius: BorderRadius.circular(5),
@@ -1918,8 +1743,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                 child: Container(
                                   alignment: Alignment.center,
                                   child: Container(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(20, 5, 20, 5),
+                                    padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
                                     decoration: BoxDecoration(
                                       color: ProjectColors.green,
                                       borderRadius: BorderRadius.circular(5),
@@ -1965,8 +1789,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                   child: Container(
                                     alignment: Alignment.center,
                                     child: Container(
-                                      padding:
-                                          const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                      padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
                                       decoration: BoxDecoration(
                                         color: ProjectColors.primary,
                                         borderRadius: BorderRadius.circular(5),
@@ -1974,8 +1797,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                           BoxShadow(
                                             spreadRadius: 0.5,
                                             blurRadius: 5,
-                                            color:
-                                                Color.fromRGBO(0, 0, 0, 0.222),
+                                            color: Color.fromRGBO(0, 0, 0, 0.222),
                                           ),
                                         ],
                                       ),
@@ -2019,9 +1841,8 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                               onTap: () {},
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: (_selectedItems[index])
-                                      ? const Color.fromARGB(96, 201, 236, 209)
-                                      : Colors.white,
+                                  color:
+                                      (_selectedItems[index]) ? const Color.fromARGB(96, 201, 236, 209) : Colors.white,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: ProjectColors.primary,
@@ -2031,11 +1852,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                 child: Column(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          20, 10, 20, 10),
+                                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Expanded(
                                             flex: 2,
@@ -2054,8 +1873,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                   style: const TextStyle(
                                                     fontSize: 18,
                                                     fontWeight: FontWeight.bold,
-                                                    color:
-                                                        ProjectColors.primary,
+                                                    color: ProjectColors.primary,
                                                   ),
                                                   textAlign: TextAlign.start,
                                                 ),
@@ -2065,25 +1883,21 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                           Expanded(
                                             flex: 2,
                                             child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.start,
                                               children: [
                                                 const Text(
                                                   "Available",
                                                   style: TextStyle(
                                                     fontSize: 14,
-                                                    color: ProjectColors
-                                                        .mediumBlack,
+                                                    color: ProjectColors.mediumBlack,
                                                   ),
                                                 ),
                                                 Text(
-                                                  Helpers.parseMoney(
-                                                      membersDP[index].amount),
+                                                  Helpers.parseMoney(membersDP[index].amount),
                                                   style: const TextStyle(
                                                     fontSize: 18,
                                                     fontWeight: FontWeight.bold,
-                                                    color:
-                                                        ProjectColors.primary,
+                                                    color: ProjectColors.primary,
                                                   ),
                                                 ),
                                               ],
@@ -2092,182 +1906,106 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                           Expanded(
                                             flex: 2,
                                             child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceAround,
+                                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                                               children: [
                                                 Column(
                                                   children: [
                                                     SizedBox(
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.2,
+                                                      width: MediaQuery.of(context).size.width * 0.2,
                                                       child: Column(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
+                                                        mainAxisAlignment: MainAxisAlignment.center,
                                                         children: [
                                                           TextField(
                                                             maxLines: 1,
                                                             maxLength: 21,
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                            style:
-                                                                const TextStyle(
+                                                            textAlign: TextAlign.center,
+                                                            style: const TextStyle(
                                                               fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w700,
-                                                              color:
-                                                                  Colors.black,
+                                                              fontWeight: FontWeight.w700,
+                                                              color: Colors.black,
                                                             ),
-                                                            inputFormatters: [
-                                                              MoneyInputFormatter()
-                                                            ],
-                                                            controller:
-                                                                _drawAmountControllers[
-                                                                    index],
-                                                            focusNode:
-                                                                _drawAmountFocusNodes[
-                                                                    index],
-                                                            decoration:
-                                                                const InputDecoration(
+                                                            inputFormatters: [MoneyInputFormatter()],
+                                                            controller: _drawAmountControllers[index],
+                                                            focusNode: _drawAmountFocusNodes[index],
+                                                            decoration: const InputDecoration(
                                                               isDense: true,
-                                                              contentPadding:
-                                                                  EdgeInsets
-                                                                      .all(10),
-                                                              border:
-                                                                  OutlineInputBorder(),
+                                                              contentPadding: EdgeInsets.all(10),
+                                                              border: OutlineInputBorder(),
                                                               counterText: "",
-                                                              enabledBorder:
-                                                                  OutlineInputBorder(
-                                                                borderSide:
-                                                                    BorderSide(
-                                                                  color: ProjectColors
-                                                                      .lightBlack,
+                                                              enabledBorder: OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                  color: ProjectColors.lightBlack,
                                                                   width: 1.0,
                                                                 ),
                                                               ),
-                                                              focusedBorder:
-                                                                  OutlineInputBorder(
-                                                                borderSide:
-                                                                    BorderSide(
-                                                                  color: ProjectColors
-                                                                      .primary,
+                                                              focusedBorder: OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                  color: ProjectColors.primary,
                                                                   width: 2.0,
                                                                 ),
                                                               ),
-                                                              disabledBorder:
-                                                                  OutlineInputBorder(
-                                                                borderSide:
-                                                                    BorderSide(
-                                                                  color: Colors
-                                                                      .transparent,
+                                                              disabledBorder: OutlineInputBorder(
+                                                                borderSide: BorderSide(
+                                                                  color: Colors.transparent,
                                                                   width: 1.0,
                                                                 ),
                                                               ),
                                                             ),
-                                                            enabled:
-                                                                !_selectedItems[
-                                                                    index],
-                                                            onEditingComplete:
-                                                                () {
+                                                            enabled: !_selectedItems[index],
+                                                            onEditingComplete: () {
                                                               setState(() {
-                                                                double
-                                                                    enteredAmount =
-                                                                    double.parse(_drawAmountControllers[
-                                                                            index]
+                                                                double enteredAmount = double.parse(
+                                                                    _drawAmountControllers[index]
                                                                         .text
-                                                                        .replaceAll(
-                                                                            ',',
-                                                                            ''));
+                                                                        .replaceAll(',', ''));
 
-                                                                _isExceeding[
-                                                                        index] =
-                                                                    enteredAmount >
-                                                                        membersDP[index]
-                                                                            .amount;
-                                                                _isZero[index] =
-                                                                    enteredAmount ==
-                                                                        0;
+                                                                _isExceeding[index] =
+                                                                    enteredAmount > membersDP[index].amount;
+                                                                _isZero[index] = enteredAmount == 0;
 
-                                                                _selectedItems[
-                                                                        index] =
-                                                                    !_selectedItems[
-                                                                        index];
+                                                                _selectedItems[index] = !_selectedItems[index];
 
-                                                                if (_selectedItems[
-                                                                    index]) {
-                                                                  totalAmount +=
-                                                                      enteredAmount;
+                                                                if (_selectedItems[index]) {
+                                                                  totalAmount += enteredAmount;
                                                                 } else {
-                                                                  totalAmount -=
-                                                                      enteredAmount;
+                                                                  totalAmount -= enteredAmount;
                                                                 }
                                                               });
                                                             },
                                                             onChanged: (value) {
                                                               setState(() {
-                                                                double
-                                                                    enteredAmount =
-                                                                    double.tryParse(value.replaceAll(
-                                                                            ',',
-                                                                            '')) ??
-                                                                        0.0;
-                                                                _isExceeding[
-                                                                        index] =
-                                                                    enteredAmount >
-                                                                        membersDP[index]
-                                                                            .amount;
-                                                                _isZero[index] =
-                                                                    enteredAmount ==
-                                                                        0;
+                                                                double enteredAmount =
+                                                                    double.tryParse(value.replaceAll(',', '')) ?? 0.0;
+                                                                _isExceeding[index] =
+                                                                    enteredAmount > membersDP[index].amount;
+                                                                _isZero[index] = enteredAmount == 0;
 
-                                                                _selectedItems[
-                                                                        index] =
-                                                                    false;
+                                                                _selectedItems[index] = false;
                                                               });
                                                             },
                                                           ),
                                                           _isExceeding[index]
                                                               ? const Text(
                                                                   "Max Amount Exceeded",
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    fontStyle:
-                                                                        FontStyle
-                                                                            .italic,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w700,
-                                                                    color: ProjectColors
-                                                                        .swatch,
+                                                                  style: TextStyle(
+                                                                    fontSize: 12,
+                                                                    fontStyle: FontStyle.italic,
+                                                                    fontWeight: FontWeight.w700,
+                                                                    color: ProjectColors.swatch,
                                                                   ),
                                                                 )
-                                                              : const SizedBox
-                                                                  .shrink(),
+                                                              : const SizedBox.shrink(),
                                                           _isZero[index]
                                                               ? const Text(
                                                                   "Amount can't be zero",
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        12,
-                                                                    fontStyle:
-                                                                        FontStyle
-                                                                            .italic,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w700,
-                                                                    color: ProjectColors
-                                                                        .swatch,
+                                                                  style: TextStyle(
+                                                                    fontSize: 12,
+                                                                    fontStyle: FontStyle.italic,
+                                                                    fontWeight: FontWeight.w700,
+                                                                    color: ProjectColors.swatch,
                                                                   ),
                                                                 )
-                                                              : const SizedBox
-                                                                  .shrink(),
+                                                              : const SizedBox.shrink(),
                                                         ],
                                                       ),
                                                     ),
@@ -2279,129 +2017,73 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                           Expanded(
                                             flex: 1,
                                             child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
+                                              mainAxisAlignment: MainAxisAlignment.center,
                                               children: [
                                                 IntrinsicWidth(
                                                   child: GestureDetector(
                                                     onTap: () async {
                                                       // log("Edit button pressed");
-                                                      if (!_isExceeding[
-                                                              index] &&
-                                                          !_isZero[index]) {
+                                                      if (!_isExceeding[index] && !_isZero[index]) {
                                                         setState(() {
-                                                          _selectedItems[
-                                                                  index] =
-                                                              !_selectedItems[
-                                                                  index];
+                                                          _selectedItems[index] = !_selectedItems[index];
 
-                                                          double amount = double.tryParse(
-                                                                  _drawAmountControllers[
-                                                                          index]
-                                                                      .text
-                                                                      .replaceAll(
-                                                                          ',',
-                                                                          '')) ??
+                                                          double amount = double.tryParse(_drawAmountControllers[index]
+                                                                  .text
+                                                                  .replaceAll(',', '')) ??
                                                               0;
 
-                                                          if (_selectedItems[
-                                                              index]) {
-                                                            totalAmount +=
-                                                                amount;
+                                                          if (_selectedItems[index]) {
+                                                            totalAmount += amount;
 
                                                             _selectedTinv7Items =
-                                                                List.generate(
-                                                                    membersDP
-                                                                        .length,
-                                                                    (i) => []);
+                                                                List.generate(membersDP.length, (i) => []);
 
-                                                            final tinv7List =
-                                                                membersDP[index]
-                                                                        .tinv7 ??
-                                                                    [];
+                                                            final tinv7List = membersDP[index].tinv7 ?? [];
 
-                                                            if (index <
-                                                                    isCheckedBox
-                                                                        .length &&
-                                                                isCheckedBox[
-                                                                        index]
-                                                                    .isNotEmpty) {
-                                                              _selectedTinv7Items[
-                                                                      index] =
-                                                                  tinv7List.where(
-                                                                      (item) {
-                                                                int innerIndex =
-                                                                    tinv7List
-                                                                        .indexOf(
-                                                                            item);
-                                                                return innerIndex <
-                                                                        isCheckedBox[index]
-                                                                            .length &&
-                                                                    isCheckedBox[
-                                                                            index]
-                                                                        [
-                                                                        innerIndex];
+                                                            if (index < isCheckedBox.length &&
+                                                                isCheckedBox[index].isNotEmpty) {
+                                                              _selectedTinv7Items[index] = tinv7List.where((item) {
+                                                                int innerIndex = tinv7List.indexOf(item);
+                                                                return innerIndex < isCheckedBox[index].length &&
+                                                                    isCheckedBox[index][innerIndex];
                                                               }).toList();
                                                             } else {
                                                               // log("isCheckedBox[$index] is not initialized or empty");
                                                             }
                                                           } else {
-                                                            totalAmount -=
-                                                                amount;
-                                                            if (_selectedTinv7Items
-                                                                    .length >
-                                                                index) {
-                                                              _selectedTinv7Items[
-                                                                      index]
-                                                                  .clear();
+                                                            totalAmount -= amount;
+                                                            if (_selectedTinv7Items.length > index) {
+                                                              _selectedTinv7Items[index].clear();
                                                             }
                                                           }
                                                         });
                                                       }
                                                     },
                                                     child: Container(
-                                                      alignment:
-                                                          Alignment.center,
-                                                      padding: const EdgeInsets
-                                                          .fromLTRB(6, 6, 6, 6),
+                                                      alignment: Alignment.center,
+                                                      padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
                                                       decoration: BoxDecoration(
-                                                        color: (!_selectedItems[
-                                                                index])
+                                                        color: (!_selectedItems[index])
                                                             ? ProjectColors.blue
                                                             : Colors.deepOrange,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5),
+                                                        borderRadius: BorderRadius.circular(5),
                                                         boxShadow: const [
                                                           BoxShadow(
                                                             spreadRadius: 0.5,
                                                             blurRadius: 5,
-                                                            color:
-                                                                Color.fromRGBO(
-                                                                    0,
-                                                                    0,
-                                                                    0,
-                                                                    0.222),
+                                                            color: Color.fromRGBO(0, 0, 0, 0.222),
                                                           ),
                                                         ],
                                                       ),
                                                       child: Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
+                                                        mainAxisSize: MainAxisSize.min,
                                                         children: [
                                                           Text(
-                                                            (!_selectedItems[
-                                                                    index])
-                                                                ? "Select"
-                                                                : "Unselect",
-                                                            style:
-                                                                const TextStyle(
-                                                              color:
-                                                                  Colors.white,
+                                                            (!_selectedItems[index]) ? "Select" : "Unselect",
+                                                            style: const TextStyle(
+                                                              color: Colors.white,
                                                               fontSize: 14,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w700,
+                                                              fontWeight: FontWeight.w700,
                                                             ),
                                                           )
                                                         ],
@@ -2410,109 +2092,58 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                   ),
                                                 ),
                                                 const SizedBox(width: 5),
-                                                (membersDP[index].tinv7 !=
-                                                            null &&
-                                                        membersDP[index]
-                                                            .tinv7!
-                                                            .isNotEmpty &&
+                                                (membersDP[index].tinv7 != null &&
+                                                        membersDP[index].tinv7!.isNotEmpty &&
                                                         _selectedItems[index])
                                                     ? IntrinsicHeight(
                                                         child: GestureDetector(
                                                           onTap: () async {
                                                             bool allSelected =
-                                                                isCheckedBox[
-                                                                        index]
-                                                                    .every((isChecked) =>
-                                                                        isChecked);
+                                                                isCheckedBox[index].every((isChecked) => isChecked);
 
                                                             setState(() {
-                                                              for (int innerIndex =
-                                                                      0;
-                                                                  innerIndex <
-                                                                      isCheckedBox[
-                                                                              index]
-                                                                          .length;
+                                                              for (int innerIndex = 0;
+                                                                  innerIndex < isCheckedBox[index].length;
                                                                   innerIndex++) {
-                                                                isCheckedBox[
-                                                                            index]
-                                                                        [
-                                                                        innerIndex] =
-                                                                    !allSelected;
+                                                                isCheckedBox[index][innerIndex] = !allSelected;
                                                               }
 
-                                                              List<DownPaymentEntity>
-                                                                  dpList =
-                                                                  stateInvoice
-                                                                          .downPayments ??
-                                                                      [];
-                                                              if (dpList
-                                                                      .length >
-                                                                  index) {
-                                                                for (int innerIndex =
-                                                                        0;
-                                                                    innerIndex <
-                                                                        dpList[index]
-                                                                            .tinv7!
-                                                                            .length;
+                                                              List<DownPaymentEntity> dpList =
+                                                                  stateInvoice.downPayments ?? [];
+                                                              if (dpList.length > index) {
+                                                                for (int innerIndex = 0;
+                                                                    innerIndex < dpList[index].tinv7!.length;
                                                                     innerIndex++) {
-                                                                  DownPaymentItemsEntity
-                                                                      dpItem =
-                                                                      dpList[index]
-                                                                              .tinv7![
-                                                                          innerIndex];
-                                                                  dpItem = dpItem.copyWith(
-                                                                      isSelected:
-                                                                          !allSelected
-                                                                              ? 1
-                                                                              : 0);
-                                                                  dpList[index]
-                                                                          .tinv7![
-                                                                      innerIndex] = dpItem;
+                                                                  DownPaymentItemsEntity dpItem =
+                                                                      dpList[index].tinv7![innerIndex];
+                                                                  dpItem =
+                                                                      dpItem.copyWith(isSelected: !allSelected ? 1 : 0);
+                                                                  dpList[index].tinv7![innerIndex] = dpItem;
                                                                 }
                                                               }
                                                             });
                                                           },
                                                           child: Container(
-                                                            alignment: Alignment
-                                                                .center,
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .fromLTRB(
-                                                                    6, 6, 6, 6),
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color:
-                                                                  ProjectColors
-                                                                      .primary,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          5),
+                                                            alignment: Alignment.center,
+                                                            padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+                                                            decoration: BoxDecoration(
+                                                              color: ProjectColors.primary,
+                                                              borderRadius: BorderRadius.circular(5),
                                                               boxShadow: const [
                                                                 BoxShadow(
-                                                                  spreadRadius:
-                                                                      0.5,
+                                                                  spreadRadius: 0.5,
                                                                   blurRadius: 5,
-                                                                  color: Color
-                                                                      .fromRGBO(
-                                                                          0,
-                                                                          0,
-                                                                          0,
-                                                                          0.222),
+                                                                  color: Color.fromRGBO(0, 0, 0, 0.222),
                                                                 ),
                                                               ],
                                                             ),
                                                             child: const Row(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
+                                                              mainAxisSize: MainAxisSize.min,
                                                               children: [
                                                                 Icon(
-                                                                  Icons
-                                                                      .check_box_outlined,
+                                                                  Icons.check_box_outlined,
                                                                   size: 18,
-                                                                  color: Colors
-                                                                      .white,
+                                                                  color: Colors.white,
                                                                 ),
                                                               ],
                                                             ),
@@ -2537,50 +2168,33 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                           ),
                                           ListView.separated(
                                             shrinkWrap: true,
-                                            physics:
-                                                const NeverScrollableScrollPhysics(),
-                                            itemCount:
-                                                membersDP[index].tinv7!.length,
+                                            physics: const NeverScrollableScrollPhysics(),
+                                            itemCount: membersDP[index].tinv7!.length,
                                             itemBuilder: (context, innerIndex) {
-                                              var tinvItem = membersDP[index]
-                                                  .tinv7![innerIndex];
-                                              return FutureBuilder<
-                                                  ItemMasterModel>(
-                                                future: _getItem(
-                                                    tinvItem.toitmId ?? ""),
+                                              var tinvItem = membersDP[index].tinv7![innerIndex];
+                                              return FutureBuilder<ItemMasterModel>(
+                                                future: _getItem(tinvItem.toitmId ?? ""),
                                                 builder: (context, snapshot) {
                                                   String itemName = "";
                                                   String itemBarcode = "";
                                                   String itemDocid = "";
                                                   double qtyAdditional = 0;
-                                                  ItemMasterModel? item =
-                                                      snapshot.data;
+                                                  ItemMasterModel? item = snapshot.data;
                                                   if (item != null) {
                                                     itemName = item.itemName;
                                                     itemBarcode = item.itemCode;
                                                     itemDocid = item.docId;
                                                   }
 
-                                                  List<ReceiptItemEntity>
-                                                      matchingReceiptItems =
-                                                      stateInvoice.receiptItems
-                                                          .where((receiptItem) {
-                                                    return receiptItem.itemEntity
-                                                                .itemName ==
-                                                            itemName &&
-                                                        receiptItem.itemEntity
-                                                                .itemCode ==
-                                                            itemBarcode &&
-                                                        receiptItem.itemEntity
-                                                                .toitmId ==
-                                                            itemDocid;
+                                                  List<ReceiptItemEntity> matchingReceiptItems =
+                                                      stateInvoice.receiptItems.where((receiptItem) {
+                                                    return receiptItem.itemEntity.itemName == itemName &&
+                                                        receiptItem.itemEntity.itemCode == itemBarcode &&
+                                                        receiptItem.itemEntity.toitmId == itemDocid;
                                                   }).toList();
 
-                                                  if (matchingReceiptItems
-                                                      .isNotEmpty) {
-                                                    qtyAdditional =
-                                                        matchingReceiptItems[0]
-                                                            .quantity;
+                                                  if (matchingReceiptItems.isNotEmpty) {
+                                                    qtyAdditional = matchingReceiptItems[0].quantity;
                                                   }
 
                                                   return CheckboxListTile(
@@ -2590,20 +2204,16 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                           flex: 2,
                                                           child: Text(
                                                             itemName,
-                                                            style:
-                                                                const TextStyle(
+                                                            style: const TextStyle(
                                                               fontSize: 16,
-                                                              color: ProjectColors
-                                                                  .mediumBlack,
+                                                              color: ProjectColors.mediumBlack,
                                                             ),
                                                           ),
                                                         ),
                                                         Expanded(
                                                           flex: 1,
                                                           child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .center,
+                                                            mainAxisAlignment: MainAxisAlignment.center,
                                                             children: [
                                                               SvgPicture.asset(
                                                                 "assets/images/barcode.svg",
@@ -2614,11 +2224,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                               ),
                                                               Text(
                                                                 itemBarcode,
-                                                                style:
-                                                                    const TextStyle(
+                                                                style: const TextStyle(
                                                                   fontSize: 16,
-                                                                  color: ProjectColors
-                                                                      .mediumBlack,
+                                                                  color: ProjectColors.mediumBlack,
                                                                 ),
                                                               ),
                                                             ],
@@ -2627,68 +2235,43 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                         Expanded(
                                                           flex: 1,
                                                           child: Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceEvenly,
+                                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                             children: [
                                                               Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
+                                                                mainAxisAlignment: MainAxisAlignment.start,
                                                                 children: [
                                                                   const Text(
                                                                     "Booked",
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      color: ProjectColors
-                                                                          .mediumBlack,
+                                                                    style: TextStyle(
+                                                                      fontSize: 14,
+                                                                      color: ProjectColors.mediumBlack,
                                                                     ),
                                                                   ),
                                                                   Text(
-                                                                    Helpers.cleanDecimal(
-                                                                        tinvItem
-                                                                            .quantity,
-                                                                        1),
-                                                                    style:
-                                                                        const TextStyle(
-                                                                      fontSize:
-                                                                          18,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      color: ProjectColors
-                                                                          .primary,
+                                                                    Helpers.cleanDecimal(tinvItem.quantity, 1),
+                                                                    style: const TextStyle(
+                                                                      fontSize: 18,
+                                                                      fontWeight: FontWeight.bold,
+                                                                      color: ProjectColors.primary,
                                                                     ),
                                                                   ),
                                                                 ],
                                                               ),
                                                               Column(
-                                                                mainAxisAlignment:
-                                                                    MainAxisAlignment
-                                                                        .start,
+                                                                mainAxisAlignment: MainAxisAlignment.start,
                                                                 children: [
                                                                   const Text(
                                                                     "Selected",
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          14,
-                                                                      color: ProjectColors
-                                                                          .mediumBlack,
+                                                                    style: TextStyle(
+                                                                      fontSize: 14,
+                                                                      color: ProjectColors.mediumBlack,
                                                                     ),
                                                                   ),
                                                                   Text(
-                                                                    Helpers
-                                                                        .cleanDecimal(
-                                                                      (isCheckedBox[index]
-                                                                              [
-                                                                              innerIndex])
-                                                                          ? (tinvItem.quantity +
-                                                                              qtyAdditional)
-                                                                          : (tinvItem.qtySelected ??
-                                                                              0 + qtyAdditional),
+                                                                    Helpers.cleanDecimal(
+                                                                      (isCheckedBox[index][innerIndex])
+                                                                          ? (tinvItem.quantity + qtyAdditional)
+                                                                          : (tinvItem.qtySelected ?? 0 + qtyAdditional),
                                                                       1,
                                                                     ),
                                                                   ),
@@ -2699,43 +2282,22 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                         ),
                                                       ],
                                                     ),
-                                                    value: isCheckedBox[index]
-                                                        [innerIndex],
+                                                    value: isCheckedBox[index][innerIndex],
                                                     onChanged: (bool? value) {
                                                       setState(() {
-                                                        isCheckedBox[index]
-                                                                [innerIndex] =
-                                                            value ?? false;
+                                                        isCheckedBox[index][innerIndex] = value ?? false;
                                                       });
-                                                      List<DownPaymentEntity>
-                                                          dpList = stateInvoice
-                                                                  .downPayments ??
-                                                              [];
-                                                      for (DownPaymentEntity dp
-                                                          in dpList) {
-                                                        if (dp.isSelected ==
-                                                                true &&
+                                                      List<DownPaymentEntity> dpList = stateInvoice.downPayments ?? [];
+                                                      for (DownPaymentEntity dp in dpList) {
+                                                        if (dp.isSelected == true &&
                                                             dp.tinv7 != null &&
-                                                            dp.tinv7!
-                                                                .isNotEmpty) {
-                                                          if (innerIndex <
-                                                              dp.tinv7!
-                                                                  .length) {
-                                                            DownPaymentItemsEntity
-                                                                dpItem =
-                                                                dp.tinv7![
-                                                                    innerIndex];
+                                                            dp.tinv7!.isNotEmpty) {
+                                                          if (innerIndex < dp.tinv7!.length) {
+                                                            DownPaymentItemsEntity dpItem = dp.tinv7![innerIndex];
 
-                                                            dpItem =
-                                                                dpItem.copyWith(
-                                                                    isSelected:
-                                                                        value!
-                                                                            ? 1
-                                                                            : 0);
+                                                            dpItem = dpItem.copyWith(isSelected: value! ? 1 : 0);
 
-                                                            dp.tinv7![
-                                                                    innerIndex] =
-                                                                dpItem;
+                                                            dp.tinv7![innerIndex] = dpItem;
                                                           }
                                                         }
                                                       }
@@ -2744,13 +2306,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                 },
                                               );
                                             },
-                                            separatorBuilder:
-                                                (BuildContext context,
-                                                        int index) =>
-                                                    const Divider(
+                                            separatorBuilder: (BuildContext context, int index) => const Divider(
                                               thickness: 0.5,
-                                              color: Color.fromARGB(
-                                                  100, 118, 118, 117),
+                                              color: Color.fromARGB(100, 118, 118, 117),
                                             ),
                                           ),
                                         ],
@@ -2760,8 +2318,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                               ),
                             );
                           },
-                          separatorBuilder: (BuildContext context, int index) =>
-                              const SizedBox(height: 10.0),
+                          separatorBuilder: (BuildContext context, int index) => const SizedBox(height: 10.0),
                           itemCount: membersDP.length,
                         ),
                       )
@@ -2775,9 +2332,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
   Future<bool> areAllItemsSelected() async {
     for (int i = 0; i < isCheckedBox.length; i++) {
-      for (int innerIndex = 0;
-          innerIndex < isCheckedBox[i].length;
-          innerIndex++) {
+      for (int innerIndex = 0; innerIndex < isCheckedBox[i].length; innerIndex++) {
         if (!isCheckedBox[i][innerIndex]) {
           return false;
         }
@@ -2790,8 +2345,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     return AlertDialog(
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
       title: Container(
         decoration: const BoxDecoration(
           color: ProjectColors.primary,
@@ -2800,8 +2354,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
         padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
         child: const Text(
           'Caution',
-          style: TextStyle(
-              fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
         ),
       ),
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -2822,8 +2375,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
               text: const TextSpan(
                 children: [
                   TextSpan(
-                    text:
-                        "This will remove all items inputed and reset the down payment. Proceed?",
+                    text: "This will remove all items inputed and reset the down payment. Proceed?",
                     style: TextStyle(fontWeight: FontWeight.w700),
                   ),
                 ],
@@ -2844,14 +2396,11 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                 flex: 1,
                 child: TextButton(
                   style: ButtonStyle(
-                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
-                          side:
-                              const BorderSide(color: ProjectColors.primary))),
-                      backgroundColor: WidgetStateColor.resolveWith(
-                          (states) => Colors.white),
-                      overlayColor: WidgetStateColor.resolveWith(
-                          (states) => Colors.black.withOpacity(.2))),
+                          side: const BorderSide(color: ProjectColors.primary))),
+                      backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                   onPressed: () {
                     context.pop(false);
                   },
@@ -2880,12 +2429,9 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
             Expanded(
                 child: TextButton(
               style: ButtonStyle(
-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: WidgetStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: WidgetStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
+                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () async {
                 if (mounted) {
                   context.pop(true);

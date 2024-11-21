@@ -40,8 +40,7 @@ class _RecapShiftScreenState extends State<RecapShiftScreen> {
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 40),
+        padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 40),
         child: SizedBox(
           width: double.infinity,
           child: Column(
@@ -103,9 +102,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   }
 
   Future<void> fetchShift() async {
-    final shift = await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .readByDocId(shiftId, null);
+    final shift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDocId(shiftId, null);
     await fetchApprover(shift!);
     setState(() {
       tcsr1 = shift;
@@ -113,25 +110,18 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   }
 
   Future<void> fetchInvoices() async {
-    final transaction = await GetIt.instance<AppDatabase>()
-        .invoiceHeaderDao
-        .readByShift(shiftId);
+    final transaction = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift(shiftId);
     setState(() {
       transactions = transaction;
     });
   }
 
   Future<void> fetchApprover(CashierBalanceTransactionModel shift) async {
-    final user = await GetIt.instance<AppDatabase>()
-        .userDao
-        .readByDocId(shift.closedApproveById!, null);
+    final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(shift.closedApproveById!, null);
     if (user == null) return;
 
     final approverName = user.tohemId != null
-        ? (await GetIt.instance<AppDatabase>()
-                .employeeDao
-                .readByDocId(user.tohemId!, null))
-            ?.empName
+        ? (await GetIt.instance<AppDatabase>().employeeDao.readByDocId(user.tohemId!, null))?.empName
         : user.username;
 
     setState(() {
@@ -153,15 +143,13 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
     String formattedOpenDate = Helpers.formatDateNoSeconds(tcsr1!.openDate);
     String formattedCloseDate = Helpers.formatDateNoSeconds(tcsr1!.closeDate);
-    String formattedOpenValue =
-        NumberFormat.decimalPattern().format(tcsr1!.openValue.toInt());
+    String formattedOpenValue = NumberFormat.decimalPattern().format(tcsr1!.openValue.toInt());
     NumberFormat.decimalPattern().format(tcsr1!.cashValue.toInt());
     NumberFormat.decimalPattern().format(tcsr1!.calcValue.toInt());
     double cashFlow = 0.0;
     NumberFormat.decimalPattern().format(cashFlow.toInt());
     double expectedCash = tcsr1!.openValue + tcsr1!.cashValue + cashFlow;
-    String formattedExpectedCash =
-        NumberFormat.decimalPattern().format(expectedCash.toInt());
+    String formattedExpectedCash = NumberFormat.decimalPattern().format(expectedCash.toInt());
 
     setState(() {
       difference = calculatedTotalCash - expectedCash.toInt();
@@ -170,10 +158,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     final cashier = prefs.getString('username');
 
     totalCash = NumberFormat.decimalPattern().format(tcsr1!.cashValue.toInt());
-    totalNonCash = NumberFormat.decimalPattern()
-        .format((tcsr1!.closeValue - tcsr1!.cashValue).toInt());
-    totalSales =
-        NumberFormat.decimalPattern().format(tcsr1!.closeValue.toInt());
+    totalNonCash = NumberFormat.decimalPattern().format((tcsr1!.closeValue - tcsr1!.cashValue).toInt());
+    totalSales = NumberFormat.decimalPattern().format(tcsr1!.closeValue.toInt());
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -194,12 +180,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
               children: [
                 TextButton(
                   style: ButtonStyle(
-                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5))),
-                      backgroundColor: WidgetStateColor.resolveWith(
-                          (states) => ProjectColors.primary),
-                      overlayColor: WidgetStateColor.resolveWith(
-                          (states) => Colors.white.withOpacity(.2))),
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                      backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                   onPressed: isPrintingOpenShift
                       ? null
                       : () async {
@@ -207,8 +190,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                             setState(() {
                               isPrintingOpenShift = true;
                             });
-                            await GetIt.instance<PrintOpenShiftUsecase>()
-                                .call(params: tcsr1, printType: 2);
+                            await GetIt.instance<PrintOpenShiftUsecase>().call(params: tcsr1, printType: 2);
                             setState(() {
                               isPrintingOpenShift = false;
                             });
@@ -217,8 +199,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                               isPrintingOpenShift = false;
                             });
                             if (context.mounted) {
-                              SnackBarHelper.presentErrorSnackBar(
-                                  context, e.toString());
+                              SnackBarHelper.presentErrorSnackBar(context, e.toString());
                             }
                           }
                         },
@@ -247,8 +228,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                                   children: [
                                     TextSpan(
                                       text: "Reprint\nOpen Shift",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w600),
+                                      style: TextStyle(fontWeight: FontWeight.w600),
                                     ),
                                     // TextSpan(
                                     //   text: "  (F12)",
@@ -268,12 +248,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 ),
                 TextButton(
                   style: ButtonStyle(
-                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5))),
-                      backgroundColor: WidgetStateColor.resolveWith(
-                          (states) => ProjectColors.primary),
-                      overlayColor: WidgetStateColor.resolveWith(
-                          (states) => Colors.white.withOpacity(.2))),
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                      backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                   onPressed: isPrintingCloseShift
                       ? null
                       : () async {
@@ -282,40 +259,28 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                               isPrintingCloseShift = true;
                             });
                             if (tcsr1 == null) throw "Shift not found";
-                            if (tcsr1?.closedApproveById == null)
-                              throw "Shift has no approval";
-                            final UserEntity? approverUser =
-                                await GetIt.instance<AppDatabase>()
-                                    .userDao
-                                    .readByDocId(
-                                        tcsr1!.closedApproveById!, null);
-                            if (approverUser == null)
-                              throw "Approver not found";
+                            if (tcsr1?.closedApproveById == null) throw "Shift has no approval";
+                            final UserEntity? approverUser = await GetIt.instance<AppDatabase>()
+                                .userDao
+                                .readByDocId(tcsr1!.closedApproveById!, null);
+                            if (approverUser == null) throw "Approver not found";
 
                             EmployeeEntity? approverEmployee;
                             if (approverUser.tohemId != null) {
                               approverEmployee =
-                                  await GetIt.instance<EmployeeRepository>()
-                                      .getEmployee(approverUser.tohemId!);
+                                  await GetIt.instance<EmployeeRepository>().getEmployee(approverUser.tohemId!);
                             }
                             await GetIt.instance<PrintCloseShiftUsecase>().call(
                                 printType: 2,
                                 params: PrintCloseShiftUsecaseParams(
                                     cashierBalanceTransactionEntity: tcsr1!,
-                                    totalCashSales:
-                                        Helpers.revertMoneyToDecimalFormat(
-                                            totalCash),
+                                    totalCashSales: Helpers.revertMoneyToDecimalFormat(totalCash),
                                     expectedCash: expectedCash,
-                                    totalNonCashSales:
-                                        Helpers.revertMoneyToDecimalFormat(
-                                            totalNonCash),
-                                    totalSales:
-                                        Helpers.revertMoneyToDecimalFormat(
-                                            totalSales),
+                                    totalNonCashSales: Helpers.revertMoneyToDecimalFormat(totalNonCash),
+                                    totalSales: Helpers.revertMoneyToDecimalFormat(totalSales),
                                     cashReceived: tcsr1!.calcValue,
                                     difference: tcsr1!.calcValue - expectedCash,
-                                    approverName: approverEmployee?.empName ??
-                                        approverUser.username));
+                                    approverName: approverEmployee?.empName ?? approverUser.username));
                             setState(() {
                               isPrintingCloseShift = false;
                             });
@@ -324,8 +289,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                               isPrintingCloseShift = false;
                             });
                             if (context.mounted) {
-                              SnackBarHelper.presentErrorSnackBar(
-                                  context, e.toString());
+                              SnackBarHelper.presentErrorSnackBar(context, e.toString());
                             }
                           }
                         },
@@ -354,8 +318,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                                   children: [
                                     TextSpan(
                                       text: "Reprint\nClose Shift",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w600),
+                                      style: TextStyle(fontWeight: FontWeight.w600),
                                     ),
                                     // TextSpan(
                                     //   text: "  (F12)",
@@ -686,13 +649,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     height: 1,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: Helpers.revertMoneyToDecimalFormat(
-                                difference.toString()) <
-                            0
+                    color: Helpers.revertMoneyToDecimalFormat(difference.toString()) < 0
                         ? Colors.red
-                        : Helpers.revertMoneyToDecimalFormat(
-                                    difference.toString()) >
-                                0
+                        : Helpers.revertMoneyToDecimalFormat(difference.toString()) > 0
                             ? Colors.orange
                             : Colors.green,
                   ),
@@ -704,18 +663,12 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 Icon(
                   Helpers.revertMoneyToDecimalFormat(difference.toString()) < 0
                       ? Icons.warning_amber_rounded
-                      : Helpers.revertMoneyToDecimalFormat(
-                                  difference.toString()) >
-                              0
+                      : Helpers.revertMoneyToDecimalFormat(difference.toString()) > 0
                           ? Icons.warning_amber_rounded
                           : Icons.check_circle_outlined,
-                  color: Helpers.revertMoneyToDecimalFormat(
-                              difference.toString()) <
-                          0
+                  color: Helpers.revertMoneyToDecimalFormat(difference.toString()) < 0
                       ? Colors.red
-                      : Helpers.revertMoneyToDecimalFormat(
-                                  difference.toString()) >
-                              0
+                      : Helpers.revertMoneyToDecimalFormat(difference.toString()) > 0
                           ? Colors.orange
                           : Colors.green,
                   size: 16,
@@ -731,15 +684,11 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                 height: 1,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color:
-                    Helpers.revertMoneyToDecimalFormat(difference.toString()) <
-                            0
-                        ? Colors.red
-                        : Helpers.revertMoneyToDecimalFormat(
-                                    difference.toString()) >
-                                0
-                            ? Colors.orange
-                            : Colors.green,
+                color: Helpers.revertMoneyToDecimalFormat(difference.toString()) < 0
+                    ? Colors.red
+                    : Helpers.revertMoneyToDecimalFormat(difference.toString()) > 0
+                        ? Colors.orange
+                        : Colors.green,
               ),
               textAlign: TextAlign.end,
             ),

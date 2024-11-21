@@ -57,9 +57,7 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
   Future<void> _showFullDescriptionDialog(String description) async {
     try {
       await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => _buildFullDescriptionDialog(description));
+          context: context, barrierDismissible: false, builder: (context) => _buildFullDescriptionDialog(description));
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
     }
@@ -103,10 +101,8 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
                           padding: EdgeInsets.all(8.0),
                           child: Text(
                             'Date',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: ProjectColors.mediumBlack),
+                            style:
+                                TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: ProjectColors.mediumBlack),
                           ),
                         ),
                       ),
@@ -116,10 +112,8 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
                           padding: EdgeInsets.all(8.0),
                           child: Text(
                             'Error Type',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: ProjectColors.mediumBlack),
+                            style:
+                                TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: ProjectColors.mediumBlack),
                           ),
                         ),
                       ),
@@ -129,10 +123,8 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
                           padding: EdgeInsets.all(8.0),
                           child: Text(
                             'Description',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: ProjectColors.mediumBlack),
+                            style:
+                                TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: ProjectColors.mediumBlack),
                           ),
                         ),
                       ),
@@ -156,8 +148,7 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
                                     flex: 2,
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                          Helpers.formatDate(log.createDate)),
+                                      child: Text(Helpers.formatDate(log.createDate)),
                                     ),
                                   ),
                                   Expanded(
@@ -173,20 +164,14 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
                                       padding: const EdgeInsets.all(8.0),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Expanded(
-                                              child: Text(Helpers
-                                                  .clipStringAndAddEllipsis(
-                                                      log.description, 200))),
+                                          Expanded(child: Text(Helpers.clipStringAndAddEllipsis(log.description, 200))),
                                           const SizedBox(
                                             width: 5,
                                           ),
                                           InkWell(
-                                            onTap: () async =>
-                                                await _showFullDescriptionDialog(
-                                                    log.description),
+                                            onTap: () async => await _showFullDescriptionDialog(log.description),
                                             child: const Icon(
                                               Icons.remove_red_eye,
                                               color: ProjectColors.mediumBlack,
@@ -197,18 +182,11 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
                                           ),
                                           InkWell(
                                               onTap: () async {
-                                                await Clipboard.setData(
-                                                    ClipboardData(
-                                                        text: log.description));
-                                                SnackBarHelper
-                                                    .presentSuccessSnackBar(
-                                                        context,
-                                                        "Copied to clipboard",
-                                                        3);
+                                                await Clipboard.setData(ClipboardData(text: log.description));
+                                                SnackBarHelper.presentSuccessSnackBar(
+                                                    context, "Copied to clipboard", 3);
                                               },
-                                              child: const Icon(Icons.copy,
-                                                  color: ProjectColors
-                                                      .mediumBlack)),
+                                              child: const Icon(Icons.copy, color: ProjectColors.mediumBlack)),
                                         ],
                                       ),
                                     ),
@@ -322,8 +300,7 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
             skipTraversal: true,
             node: _focusScopeNode,
             onKeyEvent: (node, event) {
-              if (event.runtimeType == KeyUpEvent)
-                return KeyEventResult.handled;
+              if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
               if (event.physicalKey == PhysicalKeyboardKey.f12) {
                 context.pop();
                 return KeyEventResult.handled;
@@ -337,31 +314,24 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
             child: AlertDialog(
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
               title: Container(
                 decoration: const BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(5.0)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
                 child: Row(
                   children: [
                     const Text(
                       'Error Description',
-                      style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white),
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                     ),
                     const Spacer(),
                     InkWell(
                         onTap: () async {
-                          await Clipboard.setData(
-                              ClipboardData(text: description));
-                          SnackBarHelper.presentSuccessSnackBar(
-                              childContext, "Copied to clipboard", 3);
+                          await Clipboard.setData(ClipboardData(text: description));
+                          SnackBarHelper.presentSuccessSnackBar(childContext, "Copied to clipboard", 3);
                         },
                         child: const Icon(Icons.copy, color: Colors.white)),
                   ],
@@ -383,9 +353,8 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         child: Container(
                             padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                                color: ProjectColors.background,
-                                borderRadius: BorderRadius.circular(5)),
+                            decoration:
+                                BoxDecoration(color: ProjectColors.background, borderRadius: BorderRadius.circular(5)),
                             child: SelectableText(description)),
                       ),
                     ],
@@ -398,15 +367,12 @@ class _LogErrorScreenState extends State<LogErrorScreen> {
                     Expanded(
                         child: TextButton(
                       style: ButtonStyle(
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
-                            side:
-                                const BorderSide(color: ProjectColors.primary),
+                            side: const BorderSide(color: ProjectColors.primary),
                           )),
-                          backgroundColor: WidgetStateColor.resolveWith(
-                              (states) => ProjectColors.primary),
-                          overlayColor: WidgetStateColor.resolveWith(
-                              (states) => Colors.white.withOpacity(.2))),
+                          backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                       onPressed: () => context.pop(),
                       child: Center(
                         child: RichText(

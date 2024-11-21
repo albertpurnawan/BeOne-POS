@@ -226,6 +226,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           ItemFields.barcode: params.barcode ?? params.itemEntity?.barcode,
           ItemFields.toplnId: storeMasterEntity!.toplnId
         });
+        dev.log("itemEntity - $itemEntity");
       }
       if (itemEntity == null) throw "Item not found";
 

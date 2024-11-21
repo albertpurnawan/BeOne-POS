@@ -4049,7 +4049,6 @@ class _SalesPageState extends State<SalesPage> {
     }
   }
 
-  // fungsi check item timbangan
   Future<AddUpdateReceiptItemsParams?> checkScallableItem(String barcode) async {
     final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
     if (topos == null) throw "Failed to retrieve POS Parameter";
@@ -4062,30 +4061,36 @@ class _SalesPageState extends State<SalesPage> {
     final storeItemCodeLength = store.scaleItemCodeLength ?? 0;
     final storeQuantityLength = store.scaleQuantityLength ?? 0;
     final storeQtyDivider = store.scaleQtyDivider ?? 1000;
+    if (storeScaleActive == 1) {
+      final itemScaleFlag = barcode.substring(0, storeScaleFlagLength);
 
-    final itemScaleFlag = barcode.substring(0, storeScaleFlagLength);
+      if (itemScaleFlag == storeScaleFlag) {
+        final itemCode = barcode.substring(storeScaleFlagLength, storeScaleFlagLength + storeItemCodeLength);
 
-    final itemCode = barcode.substring(storeScaleFlagLength, storeScaleFlagLength + storeItemCodeLength);
+        final itemQty = double.parse(barcode.substring(storeScaleFlagLength + (storeItemCodeLength),
+                storeScaleFlagLength + storeItemCodeLength + storeQuantityLength)) /
+            storeQtyDivider;
 
-    final itemQty = double.parse(barcode.substring(storeScaleFlagLength + (storeItemCodeLength),
-            storeScaleFlagLength + storeItemCodeLength + storeQuantityLength)) /
-        storeQtyDivider;
+        final item = await GetIt.instance<AppDatabase>().itemsDao.readItemByBarcode(itemCode);
+        if (item == null) throw "Failed to retrieve Item Parameter";
 
-    final itemEntity = await GetIt.instance<AppDatabase>().itemMasterDao.readByItemCode(itemCode, null);
-
-    if (itemEntity == null) throw "Failed to retrieve Item Parameter";
-
-    if (storeScaleActive == 1 && itemEntity.scaleActive == 1 && itemScaleFlag == storeScaleFlag) {
-      final updatedParams = AddUpdateReceiptItemsParams(
-          barcode: itemCode,
-          itemEntity: null,
-          quantity: itemQty,
-          context: context,
-          onOpenPriceInputted: () => setState(() {
-                isEditingNewReceiptItemCode = true;
-                _newReceiptItemCodeFocusNode.requestFocus();
-              }));
-      return updatedParams;
+        if (item.scaleActive == 1) {
+          final updatedParams = AddUpdateReceiptItemsParams(
+              barcode: itemCode,
+              itemEntity: null,
+              quantity: itemQty,
+              context: context,
+              onOpenPriceInputted: () => setState(() {
+                    isEditingNewReceiptItemCode = true;
+                    _newReceiptItemCodeFocusNode.requestFocus();
+                  }));
+          return updatedParams;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
     } else {
       return null;
     }
@@ -4101,12 +4106,15 @@ class _SalesPageState extends State<SalesPage> {
         return;
       }
 
-      final updatedParams = await checkScallableItem(params.barcode ?? "");
-      log("updatedParams - ${updatedParams!.barcode}");
-
       if (mounted) {
-        if (updatedParams != null) {
-          await context.read<ReceiptCubit>().addUpdateReceiptItems(updatedParams);
+        if (params.barcode != null && isUpdatingReceiptItemQty == false) {
+          final updatedParams = await checkScallableItem(params.barcode ?? "");
+
+          if (updatedParams != null) {
+            await context.read<ReceiptCubit>().addUpdateReceiptItems(updatedParams);
+          } else {
+            await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+          }
         } else {
           await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
         }

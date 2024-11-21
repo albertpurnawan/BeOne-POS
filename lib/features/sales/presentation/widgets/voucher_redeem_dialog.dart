@@ -49,12 +49,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
     List<VouchersSelectionModel> vouchers,
     bool isExisting,
   ) {
-    return vouchers
-        .where((element) => element.type == widget.voucherType)
-        .toList()
-        .asMap()
-        .entries
-        .map((entry) {
+    return vouchers.where((element) => element.type == widget.voucherType).toList().asMap().entries.map((entry) {
       int index = entry.key;
       VouchersSelectionModel voucher = entry.value;
       // return Text(
@@ -131,8 +126,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
     final receiptCubit = context.read<ReceiptCubit>();
     VouchersSelectionModel checkVoucher;
     try {
-      final voucher = await GetIt.instance<VouchersSelectionApi>()
-          .checkVoucher(serialNumber);
+      final voucher = await GetIt.instance<VouchersSelectionApi>().checkVoucher(serialNumber);
       log("voucher - $voucher");
       checkVoucher = voucher..tpmt3Id = widget.tpmt3Id;
       bool checkSerialNo = vouchers.any((v) => v.serialNo == voucher.serialNo);
@@ -159,8 +153,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
         }
       } else {
         setState(() {
-          errMessage =
-              "Minimum purchase is Rp ${Helpers.parseMoney(voucher.minPurchase)}";
+          errMessage = "Minimum purchase is Rp ${Helpers.parseMoney(voucher.minPurchase)}";
           minPurchaseFulfilled = false;
         });
       }
@@ -188,12 +181,9 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
     try {
       if (vouchers.isEmpty) throw "There is no voucher scanned.";
       for (var voucher in vouchers) {
-        await GetIt.instance<VouchersSelectionApi>()
-            .redeemVoucher(voucher.serialNo);
+        await GetIt.instance<VouchersSelectionApi>().redeemVoucher(voucher.serialNo);
 
-        final checkVoucher = await GetIt.instance<AppDatabase>()
-            .vouchersSelectionDao
-            .readByDocId(voucher.docId, null);
+        final checkVoucher = await GetIt.instance<AppDatabase>().vouchersSelectionDao.readByDocId(voucher.docId, null);
 
         if (checkVoucher == null) {
           final voucherToSave = VouchersSelectionModel(
@@ -212,13 +202,9 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
             tinv2Id: "",
             type: widget.voucherType,
           );
-          await GetIt.instance<AppDatabase>()
-              .vouchersSelectionDao
-              .create(data: voucherToSave);
+          await GetIt.instance<AppDatabase>().vouchersSelectionDao.create(data: voucherToSave);
           widget.onVouchersRedeemed([voucher]);
-          vouchers = vouchers
-              .where((element) => element.docId != voucher.docId)
-              .toList();
+          vouchers = vouchers.where((element) => element.docId != voucher.docId).toList();
           vouchersAmount -= voucher.voucherAmount;
           redeemedCount += 1;
           setState(() {});
@@ -322,19 +308,15 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 24),
                     decoration: InputDecoration(
-                      constraints:
-                          const BoxConstraints(minHeight: 48, maxHeight: 48),
+                      constraints: const BoxConstraints(minHeight: 48, maxHeight: 48),
                       contentPadding: const EdgeInsets.all(10),
                       hintText: "Serial Number",
-                      hintStyle: const TextStyle(
-                          fontStyle: FontStyle.italic, fontSize: 24),
+                      hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
                       border: const OutlineInputBorder(),
                       prefixIcon: Icon(
                         Icons.confirmation_number_outlined,
                         size: 24,
-                        color: _voucherFocusNode.hasFocus
-                            ? ProjectColors.primary
-                            : null,
+                        color: _voucherFocusNode.hasFocus ? ProjectColors.primary : null,
                       ),
                     ),
                     onSubmitted: (value) async {
@@ -355,14 +337,11 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                     height: 48,
                     child: TextButton(
                       style: ButtonStyle(
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5))),
-                          backgroundColor: WidgetStateColor.resolveWith(
-                              (states) => ProjectColors.primary),
-                          overlayColor: WidgetStateColor.resolveWith(
-                              (states) => Colors.white.withOpacity(.2))),
-                      onPressed: () async =>
-                          await _checkVoucher(_voucherCheckController.text),
+                          shape:
+                              MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                          backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                      onPressed: () async => await _checkVoucher(_voucherCheckController.text),
                       child: const Center(
                           child: Text(
                         "Check",
@@ -416,10 +395,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                         width: 40,
                         child: Text(
                           "No",
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: ProjectColors.lightBlack),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
                         ),
                       ),
                       SizedBox(
@@ -428,10 +404,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                       Expanded(
                         child: Text(
                           "Serial Number",
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: ProjectColors.lightBlack),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
                         ),
                       ),
                       SizedBox(
@@ -440,10 +413,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                       Expanded(
                         child: Text(
                           "Name",
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: ProjectColors.lightBlack),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
                         ),
                       ),
                       SizedBox(
@@ -454,10 +424,8 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                           alignment: Alignment.centerRight,
                           child: Text(
                             "Amount",
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: ProjectColors.lightBlack),
+                            style:
+                                TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
                           ),
                         ),
                       ),
@@ -481,15 +449,13 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (vouchers.isEmpty &&
-                          receiptCubit.state.vouchers.isEmpty)
+                      if (vouchers.isEmpty && receiptCubit.state.vouchers.isEmpty)
                         const Padding(
                           padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
                           child: EmptyList(
                               height: 70,
                               imagePath: "assets/images/empty-search.svg",
-                              sentence:
-                                  "Tadaa.. There is nothing here!\nInput a voucher to start."),
+                              sentence: "Tadaa.. There is nothing here!\nInput a voucher to start."),
                         ),
                       ..._buildVoucherRows(
                           context
@@ -574,14 +540,11 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                 Expanded(
                     child: TextButton(
                   style: ButtonStyle(
-                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
-                          side:
-                              const BorderSide(color: ProjectColors.primary))),
-                      backgroundColor: WidgetStateColor.resolveWith(
-                          (states) => Colors.white),
-                      overlayColor: WidgetStateColor.resolveWith(
-                          (states) => ProjectColors.primary.withOpacity(.2))),
+                          side: const BorderSide(color: ProjectColors.primary))),
+                      backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                      overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -610,12 +573,9 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                 Expanded(
                     child: TextButton(
                   style: ButtonStyle(
-                      shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5))),
-                      backgroundColor: WidgetStateColor.resolveWith(
-                          (states) => ProjectColors.primary),
-                      overlayColor: WidgetStateColor.resolveWith(
-                          (states) => Colors.white.withOpacity(.2))),
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                      backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                   onPressed: () async => await _redeemVouchers(),
                   child: Center(
                     child: RichText(

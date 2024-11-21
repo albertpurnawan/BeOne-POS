@@ -21,12 +21,10 @@ class OpenShiftSuccessAlertDialog extends StatefulWidget {
   final CashierBalanceTransactionModel? openedShift;
 
   @override
-  State<OpenShiftSuccessAlertDialog> createState() =>
-      _OpenShiftSuccessAlertDialogState();
+  State<OpenShiftSuccessAlertDialog> createState() => _OpenShiftSuccessAlertDialogState();
 }
 
-class _OpenShiftSuccessAlertDialogState
-    extends State<OpenShiftSuccessAlertDialog> {
+class _OpenShiftSuccessAlertDialogState extends State<OpenShiftSuccessAlertDialog> {
   CashRegisterEntity? cashRegisterEntity;
   StoreMasterEntity? storeMasterEntity;
   UserEntity? userEntity;
@@ -35,16 +33,14 @@ class _OpenShiftSuccessAlertDialogState
   Future<void> populateData() async {
     try {
       final CashRegisterEntity? cashRegisterEntityRes =
-          await GetIt.instance<GetCashRegisterUseCase>()
-              .call(params: widget.openedShift!.tocsrId!);
+          await GetIt.instance<GetCashRegisterUseCase>().call(params: widget.openedShift!.tocsrId!);
       if (cashRegisterEntityRes == null) throw "Cash Register not found";
       // log(cashRegisterEntityRes.toString());
       final StoreMasterEntity? storeMasterEntityRes =
-          await GetIt.instance<GetStoreMasterUseCase>()
-              .call(params: cashRegisterEntityRes.tostrId);
+          await GetIt.instance<GetStoreMasterUseCase>().call(params: cashRegisterEntityRes.tostrId);
       if (storeMasterEntityRes == null) throw "Store Master not found";
-      final UserEntity? userEntityRes = await GetIt.instance<GetUserUseCase>()
-          .call(params: widget.openedShift!.tousrId);
+      final UserEntity? userEntityRes =
+          await GetIt.instance<GetUserUseCase>().call(params: widget.openedShift!.tousrId);
       if (userEntityRes == null) throw "User not found";
 
       setState(() {
@@ -68,8 +64,7 @@ class _OpenShiftSuccessAlertDialogState
     return AlertDialog(
       backgroundColor: const Color.fromARGB(255, 234, 234, 234),
       surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(5.0))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
       title: Container(
         decoration: const BoxDecoration(
           color: ProjectColors.primary,
@@ -80,15 +75,12 @@ class _OpenShiftSuccessAlertDialogState
           children: [
             const Text(
               'Open Shift',
-              style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
             ),
             const Spacer(),
             TextButton(
               style: ButtonStyle(
-                  shape: WidgetStatePropertyAll(
+                  shape: MaterialStatePropertyAll(
                     RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
                         side: const BorderSide(
@@ -96,10 +88,8 @@ class _OpenShiftSuccessAlertDialogState
                           width: 2,
                         )),
                   ),
-                  backgroundColor: WidgetStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: WidgetStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: isPrinting
                   ? null
                   : () async {
@@ -107,8 +97,7 @@ class _OpenShiftSuccessAlertDialogState
                         setState(() {
                           isPrinting = true;
                         });
-                        await GetIt.instance<PrintOpenShiftUsecase>()
-                            .call(params: widget.openedShift, printType: 2);
+                        await GetIt.instance<PrintOpenShiftUsecase>().call(params: widget.openedShift, printType: 2);
                         setState(() {
                           isPrinting = false;
                         });
@@ -117,8 +106,7 @@ class _OpenShiftSuccessAlertDialogState
                           isPrinting = false;
                         });
                         if (context.mounted) {
-                          SnackBarHelper.presentErrorSnackBar(
-                              context, e.toString());
+                          SnackBarHelper.presentErrorSnackBar(context, e.toString());
                         }
                       }
                     },
@@ -261,8 +249,7 @@ class _OpenShiftSuccessAlertDialogState
                     height: 10,
                   ),
                   Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 25, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
                       width: double.infinity,
                       child: const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -361,8 +348,7 @@ class _OpenShiftSuccessAlertDialogState
                               width: 5,
                             ),
                             Text(
-                              Helpers.formatDate(
-                                  (widget.openedShift!.openDate)),
+                              Helpers.formatDate((widget.openedShift!.openDate)),
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
@@ -383,8 +369,7 @@ class _OpenShiftSuccessAlertDialogState
                               width: 5,
                             ),
                             Text(
-                              Helpers.parseMoney(
-                                  widget.openedShift?.openValue ?? 0),
+                              Helpers.parseMoney(widget.openedShift?.openValue ?? 0),
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w500,
@@ -453,12 +438,9 @@ class _OpenShiftSuccessAlertDialogState
             // ),
             TextButton(
               style: ButtonStyle(
-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5))),
-                  backgroundColor: WidgetStateColor.resolveWith(
-                      (states) => ProjectColors.primary),
-                  overlayColor: WidgetStateColor.resolveWith(
-                      (states) => Colors.white.withOpacity(.2))),
+                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                  backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                  overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
               onPressed: () => context.pop(true),
               child: const Center(
                   child: Text(

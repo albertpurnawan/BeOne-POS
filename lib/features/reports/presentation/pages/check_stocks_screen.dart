@@ -41,9 +41,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
 
   Future<List<dynamic>?> _searchItem(String query) async {
     try {
-      final item = await GetIt.instance<AppDatabase>()
-          .itemMasterDao
-          .readByKeyword(query);
+      final item = await GetIt.instance<AppDatabase>().itemMasterDao.readByKeyword(query);
       return item;
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
@@ -64,11 +62,9 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
     });
   }
 
-  Future<List<CheckStockModel>> _checkStock(
-      String itemCode, String itemName) async {
+  Future<List<CheckStockModel>> _checkStock(String itemCode, String itemName) async {
     try {
-      final stockData =
-          await GetIt.instance<CheckStockApi>().fetchData(itemCode, itemName);
+      final stockData = await GetIt.instance<CheckStockApi>().fetchData(itemCode, itemName);
       return stockData;
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, "Error Fetching Data");
@@ -158,22 +154,18 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                       decoration: InputDecoration(
                         contentPadding: const EdgeInsets.all(8),
                         hintText: "Scan or Type an Item SKU/Barcode",
-                        hintStyle: const TextStyle(
-                            fontStyle: FontStyle.italic, fontSize: 18),
+                        hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
                         border: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                              color: ProjectColors.mediumBlack, width: 2),
+                          borderSide: const BorderSide(color: ProjectColors.mediumBlack, width: 2),
                           borderRadius: BorderRadius.circular(5),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(
-                              color: ProjectColors.primary, width: 2),
+                          borderSide: const BorderSide(color: ProjectColors.primary, width: 2),
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),
                       onEditingComplete: () async {
-                        final itemsSearched =
-                            await _searchItem(_itemInputController.text);
+                        final itemsSearched = await _searchItem(_itemInputController.text);
                         setState(() {
                           itemsFound = itemsSearched;
                           showTable = false;
@@ -189,22 +181,18 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                     width: 60,
                     child: ElevatedButton(
                       style: ButtonStyle(
-                        padding: const WidgetStatePropertyAll(
-                            EdgeInsets.symmetric(vertical: 11, horizontal: 20)),
-                        shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-                          side: const BorderSide(
-                              color: ProjectColors.primary, width: 2),
+                        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(vertical: 11, horizontal: 20)),
+                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                          side: const BorderSide(color: ProjectColors.primary, width: 2),
                           borderRadius: BorderRadius.circular(5),
                         )),
-                        backgroundColor: WidgetStateColor.resolveWith(
+                        backgroundColor: MaterialStateColor.resolveWith(
                           (states) => ProjectColors.primary,
                         ),
-                        overlayColor: WidgetStateColor.resolveWith(
-                            (states) => Colors.white.withOpacity(.2)),
+                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2)),
                       ),
                       onPressed: () async {
-                        final itemsSearched =
-                            await _searchItem(_itemInputController.text);
+                        final itemsSearched = await _searchItem(_itemInputController.text);
                         setState(() {
                           itemsFound = itemsSearched;
                           showTable = false;
@@ -226,8 +214,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
     );
   }
 
-  Widget _searchResult(
-      {required Function(Map<String, dynamic>) onItemSelected}) {
+  Widget _searchResult({required Function(Map<String, dynamic>) onItemSelected}) {
     return (isLoading)
         ? _loadingIndicator()
         : ListView.builder(
@@ -349,9 +336,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                           child: Text(
                         "${(selectedItem != null) ? selectedItem!['itemname'] : ""}",
                         style: const TextStyle(
-                            color: ProjectColors.mediumBlack,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold),
+                            color: ProjectColors.mediumBlack, fontSize: 20, fontWeight: FontWeight.bold),
                       )),
                     ),
                   ],
@@ -360,8 +345,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
             ),
             SizedBox(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 child: Row(
                   children: [
                     Expanded(
@@ -373,15 +357,12 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.inventory_2_outlined,
-                                    color: Colors.black, size: 18.0),
+                                const Icon(Icons.inventory_2_outlined, color: Colors.black, size: 18.0),
                                 const SizedBox(width: 10),
                                 Text(
                                   "${(selectedItem != null) ? selectedItem!['itemcode'] : ""}",
                                   style: const TextStyle(
-                                      color: ProjectColors.primary,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700),
+                                      color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
                                 ),
                               ],
                             ),
@@ -406,9 +387,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                                 Text(
                                   "${(selectedItem != null) ? selectedItem!['barcode'] : ""}",
                                   style: const TextStyle(
-                                      color: ProjectColors.primary,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700),
+                                      color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
                                 ),
                               ],
                             ),
@@ -425,15 +404,12 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(Icons.monetization_on_outlined,
-                                    color: Colors.black, size: 18.0),
+                                const Icon(Icons.monetization_on_outlined, color: Colors.black, size: 18.0),
                                 const SizedBox(width: 10),
                                 Text(
                                   (selectedItem != null) ? priceFormatted : "",
                                   style: const TextStyle(
-                                      color: ProjectColors.primary,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700),
+                                      color: ProjectColors.primary, fontSize: 18, fontWeight: FontWeight.w700),
                                 ),
                               ],
                             ),
@@ -460,7 +436,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                   ],
                 ),
                 child: Table(
-                  border: const TableBorder.symmetric(
+                  border: TableBorder.symmetric(
                     outside: BorderSide.none,
                     inside: BorderSide.none,
                   ),
@@ -485,10 +461,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Text("Store",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold)),
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                             ),
                           ),
                         ),
@@ -500,10 +473,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Text("On Hand",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold)),
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                             ),
                           ),
                         ),
@@ -515,10 +485,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Text("Ordered",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold)),
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                             ),
                           ),
                         ),
@@ -530,10 +497,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Text("Committed",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold)),
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                             ),
                           ),
                         ),
@@ -548,10 +512,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                             child: Padding(
                               padding: EdgeInsets.all(8.0),
                               child: Text("Available",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold)),
+                                  style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                             ),
                           ),
                         ),
@@ -564,10 +525,8 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                       return TableRow(
                         decoration: BoxDecoration(
                           color: const Color.fromARGB(255, 239, 238, 238),
-                          borderRadius: isLast
-                              ? const BorderRadius.vertical(
-                                  bottom: Radius.circular(8))
-                              : BorderRadius.zero,
+                          borderRadius:
+                              isLast ? const BorderRadius.vertical(bottom: Radius.circular(8)) : BorderRadius.zero,
                         ),
                         children: [
                           Padding(
@@ -576,9 +535,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                                 child: Text(
                               stock.storeCode,
                               style: const TextStyle(
-                                  color: ProjectColors.mediumBlack,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700),
+                                  color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
                             )),
                           ),
                           Padding(
@@ -587,9 +544,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                                 child: Text(
                               stock.qtyOnHand.toString(),
                               style: const TextStyle(
-                                  color: ProjectColors.mediumBlack,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700),
+                                  color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
                             )),
                           ),
                           Padding(
@@ -598,9 +553,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                                 child: Text(
                               stock.ordered.toString(),
                               style: const TextStyle(
-                                  color: ProjectColors.mediumBlack,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700),
+                                  color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
                             )),
                           ),
                           Padding(
@@ -609,9 +562,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                                 child: Text(
                               stock.commited.toString(),
                               style: const TextStyle(
-                                  color: ProjectColors.mediumBlack,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700),
+                                  color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
                             )),
                           ),
                           Padding(
@@ -620,9 +571,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                                 child: Text(
                               stock.available.toString(),
                               style: const TextStyle(
-                                  color: ProjectColors.mediumBlack,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700),
+                                  color: ProjectColors.mediumBlack, fontSize: 16, fontWeight: FontWeight.w700),
                             )),
                           ),
                         ],

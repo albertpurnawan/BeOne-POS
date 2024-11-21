@@ -42,8 +42,7 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
           backgroundColor: Colors.transparent,
           body: Focus(
             onKeyEvent: (node, value) {
-              if (value.runtimeType == KeyUpEvent)
-                return KeyEventResult.handled;
+              if (value.runtimeType == KeyUpEvent) return KeyEventResult.handled;
 
               if (value.physicalKey == PhysicalKeyboardKey.enter) {
                 // Handle Enter
@@ -78,8 +77,7 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
               title: Container(
                 decoration: const BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(5.0)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
                 child: const Row(
@@ -102,8 +100,7 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                 width: MediaQuery.of(context).size.width * 0.5,
                 height: MediaQuery.of(context).size.height * 0.3,
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 30, horizontal: 25),
+                  padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 25),
                   child: Column(
                     children: [
                       CustomInput(
@@ -112,9 +109,7 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                         label: "Password",
                         hint: "Database Password",
                         prefixIcon: const Icon(Icons.lock),
-                        validator: (val) => val == null || val.isEmpty
-                            ? "Password is required"
-                            : null,
+                        validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
                         type: CustomInputType.password,
                       ),
                       if (errorMessage != "")
@@ -168,14 +163,12 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                     Expanded(
                         child: TextButton(
                       style: ButtonStyle(
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(
-                                  color: ProjectColors.primary))),
-                          backgroundColor: WidgetStateColor.resolveWith(
-                              (states) => Colors.white),
-                          overlayColor: WidgetStateColor.resolveWith((states) =>
-                              ProjectColors.primary.withOpacity(.2))),
+                              side: const BorderSide(color: ProjectColors.primary))),
+                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                          overlayColor:
+                              MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
@@ -202,20 +195,15 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                     Expanded(
                         child: TextButton(
                       style: ButtonStyle(
-                          shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5),
-                            side:
-                                const BorderSide(color: ProjectColors.primary),
+                            side: const BorderSide(color: ProjectColors.primary),
                           )),
-                          backgroundColor: WidgetStateColor.resolveWith(
-                              (states) => ProjectColors.primary),
-                          overlayColor: WidgetStateColor.resolveWith(
-                              (states) => Colors.white.withOpacity(.2))),
+                          backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                       onPressed: () async {
-                        await RestoreDatabaseUseCase().call(
-                            params: RestoreDatabaseParams(
-                                _passwordController.text,
-                                context: context));
+                        await RestoreDatabaseUseCase()
+                            .call(params: RestoreDatabaseParams(_passwordController.text, context: context));
                         exit(0);
                       },
                       child: Center(
