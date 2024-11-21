@@ -10,7 +10,8 @@ class POSParameterRepositoryImpl implements POSParameterRepository {
 
   @override
   Future<void> createPosParameter(POSParameterEntity posParameterEntity) async {
-    await appDatabase.posParameterDao.create(data: POSParameterModel.fromEntity(posParameterEntity));
+    await appDatabase.posParameterDao
+        .create(data: POSParameterModel.fromEntity(posParameterEntity));
   }
 
   @override
@@ -22,7 +23,8 @@ class POSParameterRepositoryImpl implements POSParameterRepository {
 
   @override
   Future<void> updatePosParemeter(POSParameterEntity posParameterEntity) async {
-    await appDatabase.posParameterDao
-        .update(docId: posParameterEntity.docId, data: POSParameterModel.fromEntity(posParameterEntity));
+    await appDatabase.posParameterDao.update(
+        docId: posParameterEntity.docId,
+        data: POSParameterModel.fromEntity(posParameterEntity));
   }
 }

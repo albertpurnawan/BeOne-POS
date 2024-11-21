@@ -3,7 +3,11 @@ import 'package:pos_fe/features/sales/data/models/item_master.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ItemMasterDao extends BaseDao<ItemMasterModel> {
-  ItemMasterDao(Database db) : super(db: db, tableName: tableItemMasters, modelFields: ItemMasterFields.values);
+  ItemMasterDao(Database db)
+      : super(
+            db: db,
+            tableName: tableItemMasters,
+            modelFields: ItemMasterFields.values);
 
   @override
   Future<ItemMasterModel?> readByDocId(String docId, Transaction? txn) async {
@@ -26,9 +30,20 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
     return result.map((itemData) => ItemMasterModel.fromMap(itemData)).toList();
   }
 
-  Future<List<ItemMasterModel>> readAllByTocatId({required String tocatId, Transaction? txn}) async {
+  Future<List<ItemMasterModel>> readAllByTocatId(
+      {required String tocatId, Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
-    final result = await dbExecutor.query(tableName, where: "tocatId = ?", whereArgs: [tocatId]);
+    final result = await dbExecutor
+        .query(tableName, where: "tocatId = ?", whereArgs: [tocatId]);
+
+    return result.map((itemData) => ItemMasterModel.fromMap(itemData)).toList();
+  }
+
+  Future<List<ItemMasterModel>> readAllByScaleActive(
+      {required int scaleActive, Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final result = await dbExecutor
+        .query(tableName, where: "scaleActive = ?", whereArgs: [scaleActive]);
 
     return result.map((itemData) => ItemMasterModel.fromMap(itemData)).toList();
   }
@@ -60,10 +75,16 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
       LIMIT 300
     ''', ["%$keyword%", "%$keyword%", "%$keyword%"]);
       } else {
-        final String itemNameQuery = keyword.split('%').map((e) => "itemname LIKE '%$e%'").join(" AND ");
-        final String barcodeQuery = keyword.split('%').map((e) => "barcode LIKE '%$e%'").join(" AND ");
-        final String itemCodeQuery = keyword.split('%').map((e) => "itemcode LIKE '%$e%'").join(" AND ");
-        final String shortNameQuery = keyword.split('%').map((e) => "shortname LIKE '%$e%'").join(" AND ");
+        final String itemNameQuery =
+            keyword.split('%').map((e) => "itemname LIKE '%$e%'").join(" AND ");
+        final String barcodeQuery =
+            keyword.split('%').map((e) => "barcode LIKE '%$e%'").join(" AND ");
+        final String itemCodeQuery =
+            keyword.split('%').map((e) => "itemcode LIKE '%$e%'").join(" AND ");
+        final String shortNameQuery = keyword
+            .split('%')
+            .map((e) => "shortname LIKE '%$e%'")
+            .join(" AND ");
 
         result = await db.rawQuery('''
     SELECT x0.itemname, x0.itemcode, x1.barcode, x2.price, x4.description FROM toitm AS x0 
@@ -86,7 +107,8 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
     }
   }
 
-  Future<ItemMasterModel?> readByItemCode(String itemCode, Transaction? txn) async {
+  Future<ItemMasterModel?> readByItemCode(
+      String itemCode, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,

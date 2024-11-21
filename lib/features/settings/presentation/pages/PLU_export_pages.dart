@@ -1,10 +1,18 @@
 import 'dart:io';
+import 'dart:developer';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:csv/csv.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get_it/get_it.dart';
+import 'package:flutter/services.dart';
+import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/usecases/backup_database_usecase.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
 
 class PLUExportScreen extends StatefulWidget {
   const PLUExportScreen({super.key});
@@ -14,6 +22,7 @@ class PLUExportScreen extends StatefulWidget {
 }
 
 class _PLUExportScreenState extends State<PLUExportScreen> {
+  POSParameterEntity? _posParameterEntity;
   String? selectedFolderPath;
   double exportProgress = 0.0;
 
@@ -21,6 +30,26 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   void initState() {
     super.initState();
     _loadData();
+    readAllByScaleActive();
+  }
+
+  // void getPosParameter() async {
+  //   _posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+  //   setState(() {});
+  // }
+
+  Future<void> readAllByScaleActive() async {
+    final items = await GetIt.instance<AppDatabase>()
+        .itemMasterDao
+        .readAllByScaleActive(scaleActive: 1);
+    log("ini items -$items");
+
+    for (var i = 0; i < items.length; i++) {
+      final itemBarcode = await GetIt.instance<AppDatabase>()
+          .itemBarcodeDao
+          .readByDocToitmId(items[i].docId, null);
+      log("item barcode -$itemBarcode");
+    }
   }
 
   Future<void> _loadData() async {

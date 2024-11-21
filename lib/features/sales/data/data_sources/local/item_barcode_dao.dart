@@ -22,6 +22,19 @@ class ItemBarcodeDao extends BaseDao<ItemBarcodeModel> {
     return res.isNotEmpty ? ItemBarcodeModel.fromMap(res[0]) : null;
   }
 
+  Future<ItemBarcodeModel?> readByDocToitmId(
+      String toitmId, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'toitmId = ?',
+      whereArgs: [toitmId],
+    );
+
+    return res.isNotEmpty ? ItemBarcodeModel.fromMap(res[0]) : null;
+  }
+
   @override
   Future<List<ItemBarcodeModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
