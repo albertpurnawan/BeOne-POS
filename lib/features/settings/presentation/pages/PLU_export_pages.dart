@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:csv/csv.dart';
 import 'package:intl/intl.dart';
+import 'package:pos_fe/core/database/seeders_data/toitm.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get_it/get_it.dart';
-import 'package:flutter/services.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/backup_database_usecase.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -25,11 +25,17 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   POSParameterEntity? _posParameterEntity;
   String? selectedFolderPath;
   double exportProgress = 0.0;
+  List<String> itemName = [];
+  List<String> barcode = [];
+  List<double> harga = [];
+  String expired = "1";
+  List<int> typeDiscount = [];
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    // getPosParameter();
     readAllByScaleActive();
   }
 
@@ -40,16 +46,24 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
 
   Future<void> readAllByScaleActive() async {
     final items = await GetIt.instance<AppDatabase>()
-        .itemMasterDao
+        .itemsDao
         .readAllByScaleActive(scaleActive: 1);
-    log("ini items -$items");
-
+    if (items == null) throw "Failed retrieve Store";
+    log("INI Items -$items");
     for (var i = 0; i < items.length; i++) {
-      final itemBarcode = await GetIt.instance<AppDatabase>()
-          .itemBarcodeDao
-          .readByDocToitmId(items[i].docId, null);
-      log("item barcode -$itemBarcode");
+      final promo = await GetIt.instance<AppDatabase>()
+          .promosDao
+          .readByToitmAndPromoType(items[i].toitmId, 202, null);
+
+      log("promos -${promo}");
+
+      itemName.add(items[i].itemName);
+      barcode.add(items[i].barcode);
+      harga.add(items[i].price);
+      typeDiscount.add(promo != null ? 2 : 0);
+      // (promo != null ) {}
     }
+    log("item Name -$typeDiscount");
   }
 
   Future<void> _loadData() async {
@@ -309,6 +323,9 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                                 DataColumn(label: Text("PLU")),
                                 DataColumn(label: Text("Barcode")),
                                 DataColumn(label: Text("Nama1")),
+                                // DataColumn(
+                                //     label: Text(
+                                //         _posParameterEntity?.nama1 ?? "Nama1")),
                                 DataColumn(label: Text("Nama2")),
                                 DataColumn(label: Text("Nama3")),
                                 DataColumn(label: Text("Harga")),

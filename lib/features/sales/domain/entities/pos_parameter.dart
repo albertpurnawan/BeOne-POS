@@ -15,6 +15,8 @@ class POSParameterEntity {
   final String? passwordAdmin;
   final String? lastSync;
 
+  var nama1;
+
   POSParameterEntity({
     required this.docId,
     this.createDate,
@@ -76,15 +78,21 @@ class POSParameterEntity {
   factory POSParameterEntity.fromMap(Map<String, dynamic> map) {
     return POSParameterEntity(
       docId: map['docId'] as String,
-      createDate: map['createDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int) : null,
-      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
+      createDate: map['createDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int)
+          : null,
+      updateDate: map['updateDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
+          : null,
       gtentId: map['gtentId'] != null ? map['gtentId'] as String : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       storeName: map['storeName'] != null ? map['storeName'] as String : null,
       tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
       baseUrl: map['baseUrl'] != null ? map['baseUrl'] as String : null,
-      usernameAdmin: map['usernameAdmin'] != null ? map['usernameAdmin'] as String : null,
-      passwordAdmin: map['passwordAdmin'] != null ? map['passwordAdmin'] as String : null,
+      usernameAdmin:
+          map['usernameAdmin'] != null ? map['usernameAdmin'] as String : null,
+      passwordAdmin:
+          map['passwordAdmin'] != null ? map['passwordAdmin'] as String : null,
       lastSync: map['lastSync'] != null ? map['lastSync'] as String : null,
     );
   }
