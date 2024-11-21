@@ -176,6 +176,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
             tocatId: itemMasterModel.tocatId,
             shortName: itemMasterModel.shortName,
             toplnId: "N/A",
+            scaleActive: itemMasterModel.scaleActive,
           ),
           sellingPrice: queuedInvoiceDetailModel.sellingPrice,
           totalAmount: queuedInvoiceDetailModel.totalAmount,
@@ -269,6 +270,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
               tocatId: itemMasterModel.tocatId,
               shortName: itemMasterModel.shortName,
               toplnId: "N/A",
+              scaleActive: itemMasterModel.scaleActive,
             ),
             sellingPrice: queuedInvoiceDetailModel.sellingPrice,
             totalAmount: queuedInvoiceDetailModel.totalAmount,
@@ -419,7 +421,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
 
     // Assuming tempItems are formatted like ItemEntity(...) instances
     RegExp itemExp = RegExp(
-        r'ItemEntity\(id: (.*?), itemName: (.*?), itemCode: (.*?), barcode: (.*?), price: (.*?), toitmId: (.*?), tbitmId: (.*?), tpln2Id: (.*?), openPrice: (.*?), tovenId: (.*?), includeTax: (.*?), tovatId: (.*?), taxRate: (.*?), dpp: (.*?), tocatId: (.*?), shortName: (.*?), toplnId: (.*?)\)');
+        r'ItemEntity\(id: (.*?), itemName: (.*?), itemCode: (.*?), barcode: (.*?), price: (.*?), toitmId: (.*?), tbitmId: (.*?), tpln2Id: (.*?), openPrice: (.*?), tovenId: (.*?), includeTax: (.*?), tovatId: (.*?), taxRate: (.*?), dpp: (.*?), tocatId: (.*?), shortName: (.*?), toplnId: (.*?), scaleactive: (.*?)\)');
 
     Iterable<Match> itemMatches = itemExp.allMatches(tempItemsString);
 
@@ -442,6 +444,7 @@ class QueuedReceiptRepositoryImpl implements QueuedReceiptRepository {
         tocatId: itemMatch.group(15) == 'null' ? null : itemMatch.group(15),
         shortName: itemMatch.group(16) == 'null' ? null : itemMatch.group(16),
         toplnId: itemMatch.group(17)!,
+        scaleActive: int.parse(itemMatch.group(18)!),
       ));
     }
 

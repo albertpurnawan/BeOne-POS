@@ -143,23 +143,25 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
               final ItemModel? dbItem = await GetIt.instance<AppDatabase>().itemsDao.readByToitmId(dpItemId, null);
               if (dbItem != null) {
                 itemsDP.add(ItemEntity(
-                    id: null,
-                    itemName: dbItem.itemName,
-                    itemCode: dbItem.itemCode,
-                    barcode: dbItem.barcode,
-                    price: item.sellingPrice,
-                    toitmId: item.toitmId ?? "",
-                    tbitmId: item.tbitmId ?? "",
-                    tpln2Id: dbItem.tpln2Id,
-                    openPrice: dbItem.openPrice,
-                    tovenId: item.tovenId,
-                    includeTax: item.includeTax,
-                    tovatId: item.tovatId ?? "",
-                    taxRate: dbItem.taxRate,
-                    dpp: dbItem.dpp,
-                    tocatId: dbItem.tocatId,
-                    shortName: dbItem.shortName,
-                    toplnId: dbItem.toplnId));
+                  id: null,
+                  itemName: dbItem.itemName,
+                  itemCode: dbItem.itemCode,
+                  barcode: dbItem.barcode,
+                  price: item.sellingPrice,
+                  toitmId: item.toitmId ?? "",
+                  tbitmId: item.tbitmId ?? "",
+                  tpln2Id: dbItem.tpln2Id,
+                  openPrice: dbItem.openPrice,
+                  tovenId: item.tovenId,
+                  includeTax: item.includeTax,
+                  tovatId: item.tovatId ?? "",
+                  taxRate: dbItem.taxRate,
+                  dpp: dbItem.dpp,
+                  tocatId: dbItem.tocatId,
+                  shortName: dbItem.shortName,
+                  toplnId: dbItem.toplnId,
+                  scaleActive: dbItem.scaleActive,
+                ));
 
                 qtyDP.add(item.quantity);
                 grandTotalReceiveDP += (item.sellingPrice * item.quantity);

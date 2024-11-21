@@ -2211,63 +2211,63 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                             // [END] UI for TUNAI MOP
 
                                             // [START] UI for EDC MOP
-                                            if (paymentType.payTypeCode[0] == "2") {
-                                              return Column(
-                                                children: [
-                                                  const SizedBox(height: 10),
-                                                  Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                                                    width: double.infinity,
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Text(
-                                                          paymentType.description,
-                                                          style: const TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight: FontWeight.w700,
-                                                          ),
-                                                        ),
-                                                        const SizedBox(height: 15),
-                                                        Wrap(
-                                                          spacing: 8,
-                                                          runSpacing: 8,
-                                                          children: List<Widget>.generate(
-                                                            mopsByType.map((mop) => mop.tpmt4Id).toSet().length,
-                                                            (int index) {
-                                                              final distinctEdc =
-                                                                  mopsByType.map((mop) => mop.tpmt4Id).toSet().toList();
-                                                              final mop = mopsByType.firstWhere(
-                                                                  (mop) => mop.tpmt4Id == distinctEdc[index]);
-                                                              List<MopSelectionEntity> filteredMops = _values
-                                                                  .where((edc) => edc.tpmt4Id == mop.tpmt4Id)
-                                                                  .toList();
+                                            // if (paymentType.payTypeCode[0] == "2") {
+                                            //   return Column(
+                                            //     children: [
+                                            //       const SizedBox(height: 10),
+                                            //       Container(
+                                            //         padding: const EdgeInsets.symmetric(horizontal: 20),
+                                            //         width: double.infinity,
+                                            //         child: Column(
+                                            //           crossAxisAlignment: CrossAxisAlignment.start,
+                                            //           children: [
+                                            //             Text(
+                                            //               paymentType.description,
+                                            //               style: const TextStyle(
+                                            //                 fontSize: 18,
+                                            //                 fontWeight: FontWeight.w700,
+                                            //               ),
+                                            //             ),
+                                            //             const SizedBox(height: 15),
+                                            //             Wrap(
+                                            //               spacing: 8,
+                                            //               runSpacing: 8,
+                                            //               children: List<Widget>.generate(
+                                            //                 mopsByType.map((mop) => mop.tpmt4Id).toSet().length,
+                                            //                 (int index) {
+                                            //                   final distinctEdc =
+                                            //                       mopsByType.map((mop) => mop.tpmt4Id).toSet().toList();
+                                            //                   final mop = mopsByType.firstWhere(
+                                            //                       (mop) => mop.tpmt4Id == distinctEdc[index]);
+                                            //                   List<MopSelectionEntity> filteredMops = _values
+                                            //                       .where((edc) => edc.tpmt4Id == mop.tpmt4Id)
+                                            //                       .toList();
 
-                                                              return ChoiceChip(
-                                                                side: const BorderSide(
-                                                                    color: ProjectColors.primary, width: 1.5),
-                                                                padding: const EdgeInsets.all(20),
-                                                                label: Text(mop.edcDesc ?? mop.mopAlias),
-                                                                selected: _isSelectedEDCMOP(mop: mop),
-                                                                onSelected: (bool selected) async =>
-                                                                    await _onSelectedEDCMOP(
-                                                                  selected: selected,
-                                                                  receipt: receipt,
-                                                                  mop: mop,
-                                                                  filteredMops: filteredMops,
-                                                                ),
-                                                              );
-                                                            },
-                                                          ).toList(),
-                                                        ),
-                                                        const SizedBox(height: 20),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                  const Divider(),
-                                                ],
-                                              );
-                                            }
+                                            //                   return ChoiceChip(
+                                            //                     side: const BorderSide(
+                                            //                         color: ProjectColors.primary, width: 1.5),
+                                            //                     padding: const EdgeInsets.all(20),
+                                            //                     label: Text(mop.edcDesc ?? mop.mopAlias),
+                                            //                     selected: _isSelectedEDCMOP(mop: mop),
+                                            //                     onSelected: (bool selected) async =>
+                                            //                         await _onSelectedEDCMOP(
+                                            //                       selected: selected,
+                                            //                       receipt: receipt,
+                                            //                       mop: mop,
+                                            //                       filteredMops: filteredMops,
+                                            //                     ),
+                                            //                   );
+                                            //                 },
+                                            //               ).toList(),
+                                            //             ),
+                                            //             const SizedBox(height: 20),
+                                            //           ],
+                                            //         ),
+                                            //       ),
+                                            //       const Divider(),
+                                            //     ],
+                                            //   );
+                                            // }
                                             // [END] UI for EDC MOP
 
                                             // [START] UI for duitku

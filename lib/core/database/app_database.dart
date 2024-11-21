@@ -686,7 +686,7 @@ INNER JOIN (
 //   ${taxByItem ? taxAdditionalQuery : ""}""";
 
     final String mainQuery = """
-INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp, tocatId, shortname, toplnId)
+INSERT INTO items (itemname, itemcode, barcode, price, toitmId, tbitmId, tpln2Id, openprice, tovenId, includetax, tovatId, taxrate, dpp, tocatId, shortname, toplnId, scaleactive)
 WITH all_pricelist AS (SELECT
   i.itemname, 
   i.itemcode, 
@@ -704,6 +704,7 @@ WITH all_pricelist AS (SELECT
   i.tocatId,
   i.shortname,
   p.toplnId,
+  i.scaleactive,
   p.tpln1createdate,
   ROW_NUMBER() OVER (PARTITION BY bc.barcode, p.toplnId ORDER BY p.tpln1createdate DESC) AS rn
 FROM 
@@ -783,7 +784,8 @@ FROM
       openprice,
       includetax,
       tocatId,
-      shortname
+      shortname,
+      scaleactive
     FROM 
       toitm
     WHERE
@@ -832,7 +834,8 @@ FROM
 	  dpp, 
   	tocatId, 
   	shortname, 
-  	toplnId
+  	toplnId,
+    scaleactive
   FROM all_pricelist
   WHERE rn = 1;""";
 
@@ -1696,6 +1699,7 @@ ${ItemFields.dpp} DOUBLE NOT NULL,
 ${ItemFields.tocatId} TEXT,
 ${ItemFields.shortName} STRING,
 ${ItemFields.toplnId} STRING,
+${ItemFields.scaleActive} int NOT NULL,
 CONSTRAINT `items_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 CONSTRAINT `items_tbitmId_fkey` FOREIGN KEY (`tbitmId`) REFERENCES `tbitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,
 CONSTRAINT `items_tpln2Id_fkey` FOREIGN KEY (`tpln2Id`) REFERENCES `tpln2` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE,

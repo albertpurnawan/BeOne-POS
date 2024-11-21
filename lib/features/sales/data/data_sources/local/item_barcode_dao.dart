@@ -3,11 +3,7 @@ import 'package:pos_fe/features/sales/data/models/item_barcode.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ItemBarcodeDao extends BaseDao<ItemBarcodeModel> {
-  ItemBarcodeDao(Database db)
-      : super(
-            db: db,
-            tableName: tableItemBarcodes,
-            modelFields: ItemBarcodesFields.values);
+  ItemBarcodeDao(Database db) : super(db: db, tableName: tableItemBarcodes, modelFields: ItemBarcodesFields.values);
 
   @override
   Future<ItemBarcodeModel?> readByDocId(String docId, Transaction? txn) async {
@@ -27,8 +23,18 @@ class ItemBarcodeDao extends BaseDao<ItemBarcodeModel> {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(tableName);
 
-    return result
-        .map((itemData) => ItemBarcodeModel.fromMap(itemData))
-        .toList();
+    return result.map((itemData) => ItemBarcodeModel.fromMap(itemData)).toList();
+  }
+
+  Future<ItemBarcodeModel?> readByBarcode(String barcode, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'barcode = ?',
+      whereArgs: [barcode],
+    );
+
+    return res.isNotEmpty ? ItemBarcodeModel.fromMap(res[0]) : null;
   }
 }
