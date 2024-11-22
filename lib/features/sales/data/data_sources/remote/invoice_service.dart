@@ -10,6 +10,7 @@ import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_down_payment.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,7 +23,7 @@ class InvoiceApi {
 
   InvoiceApi(this._dio, this.prefs);
 
-  Future<void> sendInvoice(List<String> docnums) async {
+  Future<void> sendInvoice(List<String> docnums, List<ReceiptItemEntity> receiptItems) async {
     try {
       log("SEND INVOICE SERVICE");
       token = prefs.getString('adminToken');
@@ -33,8 +34,9 @@ class InvoiceApi {
       final invHead = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByLastDate();
       log("invHead - $invHead");
 
-      final invDet =
-          await GetIt.instance<AppDatabase>().invoiceDetailDao.readByToinvIdAddQtyBarcode(invHead[0].docId.toString());
+      final invDet = await GetIt.instance<AppDatabase>()
+          .invoiceDetailDao
+          .readByToinvIdAddQtyBarcode(invHead[0].docId.toString(), receiptItems: receiptItems);
       log("invDet - $invDet");
 
       final payMean = await GetIt.instance<AppDatabase>().payMeansDao.readByToinvShowTopmt(invHead[0].docId.toString());
@@ -411,7 +413,8 @@ class InvoiceApi {
     }
   }
 
-  Future<void> sendFailedInvoice(InvoiceHeaderModel invHead, List<InvoiceDetailModel> invDet) async {
+  Future<void> sendFailedInvoice(InvoiceHeaderModel invHead, List<InvoiceDetailModel> invDet,
+      {List<ReceiptItemEntity>? receiptItems}) async {
     try {
       // log("SEND FAILED INVOICE SERVICE");
       token = prefs.getString('adminToken');
@@ -420,8 +423,9 @@ class InvoiceApi {
 
       // log("$invHead");
       // log("$invDet");
-      final invDetWithQtyBarcode =
-          await GetIt.instance<AppDatabase>().invoiceDetailDao.readByToinvIdAddQtyBarcode(invHead.docId.toString());
+      final invDetWithQtyBarcode = await GetIt.instance<AppDatabase>()
+          .invoiceDetailDao
+          .readByToinvIdAddQtyBarcode(invHead.docId.toString(), receiptItems: receiptItems);
 
       final payMean = await GetIt.instance<AppDatabase>().payMeansDao.readByToinvShowTopmt(invHead.docId.toString());
       log("paymean - $payMean");
