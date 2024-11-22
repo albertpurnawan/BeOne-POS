@@ -50,7 +50,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         .itemsDao
         .readAllByScaleActive(scaleActive: 1);
     if (items == null) throw "Failed retrieve Store";
-    log("INI Items -$items");
+    // log("INI Items -$items");
 
     for (var i = 0; i < items.length; i++) {
       final promo = await GetIt.instance<AppDatabase>()
@@ -61,7 +61,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
 
       final promoHeader = await GetIt.instance<AppDatabase>()
           .promoHargaSpesialHeaderDao
-          .readByDocId(promo.docId, null);
+          .readByDocToitm(promo.toitmId ?? "", null);
 
       if (promoHeader == null) continue;
       log("promos -${promoHeader.endDate}");
