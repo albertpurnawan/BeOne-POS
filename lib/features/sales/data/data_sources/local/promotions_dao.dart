@@ -23,7 +23,8 @@ class PromosDao extends BaseDao<PromotionsModel> {
     return res.isNotEmpty ? PromotionsModel.fromMap(res[0]) : null;
   }
 
-  Future<PromotionsModel?> readByPromoIdAndPromoType(String promoId, int promoType, Transaction? txn) async {
+  Future<PromotionsModel?> readByPromoIdAndPromoType(
+      String promoId, int promoType, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,
@@ -35,16 +36,33 @@ class PromosDao extends BaseDao<PromotionsModel> {
     return res.isNotEmpty ? PromotionsModel.fromMap(res[0]) : null;
   }
 
+  Future<PromotionsModel?> readByToitmAndPromoType(
+      String toitmId, int promoType, Transaction? txn) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final res = await dbExecutor.query(
+      tableName,
+      columns: modelFields,
+      where: 'toitmId = ? AND promotype = ?',
+      whereArgs: [toitmId, promoType],
+    );
+
+    return res.isNotEmpty ? PromotionsModel.fromMap(res[0]) : null;
+  }
+
   @override
   Future<List<PromotionsModel>> readAll({Transaction? txn}) async {
     if (txn != null) {
       final result = await txn.query(tableName);
 
-      return result.map((itemData) => PromotionsModel.fromMap(itemData)).toList();
+      return result
+          .map((itemData) => PromotionsModel.fromMap(itemData))
+          .toList();
     } else {
       final result = await db.query(tableName);
 
-      return result.map((itemData) => PromotionsModel.fromMap(itemData)).toList();
+      return result
+          .map((itemData) => PromotionsModel.fromMap(itemData))
+          .toList();
     }
   }
 
@@ -52,7 +70,8 @@ class PromosDao extends BaseDao<PromotionsModel> {
     await db.delete('toprm');
   }
 
-  Future<List<PromotionsModel>> readByToitmId(String toitmId, Transaction? txn) async {
+  Future<List<PromotionsModel>> readByToitmId(
+      String toitmId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     if (txn != null) {
       final res = await dbExecutor.query(

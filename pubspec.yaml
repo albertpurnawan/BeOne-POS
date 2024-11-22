@@ -69,7 +69,9 @@ dependencies:
   package_info_plus: ^8.0.2
   toggle_switch: ^2.3.0
   connectivity_plus: ^6.0.5
-  file_picker: ^8.0.5
+  file_picker: ^8.1.4
+  csv: ^6.0.0
+
 
 dev_dependencies:
   flutter_test:

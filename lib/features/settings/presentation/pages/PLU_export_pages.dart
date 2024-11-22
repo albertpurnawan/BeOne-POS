@@ -1,8 +1,18 @@
 import 'dart:io';
-
+import 'dart:developer';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:csv/csv.dart';
+import 'package:intl/intl.dart';
+import 'package:pos_fe/core/database/seeders_data/toitm.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get_it/get_it.dart';
+import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/usecases/backup_database_usecase.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
 
 class PLUExportScreen extends StatefulWidget {
   const PLUExportScreen({super.key});
@@ -12,8 +22,73 @@ class PLUExportScreen extends StatefulWidget {
 }
 
 class _PLUExportScreenState extends State<PLUExportScreen> {
+  POSParameterEntity? _posParameterEntity;
   String? selectedFolderPath;
   double exportProgress = 0.0;
+  List<String> itemName = [];
+  List<String> barcode = [];
+  List<double> harga = [];
+  String expired = "1";
+  List<int> typeDiscount = [];
+  List<List<String>> tableData = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+    // getPosParameter();
+    readAllByScaleActive();
+  }
+
+  // void getPosParameter() async {
+  //   _posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+  //   setState(() {});
+  // }
+
+  Future<void> readAllByScaleActive() async {
+    final items = await GetIt.instance<AppDatabase>()
+        .itemsDao
+        .readAllByScaleActive(scaleActive: 1);
+    if (items == null) throw "Failed retrieve Store";
+    // log("INI Items -$items");
+
+    for (var i = 0; i < items.length; i++) {
+      final promo = await GetIt.instance<AppDatabase>()
+          .promosDao
+          .readByToitmAndPromoType(items[i].toitmId, 202, null);
+
+      if (promo == null) continue;
+
+      final promoHeader = await GetIt.instance<AppDatabase>()
+          .promoHargaSpesialHeaderDao
+          .readByDocToitm(promo.toitmId ?? "", null);
+
+      if (promoHeader == null) continue;
+      log("promos -${promoHeader.endDate}");
+
+      itemName.add(items[i].itemName);
+      barcode.add(items[i].barcode);
+      harga.add(items[i].price);
+      typeDiscount.add(promo != null ? 2 : 0);
+      // (promo != null ) {}
+    }
+    // log("item Name -$typeDiscount");
+    _initializeTableData();
+  }
+
+  Future<void> _loadData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      selectedFolderPath = prefs.getString('folderPath');
+    });
+  }
+
+  Future<void> _saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (selectedFolderPath != null) {
+      await prefs.setString('folderPath', selectedFolderPath!);
+    }
+  }
 
   Future<void> _navigateToFolder() async {
     String? folderPath = await FilePicker.platform.getDirectoryPath();
@@ -21,6 +96,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
       setState(() {
         selectedFolderPath = folderPath;
       });
+      await _saveData();
     }
   }
 
@@ -36,6 +112,27 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
     }
   }
 
+  void _initializeTableData() {
+    setState(() {
+      tableData = List.generate(itemName.length, (index) {
+        return [
+          barcode[index],
+          barcode[index],
+          itemName[index],
+          '',
+          '',
+          harga[index].round().toString(),
+          expired,
+          typeDiscount[index].toString(),
+          '', // Dis.date (empty)
+          '', // End.date (empty)
+          '', // Limit1 (empty)
+          '', // Limit2 (empty)
+        ];
+      });
+    });
+  }
+
   Future<void> _exportFile() async {
     if (selectedFolderPath == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -48,8 +145,39 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
       exportProgress = 0.0;
     });
 
+    List<List<String>> rows = [
+      [
+        'PLU',
+        'Barcode',
+        'Nama1',
+        'Nama2',
+        'Nama3',
+        'Harga',
+        'Expired',
+        'type discount',
+        'dis.date',
+        'end.date',
+        'limit1',
+        'limit2',
+      ],
+      ...tableData,
+    ];
+
+    List<DataRow> dataRows = tableData.map((row) {
+      while (row.length < 12) {
+        row.add('');
+      }
+      return DataRow(
+        cells: row.map((e) => DataCell(Text(e.isEmpty ? "" : e))).toList(),
+      );
+    }).toList();
+
+    String csvData = const ListToCsvConverter().convert(rows);
+
     try {
-      final file = File('$selectedFolderPath/plu_export.txt');
+      String dateFormatted = DateFormat('yyMMdd_HHmmss').format(DateTime.now());
+
+      final file = File('$selectedFolderPath/timbangan_$dateFormatted.csv');
 
       for (int i = 0; i <= 100; i++) {
         await Future.delayed(const Duration(milliseconds: 30), () {
@@ -59,19 +187,14 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         });
       }
 
-      await file.writeAsString(
-        'PLU Export Data\n'
-        'PLU, Barcode, Nama1, Nama2, Nama3\n'
-        '130, 130, Item Name Line 1, Item Name Line 2, Item Name Line 3\n'
-        '131, 131, Item Name Line 1, Item Name Line 2, Item Name Line 3\n',
-      );
+      await file.writeAsString(csvData);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('File exported to $selectedFolderPath')),
+        SnackBar(content: Text('CSV file exported to $selectedFolderPath')),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to export file!")),
+        const SnackBar(content: Text("Failed to export CSV file!")),
       );
     }
 
@@ -133,14 +256,17 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(width: 10),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ProjectColors.primary,
-                    foregroundColor: Colors.white,
+                const SizedBox(width: 20),
+                Padding(
+                  padding: const EdgeInsets.only(right: 30),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ProjectColors.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: _saveExportPath,
+                    child: const Text("Save"),
                   ),
-                  onPressed: _saveExportPath,
-                  child: const Text("Save"),
                 ),
               ],
             ),
@@ -177,10 +303,9 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                   ),
                   Center(
                     child: Container(
-                      padding: const EdgeInsets.all(5),
+                      padding: const EdgeInsets.all(1),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.black, width: 1),
-                        borderRadius: BorderRadius.circular(5),
                       ),
                       child: SizedBox(
                         height: 400,
@@ -190,33 +315,37 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                           child: SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: DataTable(
+                              headingRowColor:
+                                  WidgetStateProperty.all(Colors.grey[300]),
                               columns: const [
                                 DataColumn(label: Text("PLU")),
                                 DataColumn(label: Text("Barcode")),
                                 DataColumn(label: Text("Nama1")),
+                                // DataColumn(
+                                //     label: Text(
+                                //         _posParameterEntity?.nama1 ?? "Nama1")),
                                 DataColumn(label: Text("Nama2")),
                                 DataColumn(label: Text("Nama3")),
-                                DataColumn(label: Text("Nama4")),
-                                DataColumn(label: Text("Nama5")),
-                                DataColumn(label: Text("Nama6")),
-                                DataColumn(label: Text("Nama7")),
+                                DataColumn(label: Text("Harga")),
+                                DataColumn(label: Text("Expired")),
+                                DataColumn(label: Text("type discount")),
+                                DataColumn(label: Text("dis.date")),
+                                DataColumn(label: Text("end.date")),
+                                DataColumn(label: Text("limit1")),
+                                DataColumn(label: Text("limit2")),
                               ],
-                              rows: List<DataRow>.generate(
-                                20,
-                                (index) => const DataRow(
-                                  cells: [
-                                    DataCell(Text("130")),
-                                    DataCell(Text("130")),
-                                    DataCell(Text("Item Name Line 1")),
-                                    DataCell(Text("Item Name Line 2")),
-                                    DataCell(Text("Item Name Line 3")),
-                                    DataCell(Text("Item Name Line 4")),
-                                    DataCell(Text("Item Name Line 5")),
-                                    DataCell(Text("Item Name Line 6")),
-                                    DataCell(Text("Item Name Line 7")),
-                                  ],
-                                ),
-                              ),
+                              rows: tableData.map((row) {
+                                for (int i = 0; i < row.length; i++) {
+                                  if (row[i].isEmpty) {
+                                    row[i] = '';
+                                  }
+                                }
+                                return DataRow(
+                                  cells: row
+                                      .map((e) => DataCell(Text(e)))
+                                      .toList(),
+                                );
+                              }).toList(),
                             ),
                           ),
                         ),

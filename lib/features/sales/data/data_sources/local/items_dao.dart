@@ -3,7 +3,8 @@ import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ItemsDao extends BaseDao<ItemModel> {
-  ItemsDao(Database db) : super(db: db, tableName: tableItems, modelFields: ItemFields.values);
+  ItemsDao(Database db)
+      : super(db: db, tableName: tableItems, modelFields: ItemFields.values);
 
   Future<ItemModel?> readItemByBarcode(String barcode) async {
     final maps = await db.query(
@@ -49,12 +50,18 @@ class ItemsDao extends BaseDao<ItemModel> {
   }
 
   @override
-  Future<List<ItemModel>> readAll({String? searchKeyword, Transaction? txn}) async {
+  Future<List<ItemModel>> readAll(
+      {String? searchKeyword, Transaction? txn}) async {
     final result = await db.query(
       tableName,
       where:
           "${ItemFields.itemName} LIKE ? OR ${ItemFields.barcode} LIKE ? OR ${ItemFields.itemCode} LIKE ? OR ${ItemFields.shortName} LIKE ?",
-      whereArgs: ["%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%"],
+      whereArgs: [
+        "%$searchKeyword%",
+        "%$searchKeyword%",
+        "%$searchKeyword%",
+        "%$searchKeyword%"
+      ],
       orderBy: "itemname",
       limit: 300,
     );
@@ -63,7 +70,9 @@ class ItemsDao extends BaseDao<ItemModel> {
   }
 
   Future<List<ItemModel>> readAllByPricelist(
-      {String? searchKeyword, Transaction? txn, required String pricelistId}) async {
+      {String? searchKeyword,
+      Transaction? txn,
+      required String pricelistId}) async {
     final String notNullSearchKeyword = searchKeyword ?? "";
     final List<Map<String, dynamic>> result;
 
@@ -72,19 +81,33 @@ class ItemsDao extends BaseDao<ItemModel> {
         tableName,
         where:
             "(${ItemFields.itemName} LIKE ? OR ${ItemFields.barcode} LIKE ? OR ${ItemFields.itemCode} LIKE ? OR ${ItemFields.shortName} LIKE ?) AND ${ItemFields.toplnId} = ?",
-        whereArgs: ["%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%", "%$searchKeyword%", pricelistId],
+        whereArgs: [
+          "%$searchKeyword%",
+          "%$searchKeyword%",
+          "%$searchKeyword%",
+          "%$searchKeyword%",
+          pricelistId
+        ],
         orderBy: "itemname",
         limit: 300,
       );
     } else {
-      final String itemNameQuery =
-          notNullSearchKeyword.split('%').map((e) => "${ItemFields.itemName} LIKE '%$e%'").join(" AND ");
-      final String barcodeQuery =
-          notNullSearchKeyword.split('%').map((e) => "${ItemFields.barcode} LIKE '%$e%'").join(" AND ");
-      final String itemCodeQuery =
-          notNullSearchKeyword.split('%').map((e) => "${ItemFields.itemCode} LIKE '%$e%'").join(" AND ");
-      final String shortNameQuery =
-          notNullSearchKeyword.split('%').map((e) => "${ItemFields.shortName} LIKE '%$e%'").join(" AND ");
+      final String itemNameQuery = notNullSearchKeyword
+          .split('%')
+          .map((e) => "${ItemFields.itemName} LIKE '%$e%'")
+          .join(" AND ");
+      final String barcodeQuery = notNullSearchKeyword
+          .split('%')
+          .map((e) => "${ItemFields.barcode} LIKE '%$e%'")
+          .join(" AND ");
+      final String itemCodeQuery = notNullSearchKeyword
+          .split('%')
+          .map((e) => "${ItemFields.itemCode} LIKE '%$e%'")
+          .join(" AND ");
+      final String shortNameQuery = notNullSearchKeyword
+          .split('%')
+          .map((e) => "${ItemFields.shortName} LIKE '%$e%'")
+          .join(" AND ");
 
       result = await db.query(
         tableName,
@@ -127,6 +150,15 @@ AND ${ItemFields.toplnId} = ?""",
     return res.isNotEmpty ? ItemModel.fromMap(res[0]) : null;
   }
 
+  Future<List<ItemModel>> readAllByScaleActive(
+      {required int scaleActive, Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final result = await dbExecutor
+        .query(tableName, where: "scaleactive = ?", whereArgs: [scaleActive]);
+
+    return result.map((itemData) => ItemModel.fromMap(itemData)).toList();
+  }
+
   Future<ItemModel?> getDownPayment({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
@@ -138,14 +170,18 @@ AND ${ItemFields.toplnId} = ?""",
     return res.isNotEmpty ? ItemModel.fromMap(res.first) : null;
   }
 
-  Future<ItemModel?> readItemWithAndCondition(Map<String, dynamic> conditions, Transaction? txn) async {
+  Future<ItemModel?> readItemWithAndCondition(
+      Map<String, dynamic> conditions, Transaction? txn) async {
     try {
       DatabaseExecutor dbExecutor = txn ?? db;
       final res = await dbExecutor.query(
         tableName,
         columns: modelFields,
-        where: conditions.keys.isEmpty ? null : conditions.keys.map((e) => "$e = ?").join(" AND "),
-        whereArgs: conditions.values.isEmpty ? null : conditions.values.toList(),
+        where: conditions.keys.isEmpty
+            ? null
+            : conditions.keys.map((e) => "$e = ?").join(" AND "),
+        whereArgs:
+            conditions.values.isEmpty ? null : conditions.values.toList(),
       );
 
       return res.isNotEmpty ? ItemModel.fromMap(res[0]) : null;
