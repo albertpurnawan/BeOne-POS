@@ -1,5 +1,6 @@
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
+import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:sqflite/sqflite.dart';
 
 class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
@@ -60,12 +61,28 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
     return result;
   }
 
-  Future<List<dynamic>> readByToinvIdAddQtyBarcode(String toinvId) async {
-    final result = await db.rawQuery('''
-    SELECT x0.*, x1.quantity AS qtybarcode FROM tinv1 AS x0 
+  Future<List<Map<String, dynamic>>> readByToinvIdAddQtyBarcode(
+    String toinvId, {
+    List<ReceiptItemEntity>? receiptItems,
+  }) async {
+    if (receiptItems == null || receiptItems.isEmpty) {
+      throw Exception("Failed to retrieve ReceiptItems: The list is null or empty.");
+    }
+
+    List<Map<String, dynamic>> result = [];
+
+    for (var i = 0; i < receiptItems.length; i++) {
+      final barcode = receiptItems[i].itemEntity.barcode;
+
+      final queryResult = await db.rawQuery('''
+      SELECT x0.*, x1.quantity AS qtybarcode 
+      FROM tinv1 AS x0 
       INNER JOIN tbitm AS x1 ON x0.toitmId = x1.toitmId 
-      WHERE x0.toinvId = ?
-    ''', [toinvId]);
+      WHERE x0.toinvId = ? AND x1.barcode = ?
+    ''', [toinvId, barcode]);
+
+      result.addAll(queryResult.map((e) => Map<String, dynamic>.from(e)));
+    }
 
     return result;
   }

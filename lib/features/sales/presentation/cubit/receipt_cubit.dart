@@ -659,14 +659,14 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
         }
         try {
           final List<DownPaymentEntity> dpList = newState.downPayments ?? [];
-          dev.log("dpList - $dpList");
+
           List<String> dpDocnums = [];
           for (DownPaymentEntity dp in dpList) {
             if (dp.isReceive == false && dp.isSelected == true) {
               dpDocnums.add(dp.refpos2 ?? "");
             }
           }
-          GetIt.instance<InvoiceApi>().sendInvoice(dpDocnums);
+          GetIt.instance<InvoiceApi>().sendInvoice(dpDocnums, createdReceipt.receiptItems);
         } catch (e) {
           return;
         }
