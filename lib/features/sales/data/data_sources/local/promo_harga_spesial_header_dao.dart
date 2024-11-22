@@ -19,17 +19,6 @@ class PromoHargaSpesialHeaderDao extends BaseDao<PromoHargaSpesialHeaderModel> {
     return res.isNotEmpty ? PromoHargaSpesialHeaderModel.fromMap(res[0]) : null;
   }
 
-  Future<PromoHargaSpesialHeaderModel?> readByDocToitm(
-      String toitmId, Transaction? txn) async {
-    DatabaseExecutor dbExecutor = txn ?? db;
-    final res = await dbExecutor.query(
-      tableName,
-      columns: modelFields,
-      where: 'toitmId = ?',
-      whereArgs: [toitmId],
-    );
-  }
-
   @override
   Future<List<PromoHargaSpesialHeaderModel>> readAll({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;

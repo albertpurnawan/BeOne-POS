@@ -25,6 +25,10 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   List<double> harga = [];
   String expired = "1";
   List<int> typeDiscount = [];
+  List<String> disDate = [];
+  List<String> endDate = [];
+  List<String> limit1 = [];
+  List<String> limit2 = [];
   List<List<String>> tableData = [];
 
   @override
@@ -42,30 +46,40 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
 
   Future<void> readAllByScaleActive() async {
     final items = await GetIt.instance<AppDatabase>().itemsDao.readAllByScaleActive(scaleActive: 1);
-    if (items == null) throw "Failed retrieve Store";
+    log("itemsLeng - ${items.length}");
+    if (items.isEmpty) throw "Failed retrieve Store";
     // log("INI Items -$items");
 
     for (var i = 0; i < items.length; i++) {
-      final promo = await GetIt.instance<AppDatabase>().promosDao.readByToitmAndPromoType(items[i].toitmId, 202, null);
-
-      if (promo == null) continue;
-
-      final promoHeader =
-          await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readByDocToitm(promo.toitmId ?? "", null);
-
-      if (promoHeader == null) continue;
-      log("promos -${promoHeader.endDate}");
-
       itemName.add(items[i].itemName);
       barcode.add(items[i].barcode);
       harga.add(items[i].price);
-      typeDiscount.add(promo != null ? 2 : 0);
-      // (promo != null ) {}
+
+      final promo = await GetIt.instance<AppDatabase>().promosDao.readByToitmAndPromoType(items[i].toitmId, 202, null);
+      if (promo == null) {
+        typeDiscount.add(0);
+        disDate.add("");
+        endDate.add("");
+        limit1.add("");
+        limit2.add("");
+      } else {
+        typeDiscount.add(2);
+        final promoHeader =
+            await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readByToitmId(items[i].toitmId, null);
+        if (promoHeader != null) {
+          disDate.add("${promoHeader.startDate}");
+          endDate.add("${promoHeader.endDate}");
+          limit1.add("0");
+          limit2.add("");
+        } else {
+          disDate.add("");
+          endDate.add("");
+          limit1.add("");
+          limit2.add("");
+        }
+      }
     }
-    // log("item Name - ${itemName[0]}");
-    log("item barcode - ${barcode[0]}");
-    log("item harga - ${harga[0]}");
-    log("item typeDiscount - ${typeDiscount[0]}");
+    log("itemName - ${itemName.length}");
     _initializeTableData();
   }
 
@@ -117,10 +131,10 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
           harga[index].round().toString(),
           expired,
           typeDiscount[index].toString(),
-          '', // Dis.date (empty)
-          '', // End.date (empty)
-          '', // Limit1 (empty)
-          '', // Limit2 (empty)
+          disDate[index], // Dis.date (empty)
+          endDate[index], // End.date (empty)
+          limit1[index], // Limit1 (empty)
+          limit2[index], // Limit2 (empty)
         ];
       });
     });
