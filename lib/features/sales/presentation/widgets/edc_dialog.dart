@@ -94,7 +94,7 @@ class _EDCDialogState extends State<EDCDialog> {
     fetchMOP();
     currentAmount = widget.max;
     mopsSelected.addAll(widget.values);
-    edcMachine = widget.mopSelectionEntity.edcDesc!;
+    edcMachine = widget.mopSelectionEntity.edcDesc ?? "";
     super.initState();
   }
 
@@ -109,8 +109,9 @@ class _EDCDialogState extends State<EDCDialog> {
   }
 
   Future<void> fetchMOP() async {
-    final edc = widget.mopSelectionEntity.edcDesc;
-    final tpmt1List = await GetIt.instance<AppDatabase>().meansOfPaymentDao.readByPaytypeCode("2", edc!);
+    final payType = widget.mopSelectionEntity.payTypeCode;
+    final edc = widget.mopSelectionEntity.tpmt4Id;
+    final tpmt1List = await GetIt.instance<AppDatabase>().meansOfPaymentDao.readByPaytypeCode(payType ?? "", edc ?? "");
 
     setState(() {
       mopList.addAll(tpmt1List);

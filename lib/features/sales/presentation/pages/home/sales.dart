@@ -4067,7 +4067,7 @@ class _SalesPageState extends State<SalesPage> {
       if (itemScaleFlag == storeScaleFlag) {
         final itemCode = barcode.substring(storeScaleFlagLength, storeScaleFlagLength + storeItemCodeLength);
 
-        final itemQty = double.parse(barcode.substring(storeScaleFlagLength + (storeItemCodeLength),
+        final itemQty = double.parse(barcode.substring(storeScaleFlagLength + storeItemCodeLength,
                 storeScaleFlagLength + storeItemCodeLength + storeQuantityLength)) /
             storeQtyDivider;
 

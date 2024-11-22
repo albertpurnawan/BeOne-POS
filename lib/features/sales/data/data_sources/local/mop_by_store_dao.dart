@@ -35,11 +35,11 @@ class MOPByStoreDao extends BaseDao<MOPByStoreModel> {
   Future<List<MopSelectionModel>> readAllIncludeRelations({String? payTypeCode}) async {
     final result = await db.rawQuery("""
       SELECT p3.docid as tpmt3Id, p3.tpmt1Id, p1.mopalias, p1.bankcharge, p.paytypecode, p.description, p1.subtype,
-      CASE WHEN p.paytypecode = 2 THEN p4.tpmt4Id ELSE NULL END as tpmt4Id, 
-      CASE WHEN p.paytypecode = 2 THEN p4.edcDesc ELSE NULL END as edcdesc
+      CASE WHEN p.paytypecode = 2 OR 3 THEN p4.tpmt4Id ELSE NULL END as tpmt4Id, 
+      CASE WHEN p.paytypecode = 2 OR 3 THEN p4.edcDesc ELSE NULL END as edcdesc
       FROM tpmt3 as p3
         INNER JOIN (
-        SELECT mopalias, bankcharge, docid, topmtId, subtype FROM tpmt1
+        SELECT mopalias, bankcharge, docid, topmtId, subtype, tpmt4Id FROM tpmt1
         ) as p1 ON p3.tpmt1Id = p1.docid
         INNER JOIN (
         SELECT paytypecode, description, docid FROM topmt
@@ -48,7 +48,7 @@ class MOPByStoreDao extends BaseDao<MOPByStoreModel> {
         LEFT JOIN (
           SELECT docid as tpmt4Id, description as edcDesc 
           FROM tpmt4
-        ) as p4 ON p1.mopalias LIKE p4.edcDesc || '%';
+        ) as p4 ON p1.tpmt4Id = p4.tpmt4Id;
     """);
 
     return result.map((itemData) => MopSelectionModel.fromMap(itemData)).toList();

@@ -455,6 +455,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       "tpmt1Id": map['tpmt1docid'] != null ? map['tpmt1docid'] as String : null,
       "duitkuexpiryperiod": map['duitkuexpiryperiod'] != null ? int.parse(map['duitkuexpiryperiod']) : null,
       "scaleactive": map['scaleactive'] != null ? map['scaleactive'] as int : 0,
+      "scaleqtydivider": map['scalequantitydivider'] != null ? map['scalequantitydivider'].toDouble() as double : null,
     });
   }
 

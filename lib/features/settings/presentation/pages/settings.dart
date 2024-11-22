@@ -10,6 +10,7 @@ import 'package:pos_fe/core/usecases/backup_database_usecase.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/settings/presentation/pages/PLU_export_pages.dart';
 import 'package:pos_fe/features/settings/presentation/pages/characters_per_line_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/default_printer_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/paper_size_settings.dart';
@@ -1181,14 +1182,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           InkWell(
                             onTap: () {
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //       builder: (context) =>
-                              //           const PLUExportScreen()),
-                              // );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const PLUExportScreen()),
+                              );
                             },
-                            child: Column(
+                            child: const Column(
                               children: [
                                 SizedBox(
                                   height: 20,
