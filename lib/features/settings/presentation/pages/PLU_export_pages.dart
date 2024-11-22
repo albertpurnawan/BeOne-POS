@@ -23,8 +23,9 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   List<String> itemName = [];
   List<String> barcode = [];
   List<double> harga = [];
-  List<String> expired = [];
+  String expired = "1";
   List<int> typeDiscount = [];
+  List<List<String>> tableData = [];
 
   @override
   void initState() {
@@ -41,26 +42,31 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
 
   Future<void> readAllByScaleActive() async {
     final items = await GetIt.instance<AppDatabase>().itemsDao.readAllByScaleActive(scaleActive: 1);
-    if (items.isEmpty) throw "Failed retrieve Store";
+    if (items == null) throw "Failed retrieve Store";
+    // log("INI Items -$items");
+
     for (var i = 0; i < items.length; i++) {
       final promo = await GetIt.instance<AppDatabase>().promosDao.readByToitmAndPromoType(items[i].toitmId, 202, null);
+
       if (promo == null) continue;
+
       final promoHeader =
-          await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readByToitmId(promo.toitmId ?? "", null);
-      log("promoHeader - $promoHeader");
+          await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readByDocToitm(promo.toitmId ?? "", null);
+
+      if (promoHeader == null) continue;
+      log("promos -${promoHeader.endDate}");
 
       itemName.add(items[i].itemName);
       barcode.add(items[i].barcode);
       harga.add(items[i].price);
-      expired.add("1");
       typeDiscount.add(promo != null ? 2 : 0);
       // (promo != null ) {}
     }
-    log("item Name - ${itemName[0]}");
+    // log("item Name - ${itemName[0]}");
     log("item barcode - ${barcode[0]}");
     log("item harga - ${harga[0]}");
-    log("item expired - ${expired[0]}");
     log("item typeDiscount - ${typeDiscount[0]}");
+    _initializeTableData();
   }
 
   Future<void> _loadData() async {
@@ -99,37 +105,26 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
     }
   }
 
-  List<List<String>> tableData = [
-    [
-      '130',
-      '130',
-      'Item Name Line 1',
-      'Item Name Line 2',
-      'Item Name Line 3',
-      'Item Name Line 4',
-      'Item Name Line 5',
-      'Item Name Line 6',
-      'Item Name Line 7',
-      '',
-      '',
-      '',
-    ],
-    [
-      '131',
-      '131',
-      'Item Name Line 1',
-      'Item Name Line 2',
-      'Item Name Line 3',
-      'Item Name Line 4',
-      'Item Name Line 5',
-      'Item Name Line 6',
-      'Item Name Line 7',
-      '',
-      '',
-      '',
-    ],
-    // Tambahkan data lainnya sesuai kebutuhan
-  ];
+  void _initializeTableData() {
+    setState(() {
+      tableData = List.generate(itemName.length, (index) {
+        return [
+          barcode[index],
+          barcode[index],
+          itemName[index],
+          '',
+          '',
+          harga[index].round().toString(),
+          expired,
+          typeDiscount[index].toString(),
+          '', // Dis.date (empty)
+          '', // End.date (empty)
+          '', // Limit1 (empty)
+          '', // Limit2 (empty)
+        ];
+      });
+    });
+  }
 
   Future<void> _exportFile() async {
     if (selectedFolderPath == null) {
@@ -158,7 +153,6 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         'limit1',
         'limit2',
       ],
-      // Add the data rows
       ...tableData,
     ];
 
