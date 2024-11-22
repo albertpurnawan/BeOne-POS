@@ -119,6 +119,7 @@ flutter:
     - assets/icon/ruby_pos_icon.png
     - assets/icon/ruby_pos_logo.png
     - assets/images/ruby_pos.png
+    - assets/images/SESA-logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

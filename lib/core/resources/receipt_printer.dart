@@ -46,18 +46,9 @@ class ReceiptPrinter {
   static Future<ReceiptPrinter> init() async {
     final receiptPrinter = ReceiptPrinter._init();
 
-    if (GetIt.instance<SharedPreferences>().getStringList("defaultPrinter") !=
-        null) {
-      final [
-        deviceName,
-        address,
-        port,
-        vendorId,
-        productId,
-        isBle,
-        typePrinter,
-        state
-      ] = GetIt.instance<SharedPreferences>().getStringList("defaultPrinter")!;
+    if (GetIt.instance<SharedPreferences>().getStringList("defaultPrinter") != null) {
+      final [deviceName, address, port, vendorId, productId, isBle, typePrinter, state] =
+          GetIt.instance<SharedPreferences>().getStringList("defaultPrinter")!;
 
       receiptPrinter.selectedPrinter = BluetoothPrinter(
         deviceName: deviceName == "null" ? null : deviceName,
@@ -82,24 +73,19 @@ class ReceiptPrinter {
     return receiptPrinter;
   }
 
-  String _convertPrintReceiptContentToText(
-      PrintReceiptContent printReceiptContent, int printType) {
+  String _convertPrintReceiptContentToText(PrintReceiptContent printReceiptContent, int printType) {
     switch (printReceiptContent.printReceiptContentType) {
       case PrintReceiptContentType.storeName:
         return currentPrintReceiptDetail?.storeMasterEntity.storeName ?? "";
       case PrintReceiptContentType.date:
-        return DateFormat('yyyy-MM-dd')
-            .format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
+        return DateFormat('yyyy-MM-dd').format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.time:
-        return DateFormat('hh:mm aaa')
-            .format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
+        return DateFormat('hh:mm aaa').format(currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.datetime:
-        dev.log(DateFormat('dd/MM/yy HH:mm').format(printType == 2
-            ? DateTime.now()
-            : currentPrintReceiptDetail!.receiptEntity.transDateTime!));
-        return DateFormat('dd/MM/yy HH:mm').format(printType == 2
-            ? DateTime.now()
-            : currentPrintReceiptDetail!.receiptEntity.transDateTime!);
+        dev.log(DateFormat('dd/MM/yy HH:mm')
+            .format(printType == 2 ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!));
+        return DateFormat('dd/MM/yy HH:mm')
+            .format(printType == 2 ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!);
       case PrintReceiptContentType.docNum:
         return currentPrintReceiptDetail?.receiptEntity.docNum ?? "";
       case PrintReceiptContentType.employeeCodeAndName:
@@ -118,45 +104,25 @@ class ReceiptPrinter {
       case PrintReceiptContentType.city:
         return currentPrintReceiptDetail?.storeMasterEntity.city ?? "";
       case PrintReceiptContentType.header01:
-        return currentPrintReceiptDetail?.storeMasterEntity.header01
-                ?.replaceAll("\\n", "\n") ??
-            "";
+        return currentPrintReceiptDetail?.storeMasterEntity.header01?.replaceAll("\\n", "\n") ?? "";
       case PrintReceiptContentType.header02:
-        return currentPrintReceiptDetail?.storeMasterEntity.header02
-                ?.replaceAll("\\n", "\n") ??
-            "";
+        return currentPrintReceiptDetail?.storeMasterEntity.header02?.replaceAll("\\n", "\n") ?? "";
       case PrintReceiptContentType.header03:
-        return currentPrintReceiptDetail?.storeMasterEntity.header03
-                ?.replaceAll("\\n", "\n") ??
-            "";
+        return currentPrintReceiptDetail?.storeMasterEntity.header03?.replaceAll("\\n", "\n") ?? "";
       case PrintReceiptContentType.header04:
-        return currentPrintReceiptDetail?.storeMasterEntity.header04
-                ?.replaceAll("\\n", "\n") ??
-            "";
+        return currentPrintReceiptDetail?.storeMasterEntity.header04?.replaceAll("\\n", "\n") ?? "";
       case PrintReceiptContentType.header05:
-        return currentPrintReceiptDetail?.storeMasterEntity.header05
-                ?.replaceAll("\\n", "\n") ??
-            "";
+        return currentPrintReceiptDetail?.storeMasterEntity.header05?.replaceAll("\\n", "\n") ?? "";
       case PrintReceiptContentType.footer01:
-        return currentPrintReceiptDetail?.storeMasterEntity.footer01
-                ?.replaceAll("\\n", "\n") ??
-            "";
+        return currentPrintReceiptDetail?.storeMasterEntity.footer01?.replaceAll("\\n", "\n") ?? "";
       case PrintReceiptContentType.footer02:
-        return currentPrintReceiptDetail?.storeMasterEntity.footer02
-                ?.replaceAll("\\n", "\n") ??
-            "";
+        return currentPrintReceiptDetail?.storeMasterEntity.footer02?.replaceAll("\\n", "\n") ?? "";
       case PrintReceiptContentType.footer03:
-        return currentPrintReceiptDetail?.storeMasterEntity.footer03
-                ?.replaceAll("\\n", "\n") ??
-            "";
+        return currentPrintReceiptDetail?.storeMasterEntity.footer03?.replaceAll("\\n", "\n") ?? "";
       case PrintReceiptContentType.footer04:
-        return currentPrintReceiptDetail?.storeMasterEntity.footer04
-                ?.replaceAll("\\n", "\n") ??
-            "";
+        return currentPrintReceiptDetail?.storeMasterEntity.footer04?.replaceAll("\\n", "\n") ?? "";
       case PrintReceiptContentType.footer05:
-        return currentPrintReceiptDetail?.storeMasterEntity.footer05
-                ?.replaceAll("\\n", "\n") ??
-            "";
+        return currentPrintReceiptDetail?.storeMasterEntity.footer05?.replaceAll("\\n", "\n") ?? "";
       case PrintReceiptContentType.customer:
         return "Customer: [${currentPrintReceiptDetail?.receiptEntity.customerEntity?.custCode ?? "-"}] ${currentPrintReceiptDetail?.receiptEntity.customerEntity?.custName ?? "-"}";
       case PrintReceiptContentType.customRow1:
@@ -182,8 +148,7 @@ class ReceiptPrinter {
   ) async {
     List<int> bytes = [];
 
-    final int maxLength =
-        GetIt.instance<SharedPreferences>().getInt("charactersPerLine") ?? 42;
+    final int maxLength = GetIt.instance<SharedPreferences>().getInt("charactersPerLine") ?? 42;
 
     final int width1Length = WidthNLength.getLength(maxLength, 1);
     final int width2Length = WidthNLength.getLength(maxLength, 2);
@@ -199,27 +164,21 @@ class ReceiptPrinter {
     final int width12Length = WidthNLength.getLength(maxLength, 12);
 
     if (printReceiptContentsRow.length == 1) {
-      final PrintReceiptContent printReceiptContent =
-          printReceiptContentsRow.first;
+      final PrintReceiptContent printReceiptContent = printReceiptContentsRow.first;
       switch (printReceiptContentsRow[0].printReceiptContentType) {
         case PrintReceiptContentType.emptyLine:
           bytes += generator.emptyLines(1);
         case PrintReceiptContentType.horizontalLine:
-          bytes +=
-              generator.text(List.generate(width12Length, (_) => "-").join(""));
+          bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
         case PrintReceiptContentType.items:
           int count = 1;
-          for (final item
-              in currentPrintReceiptDetail!.receiptEntity.receiptItems) {
+          for (final item in currentPrintReceiptDetail!.receiptEntity.receiptItems) {
             EmployeeEntity? salesEmployeeEntity;
             if (item.tohemId != null && item.tohemId != "") {
+              salesEmployeeEntity = await GetIt.instance<EmployeeRepository>().getEmployee(item.tohemId!);
+            } else if (currentPrintReceiptDetail!.receiptEntity.salesTohemId != null) {
               salesEmployeeEntity = await GetIt.instance<EmployeeRepository>()
-                  .getEmployee(item.tohemId!);
-            } else if (currentPrintReceiptDetail!.receiptEntity.salesTohemId !=
-                null) {
-              salesEmployeeEntity = await GetIt.instance<EmployeeRepository>()
-                  .getEmployee(
-                      currentPrintReceiptDetail!.receiptEntity.salesTohemId!);
+                  .getEmployee(currentPrintReceiptDetail!.receiptEntity.salesTohemId!);
             }
 
             // Layout1
@@ -513,8 +472,7 @@ class ReceiptPrinter {
             // ]);
 
             // Layout4
-            String barcodeString =
-                "${(item.discAmount ?? 0) > 0 ? '*' : ''}${item.itemEntity.barcode}";
+            String barcodeString = "${(item.discAmount ?? 0) > 0 ? '*' : ''}${item.itemEntity.barcode}";
             int barcodeLength = barcodeString.length;
             final int barcodeRequiredRow = (barcodeLength / 42).ceil();
 
@@ -522,8 +480,7 @@ class ReceiptPrinter {
               bytes += generator.row([
                 PosColumn(
                     width: 1,
-                    text: Helpers.alignLeftByAddingSpace(
-                        i == 0 ? count.toString() : "", width1Length),
+                    text: Helpers.alignLeftByAddingSpace(i == 0 ? count.toString() : "", width1Length),
                     styles: PosStyles(
                       align: PosAlign.left,
                       height: printReceiptContent.fontSize,
@@ -535,10 +492,7 @@ class ReceiptPrinter {
                     text: i < barcodeRequiredRow
                         ? Helpers.alignLeftByAddingSpace(
                             barcodeString.substring(
-                                i * width11Length,
-                                i == barcodeRequiredRow - 1
-                                    ? null
-                                    : (i + 1) * width11Length),
+                                i * width11Length, i == barcodeRequiredRow - 1 ? null : (i + 1) * width11Length),
                             width11Length)
                         : Helpers.alignLeftByAddingSpace("", width11Length),
                     styles: PosStyles(
@@ -550,8 +504,7 @@ class ReceiptPrinter {
               ]);
             }
 
-            int itemNameLength =
-                (item.itemEntity.shortName ?? item.itemEntity.itemName).length;
+            int itemNameLength = (item.itemEntity.shortName ?? item.itemEntity.itemName).length;
             final int requiredRow = (itemNameLength / width11Length).ceil();
             for (int i = 0; i < requiredRow; i++) {
               bytes += generator.row([
@@ -567,11 +520,7 @@ class ReceiptPrinter {
                     width: 11,
                     text: Helpers.alignLeftByAddingSpace(
                         (item.itemEntity.shortName ?? item.itemEntity.itemName)
-                            .substring(
-                                i * width11Length,
-                                i == requiredRow - 1
-                                    ? null
-                                    : (i + 1) * width11Length),
+                            .substring(i * width11Length, i == requiredRow - 1 ? null : (i + 1) * width11Length),
                         width11Length),
                     styles: PosStyles(
                       align: PosAlign.left,
@@ -584,18 +533,13 @@ class ReceiptPrinter {
             String priceQtyString =
                 " ${Helpers.cleanDecimal(item.quantity, 3)}x${Helpers.parseMoney(item.sellingPrice.round())}";
             int priceQtyLength = priceQtyString.length;
-            final int priceQtyRequiredRow =
-                (priceQtyLength / width5Length).ceil();
+            final int priceQtyRequiredRow = (priceQtyLength / width5Length).ceil();
 
-            String totalAmountString =
-                Helpers.parseMoney(item.totalAmount.round());
+            String totalAmountString = Helpers.parseMoney(item.totalAmount.round());
             int totalAmountLength = totalAmountString.length;
-            final int totalAmountRequiredRow =
-                (totalAmountLength / width4Length).ceil();
+            final int totalAmountRequiredRow = (totalAmountLength / width4Length).ceil();
 
-            for (int i = 0;
-                i < max(priceQtyRequiredRow, totalAmountRequiredRow);
-                i++) {
+            for (int i = 0; i < max(priceQtyRequiredRow, totalAmountRequiredRow); i++) {
               bytes += generator.row([
                 PosColumn(
                     width: 3,
@@ -610,10 +554,7 @@ class ReceiptPrinter {
                     text: i < priceQtyRequiredRow
                         ? Helpers.alignLeftByAddingSpace(
                             priceQtyString.substring(
-                                i * width5Length,
-                                i == priceQtyRequiredRow - 1
-                                    ? null
-                                    : (i + 1) * width5Length),
+                                i * width5Length, i == priceQtyRequiredRow - 1 ? null : (i + 1) * width5Length),
                             width5Length)
                         : Helpers.alignLeftByAddingSpace("", width5Length),
                     styles: PosStyles(
@@ -626,10 +567,7 @@ class ReceiptPrinter {
                     text: i < totalAmountRequiredRow
                         ? Helpers.alignRightByAddingSpace(
                             totalAmountString.substring(
-                                i * width4Length,
-                                i == totalAmountRequiredRow - 1
-                                    ? null
-                                    : (i + 1) * width4Length),
+                                i * width4Length, i == totalAmountRequiredRow - 1 ? null : (i + 1) * width4Length),
                             width4Length)
                         : Helpers.alignLeftByAddingSpace("", width4Length),
                     styles: PosStyles(
@@ -642,10 +580,8 @@ class ReceiptPrinter {
 
             count += 1;
 
-            final double? lineDiscount = item.promos
-                .where((element) => element.promoType == 998)
-                .firstOrNull
-                ?.discAmount;
+            final double? lineDiscount =
+                item.promos.where((element) => element.promoType == 998).firstOrNull?.discAmount;
             if (lineDiscount != null) {
               bytes += generator.row([
                 PosColumn(
@@ -682,8 +618,7 @@ class ReceiptPrinter {
                   )),
               PosColumn(
                   width: 11,
-                  text: Helpers.alignLeftByAddingSpace(
-                          ">> ${salesEmployeeEntity!.empName}", width11Length)
+                  text: Helpers.alignLeftByAddingSpace(">> ${salesEmployeeEntity!.empName}", width11Length)
                       .substring(0, width11Length),
                   styles: PosStyles(
                     align: PosAlign.left,
@@ -707,10 +642,7 @@ class ReceiptPrinter {
             PosColumn(
                 width: 6,
                 text: Helpers.alignRightByAddingSpace(
-                    Helpers.parseMoney(currentPrintReceiptDetail!
-                        .receiptEntity.grandTotal
-                        .round()),
-                    width6Length),
+                    Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.grandTotal.round()), width6Length),
                 styles: PosStyles(
                   align: PosAlign.left,
                   height: printReceiptContent.fontSize,
@@ -733,8 +665,7 @@ class ReceiptPrinter {
           bytes += generator.row([
             PosColumn(
                 width: 6,
-                text:
-                    Helpers.alignLeftByAddingSpace("Total Qty.", width6Length),
+                text: Helpers.alignLeftByAddingSpace("Total Qty.", width6Length),
                 styles: PosStyles(
                   align: PosAlign.left,
                   height: printReceiptContent.fontSize,
@@ -780,33 +711,27 @@ class ReceiptPrinter {
           //       )),
           // ]);
 
-          final double totalLineDiscount =
-              currentPrintReceiptDetail!.receiptEntity.receiptItems.fold(
-                  0.0,
-                  (previousValue, e1) =>
-                      previousValue +
-                      (((100 + e1.itemEntity.taxRate) / 100) *
-                          e1.promos.where((e2) => e2.promoType == 998).fold(
-                              0.0,
-                              (previousValue, e3) =>
-                                  previousValue + (e3.discAmount ?? 0))));
+          final double totalLineDiscount = currentPrintReceiptDetail!.receiptEntity.receiptItems.fold(
+              0.0,
+              (previousValue, e1) =>
+                  previousValue +
+                  (((100 + e1.itemEntity.taxRate) / 100) *
+                      e1.promos
+                          .where((e2) => e2.promoType == 998)
+                          .fold(0.0, (previousValue, e3) => previousValue + (e3.discAmount ?? 0))));
 
           bytes += generator.row([
             PosColumn(
                 width: 6,
-                text: Helpers.alignLeftByAddingSpace(
-                    "Promotions Discount", width6Length),
+                text: Helpers.alignLeftByAddingSpace("Promotions Discount", width6Length),
                 styles: const PosStyles(
                   align: PosAlign.left,
                 )),
             PosColumn(
                 width: 6,
                 text: Helpers.alignRightByAddingSpace(
-                    Helpers.parseMoney(currentPrintReceiptDetail!
-                            .receiptEntity.receiptItems
-                            .map((e) =>
-                                (e.discAmount ?? 0) *
-                                ((100 + e.itemEntity.taxRate) / 100))
+                    Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.receiptItems
+                            .map((e) => (e.discAmount ?? 0) * ((100 + e.itemEntity.taxRate) / 100))
                             .reduce((value, element) => value + element)
                             .round() -
                         totalLineDiscount),
@@ -848,17 +773,14 @@ class ReceiptPrinter {
             bytes += generator.row([
               PosColumn(
                   width: 6,
-                  text: Helpers.alignLeftByAddingSpace(
-                      "Coupon Discount", width6Length),
+                  text: Helpers.alignLeftByAddingSpace("Coupon Discount", width6Length),
                   styles: const PosStyles(
                     align: PosAlign.left,
                   )),
               PosColumn(
                   width: 6,
                   text: Helpers.alignRightByAddingSpace(
-                      Helpers.parseMoney(currentPrintReceiptDetail!
-                          .receiptEntity.couponDiscount),
-                      width6Length),
+                      Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.couponDiscount), width6Length),
                   styles: const PosStyles(
                     align: PosAlign.left,
                   )),
@@ -870,15 +792,13 @@ class ReceiptPrinter {
             bytes += generator.row([
               PosColumn(
                   width: 6,
-                  text: Helpers.alignLeftByAddingSpace(
-                      "Total Line Discount", width6Length),
+                  text: Helpers.alignLeftByAddingSpace("Total Line Discount", width6Length),
                   styles: const PosStyles(
                     align: PosAlign.left,
                   )),
               PosColumn(
                   width: 6,
-                  text: Helpers.alignRightByAddingSpace(
-                      Helpers.parseMoney(totalLineDiscount), width6Length),
+                  text: Helpers.alignRightByAddingSpace(Helpers.parseMoney(totalLineDiscount), width6Length),
                   styles: const PosStyles(
                     align: PosAlign.left,
                   )),
@@ -889,20 +809,15 @@ class ReceiptPrinter {
           bytes += generator.row([
             PosColumn(
                 width: 6,
-                text: Helpers.alignLeftByAddingSpace(
-                    "Header Discount", width6Length),
+                text: Helpers.alignLeftByAddingSpace("Header Discount", width6Length),
                 styles: const PosStyles(
                   align: PosAlign.left,
                 )),
             PosColumn(
                 width: 6,
                 text: Helpers.alignRightByAddingSpace(
-                    Helpers.parseMoney(currentPrintReceiptDetail!
-                                .receiptEntity.discHeaderManual !=
-                            null
-                        ? currentPrintReceiptDetail!
-                            .receiptEntity.discHeaderManual!
-                            .round()
+                    Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.discHeaderManual != null
+                        ? currentPrintReceiptDetail!.receiptEntity.discHeaderManual!.round()
                         : 0),
                     width6Length),
                 styles: const PosStyles(
@@ -940,17 +855,13 @@ class ReceiptPrinter {
             PosColumn(
                 width: 6,
                 text: Helpers.alignRightByAddingSpace(
-                    Helpers.parseMoney(currentPrintReceiptDetail!
-                        .receiptEntity.rounding
-                        .round()),
-                    width6Length),
+                    Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.rounding.round()), width6Length),
                 styles: const PosStyles(
                   align: PosAlign.left,
                 )),
           ]);
           bytes += generator.emptyLines(1);
-          bytes += generator.text("*** Thank You ***",
-              styles: const PosStyles(align: PosAlign.center));
+          bytes += generator.text("*** Thank You ***", styles: const PosStyles(align: PosAlign.center));
         // bytes += generator.emptyLines(1);
         case PrintReceiptContentType.totalQty:
           bytes += generator.text(
@@ -971,20 +882,14 @@ class ReceiptPrinter {
           // print(generator.barcode(Barcode.code39(barcodeData)));
           // bytes += generator.barcode(Barcode.code39(barcodeData),
           //     width: 1, height: 60);
-          bytes += generator.qrcode(
-              currentPrintReceiptDetail!.receiptEntity.docNum,
-              size: QRSize.Size6);
+          bytes += generator.qrcode(currentPrintReceiptDetail!.receiptEntity.docNum, size: QRSize.Size6);
         case PrintReceiptContentType.mopAlias:
-          for (final MopSelectionEntity mopSelection
-              in currentPrintReceiptDetail!.receiptEntity.mopSelections) {
+          for (final MopSelectionEntity mopSelection in currentPrintReceiptDetail!.receiptEntity.mopSelections) {
             bytes += generator.row([
               PosColumn(
                   width: 7,
                   text: Helpers.alignLeftByAddingSpace(
-                      (mopSelection.tpmt2Id != null)
-                          ? mopSelection.cardName!
-                          : mopSelection.mopAlias,
-                      width7Length),
+                      (mopSelection.tpmt2Id != null) ? mopSelection.cardName! : mopSelection.mopAlias, width7Length),
                   styles: const PosStyles(
                     align: PosAlign.left,
                   )),
@@ -992,10 +897,7 @@ class ReceiptPrinter {
                   width: 5,
                   text: Helpers.alignRightByAddingSpace(
                       Helpers.parseMoney(mopSelection.payTypeCode == "1"
-                          ? (mopSelection.amount ?? 0) +
-                              (currentPrintReceiptDetail!
-                                      .receiptEntity.changed ??
-                                  0)
+                          ? (mopSelection.amount ?? 0) + (currentPrintReceiptDetail!.receiptEntity.changed ?? 0)
                           : mopSelection.amount ?? 0),
                       width5Length),
                   styles: const PosStyles(
@@ -1006,34 +908,28 @@ class ReceiptPrinter {
           if (currentPrintReceiptDetail!.receiptEntity.vouchers.isNotEmpty) {
             final Map<String, num> amountByTpmt3Ids = {};
 
-            for (final voucher
-                in currentPrintReceiptDetail!.receiptEntity.vouchers) {
+            for (final voucher in currentPrintReceiptDetail!.receiptEntity.vouchers) {
               if (amountByTpmt3Ids[voucher.tpmt3Id] == null) {
                 amountByTpmt3Ids[voucher.tpmt3Id!] = voucher.voucherAmount;
               } else {
-                amountByTpmt3Ids[voucher.tpmt3Id!] =
-                    amountByTpmt3Ids[voucher.tpmt3Id!]! + voucher.voucherAmount;
+                amountByTpmt3Ids[voucher.tpmt3Id!] = amountByTpmt3Ids[voucher.tpmt3Id!]! + voucher.voucherAmount;
               }
             }
 
             for (final tpmt3Id in amountByTpmt3Ids.keys) {
               final MopSelectionEntity? mopSelectionEntity =
-                  await GetIt.instance<MopSelectionRepository>()
-                      .getMopSelectionByTpmt3Id(tpmt3Id);
+                  await GetIt.instance<MopSelectionRepository>().getMopSelectionByTpmt3Id(tpmt3Id);
               bytes += generator.row([
                 PosColumn(
                     width: 7,
-                    text: Helpers.alignLeftByAddingSpace(
-                        mopSelectionEntity?.mopAlias ?? "Unknown Voucher",
-                        width7Length),
+                    text:
+                        Helpers.alignLeftByAddingSpace(mopSelectionEntity?.mopAlias ?? "Unknown Voucher", width7Length),
                     styles: const PosStyles(
                       align: PosAlign.left,
                     )),
                 PosColumn(
                     width: 5,
-                    text: Helpers.alignRightByAddingSpace(
-                        Helpers.parseMoney(amountByTpmt3Ids[tpmt3Id]!),
-                        width5Length),
+                    text: Helpers.alignRightByAddingSpace(Helpers.parseMoney(amountByTpmt3Ids[tpmt3Id]!), width5Length),
                     styles: const PosStyles(
                       align: PosAlign.left,
                     )),
@@ -1043,8 +939,7 @@ class ReceiptPrinter {
           bytes += generator.row([
             PosColumn(
                 width: 6,
-                text: Helpers.alignLeftByAddingSpace(
-                    "Total Payment", width6Length),
+                text: Helpers.alignLeftByAddingSpace("Total Payment", width6Length),
                 styles: const PosStyles(
                   align: PosAlign.left,
                   bold: true,
@@ -1052,10 +947,7 @@ class ReceiptPrinter {
             PosColumn(
                 width: 6,
                 text: Helpers.alignRightByAddingSpace(
-                    Helpers.parseMoney(
-                        currentPrintReceiptDetail!.receiptEntity.totalPayment ??
-                            0),
-                    width6Length),
+                    Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.totalPayment ?? 0), width6Length),
                 styles: const PosStyles(
                   align: PosAlign.left,
                   bold: true,
@@ -1071,24 +963,20 @@ class ReceiptPrinter {
             PosColumn(
                 width: 6,
                 text: Helpers.alignRightByAddingSpace(
-                    Helpers.parseMoney(
-                        currentPrintReceiptDetail!.receiptEntity.changed ?? 0),
-                    width6Length),
+                    Helpers.parseMoney(currentPrintReceiptDetail!.receiptEntity.changed ?? 0), width6Length),
                 styles: const PosStyles(
                   align: PosAlign.left,
                 )),
           ]);
         case PrintReceiptContentType.draftWatermarkTop:
           if (printType != 2) break;
-          bytes +=
-              generator.text(List.generate(width12Length, (_) => "-").join(""));
+          bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
           bytes += generator.text("PENDING ORDER",
               styles: const PosStyles(
                 align: PosAlign.center,
                 bold: true,
               ));
-          bytes +=
-              generator.text(List.generate(width12Length, (_) => "-").join(""));
+          bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
         case PrintReceiptContentType.draftWatermarkBottom:
           if (printType != 2) break;
           bytes += generator.text("PENDING ORDER",
@@ -1096,19 +984,16 @@ class ReceiptPrinter {
                 align: PosAlign.center,
                 bold: true,
               ));
-          bytes +=
-              generator.text(List.generate(width12Length, (_) => "-").join(""));
+          bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
         case PrintReceiptContentType.copyWatermarkTop:
           if (printType != 3) break;
-          bytes +=
-              generator.text(List.generate(width12Length, (_) => "-").join(""));
+          bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
           bytes += generator.text("COPY BILL",
               styles: const PosStyles(
                 align: PosAlign.center,
                 bold: true,
               ));
-          bytes +=
-              generator.text(List.generate(width12Length, (_) => "-").join(""));
+          bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
         case PrintReceiptContentType.copyWatermarkBottom:
           if (printType != 3) break;
           bytes += generator.text("COPY BILL",
@@ -1116,14 +1001,12 @@ class ReceiptPrinter {
                 align: PosAlign.center,
                 bold: true,
               ));
-          bytes +=
-              generator.text(List.generate(width12Length, (_) => "-").join(""));
+          bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
         case PrintReceiptContentType.cashRegister:
           bytes += generator.row([
             PosColumn(
                 width: 5,
-                text: Helpers.alignLeftByAddingSpace(
-                    'Cash Register', width5Length),
+                text: Helpers.alignLeftByAddingSpace('Cash Register', width5Length),
                 styles: const PosStyles(align: PosAlign.left)),
             PosColumn(
                 width: 7,
@@ -1151,17 +1034,14 @@ class ReceiptPrinter {
           bytes += generator.row([
             PosColumn(
                 width: 7,
-                text: Helpers.alignLeftByAddingSpace(
-                    currentPrintReceiptDetail?.receiptEntity.docNum ?? "",
-                    width7Length),
+                text:
+                    Helpers.alignLeftByAddingSpace(currentPrintReceiptDetail?.receiptEntity.docNum ?? "", width7Length),
                 styles: const PosStyles(align: PosAlign.left)),
             PosColumn(
                 width: 5,
                 text: Helpers.alignRightByAddingSpace(
-                    DateFormat('dd/MM/yy HH:mm').format(printType == 2
-                        ? DateTime.now()
-                        : currentPrintReceiptDetail!
-                            .receiptEntity.transDateTime!),
+                    DateFormat('dd/MM/yy HH:mm').format(
+                        printType == 2 ? DateTime.now() : currentPrintReceiptDetail!.receiptEntity.transDateTime!),
                     width5Length),
                 styles: const PosStyles(align: PosAlign.left)),
           ]);
@@ -1169,42 +1049,37 @@ class ReceiptPrinter {
           bytes += generator.row([
             PosColumn(
                 width: 5,
-                text: Helpers.alignLeftByAddingSpace(
-                    "Customer No.", width5Length),
+                text: Helpers.alignLeftByAddingSpace("Customer No.", width5Length),
                 styles: const PosStyles(align: PosAlign.left)),
             PosColumn(
                 width: 7,
                 text: Helpers.alignLeftByAddingSpace(
-                    ": ${currentPrintReceiptDetail?.receiptEntity.customerEntity?.custCode ?? "-"}",
-                    width7Length),
+                    ": ${currentPrintReceiptDetail?.receiptEntity.customerEntity?.custCode ?? "-"}", width7Length),
                 styles: const PosStyles(align: PosAlign.left)),
           ]);
           bytes += generator.row([
             PosColumn(
                 width: 5,
-                text: Helpers.alignLeftByAddingSpace(
-                    "Customer Name", width5Length),
+                text: Helpers.alignLeftByAddingSpace("Customer Name", width5Length),
                 styles: const PosStyles(align: PosAlign.left)),
             PosColumn(
                 width: 7,
                 text: Helpers.alignLeftByAddingSpace(
-                    ": ${currentPrintReceiptDetail?.receiptEntity.customerEntity?.custName ?? "-"}",
-                    width7Length),
+                    ": ${currentPrintReceiptDetail?.receiptEntity.customerEntity?.custName ?? "-"}", width7Length),
                 styles: const PosStyles(align: PosAlign.left)),
           ]);
         case PrintReceiptContentType.logo:
           final ByteData data =
-              await rootBundle.load('assets/images/logo-topgolf.jpg');
+              // await rootBundle.load('assets/images/logo-topgolf.jpg');
+              await rootBundle.load('assets/images/SESA-logo.png');
+
           final Uint8List imageBytes = data.buffer.asUint8List();
           // decode the bytes into an image
           final decodedImage = img.decodeImage(imageBytes)!;
-          bytes += generator.imageRaster(
-              img.copyResize(decodedImage, width: 200),
-              align: PosAlign.center);
+          bytes += generator.imageRaster(img.copyResize(decodedImage, width: 200), align: PosAlign.center);
           bytes += generator.emptyLines(1);
         default:
-          final String text =
-              _convertPrintReceiptContentToText(printReceiptContent, printType);
+          final String text = _convertPrintReceiptContentToText(printReceiptContent, printType);
           if (text == "") break;
           bytes += generator.text(text,
               styles: PosStyles(
@@ -1219,9 +1094,7 @@ class ReceiptPrinter {
           .map((e) => PosColumn(
               width: 12 ~/ printReceiptContentsRow.length,
               text: e.alignment == PosAlign.right
-                  ? Helpers.alignRightByAddingSpace(
-                      _convertPrintReceiptContentToText(e, printType),
-                      width6Length)
+                  ? Helpers.alignRightByAddingSpace(_convertPrintReceiptContentToText(e, printType), width6Length)
                   : _convertPrintReceiptContentToText(e, printType),
               styles: PosStyles(
                 bold: e.isBold,
@@ -1258,11 +1131,9 @@ class ReceiptPrinter {
     }
   }
 
-  Future<void> printReceipt(
-      PrintReceiptDetail printReceiptDetail, int printType) async {
+  Future<void> printReceipt(PrintReceiptDetail printReceiptDetail, int printType) async {
     List<int> bytes = [];
-    final String? paperSize =
-        GetIt.instance<SharedPreferences>().getString("paperSize");
+    final String? paperSize = GetIt.instance<SharedPreferences>().getString("paperSize");
     final profile = await CapabilityProfile.load();
     final generator = Generator(
         paperSize == null
@@ -1277,22 +1148,16 @@ class ReceiptPrinter {
     int currentRow = -1;
 
     for (int i = 0; i < printReceiptDetail.receiptContentEntities.length; i++) {
-      final ReceiptContentEntity receiptContentEntity =
-          printReceiptDetail.receiptContentEntities[i]!;
+      final ReceiptContentEntity receiptContentEntity = printReceiptDetail.receiptContentEntities[i]!;
       final PrintReceiptContent printReceiptContent = PrintReceiptContent(
           printReceiptContentType: PrintReceiptContentType.values.firstWhere(
             (printReceiptContentType) =>
-                printReceiptContentType
-                    .toString()
-                    .toLowerCase()
-                    .split(".")
-                    .last ==
+                printReceiptContentType.toString().toLowerCase().split(".").last ==
                 receiptContentEntity.content.toLowerCase(),
             orElse: () => PrintReceiptContentType.none,
           ),
           row: receiptContentEntity.row,
-          fontSize:
-              _convertFontSizeToPosTextSize(receiptContentEntity.fontSize),
+          fontSize: _convertFontSizeToPosTextSize(receiptContentEntity.fontSize),
           isBold: receiptContentEntity.isBold,
           alignment: receiptContentEntity.alignment == 2
               ? PosAlign.right
@@ -1311,8 +1176,7 @@ class ReceiptPrinter {
 
     for (int i = 0; i < printReceiptContents.length; i++) {
       final List<PrintReceiptContent> row = printReceiptContents[i];
-      bytes.addAll(
-          await _convertPrintReceiptContentToBytes(row, generator, printType));
+      bytes.addAll(await _convertPrintReceiptContentToBytes(row, generator, printType));
     }
 
     _printEscPos(bytes, generator);
@@ -1320,8 +1184,7 @@ class ReceiptPrinter {
 
   Future<void> openCashDrawer({PosDrawer pin = PosDrawer.pin2}) async {
     List<int> bytes = [];
-    final String? paperSize =
-        GetIt.instance<SharedPreferences>().getString("paperSize");
+    final String? paperSize = GetIt.instance<SharedPreferences>().getString("paperSize");
     final profile = await CapabilityProfile.load();
     final generator = Generator(
         paperSize == null
@@ -1333,18 +1196,9 @@ class ReceiptPrinter {
 
     bool connectedTCP = false;
 
-    if (GetIt.instance<SharedPreferences>().getStringList("defaultPrinter") !=
-        null) {
-      final [
-        deviceName,
-        address,
-        port,
-        vendorId,
-        productId,
-        isBle,
-        typePrinter,
-        state
-      ] = GetIt.instance<SharedPreferences>().getStringList("defaultPrinter")!;
+    if (GetIt.instance<SharedPreferences>().getStringList("defaultPrinter") != null) {
+      final [deviceName, address, port, vendorId, productId, isBle, typePrinter, state] =
+          GetIt.instance<SharedPreferences>().getStringList("defaultPrinter")!;
 
       selectedPrinter = BluetoothPrinter(
         deviceName: deviceName == "null" ? null : deviceName,
@@ -1396,15 +1250,13 @@ class ReceiptPrinter {
         break;
       case PrinterType.network:
         connectedTCP = await printerManager.connect(
-            type: bluetoothPrinter.typePrinter,
-            model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
+            type: bluetoothPrinter.typePrinter, model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
         if (!connectedTCP) dev.log(' --- please review your connection ---');
         break;
       default:
     }
 
-    if (bluetoothPrinter.typePrinter == PrinterType.bluetooth &&
-        Platform.isAndroid) {
+    if (bluetoothPrinter.typePrinter == PrinterType.bluetooth && Platform.isAndroid) {
       if (_currentStatus == BTStatus.connected) {
         printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
         pendingTask = null;
@@ -1414,11 +1266,9 @@ class ReceiptPrinter {
     }
   }
 
-  Future<void> printOpenShift(
-      PrintOpenShiftDetail printOpenShiftDetail, int printType) async {
+  Future<void> printOpenShift(PrintOpenShiftDetail printOpenShiftDetail, int printType) async {
     List<int> bytes = [];
-    final String? paperSize =
-        GetIt.instance<SharedPreferences>().getString("paperSize");
+    final String? paperSize = GetIt.instance<SharedPreferences>().getString("paperSize");
     final profile = await CapabilityProfile.load();
     final generator = Generator(
         paperSize == null
@@ -1428,8 +1278,7 @@ class ReceiptPrinter {
                 : PaperSize.mm80,
         profile);
 
-    final int maxLength =
-        GetIt.instance<SharedPreferences>().getInt("charactersPerLine") ?? 42;
+    final int maxLength = GetIt.instance<SharedPreferences>().getInt("charactersPerLine") ?? 42;
 
     final int width1Length = WidthNLength.getLength(maxLength, 1);
     final int width2Length = WidthNLength.getLength(maxLength, 2);
@@ -1452,8 +1301,7 @@ class ReceiptPrinter {
           bold: true,
         ));
     if (printType == 2) {
-      bytes +=
-          generator.text(List.generate(width12Length, (_) => "-").join(""));
+      bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
       bytes += generator.text("COPY",
           styles: const PosStyles(
             align: PosAlign.center,
@@ -1471,9 +1319,7 @@ class ReceiptPrinter {
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 8,
-          text: Helpers.alignLeftByAddingSpace(
-              ":  ${printOpenShiftDetail.storeMasterEntity.storeName}",
-              width8Length),
+          text: Helpers.alignLeftByAddingSpace(":  ${printOpenShiftDetail.storeMasterEntity.storeName}", width8Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
@@ -1483,9 +1329,8 @@ class ReceiptPrinter {
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 8,
-          text: Helpers.alignLeftByAddingSpace(
-              ":  ${printOpenShiftDetail.cashRegisterEntity.description}",
-              width8Length),
+          text:
+              Helpers.alignLeftByAddingSpace(":  ${printOpenShiftDetail.cashRegisterEntity.description}", width8Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
@@ -1497,8 +1342,7 @@ class ReceiptPrinter {
           )),
       PosColumn(
           width: 8,
-          text: Helpers.alignLeftByAddingSpace(
-              ":  ${printOpenShiftDetail.userEntity.username}", width8Length),
+          text: Helpers.alignLeftByAddingSpace(":  ${printOpenShiftDetail.userEntity.username}", width8Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
@@ -1521,19 +1365,16 @@ class ReceiptPrinter {
       PosColumn(
           width: 8,
           text: Helpers.alignLeftByAddingSpace(
-              ":  ${Helpers.parseMoney(printOpenShiftDetail.cashierBalanceTransactionEntity.openValue)}",
-              width8Length),
+              ":  ${Helpers.parseMoney(printOpenShiftDetail.cashierBalanceTransactionEntity.openValue)}", width8Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
 
     _printEscPos(bytes, generator);
   }
 
-  Future<void> printCloseShift(
-      PrintCloseShiftDetail printCloseShiftDetail, int printType) async {
+  Future<void> printCloseShift(PrintCloseShiftDetail printCloseShiftDetail, int printType) async {
     List<int> bytes = [];
-    final String? paperSize =
-        GetIt.instance<SharedPreferences>().getString("paperSize");
+    final String? paperSize = GetIt.instance<SharedPreferences>().getString("paperSize");
     final profile = await CapabilityProfile.load();
     final generator = Generator(
         paperSize == null
@@ -1543,8 +1384,7 @@ class ReceiptPrinter {
                 : PaperSize.mm80,
         profile);
 
-    final int maxLength =
-        GetIt.instance<SharedPreferences>().getInt("charactersPerLine") ?? 42;
+    final int maxLength = GetIt.instance<SharedPreferences>().getInt("charactersPerLine") ?? 42;
 
     final int width1Length = WidthNLength.getLength(maxLength, 1);
     final int width2Length = WidthNLength.getLength(maxLength, 2);
@@ -1567,8 +1407,7 @@ class ReceiptPrinter {
           bold: true,
         ));
     if (printType == 2) {
-      bytes +=
-          generator.text(List.generate(width12Length, (_) => "-").join(""));
+      bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
       bytes += generator.text("COPY",
           styles: const PosStyles(
             align: PosAlign.center,
@@ -1586,9 +1425,7 @@ class ReceiptPrinter {
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 7,
-          text: Helpers.alignLeftByAddingSpace(
-              ":  ${printCloseShiftDetail.storeMasterEntity.storeName}",
-              width7Length),
+          text: Helpers.alignLeftByAddingSpace(":  ${printCloseShiftDetail.storeMasterEntity.storeName}", width7Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
@@ -1599,8 +1436,7 @@ class ReceiptPrinter {
       PosColumn(
           width: 7,
           text: Helpers.alignLeftByAddingSpace(
-              ":  ${printCloseShiftDetail.cashRegisterEntity.description}",
-              width7Length),
+              ":  ${printCloseShiftDetail.cashRegisterEntity.description}", width7Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
@@ -1610,8 +1446,7 @@ class ReceiptPrinter {
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 7,
-          text: Helpers.alignLeftByAddingSpace(
-              ":  ${printCloseShiftDetail.userEntity.username}", width7Length),
+          text: Helpers.alignLeftByAddingSpace(":  ${printCloseShiftDetail.userEntity.username}", width7Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
@@ -1645,8 +1480,7 @@ class ReceiptPrinter {
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 7,
-          text: Helpers.alignLeftByAddingSpace(
-              ":  ${printCloseShiftDetail.approverName}", width7Length),
+          text: Helpers.alignLeftByAddingSpace(":  ${printCloseShiftDetail.approverName}", width7Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
 
@@ -1666,14 +1500,12 @@ class ReceiptPrinter {
     bytes += generator.row([
       PosColumn(
           width: 5,
-          text:
-              Helpers.alignLeftByAddingSpace('Total Cash Sales', width5Length),
+          text: Helpers.alignLeftByAddingSpace('Total Cash Sales', width5Length),
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 7,
           text: Helpers.alignLeftByAddingSpace(
-              ":  ${Helpers.parseMoney(printCloseShiftDetail.totalCashSales)}",
-              width7Length),
+              ":  ${Helpers.parseMoney(printCloseShiftDetail.totalCashSales)}", width7Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
@@ -1684,22 +1516,19 @@ class ReceiptPrinter {
       PosColumn(
           width: 7,
           text: Helpers.alignLeftByAddingSpace(
-              ":  ${Helpers.parseMoney(printCloseShiftDetail.expectedCash)}",
-              width7Length),
+              ":  ${Helpers.parseMoney(printCloseShiftDetail.expectedCash)}", width7Length),
           styles: const PosStyles(align: PosAlign.left, bold: true)),
     ]);
     bytes += generator.emptyLines(1);
     bytes += generator.row([
       PosColumn(
           width: 5,
-          text: Helpers.alignLeftByAddingSpace(
-              'Total Non Cash Sales', width5Length),
+          text: Helpers.alignLeftByAddingSpace('Total Non Cash Sales', width5Length),
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 7,
           text: Helpers.alignLeftByAddingSpace(
-              ":  ${Helpers.parseMoney(printCloseShiftDetail.totalNonCashSales)}",
-              width7Length),
+              ":  ${Helpers.parseMoney(printCloseShiftDetail.totalNonCashSales)}", width7Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
@@ -1710,8 +1539,7 @@ class ReceiptPrinter {
       PosColumn(
           width: 7,
           text: Helpers.alignLeftByAddingSpace(
-              ":  ${Helpers.parseMoney(printCloseShiftDetail.totalSales)}",
-              width7Length),
+              ":  ${Helpers.parseMoney(printCloseShiftDetail.totalSales)}", width7Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.emptyLines(1);
@@ -1724,8 +1552,7 @@ class ReceiptPrinter {
       PosColumn(
           width: 7,
           text: Helpers.alignLeftByAddingSpace(
-              ":  ${Helpers.parseMoney(printCloseShiftDetail.cashReceived)}",
-              width7Length),
+              ":  ${Helpers.parseMoney(printCloseShiftDetail.cashReceived)}", width7Length),
           styles: const PosStyles(align: PosAlign.left, bold: true)),
     ]);
     bytes += generator.row([
@@ -1736,19 +1563,16 @@ class ReceiptPrinter {
       PosColumn(
           width: 7,
           text: Helpers.alignLeftByAddingSpace(
-              ":  ${Helpers.parseMoney(printCloseShiftDetail.difference)}",
-              width7Length),
+              ":  ${Helpers.parseMoney(printCloseShiftDetail.difference)}", width7Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
 
     _printEscPos(bytes, generator);
   }
 
-  Future<void> printQrisPayment(
-      PrintQrisPaymentDetail printQrisPaymentDetail) async {
+  Future<void> printQrisPayment(PrintQrisPaymentDetail printQrisPaymentDetail) async {
     List<int> bytes = [];
-    final String? paperSize =
-        GetIt.instance<SharedPreferences>().getString("paperSize");
+    final String? paperSize = GetIt.instance<SharedPreferences>().getString("paperSize");
     final profile = await CapabilityProfile.load();
     final generator = Generator(
         paperSize == null
@@ -1758,8 +1582,7 @@ class ReceiptPrinter {
                 : PaperSize.mm80,
         profile);
 
-    final int maxLength =
-        GetIt.instance<SharedPreferences>().getInt("charactersPerLine") ?? 42;
+    final int maxLength = GetIt.instance<SharedPreferences>().getInt("charactersPerLine") ?? 42;
 
     final int width1Length = WidthNLength.getLength(maxLength, 1);
     final int width2Length = WidthNLength.getLength(maxLength, 2);
@@ -1792,8 +1615,7 @@ class ReceiptPrinter {
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 8,
-          text: Helpers.alignLeftByAddingSpace(
-              ":  ${printQrisPaymentDetail.totalPayment}", width8Length),
+          text: Helpers.alignLeftByAddingSpace(":  ${printQrisPaymentDetail.totalPayment}", width8Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
@@ -1803,8 +1625,7 @@ class ReceiptPrinter {
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 8,
-          text: Helpers.alignLeftByAddingSpace(
-              ":  ${printQrisPaymentDetail.expiredTime}", width8Length),
+          text: Helpers.alignLeftByAddingSpace(":  ${printQrisPaymentDetail.expiredTime}", width8Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
@@ -1814,8 +1635,7 @@ class ReceiptPrinter {
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 8,
-          text: Helpers.alignLeftByAddingSpace(
-              ":  ${printQrisPaymentDetail.nmid}", width8Length),
+          text: Helpers.alignLeftByAddingSpace(":  ${printQrisPaymentDetail.nmid}", width8Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.row([
@@ -1825,17 +1645,14 @@ class ReceiptPrinter {
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 8,
-          text: Helpers.alignLeftByAddingSpace(
-              ":  ${printQrisPaymentDetail.terminalId}", width8Length),
+          text: Helpers.alignLeftByAddingSpace(":  ${printQrisPaymentDetail.terminalId}", width8Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.emptyLines(1);
 
     // Handle QRIS image
-    img.Image decodedImage = img.copyResize(
-        img.decodeImage(printQrisPaymentDetail.qrImage)!,
-        width: maxLength == 48 ? 560 : 480,
-        interpolation: img.Interpolation.cubic);
+    img.Image decodedImage = img.copyResize(img.decodeImage(printQrisPaymentDetail.qrImage)!,
+        width: maxLength == 48 ? 560 : 480, interpolation: img.Interpolation.cubic);
 
     bytes += generator.feed(1);
     bytes += generator.imageRaster(decodedImage, align: PosAlign.left);
@@ -1847,18 +1664,9 @@ class ReceiptPrinter {
   void _printEscPos(List<int> bytes, Generator generator) async {
     bool connectedTCP = false;
 
-    if (GetIt.instance<SharedPreferences>().getStringList("defaultPrinter") !=
-        null) {
-      final [
-        deviceName,
-        address,
-        port,
-        vendorId,
-        productId,
-        isBle,
-        typePrinter,
-        state
-      ] = GetIt.instance<SharedPreferences>().getStringList("defaultPrinter")!;
+    if (GetIt.instance<SharedPreferences>().getStringList("defaultPrinter") != null) {
+      final [deviceName, address, port, vendorId, productId, isBle, typePrinter, state] =
+          GetIt.instance<SharedPreferences>().getStringList("defaultPrinter")!;
 
       selectedPrinter = BluetoothPrinter(
         deviceName: deviceName == "null" ? null : deviceName,
@@ -1913,15 +1721,13 @@ class ReceiptPrinter {
         bytes += generator.feed(2);
         bytes += generator.cut();
         connectedTCP = await printerManager.connect(
-            type: bluetoothPrinter.typePrinter,
-            model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
+            type: bluetoothPrinter.typePrinter, model: TcpPrinterInput(ipAddress: bluetoothPrinter.address!));
         if (!connectedTCP) dev.log(' --- please review your connection ---');
         pendingTask = null;
         break;
       default:
     }
-    if (bluetoothPrinter.typePrinter == PrinterType.bluetooth &&
-        Platform.isAndroid) {
+    if (bluetoothPrinter.typePrinter == PrinterType.bluetooth && Platform.isAndroid) {
       if (_currentStatus == BTStatus.connected) {
         printerManager.send(type: bluetoothPrinter.typePrinter, bytes: bytes);
         pendingTask = null;
@@ -2051,15 +1857,7 @@ enum PrintReceiptContentType {
 /// copy regions within the same image (if [dst] is the same as [src])
 /// but if the regions overlap the results will be unpredictable.
 img.Image drawImage(img.Image dst, img.Image src,
-    {int? dstX,
-    int? dstY,
-    int? dstW,
-    int? dstH,
-    int? srcX,
-    int? srcY,
-    int? srcW,
-    int? srcH,
-    bool blend = true}) {
+    {int? dstX, int? dstY, int? dstW, int? dstH, int? srcX, int? srcY, int? srcW, int? srcH, bool blend = true}) {
   dstX ??= 0;
   dstY ??= 0;
   srcX ??= 0;
