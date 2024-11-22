@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:csv/csv.dart';
@@ -8,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PLUExportScreen extends StatefulWidget {
@@ -28,7 +28,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   List<String> disDate = [];
   List<String> endDate = [];
   List<String> limit1 = [];
-  List<String> limit2 = [];
+  List<double?> limit2 = [];
   List<List<String>> tableData = [];
 
   @override
@@ -46,14 +46,19 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
 
   Future<void> readAllByScaleActive() async {
     final items = await GetIt.instance<AppDatabase>().itemsDao.readAllByScaleActive(scaleActive: 1);
-    log("itemsLeng - ${items.length}");
     if (items.isEmpty) throw "Failed retrieve Store";
-    // log("INI Items -$items");
-
+    double hargaTax = 0;
     for (var i = 0; i < items.length; i++) {
       itemName.add(items[i].itemName);
       barcode.add(items[i].barcode);
-      harga.add(items[i].price);
+
+      if (items[i].includeTax == 1) {
+        hargaTax = items[i].price;
+        harga.add(hargaTax);
+      } else {
+        hargaTax = items[i].price + (items[i].price * items[i].taxRate / 100);
+        harga.add(hargaTax);
+      }
 
       final promo = await GetIt.instance<AppDatabase>().promosDao.readByToitmAndPromoType(items[i].toitmId, 202, null);
       if (promo == null) {
@@ -61,7 +66,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         disDate.add("");
         endDate.add("");
         limit1.add("");
-        limit2.add("");
+        limit2.add(null);
       } else {
         typeDiscount.add(2);
         final promoHeader =
@@ -70,16 +75,26 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
           disDate.add("${promoHeader.startDate}");
           endDate.add("${promoHeader.endDate}");
           limit1.add("0");
-          limit2.add("");
+          final promoHarga =
+              await GetIt.instance<AppDatabase>().promoHargaSpesialBuyDao.readByToitmLastDate(items[i].toitmId, null);
+          double limitPrice = 0;
+          if (items[i].includeTax == 1) {
+            limitPrice = items[i].price - promoHarga.first.price;
+            limit2.add(limitPrice);
+          } else {
+            limitPrice = (items[i].price + (items[i].price * items[i].taxRate / 100)) -
+                (promoHarga.first.price + (promoHarga.first.price * items[i].taxRate / 100));
+
+            limit2.add(limitPrice);
+          }
         } else {
           disDate.add("");
           endDate.add("");
           limit1.add("");
-          limit2.add("");
+          limit2.add(null);
         }
       }
     }
-    log("itemName - ${itemName.length}");
     _initializeTableData();
   }
 
@@ -128,13 +143,13 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
           itemName[index],
           '',
           '',
-          harga[index].round().toString(),
+          Helpers.parseMoney(harga[index].round()),
           expired,
           typeDiscount[index].toString(),
-          disDate[index], // Dis.date (empty)
-          endDate[index], // End.date (empty)
-          limit1[index], // Limit1 (empty)
-          limit2[index], // Limit2 (empty)
+          disDate[index] != '' ? Helpers.dateWithSlash(disDate[index]) : '',
+          endDate[index] != '' ? Helpers.dateWithSlash(endDate[index]) : '',
+          limit1[index],
+          (limit2[index] != null) ? limit2[index]!.round().toString() : "",
         ];
       });
     });
