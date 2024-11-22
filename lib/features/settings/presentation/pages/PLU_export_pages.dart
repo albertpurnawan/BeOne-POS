@@ -30,6 +30,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   List<String> limit1 = [];
   List<double?> limit2 = [];
   List<List<String>> tableData = [];
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -45,10 +46,16 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   // }
 
   Future<void> readAllByScaleActive() async {
+    setState(() {
+      isLoading = true;
+    });
     final items = await GetIt.instance<AppDatabase>()
         .itemsDao
         .readAllByScaleActive(scaleActive: 1);
-    log("itemsLeng - ${items.length}");
+
+    setState(() {
+      isLoading = false;
+    });
     if (items.isEmpty) throw "Failed retrieve Store";
     double hargaTax = 0;
     for (var i = 0; i < items.length; i++) {
@@ -132,15 +139,15 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   }
 
   Future<void> _refreshData() async {
-    // Clear existing data
-    itemName.clear();
-    barcode.clear();
-    harga.clear();
-    typeDiscount.clear();
+    setState(() {
+      isLoading = true;
+    });
     tableData.clear();
 
-    // Fetch new data
     await readAllByScaleActive();
+    setState(() {
+      isLoading = false;
+    });
   }
 
   void _saveExportPath() {
@@ -344,57 +351,62 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                       ),
                     ),
                   ),
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(1),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black, width: 1),
-                      ),
-                      child: SizedBox(
-                        height: 400,
-                        width: 1200,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
+                  if (isLoading)
+                    const Center(child: const CircularProgressIndicator())
+                  else if (tableData.isEmpty)
+                    const Center(child: Text("No data available please wait"))
+                  else
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(1),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black, width: 1),
+                        ),
+                        child: SizedBox(
+                          height: 400,
+                          // width: 1200,
                           child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: DataTable(
-                              headingRowColor:
-                                  MaterialStateProperty.all(Colors.grey[300]),
-                              columns: const [
-                                DataColumn(label: Text("PLU")),
-                                DataColumn(label: Text("Barcode")),
-                                DataColumn(label: Text("Nama1")),
-                                // DataColumn(
-                                //     label: Text(
-                                //         _posParameterEntity?.nama1 ?? "Nama1")),
-                                DataColumn(label: Text("Nama2")),
-                                DataColumn(label: Text("Nama3")),
-                                DataColumn(label: Text("Harga")),
-                                DataColumn(label: Text("Expired")),
-                                DataColumn(label: Text("type discount")),
-                                DataColumn(label: Text("dis.date")),
-                                DataColumn(label: Text("end.date")),
-                                DataColumn(label: Text("limit1")),
-                                DataColumn(label: Text("limit2")),
-                              ],
-                              rows: tableData.map((row) {
-                                for (int i = 0; i < row.length; i++) {
-                                  if (row[i].isEmpty) {
-                                    row[i] = '';
+                            scrollDirection: Axis.horizontal,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              child: DataTable(
+                                headingRowColor:
+                                    MaterialStateProperty.all(Colors.grey[400]),
+                                columns: const [
+                                  DataColumn(label: Text("PLU")),
+                                  DataColumn(label: Text("Barcode")),
+                                  DataColumn(label: Text("Nama1")),
+                                  DataColumn(label: Text("Nama2")),
+                                  DataColumn(label: Text("Nama3")),
+                                  DataColumn(label: Text("Harga")),
+                                  DataColumn(label: Text("Expired")),
+                                  DataColumn(label: Text("type discount")),
+                                  DataColumn(label: Text("dis.date")),
+                                  DataColumn(label: Text("end.date")),
+                                  DataColumn(label: Text("limit1")),
+                                  DataColumn(label: Text("limit2")),
+                                ],
+                                rows: tableData.map((row) {
+                                  for (int i = 0; i < row.length; i++) {
+                                    if (row[i].isEmpty) {
+                                      row[i] = '';
+                                    }
                                   }
-                                }
-                                return DataRow(
-                                  cells: row
-                                      .map((e) => DataCell(Text(e)))
-                                      .toList(),
-                                );
-                              }).toList(),
+                                  return DataRow(
+                                    cells: row.map((e) {
+                                      return DataCell(Container(
+                                        width: 120,
+                                        child: Text(e.isEmpty ? "" : e),
+                                      ));
+                                    }).toList(),
+                                  );
+                                }).toList(),
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
