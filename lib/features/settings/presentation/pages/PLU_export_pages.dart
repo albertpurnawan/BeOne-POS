@@ -45,7 +45,9 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   // }
 
   Future<void> readAllByScaleActive() async {
-    final items = await GetIt.instance<AppDatabase>().itemsDao.readAllByScaleActive(scaleActive: 1);
+    final items = await GetIt.instance<AppDatabase>()
+        .itemsDao
+        .readAllByScaleActive(scaleActive: 1);
     log("itemsLeng - ${items.length}");
     if (items.isEmpty) throw "Failed retrieve Store";
     // log("INI Items -$items");
@@ -55,7 +57,9 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
       barcode.add(items[i].barcode);
       harga.add(items[i].price);
 
-      final promo = await GetIt.instance<AppDatabase>().promosDao.readByToitmAndPromoType(items[i].toitmId, 202, null);
+      final promo = await GetIt.instance<AppDatabase>()
+          .promosDao
+          .readByToitmAndPromoType(items[i].toitmId, 202, null);
       if (promo == null) {
         typeDiscount.add(0);
         disDate.add("");
@@ -64,8 +68,9 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         limit2.add("");
       } else {
         typeDiscount.add(2);
-        final promoHeader =
-            await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readByToitmId(items[i].toitmId, null);
+        final promoHeader = await GetIt.instance<AppDatabase>()
+            .promoHargaSpesialHeaderDao
+            .readByToitmId(items[i].toitmId, null);
         if (promoHeader != null) {
           disDate.add("${promoHeader.startDate}");
           endDate.add("${promoHeader.endDate}");
@@ -105,6 +110,18 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
       });
       await _saveData();
     }
+  }
+
+  Future<void> _refreshData() async {
+    // Clear existing data
+    itemName.clear();
+    barcode.clear();
+    harga.clear();
+    typeDiscount.clear();
+    tableData.clear();
+
+    // Fetch new data
+    await readAllByScaleActive();
   }
 
   void _saveExportPath() {
@@ -241,7 +258,8 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                     children: [
                       TextField(
                         readOnly: true,
-                        controller: TextEditingController(text: selectedFolderPath),
+                        controller:
+                            TextEditingController(text: selectedFolderPath),
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -317,11 +335,12 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                         height: 400,
                         width: 1200,
                         child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
+                          scrollDirection: Axis.horizontal,
                           child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
+                            scrollDirection: Axis.vertical,
                             child: DataTable(
-                              headingRowColor: MaterialStateProperty.all(Colors.grey[300]),
+                              headingRowColor:
+                                  MaterialStateProperty.all(Colors.grey[300]),
                               columns: const [
                                 DataColumn(label: Text("PLU")),
                                 DataColumn(label: Text("Barcode")),
@@ -346,7 +365,9 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                                   }
                                 }
                                 return DataRow(
-                                  cells: row.map((e) => DataCell(Text(e))).toList(),
+                                  cells: row
+                                      .map((e) => DataCell(Text(e)))
+                                      .toList(),
                                 );
                               }).toList(),
                             ),
@@ -360,50 +381,52 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
             ),
             const SizedBox(height: 5),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 const SizedBox(width: 20),
+                // ElevatedButton(
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: ProjectColors.primary,
+                //     foregroundColor: Colors.white,
+                //     padding:
+                //         const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+                //   ),
+                //   onPressed: () {
+                //     // Action for Tombol 1
+                //   },
+                //   child: const Text("Tombol 1"),
+                // ),
+                // const SizedBox(width: 20),
+                // ElevatedButton(
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: ProjectColors.primary,
+                //     foregroundColor: Colors.white,
+                //     padding:
+                //         const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+                //   ),
+                //   onPressed: () {
+                //     // Action for Tombol 2
+                //   },
+                //   child: const Text("Tombol 2"),
+                // ),
+                // const SizedBox(width: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: ProjectColors.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
                   ),
-                  onPressed: () {
-                    // Action for Tombol 1
-                  },
-                  child: const Text("Tombol 1"),
+                  onPressed: _refreshData,
+                  child: const Text("Refresh Data"),
                 ),
                 const SizedBox(width: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: ProjectColors.primary,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                  ),
-                  onPressed: () {
-                    // Action for Tombol 2
-                  },
-                  child: const Text("Tombol 2"),
-                ),
-                const SizedBox(width: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ProjectColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                  ),
-                  onPressed: () {
-                    // Action for Tombol 3
-                  },
-                  child: const Text("Tombol 3"),
-                ),
-                const SizedBox(width: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ProjectColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
                   ),
                   onPressed: _exportFile,
                   child: const Text("Send PLUs"),
