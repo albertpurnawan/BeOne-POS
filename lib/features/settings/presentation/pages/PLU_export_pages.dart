@@ -30,6 +30,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   List<double> harga = [];
   String expired = "1";
   List<int> typeDiscount = [];
+  List<List<String>> tableData = [];
 
   @override
   void initState() {
@@ -50,12 +51,20 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         .readAllByScaleActive(scaleActive: 1);
     if (items == null) throw "Failed retrieve Store";
     log("INI Items -$items");
+
     for (var i = 0; i < items.length; i++) {
       final promo = await GetIt.instance<AppDatabase>()
           .promosDao
           .readByToitmAndPromoType(items[i].toitmId, 202, null);
 
-      log("promos -${promo}");
+      if (promo == null) continue;
+
+      final promoHeader = await GetIt.instance<AppDatabase>()
+          .promoHargaSpesialHeaderDao
+          .readByDocId(promo.docId, null);
+
+      if (promoHeader == null) continue;
+      log("promos -${promoHeader.endDate}");
 
       itemName.add(items[i].itemName);
       barcode.add(items[i].barcode);
@@ -63,7 +72,8 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
       typeDiscount.add(promo != null ? 2 : 0);
       // (promo != null ) {}
     }
-    log("item Name -$typeDiscount");
+    // log("item Name -$typeDiscount");
+    _initializeTableData();
   }
 
   Future<void> _loadData() async {
@@ -102,37 +112,26 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
     }
   }
 
-  List<List<String>> tableData = [
-    [
-      '130',
-      '130',
-      'Item Name Line 1',
-      'Item Name Line 2',
-      'Item Name Line 3',
-      'Item Name Line 4',
-      'Item Name Line 5',
-      'Item Name Line 6',
-      'Item Name Line 7',
-      '',
-      '',
-      '',
-    ],
-    [
-      '131',
-      '131',
-      'Item Name Line 1',
-      'Item Name Line 2',
-      'Item Name Line 3',
-      'Item Name Line 4',
-      'Item Name Line 5',
-      'Item Name Line 6',
-      'Item Name Line 7',
-      '',
-      '',
-      '',
-    ],
-    // Tambahkan data lainnya sesuai kebutuhan
-  ];
+  void _initializeTableData() {
+    setState(() {
+      tableData = List.generate(itemName.length, (index) {
+        return [
+          barcode[index],
+          barcode[index],
+          itemName[index],
+          '',
+          '',
+          harga[index].round().toString(),
+          expired,
+          typeDiscount[index].toString(),
+          '', // Dis.date (empty)
+          '', // End.date (empty)
+          '', // Limit1 (empty)
+          '', // Limit2 (empty)
+        ];
+      });
+    });
+  }
 
   Future<void> _exportFile() async {
     if (selectedFolderPath == null) {
@@ -161,7 +160,6 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         'limit1',
         'limit2',
       ],
-      // Add the data rows
       ...tableData,
     ];
 
