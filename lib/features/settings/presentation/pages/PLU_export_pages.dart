@@ -122,6 +122,18 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
     }
   }
 
+  Future<void> _refreshData() async {
+    // Clear existing data
+    itemName.clear();
+    barcode.clear();
+    harga.clear();
+    typeDiscount.clear();
+    tableData.clear();
+
+    // Fetch new data
+    await readAllByScaleActive();
+  }
+
   void _saveExportPath() {
     if (selectedFolderPath == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -332,9 +344,9 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                         height: 400,
                         width: 1200,
                         child: SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
+                          scrollDirection: Axis.horizontal,
                           child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
+                            scrollDirection: Axis.vertical,
                             child: DataTable(
                               headingRowColor: MaterialStateProperty.all(Colors.grey[300]),
                               columns: const [
@@ -375,43 +387,43 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
             ),
             const SizedBox(height: 5),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 const SizedBox(width: 20),
+                // ElevatedButton(
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: ProjectColors.primary,
+                //     foregroundColor: Colors.white,
+                //     padding:
+                //         const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+                //   ),
+                //   onPressed: () {
+                //     // Action for Tombol 1
+                //   },
+                //   child: const Text("Tombol 1"),
+                // ),
+                // const SizedBox(width: 20),
+                // ElevatedButton(
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: ProjectColors.primary,
+                //     foregroundColor: Colors.white,
+                //     padding:
+                //         const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+                //   ),
+                //   onPressed: () {
+                //     // Action for Tombol 2
+                //   },
+                //   child: const Text("Tombol 2"),
+                // ),
+                // const SizedBox(width: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: ProjectColors.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
                   ),
-                  onPressed: () {
-                    // Action for Tombol 1
-                  },
-                  child: const Text("Tombol 1"),
-                ),
-                const SizedBox(width: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ProjectColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                  ),
-                  onPressed: () {
-                    // Action for Tombol 2
-                  },
-                  child: const Text("Tombol 2"),
-                ),
-                const SizedBox(width: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ProjectColors.primary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                  ),
-                  onPressed: () {
-                    // Action for Tombol 3
-                  },
-                  child: const Text("Tombol 3"),
+                  onPressed: _refreshData,
+                  child: const Text("Refresh Data"),
                 ),
                 const SizedBox(width: 20),
                 ElevatedButton(
