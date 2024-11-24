@@ -1,20 +1,22 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/backup_database_usecase.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
+import 'package:pos_fe/features/settings/presentation/pages/PLU_export_pages.dart';
 import 'package:pos_fe/features/settings/presentation/pages/characters_per_line_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/default_printer_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/paper_size_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/test_fetch_page.dart';
 import 'package:pos_fe/features/settings/presentation/pages/unlock_invoice.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pos_fe/features/settings/presentation/pages/PLU_export_pages.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -25,6 +27,12 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   POSParameterEntity? _posParameterEntity;
+  int scaleActive = 0;
+  String scaleFlag = "";
+  int codeLength = 0;
+  int qtyLength = 0;
+  double qtyDivider = 0;
+
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -36,6 +44,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void getPosParameter() async {
     _posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
     setState(() {});
+  }
+
+  Future<void> getScaleParameter() async {
+    final store = await GetIt.instance<AppDatabase>()
+        .storeMasterDao
+        .readByDocId(_posParameterEntity!.tostrId ?? "", null);
+    if (store == null) throw "Failed retrieve Store";
+    log("scaleFlag  -$store");
+    setState(() {
+      scaleActive = store.scaleActive;
+      scaleFlag = store.scaleFlag ?? "null";
+      codeLength = store.scaleItemCodeLength ?? 0;
+      qtyLength = store.scaleQuantityLength ?? 0;
+      qtyDivider = store.scaleQtyDivider ?? 0;
+    });
   }
 
   @override
@@ -80,6 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
+            backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
@@ -101,21 +125,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             content: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 240, 240, 240),
+                // color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildParameterRow("Scale Active", "Yes"),
+                  _buildParameterRow(
+                      "Scale Active", scaleActive == 0 ? "NO" : "YES"),
                   const SizedBox(height: 10),
-                  _buildParameterRow("Scale Flag", "21"),
+                  _buildParameterRow("Scale Flag", scaleFlag),
                   const SizedBox(height: 10),
-                  _buildParameterRow("Scale Item Code Length", "5"),
+                  _buildParameterRow("Scale Item Code Length", "$codeLength"),
                   const SizedBox(height: 10),
-                  _buildParameterRow("Scale Quantity Length", "6"),
+                  _buildParameterRow("Scale Quantity Length", "$qtyLength"),
                   const SizedBox(height: 10),
-                  _buildParameterRow("Scale Qty. Divider", "1000"),
+                  _buildParameterRow("Scale Qty. Divider", "$qtyDivider"),
                 ],
               ),
             ),
@@ -1172,7 +1197,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             height: 0,
                           ),
                           InkWell(
-                            onTap: () {
+                            onTap: () async {
+                              await getScaleParameter();
                               _showScaleParametersDialog(context);
                             },
                             child: const Column(
@@ -1235,7 +1261,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                         const PLUExportScreen()),
                               );
                             },
-                            child: Column(
+                            child: const Column(
                               children: [
                                 SizedBox(
                                   height: 20,
