@@ -365,15 +365,24 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                     ),
                   ),
                   const SizedBox(width: 20),
-                  SizedBox(
+                  Container(
                     height: 40,
+                    decoration: const BoxDecoration(
+                      color: ProjectColors.primary,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      boxShadow: [
+                        BoxShadow(
+                          spreadRadius: 0.5,
+                          blurRadius: 5,
+                          color: Color.fromRGBO(0, 0, 0, 0.222),
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: ProjectColors.primary,
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
                       ),
                       onPressed: _saveExportPath,
                       child: const Text("Save"),
@@ -600,30 +609,54 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   const SizedBox(width: 20),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ProjectColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
+                  Container(
+                    height: 40,
+                    decoration: const BoxDecoration(
+                      color: ProjectColors.primary,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      boxShadow: [
+                        BoxShadow(
+                          spreadRadius: 0.5,
+                          blurRadius: 5,
+                          color: Color.fromRGBO(0, 0, 0, 0.222),
+                          offset: Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    onPressed: _refreshData,
-                    child: const Text("Reload PLUs"),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ProjectColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+                      ),
+                      onPressed: _refreshData,
+                      child: const Text("Reload PLUs"),
+                    ),
                   ),
                   const SizedBox(width: 20),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ProjectColors.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
+                  Container(
+                    height: 40,
+                    decoration: const BoxDecoration(
+                      color: ProjectColors.primary,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      boxShadow: [
+                        BoxShadow(
+                          spreadRadius: 0.5,
+                          blurRadius: 5,
+                          color: Color.fromRGBO(0, 0, 0, 0.222),
+                          offset: Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    onPressed: _exportFile,
-                    child: const Text("Export PLUs"),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ProjectColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+                      ),
+                      onPressed: _exportFile,
+                      child: const Text("Export PLUs"),
+                    ),
                   ),
                   const SizedBox(width: 20),
                 ],
