@@ -835,6 +835,13 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                         isErr = true;
                                         errMsg = "Invalid amount";
                                       });
+                                    } else if (amountChanged == 0 ||
+                                        _amountController.text.isEmpty ||
+                                        _amountController.text == '') {
+                                      setState(() {
+                                        isErr = true;
+                                        errMsg = "Amount can't be zero";
+                                      });
                                     } else if (isErr) {
                                       setState(() {
                                         isErr = false;
@@ -940,12 +947,15 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
               overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
           onPressed: (isErr)
               ? () async {
-                  SnackBarHelper.presentErrorSnackBar(context, "Amount exceeds the max Amount");
+                  SnackBarHelper.presentErrorSnackBar(context, errMsg);
                 }
               : () async {
                   setState(() {
                     _autoValidate = true;
                   });
+                  if (amountChanged == null || amountChanged == 0) {
+                    SnackBarHelper.presentErrorSnackBar(context, errMsg);
+                  }
                   FocusScope.of(context).unfocus();
                   if (_formKey.currentState!.validate()) {
                     final tmpadDocId = const Uuid().v4();
