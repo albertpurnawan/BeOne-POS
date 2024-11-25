@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -49,13 +50,8 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
     setState(() {
       isLoading = true;
     });
-    final items = await GetIt.instance<AppDatabase>()
-        .itemsDao
-        .readAllByScaleActive(scaleActive: 1);
+    final items = await GetIt.instance<AppDatabase>().itemsDao.readAllByScaleActive(scaleActive: 1);
 
-    setState(() {
-      isLoading = false;
-    });
     if (items.isEmpty) throw "Failed retrieve Store";
     double hargaTax = 0;
     for (var i = 0; i < items.length; i++) {
@@ -70,9 +66,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         harga.add(hargaTax);
       }
 
-      final promo = await GetIt.instance<AppDatabase>()
-          .promosDao
-          .readByToitmAndPromoType(items[i].toitmId, 202, null);
+      final promo = await GetIt.instance<AppDatabase>().promosDao.readByToitmAndPromoType(items[i].toitmId, 202, null);
       if (promo == null) {
         typeDiscount.add(0);
         disDate.add("");
@@ -81,25 +75,21 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         limit2.add(null);
       } else {
         typeDiscount.add(2);
-        final promoHeader = await GetIt.instance<AppDatabase>()
-            .promoHargaSpesialHeaderDao
-            .readByToitmId(items[i].toitmId, null);
+        final promoHeader =
+            await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readByToitmId(items[i].toitmId, null);
         if (promoHeader != null) {
           disDate.add("${promoHeader.startDate}");
           endDate.add("${promoHeader.endDate}");
           limit1.add("0");
-          final promoHarga = await GetIt.instance<AppDatabase>()
-              .promoHargaSpesialBuyDao
-              .readByToitmLastDate(items[i].toitmId, null);
+          final promoHarga =
+              await GetIt.instance<AppDatabase>().promoHargaSpesialBuyDao.readByToitmLastDate(items[i].toitmId, null);
           double limitPrice = 0;
           if (items[i].includeTax == 1) {
             limitPrice = items[i].price - promoHarga.first.price;
             limit2.add(limitPrice);
           } else {
-            limitPrice =
-                (items[i].price + (items[i].price * items[i].taxRate / 100)) -
-                    (promoHarga.first.price +
-                        (promoHarga.first.price * items[i].taxRate / 100));
+            limitPrice = (items[i].price + (items[i].price * items[i].taxRate / 100)) -
+                (promoHarga.first.price + (promoHarga.first.price * items[i].taxRate / 100));
 
             limit2.add(limitPrice);
           }
@@ -112,6 +102,10 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
       }
     }
     _initializeTableData();
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<void> _loadData() async {
@@ -266,6 +260,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -280,52 +275,63 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                 ),
                 const SizedBox(width: 20),
                 Expanded(
-                  child: Stack(
-                    children: [
-                      TextField(
-                        readOnly: true,
-                        controller:
-                            TextEditingController(text: selectedFolderPath),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                  child: SizedBox(
+                    height: 40,
+                    child: Stack(
+                      children: [
+                        TextField(
+                          readOnly: true,
+                          controller: TextEditingController(text: selectedFolderPath),
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                            // isCollapsed: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            fillColor: const Color.fromARGB(255, 234, 234, 234),
+                            filled: true,
                           ),
-                          fillColor: const Color.fromARGB(255, 234, 234, 234),
-                          filled: true,
+                          onTap: _navigateToFolder,
                         ),
-                        onTap: _navigateToFolder,
-                      ),
-                      Positioned(
-                        right: 2,
-                        top: 5,
-                        child: IconButton(
-                          icon: const Icon(Icons.more_horiz),
-                          onPressed: _navigateToFolder,
+                        Positioned(
+                          right: 2,
+                          // top: 5,
+                          child: IconButton(
+                            icon: const Icon(Icons.more_horiz),
+                            onPressed: _navigateToFolder,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(width: 20),
-                Padding(
-                  padding: const EdgeInsets.only(right: 30),
+                SizedBox(
+                  height: 40,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ProjectColors.primary,
                       foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
                     ),
                     onPressed: _saveExportPath,
                     child: const Text("Save"),
                   ),
                 ),
+                const SizedBox(width: 20),
               ],
             ),
             const SizedBox(height: 20),
             if (exportProgress > 0)
-              LinearProgressIndicator(
-                value: exportProgress,
-                backgroundColor: Colors.grey[200],
-                color: ProjectColors.primary,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: LinearProgressIndicator(
+                  value: exportProgress,
+                  backgroundColor: Colors.grey[200],
+                  color: ProjectColors.primary,
+                ),
               ),
             if (exportProgress > 0)
               Padding(
@@ -340,6 +346,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Padding(
                     padding: EdgeInsets.only(bottom: 8, left: 20),
@@ -352,55 +359,103 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                     ),
                   ),
                   if (isLoading)
-                    const Center(child: const CircularProgressIndicator())
-                  else if (tableData.isEmpty)
-                    const Center(child: Text("No data available please wait"))
+                    const Expanded(child: Center(child: CircularProgressIndicator()))
+                  else if (tableData.isEmpty && !isLoading)
+                    const Expanded(child: Center(child: Text("No data available please wait")))
                   else
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(1),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black, width: 1),
-                        ),
-                        child: SizedBox(
-                          height: 400,
-                          // width: 1200,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
+                    Expanded(
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.black, width: 1),
+                            ),
                             child: SingleChildScrollView(
-                              scrollDirection: Axis.vertical,
-                              child: DataTable(
-                                headingRowColor:
-                                    MaterialStateProperty.all(Colors.grey[400]),
-                                columns: const [
-                                  DataColumn(label: Text("PLU")),
-                                  DataColumn(label: Text("Barcode")),
-                                  DataColumn(label: Text("Nama1")),
-                                  DataColumn(label: Text("Nama2")),
-                                  DataColumn(label: Text("Nama3")),
-                                  DataColumn(label: Text("Harga")),
-                                  DataColumn(label: Text("Expired")),
-                                  DataColumn(label: Text("type discount")),
-                                  DataColumn(label: Text("dis.date")),
-                                  DataColumn(label: Text("end.date")),
-                                  DataColumn(label: Text("limit1")),
-                                  DataColumn(label: Text("limit2")),
-                                ],
-                                rows: tableData.map((row) {
-                                  for (int i = 0; i < row.length; i++) {
-                                    if (row[i].isEmpty) {
-                                      row[i] = '';
+                              scrollDirection: Axis.horizontal,
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: DataTable(
+                                  headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
+                                  columns: const [
+                                    DataColumn(
+                                        label: Text(
+                                      "PLU",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                    )),
+                                    DataColumn(
+                                        label: Text(
+                                      "Barcode",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                    )),
+                                    DataColumn(
+                                        label: Text(
+                                      "Nama1",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                    )),
+                                    DataColumn(
+                                        label: Text(
+                                      "Nama2",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                    )),
+                                    DataColumn(
+                                        label: Text(
+                                      "Nama3",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                    )),
+                                    DataColumn(
+                                        label: Text(
+                                      "Harga",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                    )),
+                                    DataColumn(
+                                        label: Text(
+                                      "Expired",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                    )),
+                                    DataColumn(
+                                        label: Text(
+                                      "type discount",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                    )),
+                                    DataColumn(
+                                        label: Text(
+                                      "dis.date",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                    )),
+                                    DataColumn(
+                                        label: Text(
+                                      "end.date",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                    )),
+                                    DataColumn(
+                                        label: Text(
+                                      "limit1",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                    )),
+                                    DataColumn(
+                                        label: Text(
+                                      "limit2",
+                                      style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+                                    )),
+                                  ],
+                                  rows: tableData.map((row) {
+                                    for (int i = 0; i < row.length; i++) {
+                                      if (row[i].isEmpty) {
+                                        row[i] = '';
+                                      }
                                     }
-                                  }
-                                  return DataRow(
-                                    cells: row.map((e) {
-                                      return DataCell(Container(
-                                        width: 120,
-                                        child: Text(e.isEmpty ? "" : e),
-                                      ));
-                                    }).toList(),
-                                  );
-                                }).toList(),
+                                    return DataRow(
+                                      cells: row.map((e) {
+                                        return DataCell(Container(
+                                          width: 120,
+                                          child: Text(e.isEmpty ? "" : e),
+                                        ));
+                                      }).toList(),
+                                    );
+                                  }).toList(),
+                                ),
                               ),
                             ),
                           ),
@@ -410,7 +465,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 5),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -445,23 +500,28 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: ProjectColors.primary,
                     foregroundColor: Colors.white,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
                   ),
                   onPressed: _refreshData,
-                  child: const Text("Refresh Data"),
+                  child: const Text("Reload PLUs"),
                 ),
                 const SizedBox(width: 20),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: ProjectColors.primary,
                     foregroundColor: Colors.white,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
                   ),
                   onPressed: _exportFile,
-                  child: const Text("Send PLUs"),
+                  child: const Text("Export PLUs"),
                 ),
+                const SizedBox(width: 20),
               ],
             ),
           ],
