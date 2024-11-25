@@ -199,12 +199,19 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   void _initializeTableData() {
     setState(() {
       tableData = List.generate(itemName.length, (index) {
+
+      final name = itemName[index];
+      final nama1 = name.length > 18 ? name.substring(0, 18) : name;
+      final nama2 = name.length > 18
+          ? (name.length > 36 ? name.substring(18, 36) : name.substring(18))
+          : '';
+      final nama3 = name.length > 36 ? name.substring(36) : '';
         return [
           barcode[index],
           barcode[index],
-          itemName[index],
-          '',
-          '',
+          nama1,
+          nama2,
+          nama3,
           Helpers.parseMoney(harga[index].round()),
           expired,
           typeDiscount[index].toString(),
