@@ -34,8 +34,8 @@ class CheckStockModel extends CheckStockEntity implements BaseModel {
       storeCode: map['storecode'] as String,
       storeName: map['storename'] as String,
       qtyOnHand: map['qtyonhand'] as double,
-      ordered: map['ordered'] as double,
-      commited: map['commited'] as double,
+      ordered: map['ordered'] as int,
+      commited: map['commited'] as int,
       available: map['available'] as double,
     );
   }

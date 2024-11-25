@@ -7,8 +7,8 @@ class CheckStockEntity {
   final String storeCode;
   final String storeName;
   final double qtyOnHand;
-  final double ordered;
-  final double commited;
+  final int ordered;
+  final int commited;
   final double available;
 
   CheckStockEntity({
@@ -28,8 +28,8 @@ class CheckStockEntity {
     String? storeCode,
     String? storeName,
     double? qtyOnHand,
-    double? ordered,
-    double? commited,
+    int? ordered,
+    int? commited,
     double? available,
   }) {
     return CheckStockEntity(
@@ -64,8 +64,8 @@ class CheckStockEntity {
       storeCode: map['storeCode'] as String,
       storeName: map['storeName'] as String,
       qtyOnHand: map['qtyOnHand'] as double,
-      ordered: map['ordered'] as double,
-      commited: map['commited'] as double,
+      ordered: map['ordered'] as int,
+      commited: map['commited'] as int,
       available: map['available'] as double,
     );
   }
