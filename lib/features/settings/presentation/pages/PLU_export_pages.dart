@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -19,6 +18,8 @@ class PLUExportScreen extends StatefulWidget {
 }
 
 class _PLUExportScreenState extends State<PLUExportScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String? searchedQuery;
   String? selectedFolderPath;
   double exportProgress = 0.0;
   List<String> itemName = [];
@@ -37,14 +38,15 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   void initState() {
     super.initState();
     _loadData();
-    // getPosParameter();
     readAllByScaleActive();
+    searchedQuery = "";
   }
 
-  // void getPosParameter() async {
-  //   _posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
-  //   setState(() {});
-  // }
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   Future<void> readAllByScaleActive() async {
     setState(() {
@@ -105,6 +107,44 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
 
     setState(() {
       isLoading = false;
+    });
+  }
+
+  Future<void> searchByKeyword(String keyword) async {
+    setState(() {
+      isLoading = true; // Show loading state while filtering
+    });
+
+    // Convert the keyword to lowercase for case-insensitive comparison
+    keyword = keyword.toLowerCase();
+
+    // Filter items where either `itemName` or `barcode` matches the keyword
+    List<int> matchedIndexes = [];
+    for (int i = 0; i < itemName.length; i++) {
+      if (itemName[i].toLowerCase().contains(keyword) || barcode[i].toLowerCase().contains(keyword)) {
+        matchedIndexes.add(i);
+      }
+    }
+
+    setState(() {
+      tableData = matchedIndexes.map((index) {
+        return [
+          barcode[index],
+          barcode[index],
+          itemName[index],
+          "",
+          "",
+          Helpers.parseMoney(harga[index].round()),
+          expired,
+          typeDiscount[index].toString(),
+          disDate[index],
+          endDate[index],
+          limit1[index],
+          limit2[index]?.toString() ?? "",
+        ];
+      }).toList();
+
+      isLoading = false; // End loading state
     });
   }
 
@@ -348,14 +388,55 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 8, left: 20),
-                    child: Text(
-                      "PLU List",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8, left: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "PLU List",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+                          child: SizedBox(
+                            width: 400,
+                            height: 30,
+                            child: TextField(
+                              controller: _searchController,
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+                                border: OutlineInputBorder(),
+                                hintText: 'Search ...',
+                                hintStyle: TextStyle(
+                                  color: ProjectColors.mediumBlack,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w200,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                              style: const TextStyle(
+                                color: ProjectColors.mediumBlack,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w200,
+                              ),
+                              onChanged: (value) async {
+                                setState(() {
+                                  searchedQuery = value;
+                                });
+                                await searchByKeyword(searchedQuery ?? "");
+                              },
+                              onEditingComplete: () async {
+                                searchedQuery = _searchController.text;
+                                await searchByKeyword(searchedQuery ?? "");
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   if (isLoading)
