@@ -491,87 +491,104 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                             )
                           : Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 5),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        decoration: const BoxDecoration(
-                                          color: ProjectColors.primary,
-                                          border: Border(
-                                            top: BorderSide(color: ProjectColors.primary, width: 1.0),
-                                          ),
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(8.0),
-                                            topRight: Radius.circular(8.0),
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: tableHeader.map((header) {
-                                            return SizedBox(
-                                              height: 30,
-                                              width: 120,
-                                              child: Center(
-                                                child: Text(
-                                                  header,
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ),
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Colors.grey,
+                                        width: 1.0,
                                       ),
-                                      Container(
-                                        decoration: const BoxDecoration(
-                                          color: Color.fromARGB(255, 239, 238, 238),
-                                          border: Border(
-                                            bottom: BorderSide(color: Colors.grey, width: 1.5),
-                                          ),
-                                          borderRadius: BorderRadius.only(
-                                            bottomLeft: Radius.circular(8.0),
-                                            bottomRight: Radius.circular(8.0),
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              spreadRadius: 0.5,
-                                              blurRadius: 5,
-                                              color: Color.fromRGBO(0, 0, 0, 0.222),
-                                              offset: Offset(2, 5),
+                                    ),
+                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: Column(
+                                        children: [
+                                          // Header
+                                          Container(
+                                            decoration: const BoxDecoration(
+                                              color: ProjectColors.primary,
+                                              border: Border(
+                                                top: BorderSide(color: ProjectColors.primary, width: 1.0),
+                                              ),
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(8.0),
+                                                topRight: Radius.circular(8.0),
+                                              ),
                                             ),
-                                          ],
-                                        ),
-                                        child: SizedBox(
-                                          height: 400,
-                                          child: SingleChildScrollView(
-                                            child: Column(
-                                              children: tableData.map((row) {
-                                                final sanitizedRow = row.map((e) => e.isEmpty ? '' : e).toList();
-                                                return Row(
-                                                  children: sanitizedRow.map((e) {
-                                                    return SizedBox(
-                                                      width: 120,
-                                                      child: Padding(
-                                                        padding: const EdgeInsets.all(5.0),
-                                                        child: Text(
-                                                          e,
-                                                          textAlign: TextAlign.center,
-                                                        ),
+                                            child: Row(
+                                              children: tableHeader.map((header) {
+                                                return SizedBox(
+                                                  height: 30,
+                                                  width: 120,
+                                                  child: Center(
+                                                    child: Text(
+                                                      header,
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.white,
                                                       ),
-                                                    );
-                                                  }).toList(),
+                                                    ),
+                                                  ),
                                                 );
                                               }).toList(),
                                             ),
                                           ),
-                                        ),
+
+                                          // Table data
+                                          Container(
+                                            decoration: const BoxDecoration(
+                                              color: Color.fromARGB(255, 239, 238, 238),
+                                              border: Border(
+                                                bottom: BorderSide(color: Colors.grey, width: 1.5),
+                                              ),
+                                              borderRadius: BorderRadius.only(
+                                                bottomLeft: Radius.circular(8.0),
+                                                bottomRight: Radius.circular(8.0),
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  spreadRadius: 0.5,
+                                                  blurRadius: 5,
+                                                  color: Color.fromRGBO(0, 0, 0, 0.222),
+                                                  offset: Offset(2, 5),
+                                                ),
+                                              ],
+                                            ),
+                                            child: SizedBox(
+                                              height: 400,
+                                              child: SingleChildScrollView(
+                                                child: Column(
+                                                  children: tableData.map((row) {
+                                                    final sanitizedRow = row.map((e) => e.isEmpty ? '' : e).toList();
+                                                    return Row(
+                                                      children: sanitizedRow.map((e) {
+                                                        return SizedBox(
+                                                          width: 120,
+                                                          child: Padding(
+                                                            padding: const EdgeInsets.all(5.0),
+                                                            child: Text(
+                                                              e,
+                                                              textAlign: TextAlign.center,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      }).toList(),
+                                                    );
+                                                  }).toList(),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
