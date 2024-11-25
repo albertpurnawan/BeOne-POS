@@ -103,6 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         builder: (BuildContext context) {
           return AlertDialog(
             backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5),
             ),
@@ -127,7 +128,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 193, 193, 193),
+                  color: const Color.fromARGB(255, 237, 237, 237),
                   borderRadius: BorderRadius.circular(5),
                 ),
                 child: Column(
