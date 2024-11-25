@@ -4274,7 +4274,11 @@ class _SalesPageState extends State<SalesPage> {
 
       context.read<ReceiptCubit>().removeReceiptItem(receiptItemTarget, context);
     } catch (e) {
-      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+      if (e is RangeError) {
+        SnackBarHelper.presentErrorSnackBar(context, "Please select Item to Remove");
+      } else {
+        SnackBarHelper.presentErrorSnackBar(context, e.toString());
+      }
     }
   }
 
