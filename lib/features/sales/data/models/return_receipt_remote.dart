@@ -57,7 +57,7 @@ class ReturnReceiptRemoteModel extends ReceiptEntity implements BaseModel {
             tocatId: null,
             shortName: null,
             toplnId: "",
-            scaleActive: 0,
+            scaleActive: e["scaleactive"] as int,
           ),
           tohemId: e["tohem_id"] != null ? e["tohem_id"] as String : null,
           taxAmount: (refundableAmount * (e["taxprctg"] / (e["taxprctg"] + 100))).toDouble(),
