@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -311,11 +312,19 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                   border: OutlineInputBorder(),
                                   counterText: "",
                                 ),
+                                keyboardType: TextInputType.none,
                               ),
                             ),
                           ),
                           const SizedBox(height: 10),
                           const Divider(height: 0),
+                          const SizedBox(height: 20),
+                          (_showKeyboard)
+                              ? KeyboardWidget(
+                                  controller: _noteController,
+                                  isNumericMode: false,
+                                )
+                              : const SizedBox.shrink(),
                           const SizedBox(height: 20),
                           Row(
                             children: [
