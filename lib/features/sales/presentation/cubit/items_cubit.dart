@@ -13,7 +13,7 @@ class ItemsCubit extends Cubit<List<ItemEntity>> {
 
   ItemsCubit(this._getItemsByPricelistUseCase) : super([]);
 
-  void getItems({required String searchKeyword, required CustomerEntity customerEntity}) async {
+  Future<void> getItems({required String searchKeyword, required CustomerEntity customerEntity}) async {
     log("getItems $searchKeyword $customerEntity");
     final List<ItemEntity> newState = await _getItemsByPricelistUseCase.call(
         params: GetItemsByPricelistUseCaseParams(customerEntity: customerEntity, searchKeyword: searchKeyword));
