@@ -585,7 +585,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                   color: ProjectColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -1620,7 +1620,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                 color: ProjectColors.primary,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
               ),
-              padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+              padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
               child: const Text(
                 'Redeem Voucher',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),

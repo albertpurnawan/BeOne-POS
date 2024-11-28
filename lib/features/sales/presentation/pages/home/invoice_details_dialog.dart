@@ -25,6 +25,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
   String? salesSelected;
   String? tohemIdSelected;
   bool containDP = false;
+  bool _showKeyboard = true;
 
   @override
   void initState() {
@@ -100,10 +101,35 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
             color: ProjectColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
-          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-          child: const Text(
-            'Header Attributes',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Header Attributes',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+              ),
+              IntrinsicHeight(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                  ),
+                  child: IconButton(
+                    icon: Icon(
+                      _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _showKeyboard = !_showKeyboard;
+                      });
+                    },
+                    tooltip: 'Toggle Keyboard',
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
