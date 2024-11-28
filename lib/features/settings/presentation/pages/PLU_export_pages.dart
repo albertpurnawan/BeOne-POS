@@ -305,7 +305,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 234, 234, 234),
+      backgroundColor: ProjectColors.background,
       appBar: AppBar(
         title: const Text("PLU Export"),
         backgroundColor: ProjectColors.primary,
@@ -356,7 +356,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                                   width: 1.5,
                                 ),
                               ),
-                              fillColor: const Color.fromARGB(255, 234, 234, 234),
+                              fillColor: Colors.white,
                             ),
                             onTap: _navigateToFolder,
                           ),
@@ -369,7 +369,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                     height: 40,
                     decoration: const BoxDecoration(
                       color: ProjectColors.primary,
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
                       boxShadow: [
                         BoxShadow(
                           spreadRadius: 0.5,
@@ -540,7 +540,8 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                                           ),
 
                                           // Table data
-                                          SizedBox(
+                                          Container(
+                                            color: const Color.fromARGB(255, 241, 241, 241),
                                             height: 400,
                                             child: SingleChildScrollView(
                                               child: Column(
@@ -591,7 +592,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                     height: 40,
                     decoration: const BoxDecoration(
                       color: ProjectColors.primary,
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
                       boxShadow: [
                         BoxShadow(
                           spreadRadius: 0.5,
@@ -616,7 +617,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                     height: 40,
                     decoration: const BoxDecoration(
                       color: ProjectColors.primary,
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
                       boxShadow: [
                         BoxShadow(
                           spreadRadius: 0.5,
