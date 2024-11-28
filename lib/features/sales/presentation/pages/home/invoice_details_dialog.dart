@@ -22,6 +22,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _noteController = TextEditingController();
   final FocusNode _noteFocusNode = FocusNode();
+  final FocusNode _keyboardFocusNode = FocusNode();
   late final ReceiptEntity stateInvoice;
   String? salesSelected;
   String? tohemIdSelected;
@@ -43,6 +44,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
     _scrollController.dispose();
     _noteController.dispose();
     _noteFocusNode.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
   }
 
@@ -110,24 +112,24 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                 'Header Attributes',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
               ),
-              IntrinsicHeight(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
-                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+              Container(
+                decoration: BoxDecoration(
+                  color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                  borderRadius: const BorderRadius.all(Radius.circular(360)),
+                ),
+                child: IconButton(
+                  focusColor: const Color.fromARGB(255, 110, 0, 0),
+                  focusNode: _keyboardFocusNode,
+                  icon: Icon(
+                    _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                    color: Colors.white,
                   ),
-                  child: IconButton(
-                    icon: Icon(
-                      _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _showKeyboard = !_showKeyboard;
-                      });
-                    },
-                    tooltip: 'Toggle Keyboard',
-                  ),
+                  onPressed: () {
+                    setState(() {
+                      _showKeyboard = !_showKeyboard;
+                    });
+                  },
+                  tooltip: 'Toggle Keyboard',
                 ),
               ),
             ],
