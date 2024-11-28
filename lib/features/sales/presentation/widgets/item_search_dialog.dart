@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,7 @@ import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class ItemSearchDialog extends StatefulWidget {
   const ItemSearchDialog({super.key});
@@ -34,6 +36,25 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
     _scrollController.dispose();
     _textEditingController.dispose();
     super.dispose();
+  }
+
+  Future<void> onSubmit() async {
+    try {
+      if (context.read<ReceiptCubit>().state.customerEntity == null) throw "Customer required";
+      await context.read<ItemsCubit>().getItems(
+          searchKeyword: _textEditingController.text,
+          customerEntity: context.read<ReceiptCubit>().state.customerEntity!);
+      _searchInputFocusNode.requestFocus();
+
+      if (_scrollController.hasClients) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          _scrollController.animateTo(_scrollController.position.minScrollExtent,
+              duration: const Duration(milliseconds: 400), curve: Curves.fastOutSlowIn);
+        });
+      }
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
   }
 
   @override
@@ -116,27 +137,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                         child: TextField(
                           textInputAction: TextInputAction.search,
                           controller: _textEditingController,
-                          onSubmitted: (value) {
-                            // log("value - $value");
-                            try {
-                              if (context.read<ReceiptCubit>().state.customerEntity == null) throw "Customer required";
-                              context.read<ItemsCubit>().getItems(
-                                  searchKeyword: value,
-                                  customerEntity: context.read<ReceiptCubit>().state.customerEntity!);
-                              _searchInputFocusNode.requestFocus();
-
-                              if (_scrollController.hasClients) {
-                                Future.delayed(const Duration(milliseconds: 300)).then((value) {
-                                  SchedulerBinding.instance.addPostFrameCallback((_) {
-                                    _scrollController.animateTo(_scrollController.position.minScrollExtent,
-                                        duration: const Duration(milliseconds: 400), curve: Curves.fastOutSlowIn);
-                                  });
-                                });
-                              }
-                            } catch (e) {
-                              SnackBarHelper.presentErrorSnackBar(context, e.toString());
-                            }
-                          },
+                          onSubmitted: (_) => onSubmit(),
                           autofocus: true,
                           focusNode: _searchInputFocusNode,
                           decoration: const InputDecoration(
@@ -171,104 +172,151 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                 sentence: "Tadaa.. There is nothing here!\nEnter any keyword to search.",
                               );
                             }
-                            return Scrollbar(
-                              controller: _scrollController,
-                              thickness: 4,
-                              radius: const Radius.circular(30),
-                              thumbVisibility: true,
-                              child: ListView.builder(
-                                  controller: _scrollController,
-                                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                                  itemCount: state.length,
-                                  itemBuilder: ((context, index) {
-                                    final ItemEntity itemEntity = state[index];
+                            return ListView.builder(
+                                controller: _scrollController,
+                                padding: const EdgeInsets.symmetric(horizontal: 15),
+                                itemCount: state.length,
+                                itemBuilder: ((context, index) {
+                                  final ItemEntity itemEntity = state[index];
 
-                                    return Column(
-                                      children: [
-                                        RadioListTile<ItemEntity>(
-                                            activeColor: ProjectColors.primary,
-                                            hoverColor: ProjectColors.primary,
-                                            // selected: index == radioValue,
-                                            selectedTileColor: ProjectColors.primary,
-                                            contentPadding: const EdgeInsets.symmetric(
-                                              horizontal: 15,
-                                            ),
-                                            controlAffinity: ListTileControlAffinity.trailing,
-                                            value: state[index],
-                                            groupValue: radioValue,
-                                            title: Text((itemEntity.shortName != "")
-                                                ? itemEntity.shortName ?? itemEntity.itemName
-                                                : itemEntity.itemName),
-                                            subtitle: SizedBox(
-                                              height: 25,
-                                              child: Row(
-                                                children: [
-                                                  SvgPicture.asset(
-                                                    "assets/images/inventory.svg",
-                                                    height: 18,
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 5,
-                                                  ),
-                                                  Text(
-                                                    itemEntity.itemCode,
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 20,
-                                                  ),
-                                                  SvgPicture.asset(
-                                                    "assets/images/barcode.svg",
-                                                    height: 20,
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 5,
-                                                  ),
-                                                  Text(
-                                                    itemEntity.barcode,
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 20,
-                                                  ),
-                                                  const Icon(
-                                                    Icons.sell_outlined,
-                                                    size: 20,
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 5,
-                                                  ),
-                                                  Text(
-                                                    "Rp ${Helpers.parseMoney(itemEntity.price.toInt())}",
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ],
+                                  return Column(
+                                    children: [
+                                      RadioListTile<ItemEntity>(
+                                          activeColor: ProjectColors.primary,
+                                          hoverColor: ProjectColors.primary,
+                                          // selected: index == radioValue,
+                                          selectedTileColor: ProjectColors.primary,
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+                                          controlAffinity: ListTileControlAffinity.trailing,
+                                          value: state[index],
+                                          groupValue: radioValue,
+                                          dense: true,
+                                          visualDensity: VisualDensity.compact,
+                                          title: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                (itemEntity.shortName != "")
+                                                    ? itemEntity.shortName ?? itemEntity.itemName
+                                                    : itemEntity.itemName,
+                                                style: TextStyle(fontSize: 14, height: 1),
                                               ),
-                                            ),
-                                            onChanged: (val) {
-                                              setState(() {
-                                                radioValue = val;
-                                              });
-                                            }),
-                                        const Divider(
-                                          height: 1,
-                                          thickness: 0.5,
-                                          color: Color.fromARGB(100, 118, 118, 118),
-                                        ),
-                                      ],
-                                    );
-                                  })),
-                            );
+                                              SizedBox(
+                                                height: 5,
+                                              ),
+                                            ],
+                                          ),
+                                          subtitle: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              SvgPicture.asset(
+                                                "assets/images/inventory.svg",
+                                                height: 14,
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              Text(
+                                                itemEntity.itemCode,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  height: 1,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 20,
+                                              ),
+                                              SvgPicture.asset(
+                                                "assets/images/barcode.svg",
+                                                height: 14,
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              Text(
+                                                itemEntity.barcode,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  height: 1,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 20,
+                                              ),
+                                              const Icon(
+                                                Icons.sell_outlined,
+                                                size: 14,
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              Text(
+                                                "Rp ${Helpers.parseMoney(itemEntity.price.toInt())}",
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  height: 1,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          onChanged: (val) {
+                                            setState(() {
+                                              radioValue = val;
+                                            });
+                                          }),
+                                      SizedBox(
+                                        height: 3,
+                                      ),
+                                      const Divider(
+                                        height: 1,
+                                        thickness: 0.5,
+                                        color: Color.fromARGB(100, 118, 118, 118),
+                                      ),
+                                    ],
+                                  );
+                                }));
                           },
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            color: Color.fromARGB(255, 245, 245, 245),
+                          ),
+                          child: VirtualKeyboard(
+                            height: 200,
+                            //width: 500,
+                            textColor: ProjectColors.primary,
+                            fontSize: 16,
+                            textController: _textEditingController,
+                            //customLayoutKeys: _customLayoutKeys,
+                            defaultLayouts: [
+                              // VirtualKeyboardDefaultLayouts.Arabic,
+                              VirtualKeyboardDefaultLayouts.English
+                            ],
+
+                            //reverseLayout :true,
+                            type: VirtualKeyboardType.Alphanumeric,
+
+                            postKeyPress: (key) async {
+                              if (key.action == VirtualKeyboardKeyAction.Return) {
+                                _textEditingController.text = _textEditingController.text.trimRight();
+                                await onSubmit();
+                              }
+
+                              _searchInputFocusNode.requestFocus();
+                            },
+                          ),
                         ),
                       )
                     ],
