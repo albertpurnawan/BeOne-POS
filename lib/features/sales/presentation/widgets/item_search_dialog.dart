@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -268,9 +267,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                               radioValue = val;
                                             });
                                           }),
-                                      SizedBox(
-                                        height: 3,
-                                      ),
+                                      const SizedBox(height: 3),
                                       const Divider(
                                         height: 1,
                                         thickness: 0.5,
@@ -282,9 +279,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                           },
                         ),
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
+                      const SizedBox(height: 10),
                       Container(
                         color: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 20.0),

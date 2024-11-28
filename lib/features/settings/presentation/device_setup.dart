@@ -55,7 +55,7 @@ class _DeviceSetupScreenState extends State<DeviceSetupScreen> {
               ),
               child: IconButton(
                 icon: Icon(
-                  showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_alt_outlined,
+                  showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
                   color: Colors.white,
                 ),
                 onPressed: () {

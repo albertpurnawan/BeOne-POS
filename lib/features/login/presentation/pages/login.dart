@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -27,6 +25,17 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool showVirtualKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _keyboardFocusNode.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,14 +57,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 borderRadius: const BorderRadius.all(Radius.circular(360)),
               ),
               child: IconButton(
+                focusColor: const Color.fromARGB(130, 20, 20, 0),
+                focusNode: _keyboardFocusNode,
                 icon: Icon(
-                  showVirtualKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_alt_outlined,
+                  showVirtualKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
                   color: Colors.white,
                 ),
                 onPressed: () {
                   setState(() {
                     showVirtualKeyboard = !showVirtualKeyboard;
-                    log("showVirtualKeyboard - $showVirtualKeyboard");
                   });
                 },
                 tooltip: 'Toggle Keyboard',
@@ -94,6 +104,7 @@ class _LoginFormState extends State<LoginForm> {
   final FocusNode _usernameFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
   final FocusNode _loginButtonFocusNode = FocusNode();
+  final FocusNode _showPassButtonFocusNode = FocusNode();
   String currentFocusedField = '';
   late bool _showKeyboard;
   bool _hidePassword = true;
@@ -104,7 +115,7 @@ class _LoginFormState extends State<LoginForm> {
     _showKeyboard = widget.showKeyboard;
     usernameController = TextEditingController();
     passwordController = TextEditingController();
-    // _usernameFocusNode.requestFocus();
+    _usernameFocusNode.requestFocus();
     _usernameFocusNode.addListener(() {
       setState(() {
         currentFocusedField = _usernameFocusNode.hasFocus ? 'username' : currentFocusedField;
@@ -125,6 +136,7 @@ class _LoginFormState extends State<LoginForm> {
     _usernameFocusNode.dispose();
     _passwordFocusNode.dispose();
     _loginButtonFocusNode.dispose();
+    _showPassButtonFocusNode.dispose();
     super.dispose();
   }
 
@@ -141,6 +153,15 @@ class _LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
+    TextEditingController? activeController;
+    if (currentFocusedField == 'username') {
+      activeController = usernameController;
+    } else if (currentFocusedField == 'password') {
+      activeController = passwordController;
+    } else {
+      activeController = usernameController;
+    }
+
     return Center(
       child: Form(
         key: formKey,
@@ -179,6 +200,7 @@ class _LoginFormState extends State<LoginForm> {
                 prefixIcon: const Icon(Icons.lock_outlined),
                 border: const OutlineInputBorder(),
                 suffixIcon: IconButton(
+                  focusNode: _showPassButtonFocusNode,
                   icon: Icon(
                     _hidePassword ? Icons.visibility_off : Icons.visibility,
                     color: Colors.grey,
@@ -256,7 +278,7 @@ class _LoginFormState extends State<LoginForm> {
           const SizedBox(height: 20),
           _showKeyboard
               ? KeyboardWidget(
-                  controller: currentFocusedField == 'username' ? usernameController : passwordController,
+                  controller: activeController,
                   isNumericMode: false,
                 )
               : const SizedBox(),

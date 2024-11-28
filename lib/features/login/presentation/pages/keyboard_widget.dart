@@ -73,7 +73,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: const Color.fromARGB(255, 239, 239, 239),
+                color: const Color.fromARGB(255, 245, 245, 245),
               ),
               child: VirtualKeyboard(
                 height: 250,

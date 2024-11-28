@@ -86,7 +86,7 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                       ),
                       child: IconButton(
                         icon: Icon(
-                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_alt_outlined,
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
                           color: Colors.white,
                         ),
                         onPressed: () {
