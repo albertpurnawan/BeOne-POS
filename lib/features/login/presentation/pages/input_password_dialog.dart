@@ -18,7 +18,8 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
   final TextEditingController _passwordController = TextEditingController();
   final FocusNode _passwordFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
-  bool showKeyboard = true;
+  bool _showKeyboard = true;
+  bool _hidePassword = true;
   final formKey = GlobalKey<FormState>();
 
   @override
@@ -80,17 +81,17 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                     ),
                     Container(
                       decoration: BoxDecoration(
-                        color: showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                        color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
                         borderRadius: const BorderRadius.all(Radius.circular(360)),
                       ),
                       child: IconButton(
                         icon: Icon(
-                          showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_alt_outlined,
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_alt_outlined,
                           color: Colors.white,
                         ),
                         onPressed: () {
                           setState(() {
-                            showKeyboard = !showKeyboard;
+                            _showKeyboard = !_showKeyboard;
                           });
                         },
                         tooltip: 'Toggle Keyboard',
@@ -111,16 +112,28 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                         Form(
                           key: formKey,
                           child: TextFormField(
-                            focusNode: _passwordFocusNode,
                             controller: _passwordController,
-                            decoration: const InputDecoration(
+                            focusNode: _passwordFocusNode,
+                            validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
+                            decoration: InputDecoration(
                               labelText: "Password",
                               hintText: "Database Password",
-                              prefixIcon: Icon(Icons.lock),
-                              border: OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.lock),
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _hidePassword ? Icons.visibility_off : Icons.visibility,
+                                  color: Colors.grey,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _hidePassword = !_hidePassword;
+                                  });
+                                },
+                              ),
                             ),
-                            validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
                             keyboardType: TextInputType.none,
+                            obscureText: _hidePassword,
                           ),
                         ),
                         if (errorMessage != "")
@@ -165,7 +178,7 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                           ),
                         ),
                         const SizedBox(height: 15),
-                        (showKeyboard)
+                        (_showKeyboard)
                             ? KeyboardWidget(
                                 controller: _passwordController,
                                 isNumericMode: false,

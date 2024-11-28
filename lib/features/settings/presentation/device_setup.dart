@@ -115,8 +115,8 @@ class _SettingsFormState extends State<SettingsForm> {
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
 
+  bool _hidePassword = true;
   String currentFocusedField = '';
-
   String device = "";
 
   @override
@@ -308,7 +308,10 @@ class _SettingsFormState extends State<SettingsForm> {
                       validator: (val) => val == null || val.isEmpty ? "TenantId is required" : null,
                       decoration: const InputDecoration(
                         labelText: "TenantId",
-                        hintText: "Tenant Id",
+                        hintText: "Insert TenatnId",
+                        hintStyle: TextStyle(
+                          fontStyle: FontStyle.italic,
+                        ),
                         prefixIcon: Icon(Icons.person_2_sharp),
                         border: OutlineInputBorder(),
                       ),
@@ -327,7 +330,10 @@ class _SettingsFormState extends State<SettingsForm> {
                       validator: (val) => val == null || val.isEmpty ? "StoreId is required" : null,
                       decoration: const InputDecoration(
                         labelText: "StoreId",
-                        hintText: "Store Id",
+                        hintText: "Insert StoreId",
+                        hintStyle: TextStyle(
+                          fontStyle: FontStyle.italic,
+                        ),
                         prefixIcon: Icon(Icons.store),
                         border: OutlineInputBorder(),
                       ),
@@ -351,7 +357,7 @@ class _SettingsFormState extends State<SettingsForm> {
                       validator: (val) => val == null || val.isEmpty ? "CashierId is required" : null,
                       decoration: const InputDecoration(
                         labelText: "CashierId",
-                        hintText: "Cashier Id",
+                        hintText: "Insert CashierId",
                         prefixIcon: Icon(Icons.point_of_sale),
                         border: OutlineInputBorder(),
                       ),
@@ -370,7 +376,10 @@ class _SettingsFormState extends State<SettingsForm> {
                       validator: (val) => val == null || val.isEmpty ? "BaseUrl is required" : null,
                       decoration: const InputDecoration(
                         labelText: "BaseUrl",
-                        hintText: "Base Url",
+                        hintText: "Insert Base Url",
+                        hintStyle: TextStyle(
+                          fontStyle: FontStyle.italic,
+                        ),
                         prefixIcon: Icon(Icons.link_outlined),
                         border: OutlineInputBorder(),
                       ),
@@ -394,7 +403,10 @@ class _SettingsFormState extends State<SettingsForm> {
                       validator: (val) => val == null || val.isEmpty ? "Interfacing Email is required" : null,
                       decoration: const InputDecoration(
                         labelText: "Interfacing Email",
-                        hintText: "Interfacing Email",
+                        hintText: "Insert Email",
+                        hintStyle: TextStyle(
+                          fontStyle: FontStyle.italic,
+                        ),
                         prefixIcon: Icon(Icons.email_outlined),
                         border: OutlineInputBorder(),
                       ),
@@ -411,14 +423,25 @@ class _SettingsFormState extends State<SettingsForm> {
                       controller: passwordController,
                       focusNode: _passwordFocusNode,
                       validator: (val) => val == null || val.isEmpty ? "Interfacing Password is required" : null,
-                      obscureText: true,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: "Interfacing Password",
-                        hintText: "Interfacing Password",
-                        prefixIcon: Icon(Icons.password_outlined),
-                        border: OutlineInputBorder(),
+                        hintText: "Insert Password",
+                        prefixIcon: const Icon(Icons.password_outlined),
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _hidePassword ? Icons.visibility_off : Icons.visibility,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _hidePassword = !_hidePassword;
+                            });
+                          },
+                        ),
                       ),
                       keyboardType: TextInputType.none,
+                      obscureText: _hidePassword,
                     ),
                   ),
                 ),

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -24,6 +26,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool showVirtualKeyboard = true;
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -35,17 +39,41 @@ class _LoginScreenState extends State<LoginScreen> {
         title: const Text('Login'),
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            child: Container(
+              decoration: BoxDecoration(
+                color: showVirtualKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                borderRadius: const BorderRadius.all(Radius.circular(360)),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  showVirtualKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_alt_outlined,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  setState(() {
+                    showVirtualKeyboard = !showVirtualKeyboard;
+                    log("showVirtualKeyboard - $showVirtualKeyboard");
+                  });
+                },
+                tooltip: 'Toggle Keyboard',
+              ),
+            ),
+          ),
+        ],
       ),
       backgroundColor: const Color.fromARGB(255, 234, 234, 234),
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 20),
-            BeOneLogo(size: 300),
-            SizedBox(height: 10),
-            LoginForm(),
-            SizedBox(height: 10),
+            const SizedBox(height: 20),
+            const BeOneLogo(size: 300),
+            const SizedBox(height: 10),
+            LoginForm(showKeyboard: showVirtualKeyboard),
+            const SizedBox(height: 10),
           ],
         ),
       ),
@@ -54,7 +82,8 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class LoginForm extends StatefulWidget {
-  const LoginForm({Key? key}) : super(key: key);
+  final bool showKeyboard;
+  const LoginForm({Key? key, required this.showKeyboard}) : super(key: key);
 
   @override
   State<LoginForm> createState() => _LoginFormState();
@@ -66,13 +95,16 @@ class _LoginFormState extends State<LoginForm> {
   final FocusNode _passwordFocusNode = FocusNode();
   final FocusNode _loginButtonFocusNode = FocusNode();
   String currentFocusedField = '';
+  late bool _showKeyboard;
+  bool _hidePassword = true;
 
   @override
   void initState() {
     super.initState();
+    _showKeyboard = widget.showKeyboard;
     usernameController = TextEditingController();
     passwordController = TextEditingController();
-    _usernameFocusNode.requestFocus();
+    // _usernameFocusNode.requestFocus();
     _usernameFocusNode.addListener(() {
       setState(() {
         currentFocusedField = _usernameFocusNode.hasFocus ? 'username' : currentFocusedField;
@@ -97,6 +129,16 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   @override
+  void didUpdateWidget(LoginForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.showKeyboard != oldWidget.showKeyboard) {
+      setState(() {
+        _showKeyboard = widget.showKeyboard;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
     return Center(
@@ -111,7 +153,10 @@ class _LoginFormState extends State<LoginForm> {
               validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
               decoration: const InputDecoration(
                 labelText: "Username / Email",
-                hintText: "Username / Email",
+                hintText: "Insert username or email",
+                hintStyle: TextStyle(
+                  fontStyle: FontStyle.italic,
+                ),
                 prefixIcon: Icon(Icons.person_outlined),
                 border: OutlineInputBorder(),
               ),
@@ -125,13 +170,28 @@ class _LoginFormState extends State<LoginForm> {
               controller: passwordController,
               focusNode: _passwordFocusNode,
               validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: "Password",
-                hintText: "Password",
-                prefixIcon: Icon(Icons.lock_outlined),
-                border: OutlineInputBorder(),
+                hintText: "Insert password",
+                hintStyle: const TextStyle(
+                  fontStyle: FontStyle.italic,
+                ),
+                prefixIcon: const Icon(Icons.lock_outlined),
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _hidePassword ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _hidePassword = !_hidePassword;
+                    });
+                  },
+                ),
               ),
               keyboardType: TextInputType.none,
+              obscureText: _hidePassword,
             ),
           ),
           const SizedBox(height: 15),
@@ -222,10 +282,12 @@ class _LoginFormState extends State<LoginForm> {
             ),
           ),
           const SizedBox(height: 20),
-          KeyboardWidget(
-            controller: currentFocusedField == 'username' ? usernameController : passwordController,
-            isNumericMode: false,
-          ),
+          _showKeyboard
+              ? KeyboardWidget(
+                  controller: currentFocusedField == 'username' ? usernameController : passwordController,
+                  isNumericMode: false,
+                )
+              : const SizedBox(),
         ]),
       ),
     );
