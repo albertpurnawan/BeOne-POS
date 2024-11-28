@@ -221,35 +221,7 @@ class _LoginFormState extends State<LoginForm> {
                       final CashierBalanceTransactionModel? openedShift = await showDialog(
                         context: context,
                         barrierDismissible: false,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                            ),
-                            contentPadding: const EdgeInsets.all(0),
-                            titlePadding: const EdgeInsets.all(0),
-                            title: Container(
-                              decoration: const BoxDecoration(
-                                color: ProjectColors.primary,
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
-                              ),
-                              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                              child: const Text(
-                                'Open Shift',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            content: SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.5,
-                              child: const OpenShiftDialog(),
-                            ),
-                            scrollable: false,
-                          );
-                        },
+                        builder: (context) => const OpenShiftDialog(),
                       );
 
                       bool isOpenShiftConfirmed = false;

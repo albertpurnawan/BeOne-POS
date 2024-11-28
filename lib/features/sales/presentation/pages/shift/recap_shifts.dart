@@ -102,17 +102,7 @@ class _RecapShiftsState extends State<RecapShifts> {
                     if (!context.mounted) return;
                     showDialog(
                       context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          ),
-                          content: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.7,
-                            child: const OpenShiftDialog(),
-                          ),
-                        );
-                      },
+                      builder: (context) => const OpenShiftDialog(),
                     );
                   }
                 },

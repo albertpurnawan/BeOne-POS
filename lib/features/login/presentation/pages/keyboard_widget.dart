@@ -76,7 +76,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                 color: const Color.fromARGB(255, 239, 239, 239),
               ),
               child: VirtualKeyboard(
-                height: 300,
+                height: 250,
                 width: MediaQuery.of(context).size.width * 0.7,
                 textColor: ProjectColors.primary,
                 textController: _controllerText,

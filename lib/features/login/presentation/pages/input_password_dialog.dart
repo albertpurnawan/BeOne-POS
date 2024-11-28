@@ -118,6 +118,9 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                             decoration: InputDecoration(
                               labelText: "Password",
                               hintText: "Database Password",
+                              hintStyle: const TextStyle(
+                                fontStyle: FontStyle.italic,
+                              ),
                               prefixIcon: const Icon(Icons.lock),
                               border: const OutlineInputBorder(),
                               suffixIcon: IconButton(
