@@ -1,17 +1,16 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/beone_logo.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
-import 'package:pos_fe/core/widgets/custom_input.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/login/domain/entities/user_auth_entity.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift_success_alert_dialog.dart';
@@ -38,19 +37,15 @@ class _LoginScreenState extends State<LoginScreen> {
         foregroundColor: Colors.white,
       ),
       backgroundColor: const Color.fromARGB(255, 234, 234, 234),
-      body: SingleChildScrollView(
+      body: const SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              height: (MediaQuery.of(context).size.height / 6),
-            ),
-            const BeOneLogo(size: 300),
-            const SizedBox(height: 30),
-            const LoginForm(),
-            const SizedBox(
-              height: 130,
-            )
+            SizedBox(height: 20),
+            BeOneLogo(size: 300),
+            SizedBox(height: 10),
+            LoginForm(),
+            SizedBox(height: 10),
           ],
         ),
       ),
@@ -67,147 +62,169 @@ class LoginForm extends StatefulWidget {
 
 class _LoginFormState extends State<LoginForm> {
   late TextEditingController usernameController, passwordController;
+  final FocusNode _usernameFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+  final FocusNode _loginButtonFocusNode = FocusNode();
+  String currentFocusedField = '';
 
   @override
   void initState() {
     super.initState();
     usernameController = TextEditingController();
     passwordController = TextEditingController();
+    _usernameFocusNode.requestFocus();
+    _usernameFocusNode.addListener(() {
+      setState(() {
+        currentFocusedField = _usernameFocusNode.hasFocus ? 'username' : currentFocusedField;
+      });
+    });
+
+    _passwordFocusNode.addListener(() {
+      setState(() {
+        currentFocusedField = _passwordFocusNode.hasFocus ? 'password' : currentFocusedField;
+      });
+    });
   }
 
   @override
   void dispose() {
-    super.dispose();
     usernameController.dispose();
     passwordController.dispose();
+    _usernameFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _loginButtonFocusNode.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
-
     return Center(
       child: Form(
         key: formKey,
         child: Column(children: [
           Container(
             constraints: const BoxConstraints(maxWidth: 400),
-            child: CustomInput(
+            child: TextFormField(
               controller: usernameController,
+              focusNode: _usernameFocusNode,
               validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
-              label: "Username / Email",
-              hint: "Username / Email",
-              prefixIcon: const Icon(Icons.person),
+              decoration: const InputDecoration(
+                labelText: "Username / Email",
+                hintText: "Username / Email",
+                prefixIcon: Icon(Icons.person_outlined),
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.none,
             ),
           ),
           const SizedBox(height: 15),
           Container(
             constraints: const BoxConstraints(maxWidth: 400),
-            child: CustomInput(
+            child: TextFormField(
               controller: passwordController,
-              label: "Password",
-              hint: "Password",
-              prefixIcon: const Icon(Icons.lock),
+              focusNode: _passwordFocusNode,
               validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
-              type: CustomInputType.password,
+              decoration: const InputDecoration(
+                labelText: "Password",
+                hintText: "Password",
+                prefixIcon: Icon(Icons.lock_outlined),
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.none,
             ),
           ),
           const SizedBox(height: 15),
           Container(
             constraints: const BoxConstraints(maxWidth: 400),
-            child: CustomButton(
-              child: const Text("Login"),
-              onTap: () async {
-                if (!formKey.currentState!.validate()) return;
-                final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-                final bool isOpen = prefs.getBool('isOpen') ?? false;
-                log("isOpen $isOpen");
-                // await refreshToken();
-                final loginSuccess = await GetIt.instance<LoginUseCase>().call(
-                    params: UserAuthEntity(
-                        docId: null,
-                        email: usernameController.text,
-                        username: usernameController.text,
-                        password: passwordController.text,
-                        tohemId: null,
-                        torolId: null));
+            child: Focus(
+              focusNode: _loginButtonFocusNode,
+              child: CustomButton(
+                child: const Text("Login"),
+                onTap: () async {
+                  if (!formKey.currentState!.validate()) return;
+                  final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+                  final bool isOpen = prefs.getBool('isOpen') ?? false;
+                  final loginSuccess = await GetIt.instance<LoginUseCase>().call(
+                      params: UserAuthEntity(
+                          docId: null,
+                          email: usernameController.text,
+                          username: usernameController.text,
+                          password: passwordController.text,
+                          tohemId: null,
+                          torolId: null));
 
-                // log("$loginSuccess loginsuccess");
-                // log("$isOpen isOpen");
-                if (loginSuccess != null && loginSuccess) {
-                  if (isOpen) {
-                    if (context.mounted) context.goNamed(RouteConstants.home);
-                  } else {
-                    final CashierBalanceTransactionModel? openedShift = await showDialog(
-                      // return id/tcsr1
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                          ),
-                          contentPadding: const EdgeInsets.all(0),
-                          titlePadding: const EdgeInsets.all(0),
-                          title: Container(
-                            decoration: const BoxDecoration(
-                              color: ProjectColors.primary,
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+                  if (loginSuccess != null && loginSuccess) {
+                    if (isOpen) {
+                      if (context.mounted) context.goNamed(RouteConstants.home);
+                    } else {
+                      final CashierBalanceTransactionModel? openedShift = await showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(5.0)),
                             ),
-                            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                            child: const Text(
-                              'Open Shift',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white,
+                            contentPadding: const EdgeInsets.all(0),
+                            titlePadding: const EdgeInsets.all(0),
+                            title: Container(
+                              decoration: const BoxDecoration(
+                                color: ProjectColors.primary,
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+                              ),
+                              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                              child: const Text(
+                                'Open Shift',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
-                          ),
-                          content: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.5,
-                            child: const OpenShiftDialog(),
-                          ),
-                          scrollable: false,
-                        );
-                      },
-                    );
+                            content: SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.5,
+                              child: const OpenShiftDialog(),
+                            ),
+                            scrollable: false,
+                          );
+                        },
+                      );
 
-                    bool isOpenShiftConfirmed = false;
-                    log("opened shift $openedShift");
-                    if (openedShift != null) {
-                      isOpenShiftConfirmed = await showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (BuildContext context) {
-                            return OpenShiftSuccessAlertDialog(
-                              openedShift: openedShift,
-                            );
-                          });
-                    } else {
-                      await GetIt.instance<LogoutUseCase>().call();
-                      return;
+                      bool isOpenShiftConfirmed = false;
+
+                      if (openedShift != null) {
+                        isOpenShiftConfirmed = await showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext context) {
+                              return OpenShiftSuccessAlertDialog(
+                                openedShift: openedShift,
+                              );
+                            });
+                      } else {
+                        await GetIt.instance<LogoutUseCase>().call();
+                        return;
+                      }
+
+                      if (isOpenShiftConfirmed) {
+                        context.pushNamed(RouteConstants.home);
+                      }
                     }
-
-                    if (isOpenShiftConfirmed) {
-                      context.pushNamed(RouteConstants.home);
+                  } else {
+                    if (context.mounted) {
+                      SnackBarHelper.presentErrorSnackBar(context, "Invalid username or password");
                     }
                   }
-                } else {
-                  // Show error message if login is not successful or null
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Invalid username or password.'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                }
-              },
+                },
+              ),
             ),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 20),
+          KeyboardWidget(
+            controller: currentFocusedField == 'username' ? usernameController : passwordController,
+          ),
         ]),
       ),
     );
