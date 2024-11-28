@@ -4,7 +4,8 @@ import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.
 
 class KeyboardWidget extends StatefulWidget {
   final TextEditingController controller;
-  const KeyboardWidget({super.key, required this.controller});
+  final void Function(VirtualKeyboardKey)? onKeyPress;
+  const KeyboardWidget({super.key, required this.controller, this.onKeyPress});
 
   @override
   State<KeyboardWidget> createState() => _KeyboardWidgetState();
@@ -22,7 +23,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     super.initState();
   }
 
-  void _onKeyPress(VirtualKeyboardKey key) {
+  void _defaultOnKeyPress(VirtualKeyboardKey key) {
     String text = widget.controller.text;
 
     if (key.keyType == VirtualKeyboardKeyType.String) {
@@ -71,17 +72,17 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                 color: const Color.fromARGB(255, 239, 239, 239),
               ),
               child: VirtualKeyboard(
-                  height: 300,
-                  width: MediaQuery.of(context).size.width * 0.7,
-                  textColor: ProjectColors.primary,
-                  textController: _controllerText,
-                  customLayoutKeys: CustomKeyboardLayoutKeys([
-                    shiftEnabled == true ? VirtualKeyboardDefaultLayouts.Arabic : VirtualKeyboardDefaultLayouts.English
-                  ]),
-                  defaultLayouts: const [VirtualKeyboardDefaultLayouts.English, VirtualKeyboardDefaultLayouts.Arabic],
-                  //reverseLayout :true,
-                  type: isNumericMode ? VirtualKeyboardType.Numeric : VirtualKeyboardType.Alphanumeric,
-                  postKeyPress: _onKeyPress),
+                height: 300,
+                width: MediaQuery.of(context).size.width * 0.7,
+                textColor: ProjectColors.primary,
+                textController: _controllerText,
+                customLayoutKeys: CustomKeyboardLayoutKeys(
+                    [shiftEnabled ? VirtualKeyboardDefaultLayouts.Arabic : VirtualKeyboardDefaultLayouts.English]),
+                defaultLayouts: const [VirtualKeyboardDefaultLayouts.English, VirtualKeyboardDefaultLayouts.Arabic],
+                //reverseLayout :true,
+                type: isNumericMode ? VirtualKeyboardType.Numeric : VirtualKeyboardType.Alphanumeric,
+                postKeyPress: (widget.onKeyPress != null) ? widget.onKeyPress : _defaultOnKeyPress,
+              ),
             )
           ],
         ),
