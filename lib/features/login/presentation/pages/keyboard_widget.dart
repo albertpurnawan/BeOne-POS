@@ -4,30 +4,34 @@ import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.
 
 class KeyboardWidget extends StatefulWidget {
   final TextEditingController controller;
+  final bool isNumericMode;
   final void Function(VirtualKeyboardKey)? onKeyPress;
-  const KeyboardWidget({super.key, required this.controller, this.onKeyPress});
+  const KeyboardWidget({super.key, required this.controller, required this.isNumericMode, this.onKeyPress});
 
   @override
   State<KeyboardWidget> createState() => _KeyboardWidgetState();
 }
 
 class _KeyboardWidgetState extends State<KeyboardWidget> {
-  bool shiftEnabled = false;
-  bool isNumericMode = false;
+  bool _shiftEnabled = false;
+  bool _isNumericMode = false;
 
   late TextEditingController _controllerText;
 
   @override
   void initState() {
-    _controllerText = TextEditingController();
     super.initState();
+    _controllerText = TextEditingController();
+    setState(() {
+      _isNumericMode = widget.isNumericMode;
+    });
   }
 
   void _defaultOnKeyPress(VirtualKeyboardKey key) {
     String text = widget.controller.text;
 
     if (key.keyType == VirtualKeyboardKeyType.String) {
-      text = text + ((shiftEnabled ? key.capsText : key.text) ?? '');
+      text = text + ((_shiftEnabled ? key.capsText : key.text) ?? '');
     } else if (key.keyType == VirtualKeyboardKeyType.Action) {
       switch (key.action) {
         case VirtualKeyboardKeyAction.Backspace:
@@ -36,7 +40,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
           }
           break;
         case VirtualKeyboardKeyAction.Return:
-          if (shiftEnabled) {
+          if (_shiftEnabled) {
             FocusScope.of(context).nextFocus();
           } else {
             text = text + '\n';
@@ -46,7 +50,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
           text = text + (key.text ?? '');
           break;
         case VirtualKeyboardKeyAction.Shift:
-          shiftEnabled = !shiftEnabled;
+          _shiftEnabled = !_shiftEnabled;
           break;
         default:
           break;
@@ -77,10 +81,10 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                 textColor: ProjectColors.primary,
                 textController: _controllerText,
                 customLayoutKeys: CustomKeyboardLayoutKeys(
-                    [shiftEnabled ? VirtualKeyboardDefaultLayouts.Arabic : VirtualKeyboardDefaultLayouts.English]),
+                    [_shiftEnabled ? VirtualKeyboardDefaultLayouts.Arabic : VirtualKeyboardDefaultLayouts.English]),
                 defaultLayouts: const [VirtualKeyboardDefaultLayouts.English, VirtualKeyboardDefaultLayouts.Arabic],
                 //reverseLayout :true,
-                type: isNumericMode ? VirtualKeyboardType.Numeric : VirtualKeyboardType.Alphanumeric,
+                type: _isNumericMode ? VirtualKeyboardType.Numeric : VirtualKeyboardType.Alphanumeric,
                 postKeyPress: (widget.onKeyPress != null) ? widget.onKeyPress : _defaultOnKeyPress,
               ),
             )

@@ -425,7 +425,12 @@ class _SettingsFormState extends State<SettingsForm> {
               ],
             ),
             const SizedBox(height: 30),
-            (widget.showKeyboard) ? KeyboardWidget(controller: activeController) : const SizedBox.shrink(),
+            (widget.showKeyboard)
+                ? KeyboardWidget(
+                    controller: activeController,
+                    isNumericMode: false,
+                  )
+                : const SizedBox.shrink(),
             const SizedBox(height: 30),
             Row(
               children: [

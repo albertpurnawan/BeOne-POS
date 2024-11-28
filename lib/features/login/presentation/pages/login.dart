@@ -224,6 +224,7 @@ class _LoginFormState extends State<LoginForm> {
           const SizedBox(height: 20),
           KeyboardWidget(
             controller: currentFocusedField == 'username' ? usernameController : passwordController,
+            isNumericMode: false,
           ),
         ]),
       ),
