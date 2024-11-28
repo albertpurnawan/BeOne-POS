@@ -6,10 +6,10 @@ class CheckStockEntity {
   final String itemName;
   final String storeCode;
   final String storeName;
-  final int qtyOnHand;
+  final double qtyOnHand;
   final int ordered;
   final int commited;
-  final int available;
+  final double available;
 
   CheckStockEntity({
     required this.itemCode,
@@ -27,10 +27,10 @@ class CheckStockEntity {
     String? itemName,
     String? storeCode,
     String? storeName,
-    int? qtyOnHand,
+    double? qtyOnHand,
     int? ordered,
     int? commited,
-    int? available,
+    double? available,
   }) {
     return CheckStockEntity(
       itemCode: itemCode ?? this.itemCode,
@@ -63,10 +63,10 @@ class CheckStockEntity {
       itemName: map['itemName'] as String,
       storeCode: map['storeCode'] as String,
       storeName: map['storeName'] as String,
-      qtyOnHand: map['qtyOnHand'] as int,
+      qtyOnHand: map['qtyOnHand'] as double,
       ordered: map['ordered'] as int,
       commited: map['commited'] as int,
-      available: map['available'] as int,
+      available: map['available'] as double,
     );
   }
 

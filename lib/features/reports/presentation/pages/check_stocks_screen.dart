@@ -50,9 +50,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
   }
 
   void _handleItemSelected(Map<String, dynamic> item) async {
-    // log("item - $item");
     final stocks = await _checkStock(item['itemcode'], item['itemname']);
-    log("stocks - $stocks");
     setState(() {
       stocksFetched = stocks;
       _itemInputController.text = "";
@@ -193,6 +191,8 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                       ),
                       onPressed: () async {
                         final itemsSearched = await _searchItem(_itemInputController.text);
+                        log("itemSearched - $itemsSearched");
+
                         setState(() {
                           itemsFound = itemsSearched;
                           showTable = false;

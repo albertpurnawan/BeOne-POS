@@ -33,17 +33,17 @@ class CheckStockModel extends CheckStockEntity implements BaseModel {
       itemName: map['itemname'] as String,
       storeCode: map['storecode'] as String,
       storeName: map['storename'] as String,
-      qtyOnHand: map['qtyonhand'] as int,
+      qtyOnHand: map['qtyonhand'] as double,
       ordered: map['ordered'] as int,
       commited: map['commited'] as int,
-      available: map['available'] as int,
+      available: map['available'] as double,
     );
   }
 
   factory CheckStockModel.fromMapRemote(Map<String, dynamic> map) {
     return CheckStockModel.fromMap({
       ...map,
-      "qtyonhand": map['QtyOnHand'] != null ? map['QtyOnHand'] as int : null,
+      "qtyonhand": map['QtyOnHand'] != null ? map['QtyOnHand'] as double : null,
     });
   }
 
