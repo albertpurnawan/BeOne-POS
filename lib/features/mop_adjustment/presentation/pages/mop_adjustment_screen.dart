@@ -9,6 +9,7 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/models/cash_register.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
@@ -19,6 +20,7 @@ import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/mop_adjustment_service.dart';
 import 'package:uuid/uuid.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class MOPAdjustmentScreen extends StatefulWidget {
   const MOPAdjustmentScreen({super.key});
@@ -32,7 +34,9 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _remarksController = TextEditingController();
 
-  final _focusNode = FocusNode();
+  final _shiftDocnumFocusNode = FocusNode();
+  final _amountFocusNode = FocusNode();
+  final _remarkFocusNode = FocusNode();
   List<CashierBalanceTransactionModel>? shiftsFound;
   List<dynamic>? mopsList;
   CashierBalanceTransactionModel? selectedShift;
@@ -60,11 +64,44 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
 
+  bool _shiftEnabled = false;
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+  String currentFocusedField = '';
+  bool currentNumericMode = false;
+
   @override
   void initState() {
     super.initState();
     generateTmpadDocNum();
-    _focusNode.requestFocus();
+    _shiftDocnumFocusNode.requestFocus();
+
+    _shiftDocnumFocusNode.addListener(() {
+      if (_shiftDocnumFocusNode.hasFocus) {
+        setState(() {
+          currentFocusedField = 'search';
+          currentNumericMode = false;
+        });
+      }
+    });
+    _amountFocusNode.addListener(() {
+      if (_amountFocusNode.hasFocus) {
+        setState(() {
+          currentFocusedField = 'amount';
+          currentNumericMode = true;
+        });
+        log("currentNumericMode - $currentNumericMode");
+      }
+    });
+    _remarkFocusNode.addListener(() {
+      if (_remarkFocusNode.hasFocus) {
+        setState(() {
+          currentFocusedField = 'remarks';
+          currentNumericMode = false;
+        });
+        log("currentNumericMode - $currentNumericMode");
+      }
+    });
   }
 
   @override
@@ -72,7 +109,16 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
     _shiftDocnumController.dispose();
     _amountController.dispose();
     _remarksController.dispose();
+    _shiftDocnumFocusNode.dispose();
+    _amountFocusNode.dispose();
+    _remarkFocusNode.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(MOPAdjustmentScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
   }
 
   Future<List<CashierBalanceTransactionModel>?> _searchShift(String docNum) async {
@@ -126,7 +172,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
 
     final sortedMap = Map.fromEntries(sortedEntries);
 
-    log("resultMap (sorted by createDate): $sortedMap");
+    // log("resultMap (sorted by createDate): $sortedMap");
     return sortedMap;
   }
 
@@ -225,61 +271,213 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
     );
   }
 
-  // Future<void> getAmountByEDCAndBetweenDate(CashierBalanceTransactionModel shift) async {
-  //   final result =
-  //       await GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(shift.openDate, shift.closeDate);
-  //   log("result - $result");
-  // }
-
   @override
   Widget build(BuildContext context) {
+    TextEditingController? activeController;
+    switch (currentFocusedField) {
+      case 'search':
+        activeController = _shiftDocnumController;
+        break;
+      case 'amount':
+        activeController = _amountController;
+        break;
+      case 'remarks':
+        activeController = _remarksController;
+        break;
+      default:
+        activeController = _shiftDocnumController;
+    }
     return Scaffold(
         backgroundColor: const Color.fromARGB(255, 234, 234, 234),
         appBar: AppBar(
           backgroundColor: ProjectColors.primary,
           foregroundColor: Colors.white,
           title: const Text('MOP Adjustment'),
-        ),
-        body: SingleChildScrollView(
-          child: Center(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.7,
-              height: MediaQuery.of(context).size.height * 0.98,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(25, 15, 25, 15),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 80,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _inputShiftDocnum(),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const Divider(),
-                    if (shiftsFound != null && shiftsFound!.isNotEmpty)
-                      Expanded(
-                        child: _searchResult(onShiftSelected: _handleShiftSelected),
-                      ),
-                    if (showMOPField)
-                      SizedBox(
-                        child: _mopFields(),
-                      ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    if (showMOPField)
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.65,
-                        child: _actionButtons(),
-                      ),
-                  ],
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                  borderRadius: const BorderRadius.all(Radius.circular(360)),
                 ),
+                child: IconButton(
+                  icon: Icon(
+                    _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _showKeyboard = !_showKeyboard;
+                    });
+                  },
+                  tooltip: 'Toggle Keyboard',
+                ),
+              ),
+            ),
+          ],
+        ),
+        body: Center(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.7,
+            height: MediaQuery.of(context).size.height * 0.9,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(25, 15, 25, 15),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 80,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _inputShiftDocnum(),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  const Divider(),
+                  if (shiftsFound != null && shiftsFound!.isNotEmpty)
+                    Expanded(
+                      child: _searchResult(onShiftSelected: _handleShiftSelected),
+                    ),
+                  if (showMOPField)
+                    Expanded(
+                      child: _mopFields(),
+                    ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  (_showKeyboard)
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: KeyboardWidget(
+                            controller: activeController,
+                            isNumericMode: currentNumericMode,
+                            onKeyPress: (key) async {
+                              if (activeController == null) throw "Controller Error";
+                              String text = activeController.text;
+                              if (key.keyType == VirtualKeyboardKeyType.String) {
+                                text = text + ((_shiftEnabled ? key.capsText : key.text) ?? '');
+                                if (currentFocusedField == 'search') {
+                                  final shiftsSearched = await _searchShift(text);
+                                  setState(() {
+                                    shiftsFound = shiftsSearched;
+                                    showMOPField = false;
+                                    selectedMOP1 = "";
+                                    selectedMOP2 = "";
+                                    mop1Options = [];
+                                    mop2Options = [];
+                                  });
+                                } else if (currentFocusedField == 'amount') {
+                                  amountChanged = Helpers.revertMoneyToDecimalFormat(text);
+                                  if (amountChanged != null && text.isNotEmpty) {
+                                    if (amountChanged! > maxAmount!) {
+                                      setState(() {
+                                        isErr = true;
+                                        errMsg = "Invalid amount";
+                                      });
+                                    } else if (amountChanged == 0) {
+                                      setState(() {
+                                        isErr = true;
+                                        errMsg = "Amount can't be zero";
+                                      });
+                                    } else {
+                                      setState(() {
+                                        isErr = false;
+                                      });
+                                    }
+                                  }
+                                }
+                              } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                switch (key.action) {
+                                  case VirtualKeyboardKeyAction.Backspace:
+                                    if (text.isNotEmpty) {
+                                      text = text.substring(0, text.length - 1);
+                                      if (currentFocusedField == 'search') {
+                                        final shiftsSearched = await _searchShift(text);
+                                        setState(() {
+                                          shiftsFound = shiftsSearched;
+                                          showMOPField = false;
+                                          selectedMOP1 = "";
+                                          selectedMOP2 = "";
+                                          mop1Options = [];
+                                          mop2Options = [];
+                                        });
+                                      } else if (currentFocusedField == 'amount') {
+                                        amountChanged = Helpers.revertMoneyToDecimalFormat(text);
+                                        if (amountChanged != null && text.isNotEmpty) {
+                                          if (amountChanged! > maxAmount!) {
+                                            setState(() {
+                                              isErr = true;
+                                              errMsg = "Invalid amount";
+                                            });
+                                          } else if (amountChanged == 0) {
+                                            setState(() {
+                                              isErr = true;
+                                              errMsg = "Amount can't be zero";
+                                            });
+                                          } else {
+                                            setState(() {
+                                              isErr = false;
+                                            });
+                                          }
+                                        }
+                                      }
+                                    }
+                                    break;
+                                  case VirtualKeyboardKeyAction.Return:
+                                    activeController.text = activeController.text.trimRight();
+
+                                    if (currentFocusedField == 'search') {
+                                      final shiftsSearched = await _searchShift(text);
+                                      setState(() {
+                                        shiftsFound = shiftsSearched;
+                                        showMOPField = false;
+                                        selectedMOP1 = "";
+                                        selectedMOP2 = "";
+                                        mop1Options = [];
+                                        mop2Options = [];
+                                        maxAmount = 0;
+                                      });
+                                      FocusManager.instance.primaryFocus?.unfocus();
+                                    } else if (currentFocusedField == 'remarks') {
+                                      if (_shiftEnabled) {
+                                        FocusScope.of(context).nextFocus();
+                                      } else {
+                                        text = '$text\n';
+                                      }
+                                    }
+                                    break;
+                                  case VirtualKeyboardKeyAction.Space:
+                                    text = text + (key.text ?? '');
+                                    final shiftsSearched = await _searchShift(text);
+                                    setState(() {
+                                      shiftsFound = shiftsSearched;
+                                      showMOPField = false;
+                                      selectedMOP1 = "";
+                                      selectedMOP2 = "";
+                                      mop1Options = [];
+                                      mop2Options = [];
+                                    });
+                                    break;
+                                  case VirtualKeyboardKeyAction.Shift:
+                                    _shiftEnabled = !_shiftEnabled;
+                                    break;
+                                  default:
+                                    break;
+                                }
+                              }
+                              activeController.text = text;
+                              activeController.selection = TextSelection.collapsed(offset: text.length);
+
+                              setState(() {});
+                            },
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                ],
               ),
             ),
           ),
@@ -309,7 +507,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                 children: [
                   Expanded(
                     child: TextFormField(
-                      focusNode: _focusNode,
+                      focusNode: _shiftDocnumFocusNode,
                       textAlign: TextAlign.center,
                       controller: _shiftDocnumController,
                       style: const TextStyle(fontSize: 18),
@@ -350,9 +548,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                         });
                         FocusManager.instance.primaryFocus?.unfocus();
                       },
-                      onTapOutside: (event) {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                      },
+                      keyboardType: TextInputType.none,
                     ),
                   ),
                   const SizedBox(width: 15),
@@ -533,383 +729,398 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
     if (selectedMOP1 != null) {
       setState(() {
         maxAmount = getMaxAmount(selectedMOP1!);
-        log("maxAmount1231232 - $maxAmount");
       });
     }
-    return Form(
-      key: _formKey,
-      autovalidateMode: _autoValidate ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
-      child: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.65,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      child: Center(
-                          child: Text(
-                        shiftDocnum,
-                        style: const TextStyle(
-                            color: ProjectColors.mediumBlack, fontSize: 20, fontWeight: FontWeight.bold),
-                      )),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        child: Center(
-                          child: FittedBox(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.calendar_month_outlined, color: Colors.black, size: 18.0),
-                                const SizedBox(width: 10),
-                                Text(
-                                  Helpers.dateEEddMMMyyy(selectedShift!.openDate),
-                                  style: const TextStyle(
-                                    color: ProjectColors.primary,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        child: Center(
-                          child: FittedBox(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.account_circle_outlined,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  username ?? "",
-                                  style: const TextStyle(
-                                    color: ProjectColors.primary,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
-                        margin: const EdgeInsets.symmetric(horizontal: 5),
-                        child: Center(
-                          child: FittedBox(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.point_of_sale_outlined,
-                                  size: 20,
-                                ),
-                                const SizedBox(width: 10),
-                                Text(
-                                  idKassa ?? "",
-                                  style: const TextStyle(
-                                    color: ProjectColors.primary,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
+    return SizedBox(
+      height: 500,
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          autovalidateMode: _autoValidate ? AutovalidateMode.onUserInteraction : AutovalidateMode.disabled,
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.65,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(left: 10),
-                      child: Text(
-                        "From",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    DropdownButtonFormField<String>(
-                      value: selectedMOP1,
-                      isExpanded: true,
-                      icon: null,
-                      elevation: 18,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.all(8),
-                        hintText: "",
-                        hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-                        border: OutlineInputBorder(
-                          borderSide: const BorderSide(color: ProjectColors.mediumBlack, width: 2),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: ProjectColors.primary, width: 2),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null) {
-                          return null;
-                        }
-                        return null;
-                      },
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedMOP1 = newValue!;
-                          maxAmount = getMaxAmount(newValue);
-                        });
-                      },
-                      items: mop1Options.map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                )),
-                const SizedBox(width: 10),
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(left: 10),
-                      child: Text(
-                        "To",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    DropdownButtonFormField<String>(
-                      value: selectedMOP2,
-                      isExpanded: true,
-                      icon: null,
-                      elevation: 18,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.all(8),
-                        hintText: "",
-                        hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-                        border: OutlineInputBorder(
-                          borderSide: const BorderSide(color: ProjectColors.mediumBlack, width: 2),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: ProjectColors.primary, width: 2),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null) {
-                          return null;
-                        }
-                        return null;
-                      },
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedMOP2 = newValue!;
-                        });
-                      },
-                      items: mop2Options.map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                )),
-              ],
-            ),
-            if (selectedMOP1 == null)
-              const Padding(
-                padding: EdgeInsets.only(left: 10),
-                child: Row(
-                  children: [
-                    Icon(Icons.error_outline, color: ProjectColors.primary),
-                    SizedBox(width: 5),
-                    Text(
-                      "There's no transactions found on this shift",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: ProjectColors.primary),
-                    ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(left: 10),
-                      child: Text(
-                        "Amount",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Row(
+                SizedBox(
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                            child: Builder(
-                              builder: (BuildContext context) {
-                                return TextFormField(
-                                  controller: _amountController,
-                                  textAlign: TextAlign.center,
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: [MoneyInputFormatter()],
-                                  style: const TextStyle(fontSize: 18),
-                                  decoration: InputDecoration(
-                                    contentPadding: const EdgeInsets.all(10),
-                                    hintText: "",
-                                    hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-                                    border:
-                                        const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
-                                    prefix: selectedMOP1 != null ? Text("Max Amount: $maxAmount") : null,
-                                    suffix: isErr
-                                        ? Text(
-                                            errMsg,
-                                            style: const TextStyle(
-                                                fontSize: 18,
-                                                fontStyle: FontStyle.normal,
-                                                fontWeight: FontWeight.w700,
-                                                color: ProjectColors.swatch),
-                                          )
-                                        : null,
-                                  ),
-                                  onChanged: (value) {
-                                    amountChanged = Helpers.revertMoneyToDecimalFormat(_amountController.text);
-                                    if (amountChanged! > maxAmount!) {
-                                      setState(() {
-                                        isErr = true;
-                                        errMsg = "Invalid amount";
-                                      });
-                                    } else if (amountChanged == 0 ||
-                                        _amountController.text.isEmpty ||
-                                        _amountController.text == '') {
-                                      setState(() {
-                                        isErr = true;
-                                        errMsg = "Amount can't be zero";
-                                      });
-                                    } else if (isErr) {
-                                      setState(() {
-                                        isErr = false;
-                                      });
-                                    }
-                                  },
-                                  onEditingComplete: () {
-                                    if (isErr) {
-                                      SnackBarHelper.presentErrorSnackBar(context, "Please Input Correct Amount");
-                                    } else {
-                                      amountChanged = Helpers.revertMoneyToDecimalFormat(_amountController.text);
-                                    }
-                                  },
-                                );
-                              },
-                            ),
-                          ),
+                        Container(
+                          padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                          margin: const EdgeInsets.symmetric(horizontal: 5),
+                          child: Center(
+                              child: Text(
+                            shiftDocnum,
+                            style: const TextStyle(
+                                color: ProjectColors.mediumBlack, fontSize: 20, fontWeight: FontWeight.bold),
+                          )),
                         ),
                       ],
-                    )
-                  ],
-                )),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(left: 10),
-                      child: Text(
-                        "Remarks",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
                     ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Row(
+                  ),
+                ),
+                SizedBox(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: Row(
                       children: [
                         Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-                            child: TextFormField(
-                              controller: _remarksController,
-                              textAlign: TextAlign.start,
-                              style: const TextStyle(fontSize: 18),
-                              minLines: 4,
-                              maxLines: 4,
-                              decoration: const InputDecoration(
-                                contentPadding: EdgeInsets.all(10),
-                                hintText: "",
-                                hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                            margin: const EdgeInsets.symmetric(horizontal: 5),
+                            child: Center(
+                              child: FittedBox(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.calendar_month_outlined, color: Colors.black, size: 18.0),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      Helpers.dateEEddMMMyyy(selectedShift!.openDate),
+                                      style: const TextStyle(
+                                        color: ProjectColors.primary,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                            margin: const EdgeInsets.symmetric(horizontal: 5),
+                            child: Center(
+                              child: FittedBox(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.account_circle_outlined,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      username ?? "",
+                                      style: const TextStyle(
+                                        color: ProjectColors.primary,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                            margin: const EdgeInsets.symmetric(horizontal: 5),
+                            child: Center(
+                              child: FittedBox(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.point_of_sale_outlined,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      idKassa ?? "",
+                                      style: const TextStyle(
+                                        color: ProjectColors.primary,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ],
                     ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: Text(
+                            "From",
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        DropdownButtonFormField<String>(
+                          value: selectedMOP1,
+                          isExpanded: true,
+                          icon: null,
+                          elevation: 18,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.all(8),
+                            hintText: "",
+                            hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
+                            border: OutlineInputBorder(
+                              borderSide: const BorderSide(color: ProjectColors.mediumBlack, width: 2),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: ProjectColors.primary, width: 2),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null) {
+                              return null;
+                            }
+                            return null;
+                          },
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedMOP1 = newValue!;
+                              maxAmount = getMaxAmount(newValue);
+                            });
+                          },
+                          items: mop1Options.map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    )),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: Text(
+                            "To",
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        DropdownButtonFormField<String>(
+                          value: selectedMOP2,
+                          isExpanded: true,
+                          icon: null,
+                          elevation: 18,
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.all(8),
+                            hintText: "",
+                            hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
+                            border: OutlineInputBorder(
+                              borderSide: const BorderSide(color: ProjectColors.mediumBlack, width: 2),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(color: ProjectColors.primary, width: 2),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null) {
+                              return null;
+                            }
+                            return null;
+                          },
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedMOP2 = newValue!;
+                            });
+                          },
+                          items: mop2Options.map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    )),
                   ],
-                )),
+                ),
+                if (selectedMOP1 == null)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 10),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error_outline, color: ProjectColors.primary),
+                        SizedBox(width: 5),
+                        Text(
+                          "There's no transactions found on this shift",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: ProjectColors.primary),
+                        ),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10, right: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Amount",
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                isErr ? "*$errMsg" : "",
+                                style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w300,
+                                    color: ProjectColors.swatch,
+                                    fontStyle: FontStyle.italic),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                child: Builder(
+                                  builder: (BuildContext context) {
+                                    return TextFormField(
+                                      focusNode: _amountFocusNode,
+                                      controller: _amountController,
+                                      textAlign: TextAlign.center,
+                                      keyboardType: TextInputType.none,
+                                      inputFormatters: [MoneyInputFormatter()],
+                                      style: const TextStyle(fontSize: 18),
+                                      decoration: InputDecoration(
+                                        contentPadding: const EdgeInsets.all(10),
+                                        hintText: selectedMOP1 != null ? "Max: $maxAmount" : '',
+                                        hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
+                                        border: const OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                                      ),
+                                      onChanged: (value) {
+                                        amountChanged = Helpers.revertMoneyToDecimalFormat(_amountController.text);
+                                        if (amountChanged! > maxAmount!) {
+                                          setState(() {
+                                            isErr = true;
+                                            errMsg = "Invalid amount";
+                                          });
+                                        } else if (amountChanged == 0 ||
+                                            _amountController.text.isEmpty ||
+                                            _amountController.text == '') {
+                                          setState(() {
+                                            isErr = true;
+                                            errMsg = "Amount can't be zero";
+                                          });
+                                        } else if (isErr) {
+                                          setState(() {
+                                            isErr = false;
+                                          });
+                                        }
+                                      },
+                                      onEditingComplete: () {
+                                        if (isErr) {
+                                          SnackBarHelper.presentErrorSnackBar(context, "Please Input Correct Amount");
+                                        } else {
+                                          amountChanged = Helpers.revertMoneyToDecimalFormat(_amountController.text);
+                                        }
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    )),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(left: 10),
+                            child: Text(
+                              "Remarks",
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
+                                  child: TextFormField(
+                                    focusNode: _remarkFocusNode,
+                                    controller: _remarksController,
+                                    textAlign: TextAlign.start,
+                                    style: const TextStyle(fontSize: 18),
+                                    minLines: 4,
+                                    maxLines: 4,
+                                    decoration: const InputDecoration(
+                                      contentPadding: EdgeInsets.all(10),
+                                      hintText: "",
+                                      hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
+                                    ),
+                                    keyboardType: TextInputType.none,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.65,
+                  child: _actionButtons(),
+                ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );

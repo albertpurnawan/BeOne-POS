@@ -27,6 +27,16 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     });
   }
 
+  @override
+  void didUpdateWidget(KeyboardWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isNumericMode != widget.isNumericMode) {
+      setState(() {
+        _isNumericMode = widget.isNumericMode;
+      });
+    }
+  }
+
   void _defaultOnKeyPress(VirtualKeyboardKey key) {
     String text = widget.controller.text;
 
@@ -43,7 +53,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
           if (_shiftEnabled) {
             FocusScope.of(context).nextFocus();
           } else {
-            text = text + '\n';
+            text = '$text\n';
           }
           break;
         case VirtualKeyboardKeyAction.Space:
