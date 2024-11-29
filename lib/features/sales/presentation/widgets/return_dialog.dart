@@ -350,7 +350,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                 ),
               (_showKeyboard)
                   ? Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      padding: const EdgeInsets.fromLTRB(30, 5, 30, 0),
                       child: KeyboardWidget(
                         controller: activeController,
                         isNumericMode: false,
