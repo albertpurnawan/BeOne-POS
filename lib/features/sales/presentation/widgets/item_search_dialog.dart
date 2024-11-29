@@ -8,6 +8,7 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -29,8 +30,13 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
   final TextEditingController _textEditingController = TextEditingController();
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
 
+  bool _shiftEnabled = false;
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+
   @override
   void dispose() {
+    _keyboardFocusNode.dispose();
     _searchInputFocusNode.dispose();
     _scrollController.dispose();
     _textEditingController.dispose();
@@ -106,9 +112,34 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-                child: const Text(
-                  'Item Search',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Item Search',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                        borderRadius: const BorderRadius.all(Radius.circular(360)),
+                      ),
+                      child: IconButton(
+                        focusColor: const Color.fromARGB(255, 110, 0, 0),
+                        focusNode: _keyboardFocusNode,
+                        icon: Icon(
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showKeyboard = !_showKeyboard;
+                          });
+                        },
+                        tooltip: 'Toggle Keyboard',
+                      ),
+                    ),
+                  ],
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -153,6 +184,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                             // contentPadding:
                             //     EdgeInsets.fromLTRB(0, 0, 0, 0),
                           ),
+                          keyboardType: TextInputType.none,
                         ),
                       ),
                       const SizedBox(
@@ -199,11 +231,9 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                                 (itemEntity.shortName != "")
                                                     ? itemEntity.shortName ?? itemEntity.itemName
                                                     : itemEntity.itemName,
-                                                style: TextStyle(fontSize: 14, height: 1),
+                                                style: const TextStyle(fontSize: 14, height: 1),
                                               ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
+                                              const SizedBox(height: 5),
                                             ],
                                           ),
                                           subtitle: Row(
@@ -280,40 +310,79 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                         ),
                       ),
                       const SizedBox(height: 10),
-                      Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            color: Color.fromARGB(255, 245, 245, 245),
-                          ),
-                          child: VirtualKeyboard(
-                            height: 200,
-                            //width: 500,
-                            textColor: ProjectColors.primary,
-                            fontSize: 16,
-                            textController: _textEditingController,
-                            //customLayoutKeys: _customLayoutKeys,
-                            defaultLayouts: [
-                              // VirtualKeyboardDefaultLayouts.Arabic,
-                              VirtualKeyboardDefaultLayouts.English
-                            ],
+                      (_showKeyboard)
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: KeyboardWidget(
+                                controller: _textEditingController,
+                                isNumericMode: false,
+                                onKeyPress: (key) async {
+                                  String text = _textEditingController.text;
+                                  if (key.keyType == VirtualKeyboardKeyType.String) {
+                                    text = text + ((_shiftEnabled ? key.capsText : key.text) ?? '');
+                                  } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                    switch (key.action) {
+                                      case VirtualKeyboardKeyAction.Backspace:
+                                        if (text.isNotEmpty) {
+                                          text = text.substring(0, text.length - 1);
+                                        }
+                                        break;
+                                      case VirtualKeyboardKeyAction.Return:
+                                        _textEditingController.text = _textEditingController.text.trimRight();
+                                        await onSubmit();
+                                        break;
+                                      case VirtualKeyboardKeyAction.Space:
+                                        text = text + (key.text ?? '');
+                                        break;
+                                      case VirtualKeyboardKeyAction.Shift:
+                                        _shiftEnabled = !_shiftEnabled;
+                                        break;
+                                      default:
+                                        break;
+                                    }
+                                  }
+                                  _textEditingController.text = text;
+                                  _textEditingController.selection = TextSelection.collapsed(offset: text.length);
 
-                            //reverseLayout :true,
-                            type: VirtualKeyboardType.Alphanumeric,
+                                  setState(() {});
+                                },
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                      // Container(
+                      //   color: Colors.white,
+                      //   padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      //   child: Container(
+                      //     decoration: BoxDecoration(
+                      //       borderRadius: BorderRadius.circular(5),
+                      //       color: const Color.fromARGB(255, 245, 245, 245),
+                      //     ),
+                      //     child: VirtualKeyboard(
+                      //       height: 200,
+                      //       //width: 500,
+                      //       textColor: ProjectColors.primary,
+                      //       fontSize: 16,
+                      //       textController: _textEditingController,
+                      //       //customLayoutKeys: _customLayoutKeys,
+                      //       defaultLayouts: [
+                      //         // VirtualKeyboardDefaultLayouts.Arabic,
+                      //         VirtualKeyboardDefaultLayouts.English
+                      //       ],
 
-                            postKeyPress: (key) async {
-                              if (key.action == VirtualKeyboardKeyAction.Return) {
-                                _textEditingController.text = _textEditingController.text.trimRight();
-                                await onSubmit();
-                              }
+                      //       //reverseLayout :true,
+                      //       type: VirtualKeyboardType.Alphanumeric,
 
-                              _searchInputFocusNode.requestFocus();
-                            },
-                          ),
-                        ),
-                      )
+                      //       postKeyPress: (key) async {
+                      //         if (key.action == VirtualKeyboardKeyAction.Return) {
+                      //           _textEditingController.text = _textEditingController.text.trimRight();
+                      //           await onSubmit();
+                      //         }
+
+                      //         _searchInputFocusNode.requestFocus();
+                      //       },
+                      //     ),
+                      //   ),
+                      // )
                     ],
                   ),
                 ),
