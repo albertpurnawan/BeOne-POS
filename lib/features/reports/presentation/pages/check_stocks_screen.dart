@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
@@ -7,9 +5,11 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/reports/data/data_source/remote/check_stock_service.dart';
 import 'package:pos_fe/features/sales/data/models/check_stock.dart';
 import 'package:pos_fe/features/sales/domain/entities/check_stock.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class CheckStockScreen extends StatefulWidget {
   const CheckStockScreen({super.key});
@@ -27,6 +27,10 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
   bool showTable = false;
   bool isLoading = false;
 
+  bool _shiftEnabled = false;
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -36,6 +40,8 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
   @override
   void dispose() {
     _itemInputController.dispose();
+    _focusNode.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
   }
 
@@ -81,12 +87,35 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
         title: const Text('Check Stocks'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            child: Container(
+              decoration: BoxDecoration(
+                color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                borderRadius: const BorderRadius.all(Radius.circular(360)),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _showKeyboard = !_showKeyboard;
+                  });
+                },
+                tooltip: 'Toggle Keyboard',
+              ),
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Center(
           child: SizedBox(
             width: MediaQuery.of(context).size.width * 0.7,
-            height: MediaQuery.of(context).size.height * 0.98,
+            height: MediaQuery.of(context).size.height * 0.9,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(25, 15, 25, 15),
               child: Column(
@@ -109,10 +138,56 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                       child: _searchResult(onItemSelected: _handleItemSelected),
                     ),
                   if (showTable)
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.5,
+                    Expanded(
+                      // height: MediaQuery.of(context).size.height * 0.4,
                       child: _stocksTable(),
                     ),
+                  (_showKeyboard)
+                      ? SizedBox(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: KeyboardWidget(
+                              controller: _itemInputController,
+                              isNumericMode: false,
+                              onKeyPress: (key) async {
+                                String text = _itemInputController.text;
+                                if (key.keyType == VirtualKeyboardKeyType.String) {
+                                  text = text + ((_shiftEnabled ? key.capsText : key.text) ?? '');
+                                } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                  switch (key.action) {
+                                    case VirtualKeyboardKeyAction.Backspace:
+                                      if (text.isNotEmpty) {
+                                        text = text.substring(0, text.length - 1);
+                                      }
+                                      break;
+                                    case VirtualKeyboardKeyAction.Return:
+                                      _itemInputController.text = _itemInputController.text.trimRight();
+                                      final itemsSearched = await _searchItem(_itemInputController.text);
+
+                                      setState(() {
+                                        itemsFound = itemsSearched;
+                                        showTable = false;
+                                      });
+                                      break;
+                                    case VirtualKeyboardKeyAction.Space:
+                                      text = text + (key.text ?? '');
+                                      break;
+                                    case VirtualKeyboardKeyAction.Shift:
+                                      _shiftEnabled = !_shiftEnabled;
+                                      break;
+                                    default:
+                                      break;
+                                  }
+                                }
+                                _itemInputController.text = text;
+                                _itemInputController.selection = TextSelection.collapsed(offset: text.length);
+
+                                setState(() {});
+                              },
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
                 ],
               ),
             ),
@@ -172,6 +247,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                       onTapOutside: (event) {
                         FocusManager.instance.primaryFocus?.unfocus();
                       },
+                      keyboardType: TextInputType.none,
                     ),
                   ),
                   const SizedBox(width: 15),
@@ -191,7 +267,6 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                       ),
                       onPressed: () async {
                         final itemsSearched = await _searchItem(_itemInputController.text);
-                        log("itemSearched - $itemsSearched");
 
                         setState(() {
                           itemsFound = itemsSearched;
