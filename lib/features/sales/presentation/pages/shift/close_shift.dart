@@ -252,10 +252,10 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       );
 
       final fetched = await GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(start, end);
-      log("fetched - $fetched");
       for (final mop in fetched!) {
-        if ((mop['topmtDesc'] != 'TUNAI')) {
-          if ((mop['topmtDesc'] == 'VOUCHER')) {
+        String mopStringUp = mop['topmtDesc'].toString().toUpperCase();
+        if (mopStringUp != 'TUNAI') {
+          if (mopStringUp == 'VOUCHER') {
             totalVoucher += mop['totalamount'];
           } else {
             nonCash += mop['totalamount'];
