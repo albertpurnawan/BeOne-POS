@@ -201,7 +201,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                               String text = _employeeTextController.text;
                               if (key.keyType == VirtualKeyboardKeyType.String) {
                                 text = text + ((_shiftEnabled ? key.capsText : key.text) ?? '');
-                              } else if (key.action == VirtualKeyboardKeyAction.Return) {
+                              } else if (key.keyType == VirtualKeyboardKeyType.Action) {
                                 switch (key.action) {
                                   case VirtualKeyboardKeyAction.Backspace:
                                     if (text.isNotEmpty) {
