@@ -47,7 +47,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
   bool _showKeyboard = true;
   bool _shiftEnabled = false;
 
-  String currentFocusedField = '';
+  TextEditingController _activeController = TextEditingController();
 
   @override
   void initState() {
@@ -57,21 +57,21 @@ class _ReturnDialogState extends State<ReturnDialog> {
     _invoiceNumberFocusNode.addListener(() {
       if (_invoiceNumberFocusNode.hasFocus) {
         setState(() {
-          currentFocusedField = 'invoice';
+          _activeController = _invoiceNumberController;
         });
       }
     });
     _searchAvailableItemsInputFocusNode.addListener(() {
       if (_searchAvailableItemsInputFocusNode.hasFocus) {
         setState(() {
-          currentFocusedField = 'availableitems';
+          _activeController = _searchAvailableItemsInputTextController;
         });
       }
     });
     _searchReturnedItemsInputFocusNode.addListener(() {
       if (_searchReturnedItemsInputFocusNode.hasFocus) {
         setState(() {
-          currentFocusedField = 'returneditems';
+          _activeController = _searchReturnedItemsInputTextController;
         });
       }
     });
@@ -90,21 +90,6 @@ class _ReturnDialogState extends State<ReturnDialog> {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController? activeController;
-    switch (currentFocusedField) {
-      case 'invoice':
-        activeController = _invoiceNumberController;
-        break;
-      case 'availableitems':
-        activeController = _searchAvailableItemsInputTextController;
-        break;
-      case 'returneditems':
-        activeController = _searchReturnedItemsInputTextController;
-        break;
-      default:
-        activeController = _invoiceNumberController;
-        break;
-    }
     return FocusScope(
       autofocus: true,
       skipTraversal: true,
@@ -353,36 +338,42 @@ class _ReturnDialogState extends State<ReturnDialog> {
                   ? Padding(
                       padding: const EdgeInsets.fromLTRB(30, 5, 30, 0),
                       child: KeyboardWidget(
-                        controller: activeController,
+                        controller: _activeController,
                         isNumericMode: false,
                         onKeyPress: (key) async {
-                          if (activeController == null) throw "Controller Error";
-                          String text = activeController.text;
+                          String text = _activeController.text;
+                          TextSelection currentSelection = _activeController.selection;
+                          int cursorPosition = currentSelection.start;
+
                           if (key.keyType == VirtualKeyboardKeyType.String) {
-                            text = text + ((_shiftEnabled ? key.capsText : key.text) ?? '');
+                            String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                            text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                            cursorPosition += inputText.length;
                           } else if (key.keyType == VirtualKeyboardKeyType.Action) {
                             switch (key.action) {
                               case VirtualKeyboardKeyAction.Backspace:
                                 if (text.isNotEmpty) {
-                                  text = text.substring(0, text.length - 1);
+                                  text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                  cursorPosition -= 1;
                                 }
                                 break;
                               case VirtualKeyboardKeyAction.Return:
                                 if (_shiftEnabled) {
                                   FocusScope.of(context).nextFocus();
-                                } else if (currentFocusedField == 'invoice') {
-                                  activeController.text = activeController.text.trimRight();
+                                } else if (_activeController == _invoiceNumberController) {
+                                  _activeController.text = _activeController.text.trimRight();
                                   await _fetchInvoiceByDocNum();
-                                } else if (currentFocusedField == 'availableitems') {
+                                } else if (_activeController == _searchAvailableItemsInputTextController) {
                                   _searchAvailableItemsInputFocusNode.requestFocus();
-                                } else if (currentFocusedField == 'returneditems') {
+                                } else if (_activeController == _searchReturnedItemsInputTextController) {
                                   _searchReturnedItemsInputFocusNode.requestFocus();
                                 } else {
                                   null;
                                 }
                                 break;
                               case VirtualKeyboardKeyAction.Space:
-                                text = text + (key.text ?? '');
+                                text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                cursorPosition += 1;
                                 break;
                               case VirtualKeyboardKeyAction.Shift:
                                 _shiftEnabled = !_shiftEnabled;
@@ -391,8 +382,8 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                 break;
                             }
                           }
-                          activeController.text = text;
-                          activeController.selection = TextSelection.collapsed(offset: text.length);
+                          _activeController.text = text;
+                          _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
 
                           setState(() {});
                         },

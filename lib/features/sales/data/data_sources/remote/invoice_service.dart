@@ -332,6 +332,7 @@ class InvoiceApi {
         "promotion": promotionsHeader,
         "approval": approvals,
         "downpayment_docnums": docnums,
+        "flaginvoice": 2,
       };
       if (invHead[0].salesTohemId != "") {
         dataToSend["sales_tohem_id"] = invHead[0].salesTohemId;

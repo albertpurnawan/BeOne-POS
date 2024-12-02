@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -67,8 +68,8 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
   bool _shiftEnabled = false;
   bool _showKeyboard = true;
   final FocusNode _keyboardFocusNode = FocusNode();
-  String currentFocusedField = '';
   bool currentNumericMode = false;
+  TextEditingController _activeController = TextEditingController();
 
   @override
   void initState() {
@@ -79,7 +80,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
     _shiftDocnumFocusNode.addListener(() {
       if (_shiftDocnumFocusNode.hasFocus) {
         setState(() {
-          currentFocusedField = 'search';
+          _activeController = _shiftDocnumController;
           currentNumericMode = false;
         });
       }
@@ -87,7 +88,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
     _amountFocusNode.addListener(() {
       if (_amountFocusNode.hasFocus) {
         setState(() {
-          currentFocusedField = 'amount';
+          _activeController = _amountController;
           currentNumericMode = true;
         });
       }
@@ -95,7 +96,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
     _remarkFocusNode.addListener(() {
       if (_remarkFocusNode.hasFocus) {
         setState(() {
-          currentFocusedField = 'remarks';
+          _activeController = _remarksController;
           currentNumericMode = false;
         });
       }
@@ -266,21 +267,6 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController? activeController;
-    switch (currentFocusedField) {
-      case 'search':
-        activeController = _shiftDocnumController;
-        break;
-      case 'amount':
-        activeController = _amountController;
-        break;
-      case 'remarks':
-        activeController = _remarksController;
-        break;
-      default:
-        activeController = _shiftDocnumController;
-        break;
-    }
     return Scaffold(
         backgroundColor: const Color.fromARGB(255, 234, 234, 234),
         appBar: AppBar(
@@ -347,24 +333,18 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                       ? Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 5),
                           child: KeyboardWidget(
-                            controller: activeController,
+                            controller: _activeController,
                             isNumericMode: currentNumericMode,
                             onKeyPress: (key) async {
-                              if (activeController == null) throw "Controller Error";
-                              String text = activeController.text;
+                              String text = _activeController.text;
+                              TextSelection currentSelection = _activeController.selection;
+                              int cursorPosition = currentSelection.start;
+
                               if (key.keyType == VirtualKeyboardKeyType.String) {
-                                text = text + ((_shiftEnabled ? key.capsText : key.text) ?? '');
-                                if (currentFocusedField == 'search') {
-                                  final shiftsSearched = await _searchShift(text);
-                                  setState(() {
-                                    shiftsFound = shiftsSearched;
-                                    showMOPField = false;
-                                    selectedMOP1 = "";
-                                    selectedMOP2 = "";
-                                    mop1Options = [];
-                                    mop2Options = [];
-                                  });
-                                } else if (currentFocusedField == 'amount') {
+                                String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                cursorPosition += inputText.length;
+                                if (_activeController == _amountController) {
                                   amountChanged = Helpers.revertMoneyToDecimalFormat(text);
                                   if (amountChanged != null && text.isNotEmpty) {
                                     if (amountChanged! > maxAmount!) {
@@ -387,19 +367,10 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                               } else if (key.keyType == VirtualKeyboardKeyType.Action) {
                                 switch (key.action) {
                                   case VirtualKeyboardKeyAction.Backspace:
-                                    if (text.isNotEmpty) {
-                                      text = text.substring(0, text.length - 1);
-                                      if (currentFocusedField == 'search') {
-                                        final shiftsSearched = await _searchShift(text);
-                                        setState(() {
-                                          shiftsFound = shiftsSearched;
-                                          showMOPField = false;
-                                          selectedMOP1 = "";
-                                          selectedMOP2 = "";
-                                          mop1Options = [];
-                                          mop2Options = [];
-                                        });
-                                      } else if (currentFocusedField == 'amount') {
+                                    if (text.isNotEmpty && cursorPosition > 0) {
+                                      text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                      cursorPosition -= 1;
+                                      if (_activeController == _amountController) {
                                         amountChanged = Helpers.revertMoneyToDecimalFormat(text);
                                         if (amountChanged != null && text.isNotEmpty) {
                                           if (amountChanged! > maxAmount!) {
@@ -422,9 +393,9 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                     }
                                     break;
                                   case VirtualKeyboardKeyAction.Return:
-                                    activeController.text = activeController.text.trimRight();
+                                    _activeController.text = _activeController.text.trimRight();
 
-                                    if (currentFocusedField == 'search') {
+                                    if (_activeController == _shiftDocnumController) {
                                       final shiftsSearched = await _searchShift(text);
                                       setState(() {
                                         shiftsFound = shiftsSearched;
@@ -436,25 +407,22 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                         maxAmount = 0;
                                       });
                                       FocusManager.instance.primaryFocus?.unfocus();
-                                    } else if (currentFocusedField == 'remarks') {
+                                    } else if (_activeController == _remarksController) {
                                       if (_shiftEnabled) {
                                         FocusScope.of(context).nextFocus();
                                       } else {
-                                        text = '$text\n';
+                                        text = text.replaceRange(cursorPosition, cursorPosition, '\n');
+                                        cursorPosition += 1;
                                       }
                                     }
                                     break;
                                   case VirtualKeyboardKeyAction.Space:
-                                    text = text + (key.text ?? '');
-                                    final shiftsSearched = await _searchShift(text);
-                                    setState(() {
-                                      shiftsFound = shiftsSearched;
-                                      showMOPField = false;
-                                      selectedMOP1 = "";
-                                      selectedMOP2 = "";
-                                      mop1Options = [];
-                                      mop2Options = [];
-                                    });
+                                    text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                    cursorPosition += 1;
+                                    if (_activeController == _remarksController) {
+                                      text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                      cursorPosition += 1;
+                                    }
                                     break;
                                   case VirtualKeyboardKeyAction.Shift:
                                     _shiftEnabled = !_shiftEnabled;
@@ -463,8 +431,8 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                     break;
                                 }
                               }
-                              activeController.text = text;
-                              activeController.selection = TextSelection.collapsed(offset: text.length);
+                              _activeController.text = text;
+                              _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
 
                               setState(() {});
                             },

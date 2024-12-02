@@ -44,7 +44,7 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
   final _portController = TextEditingController();
   BluetoothPrinter? selectedPrinter;
 
-  bool _showKeyboard = true;
+  bool _showKeyboard = Platform.isWindows ? true : false;
   final FocusNode _ipFocusNode = FocusNode();
   final FocusNode _portFocusNode = FocusNode();
   final FocusNode _keyboardFocusNode = FocusNode();
@@ -400,29 +400,31 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
         title: const Text('Default Printer'),
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-            child: Container(
-              decoration: BoxDecoration(
-                color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
-                borderRadius: const BorderRadius.all(Radius.circular(360)),
-              ),
-              child: IconButton(
-                icon: Icon(
-                  _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
-                  color: Colors.white,
+        actions: (Platform.isWindows)
+            ? [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(360)),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showKeyboard = !_showKeyboard;
+                        });
+                      },
+                      tooltip: 'Toggle Keyboard',
+                    ),
+                  ),
                 ),
-                onPressed: () {
-                  setState(() {
-                    _showKeyboard = !_showKeyboard;
-                  });
-                },
-                tooltip: 'Toggle Keyboard',
-              ),
-            ),
-          ),
-        ],
+              ]
+            : null,
       ),
       body: Center(
         child: SizedBox(
@@ -644,28 +646,22 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                                   onKeyPress: (key) {
                                     String text = _activeController.text;
                                     TextSelection currentSelection = _activeController.selection;
+                                    int cursorPosition = currentSelection.start;
 
                                     if (key.keyType == VirtualKeyboardKeyType.String) {
-                                      int cursorIndex = currentSelection.start;
-                                      text = text.replaceRange(
-                                          cursorIndex, cursorIndex, ((_shiftEnabled ? key.capsText : key.text) ?? ''));
-                                      _activeController.text = text;
+                                      String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                      text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                      cursorPosition += inputText.length;
 
                                       (_activeController == _ipController) ? setIpAddress(text) : setPort(text);
-
-                                      _activeController.selection = TextSelection.collapsed(offset: cursorIndex + 1);
                                     } else if (key.keyType == VirtualKeyboardKeyType.Action) {
                                       switch (key.action) {
                                         case VirtualKeyboardKeyAction.Backspace:
                                           if (text.isNotEmpty && currentSelection.start > 0) {
-                                            int cursorIndex = currentSelection.start;
-                                            text = text.replaceRange(cursorIndex - 1, cursorIndex, '');
-                                            _activeController.text = text;
+                                            text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                            cursorPosition -= 1;
 
                                             (_activeController == _ipController) ? setIpAddress(text) : setPort(text);
-
-                                            _activeController.selection =
-                                                TextSelection.collapsed(offset: cursorIndex - 1);
                                           }
                                           break;
                                         case VirtualKeyboardKeyAction.Return:
@@ -676,11 +672,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                                                   : setPort(text);
                                           break;
                                         case VirtualKeyboardKeyAction.Space:
-                                          int cursorIndex = currentSelection.start;
-                                          text = text.replaceRange(cursorIndex, cursorIndex, ' ');
-                                          _activeController.text = text;
-                                          _activeController.selection =
-                                              TextSelection.collapsed(offset: cursorIndex + 1);
+                                          text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                          cursorPosition += 1;
                                           (_activeController == _ipController) ? setIpAddress(text) : setPort(text);
                                           break;
                                         case VirtualKeyboardKeyAction.Shift:
@@ -690,6 +683,9 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                                           break;
                                       }
                                     }
+
+                                    _activeController.text = text;
+                                    _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
 
                                     setState(() {});
                                   },

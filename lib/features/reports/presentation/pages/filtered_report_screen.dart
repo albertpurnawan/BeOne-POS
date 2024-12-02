@@ -21,7 +21,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
   DateTime? selectedFromDate;
   DateTime? selectedToDate;
   String? searchedQuery;
-  TextEditingController searchController = TextEditingController();
+  TextEditingController _searchController = TextEditingController();
 
   bool _shiftEnabled = false;
   bool _showKeyboard = true;
@@ -38,7 +38,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
 
   @override
   void dispose() {
-    searchController.dispose();
+    _searchController.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
   }
@@ -277,7 +277,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                   onChanged: (String? newValue) {
                                     setState(() {
                                       selectedFilter = newValue!;
-                                      searchController.text = "";
+                                      _searchController.text = "";
                                       searchedQuery = "";
                                     });
                                   },
@@ -298,7 +298,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                 width: 400,
                                 height: 30,
                                 child: TextField(
-                                  controller: searchController,
+                                  controller: _searchController,
                                   decoration: const InputDecoration(
                                     contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 8),
                                     border: OutlineInputBorder(),
@@ -369,12 +369,17 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: IntrinsicHeight(
                         child: KeyboardWidget(
-                          controller: searchController,
+                          controller: _searchController,
                           isNumericMode: false,
                           onKeyPress: (key) async {
-                            String text = searchController.text;
+                            String text = _searchController.text;
+                            TextSelection currentSelection = _searchController.selection;
+                            int cursorPosition = currentSelection.start;
+
                             if (key.keyType == VirtualKeyboardKeyType.String) {
-                              text = text + ((_shiftEnabled ? key.capsText : key.text) ?? '');
+                              String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                              text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                              cursorPosition += inputText.length;
                               setState(() {
                                 searchedQuery = text;
                               });
@@ -382,20 +387,22 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                               switch (key.action) {
                                 case VirtualKeyboardKeyAction.Backspace:
                                   if (text.isNotEmpty) {
-                                    text = text.substring(0, text.length - 1);
+                                    text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                    cursorPosition -= 1;
                                   }
                                   setState(() {
                                     searchedQuery = text;
                                   });
                                   break;
                                 case VirtualKeyboardKeyAction.Return:
-                                  searchController.text = searchController.text.trimRight();
+                                  _searchController.text = _searchController.text.trimRight();
                                   setState(() {
-                                    searchedQuery = searchController.text;
+                                    searchedQuery = _searchController.text;
                                   });
                                   break;
                                 case VirtualKeyboardKeyAction.Space:
-                                  text = text + (key.text ?? '');
+                                  text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                  cursorPosition += 1;
                                   break;
                                 case VirtualKeyboardKeyAction.Shift:
                                   _shiftEnabled = !_shiftEnabled;
@@ -404,8 +411,8 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                   break;
                               }
                             }
-                            searchController.text = text;
-                            searchController.selection = TextSelection.collapsed(offset: text.length);
+                            _searchController.text = text;
+                            _searchController.selection = TextSelection.collapsed(offset: cursorPosition);
 
                             setState(() {});
                           },

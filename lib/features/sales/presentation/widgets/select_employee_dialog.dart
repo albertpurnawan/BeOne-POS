@@ -199,28 +199,31 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                             isNumericMode: false,
                             onKeyPress: (key) async {
                               String text = _employeeTextController.text;
+                              TextSelection currentSelection = _employeeTextController.selection;
+                              int cursorPosition = currentSelection.start;
+
                               if (key.keyType == VirtualKeyboardKeyType.String) {
-                                text = text + ((_shiftEnabled ? key.capsText : key.text) ?? '');
+                                String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                cursorPosition += inputText.length;
                               } else if (key.keyType == VirtualKeyboardKeyType.Action) {
                                 switch (key.action) {
                                   case VirtualKeyboardKeyAction.Backspace:
                                     if (text.isNotEmpty) {
-                                      text = text.substring(0, text.length - 1);
+                                      text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                      cursorPosition -= 1;
                                     }
                                     break;
                                   case VirtualKeyboardKeyAction.Return:
-                                    if (_shiftEnabled) {
-                                      FocusScope.of(context).nextFocus();
-                                    } else {
-                                      _employeeTextController.text = _employeeTextController.text.trimRight();
-                                      context
-                                          .read<EmployeesCubit>()
-                                          .getEmployees(searchKeyword: _employeeTextController.text);
-                                      _employeeInputFocusNode.requestFocus();
-                                    }
+                                    _employeeTextController.text = _employeeTextController.text.trimRight();
+                                    context
+                                        .read<EmployeesCubit>()
+                                        .getEmployees(searchKeyword: _employeeTextController.text);
+                                    _employeeInputFocusNode.requestFocus();
                                     break;
                                   case VirtualKeyboardKeyAction.Space:
-                                    text = text + (key.text ?? '');
+                                    text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                    cursorPosition += 1;
                                     break;
                                   case VirtualKeyboardKeyAction.Shift:
                                     _shiftEnabled = !_shiftEnabled;
@@ -230,7 +233,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                                 }
                               }
                               _employeeTextController.text = text;
-                              _employeeTextController.selection = TextSelection.collapsed(offset: text.length);
+                              _employeeTextController.selection = TextSelection.collapsed(offset: cursorPosition);
 
                               setState(() {});
                             },

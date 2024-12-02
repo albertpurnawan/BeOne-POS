@@ -41,7 +41,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   final _invoiceDocNumFocusNode = FocusNode();
   final _usernameFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
-  TextEditingController activeController = TextEditingController();
+  TextEditingController _activeController = TextEditingController();
 
   List<InvoiceDetailModel>? invoiceFound;
   InvoiceDetailModel? selectedInvoice;
@@ -65,7 +65,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
       if (_invoiceDocNumFocusNode.hasFocus) {
         setState(() {
           currentFocusedField = 'invoice';
-          activeController = _invoiceDocNumTextController;
+          _activeController = _invoiceDocNumTextController;
         });
       }
     });
@@ -73,7 +73,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
       if (_usernameFocusNode.hasFocus) {
         setState(() {
           currentFocusedField = 'username';
-          activeController = _usernameController;
+          _activeController = _usernameController;
         });
       }
     });
@@ -81,7 +81,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
       if (_passwordFocusNode.hasFocus) {
         setState(() {
           currentFocusedField = 'password';
-          activeController = _passwordController;
+          _activeController = _passwordController;
         });
       }
     });
@@ -267,16 +267,16 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   Widget build(BuildContext context) {
     // switch (currentFocusedField) {
     //   case 'invoice':
-    //     activeController = _invoiceDocNumTextController;
+    //     _activeController = _invoiceDocNumTextController;
     //     break;
     //   case 'username':
-    //     activeController = _usernameController;
+    //     _activeController = _usernameController;
     //     break;
     //   case 'password':
-    //     activeController = _passwordController;
+    //     _activeController = _passwordController;
     //     break;
     //   default:
-    //     activeController = _invoiceDocNumTextController;
+    //     _activeController = _invoiceDocNumTextController;
     //     break;
     // }
     return ScaffoldMessenger(child: Builder(builder: (childContext) {
@@ -370,17 +370,23 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                           ? SizedBox(
                               width: MediaQuery.of(context).size.width * 0.5,
                               child: KeyboardWidget(
-                                controller: activeController,
+                                controller: _activeController,
                                 isNumericMode: false,
                                 onKeyPress: (key) async {
-                                  String text = activeController.text;
+                                  String text = _activeController.text;
+                                  TextSelection currentSelection = _activeController.selection;
+                                  int cursorPosition = currentSelection.start;
+
                                   if (key.keyType == VirtualKeyboardKeyType.String) {
-                                    text = text + ((_shiftEnabled ? key.capsText : key.text) ?? '');
+                                    String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                    text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                    cursorPosition += inputText.length;
                                   } else if (key.keyType == VirtualKeyboardKeyType.Action) {
                                     switch (key.action) {
                                       case VirtualKeyboardKeyAction.Backspace:
                                         if (text.isNotEmpty) {
-                                          text = text.substring(0, text.length - 1);
+                                          text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                          cursorPosition -= 1;
                                         }
                                         break;
                                       case VirtualKeyboardKeyAction.Return:
@@ -396,7 +402,8 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                                         });
                                         break;
                                       case VirtualKeyboardKeyAction.Space:
-                                        text = text + (key.text ?? '');
+                                        text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                        cursorPosition += 1;
                                         break;
                                       case VirtualKeyboardKeyAction.Shift:
                                         _shiftEnabled = !_shiftEnabled;
@@ -405,8 +412,8 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                                         break;
                                     }
                                   }
-                                  activeController.text = text;
-                                  activeController.selection = TextSelection.collapsed(offset: text.length);
+                                  _activeController.text = text;
+                                  _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
 
                                   setState(() {});
                                 },
