@@ -90,7 +90,6 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
           currentFocusedField = 'amount';
           currentNumericMode = true;
         });
-        log("currentNumericMode - $currentNumericMode");
       }
     });
     _remarkFocusNode.addListener(() {
@@ -99,7 +98,6 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
           currentFocusedField = 'remarks';
           currentNumericMode = false;
         });
-        log("currentNumericMode - $currentNumericMode");
       }
     });
   }
@@ -114,11 +112,6 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
     _remarkFocusNode.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(MOPAdjustmentScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
   }
 
   Future<List<CashierBalanceTransactionModel>?> _searchShift(String docNum) async {
@@ -286,6 +279,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
         break;
       default:
         activeController = _shiftDocnumController;
+        break;
     }
     return Scaffold(
         backgroundColor: const Color.fromARGB(255, 234, 234, 234),

@@ -103,6 +103,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
         break;
       default:
         activeController = _invoiceNumberController;
+        break;
     }
     return FocusScope(
       autofocus: true,

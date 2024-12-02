@@ -286,6 +286,7 @@ class _SettingsFormState extends State<SettingsForm> {
         break;
       default:
         activeController = passwordController;
+        break;
     }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
