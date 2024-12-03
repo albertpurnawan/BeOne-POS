@@ -340,6 +340,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                       child: KeyboardWidget(
                         controller: _activeController,
                         isNumericMode: false,
+                        customLayoutKeys: true,
                         onKeyPress: (key) async {
                           String text = _activeController.text;
                           TextSelection currentSelection = _activeController.selection;
@@ -1319,6 +1320,7 @@ class InputReturnQuantityDialog extends StatelessWidget {
                           ? KeyboardWidget(
                               controller: _inputReturnedQtyEditingController,
                               isNumericMode: true,
+                              customLayoutKeys: true,
                             )
                           : const SizedBox.shrink();
                     },

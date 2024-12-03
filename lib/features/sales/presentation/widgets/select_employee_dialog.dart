@@ -197,6 +197,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                           child: KeyboardWidget(
                             controller: _employeeTextController,
                             isNumericMode: false,
+                            customLayoutKeys: true,
                             onKeyPress: (key) async {
                               String text = _employeeTextController.text;
                               TextSelection currentSelection = _employeeTextController.selection;

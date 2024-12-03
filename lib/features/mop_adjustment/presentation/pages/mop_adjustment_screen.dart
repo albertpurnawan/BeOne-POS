@@ -335,6 +335,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                           child: KeyboardWidget(
                             controller: _activeController,
                             isNumericMode: currentNumericMode,
+                            customLayoutKeys: true,
                             onKeyPress: (key) async {
                               String text = _activeController.text;
                               TextSelection currentSelection = _activeController.selection;

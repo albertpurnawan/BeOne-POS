@@ -453,6 +453,7 @@ class _SettingsFormState extends State<SettingsForm> {
                 ? KeyboardWidget(
                     controller: activeController,
                     isNumericMode: false,
+                    customLayoutKeys: true,
                   )
                 : const SizedBox.shrink(),
             const SizedBox(height: 30),

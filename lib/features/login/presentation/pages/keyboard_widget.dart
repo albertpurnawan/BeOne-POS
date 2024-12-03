@@ -8,7 +8,14 @@ class KeyboardWidget extends StatefulWidget {
   final TextEditingController controller;
   final bool isNumericMode;
   final void Function(VirtualKeyboardKey)? onKeyPress;
-  const KeyboardWidget({super.key, required this.controller, required this.isNumericMode, this.onKeyPress});
+  final bool customLayoutKeys;
+  const KeyboardWidget({
+    super.key,
+    required this.controller,
+    required this.isNumericMode,
+    this.onKeyPress,
+    required this.customLayoutKeys,
+  });
 
   @override
   State<KeyboardWidget> createState() => _KeyboardWidgetState();
@@ -100,6 +107,8 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
 
     widget.controller.text = text;
     widget.controller.selection = TextSelection.collapsed(offset: cursorPosition);
+
+    setState(() {});
   }
 
   @override
@@ -119,8 +128,11 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                 width: MediaQuery.of(context).size.width * 0.7,
                 textColor: ProjectColors.primary,
                 textController: _controllerText,
-                customLayoutKeys: CustomKeyboardLayoutKeys(
-                    [_shiftEnabled ? VirtualKeyboardDefaultLayouts.Arabic : VirtualKeyboardDefaultLayouts.English]),
+                customLayoutKeys: widget.customLayoutKeys
+                    ? CustomKeyboardLayoutKeys(
+                        [_shiftEnabled ? VirtualKeyboardDefaultLayouts.Arabic : VirtualKeyboardDefaultLayouts.English],
+                      )
+                    : null,
                 defaultLayouts: const [VirtualKeyboardDefaultLayouts.English, VirtualKeyboardDefaultLayouts.Arabic],
                 //reverseLayout :true,
                 type: _isNumericMode ? VirtualKeyboardType.Numeric : VirtualKeyboardType.Alphanumeric,

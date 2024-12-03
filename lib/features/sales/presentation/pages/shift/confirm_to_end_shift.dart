@@ -24,7 +24,6 @@ import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/otp_submit_close_shift_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class ConfirmToEndShift extends StatefulWidget {
   final CashierBalanceTransactionModel shift;
@@ -414,43 +413,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                                   child: KeyboardWidget(
                                     controller: _activeController,
                                     isNumericMode: false,
-                                    onKeyPress: (key) async {
-                                      String text = _activeController.text;
-                                      TextSelection currentSelection = _activeController.selection;
-                                      int cursorPosition = currentSelection.start;
-
-                                      if (key.keyType == VirtualKeyboardKeyType.String) {
-                                        String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                        text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                        cursorPosition += inputText.length;
-                                      } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                        switch (key.action) {
-                                          case VirtualKeyboardKeyAction.Backspace:
-                                            if (text.isNotEmpty) {
-                                              text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                              cursorPosition -= 1;
-                                            }
-                                            break;
-                                          case VirtualKeyboardKeyAction.Return:
-                                            _activeController.text = _activeController.text.trimRight();
-
-                                            break;
-                                          case VirtualKeyboardKeyAction.Space:
-                                            text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                            cursorPosition += 1;
-                                            break;
-                                          case VirtualKeyboardKeyAction.Shift:
-                                            _shiftEnabled = !_shiftEnabled;
-                                            break;
-                                          default:
-                                            break;
-                                        }
-                                      }
-                                      _activeController.text = text;
-                                      _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                                      setState(() {});
-                                    },
+                                    customLayoutKeys: true,
                                   ),
                                 )
                               : const SizedBox.shrink(),

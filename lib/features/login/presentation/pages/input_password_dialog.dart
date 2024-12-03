@@ -185,6 +185,7 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                             ? KeyboardWidget(
                                 controller: _passwordController,
                                 isNumericMode: false,
+                                customLayoutKeys: true,
                               )
                             : const SizedBox.shrink(),
                       ],

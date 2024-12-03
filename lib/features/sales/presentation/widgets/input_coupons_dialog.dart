@@ -707,6 +707,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                 child: KeyboardWidget(
                                   controller: _textEditorCouponController,
                                   isNumericMode: false,
+                                  customLayoutKeys: true,
                                 ),
                               )
                             : const SizedBox.shrink(),

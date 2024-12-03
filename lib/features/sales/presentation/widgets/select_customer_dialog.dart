@@ -246,6 +246,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                           child: KeyboardWidget(
                             controller: _textEditingControllerCustomer,
                             isNumericMode: false,
+                            customLayoutKeys: true,
                             onKeyPress: (key) async {
                               String text = _textEditingControllerCustomer.text;
                               TextSelection currentSelection = _textEditingControllerCustomer.selection;

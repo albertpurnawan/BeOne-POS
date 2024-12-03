@@ -372,6 +372,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                               child: KeyboardWidget(
                                 controller: _activeController,
                                 isNumericMode: false,
+                                customLayoutKeys: true,
                                 onKeyPress: (key) async {
                                   String text = _activeController.text;
                                   TextSelection currentSelection = _activeController.selection;

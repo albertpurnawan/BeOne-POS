@@ -316,6 +316,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                               child: KeyboardWidget(
                                 controller: _textEditingController,
                                 isNumericMode: false,
+                                customLayoutKeys: true,
                                 onKeyPress: (key) async {
                                   String text = _textEditingController.text;
                                   if (key.keyType == VirtualKeyboardKeyType.String) {

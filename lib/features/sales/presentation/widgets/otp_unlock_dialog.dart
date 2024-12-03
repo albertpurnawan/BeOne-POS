@@ -45,7 +45,6 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
   final FocusNode _keyboardFocusNode = FocusNode();
   String currentFocusedField = '';
   int _focusedIndex = 0;
-  bool _shiftEnabled = false;
 
   @override
   void initState() {
@@ -424,6 +423,7 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
                             ? KeyboardWidget(
                                 controller: _otpControllers[_focusedIndex],
                                 isNumericMode: true,
+                                customLayoutKeys: true,
                                 onKeyPress: (key) async {
                                   String text = _otpControllers[_focusedIndex].text;
 

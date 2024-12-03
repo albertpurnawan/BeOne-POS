@@ -320,6 +320,7 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                               ? KeyboardWidget(
                                   controller: _noteController,
                                   isNumericMode: false,
+                                  customLayoutKeys: true,
                                 )
                               : const SizedBox.shrink(),
                           const SizedBox(height: 20),

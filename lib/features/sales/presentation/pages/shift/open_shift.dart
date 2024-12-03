@@ -496,6 +496,7 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                         ? KeyboardWidget(
                             controller: _openValueController,
                             isNumericMode: true,
+                            customLayoutKeys: true,
                           )
                         : const SizedBox.shrink(),
                     const SizedBox(height: 10),

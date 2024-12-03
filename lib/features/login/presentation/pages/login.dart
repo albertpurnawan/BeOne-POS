@@ -281,6 +281,7 @@ class _LoginFormState extends State<LoginForm> {
               ? KeyboardWidget(
                   controller: activeController,
                   isNumericMode: false,
+                  customLayoutKeys: true,
                 )
               : const SizedBox(),
         ]),

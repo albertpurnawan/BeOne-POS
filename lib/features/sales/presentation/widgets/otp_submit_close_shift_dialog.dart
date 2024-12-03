@@ -463,6 +463,7 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
                               ? KeyboardWidget(
                                   controller: _otpControllers[_focusedIndex],
                                   isNumericMode: true,
+                                  customLayoutKeys: true,
                                   onKeyPress: (key) async {
                                     String text = _otpControllers[_focusedIndex].text;
 

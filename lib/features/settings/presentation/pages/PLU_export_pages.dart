@@ -630,6 +630,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                           child: KeyboardWidget(
                             controller: _searchController,
                             isNumericMode: currentNumericMode,
+                            customLayoutKeys: true,
                             onKeyPress: (key) async {
                               String text = _searchController.text;
                               TextSelection currentSelection = _searchController.selection;

@@ -371,6 +371,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                         child: KeyboardWidget(
                           controller: _searchController,
                           isNumericMode: false,
+                          customLayoutKeys: true,
                           onKeyPress: (key) async {
                             String text = _searchController.text;
                             TextSelection currentSelection = _searchController.selection;

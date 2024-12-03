@@ -643,6 +643,7 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                               ? KeyboardWidget(
                                   controller: _activeController,
                                   isNumericMode: false,
+                                  customLayoutKeys: true,
                                   onKeyPress: (key) {
                                     String text = _activeController.text;
                                     TextSelection currentSelection = _activeController.selection;

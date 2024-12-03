@@ -1,7 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/features/home/presentation/pages/home.dart';
 import 'package:pos_fe/features/login/presentation/pages/login.dart';
@@ -91,7 +90,11 @@ class AppRouter {
         path: "/shifts/close",
         pageBuilder: (context, state) {
           final Map<String, String> data = state.extra as Map<String, String>;
-          return MaterialPage(child: CloseShiftScreen(shiftId: data["shiftId"] as String, username: data["username"]));
+          return MaterialPage(
+              child: CloseShiftScreen(
+            shiftId: data["shiftId"] as String,
+            username: data["username"],
+          ));
         },
       ),
       GoRoute(

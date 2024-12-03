@@ -149,6 +149,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                             child: KeyboardWidget(
                               controller: _itemInputController,
                               isNumericMode: false,
+                              customLayoutKeys: true,
                               onKeyPress: (key) async {
                                 String text = _itemInputController.text;
                                 TextSelection currentSelection = _itemInputController.selection;
