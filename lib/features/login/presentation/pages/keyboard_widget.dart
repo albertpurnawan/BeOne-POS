@@ -9,11 +9,13 @@ class KeyboardWidget extends StatefulWidget {
   final bool isNumericMode;
   final void Function(VirtualKeyboardKey)? onKeyPress;
   final bool customLayoutKeys;
+  final double? height;
   const KeyboardWidget({
     super.key,
     required this.controller,
     required this.isNumericMode,
     this.onKeyPress,
+    this.height,
     required this.customLayoutKeys,
   });
 
@@ -24,6 +26,7 @@ class KeyboardWidget extends StatefulWidget {
 class _KeyboardWidgetState extends State<KeyboardWidget> {
   bool _shiftEnabled = false;
   bool _isNumericMode = false;
+  double _height = 0;
   Timer? _backspaceTimer;
 
   late TextEditingController _controllerText;
@@ -34,6 +37,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     _controllerText = TextEditingController();
     setState(() {
       _isNumericMode = widget.isNumericMode;
+      _height = widget.height ?? 250;
     });
   }
 
@@ -124,8 +128,8 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                 color: const Color.fromARGB(255, 245, 245, 245),
               ),
               child: VirtualKeyboard(
-                height: 250,
-                width: MediaQuery.of(context).size.width * 0.7,
+                height: _height,
+                width: MediaQuery.of(context).size.width * 1,
                 textColor: ProjectColors.primary,
                 textController: _controllerText,
                 customLayoutKeys: widget.customLayoutKeys

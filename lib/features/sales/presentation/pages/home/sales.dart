@@ -2108,10 +2108,10 @@ class _SalesPageState extends State<SalesPage> {
                                   "Please select the customer first, only customer with membership can use Down Payment");
                               return;
                             }
-                            if (!itemDPAvailable) {
-                              SnackBarHelper.presentErrorSnackBar(context, "Item DP not found for this store");
-                              return;
-                            }
+                            // if (!itemDPAvailable) {
+                            //   SnackBarHelper.presentErrorSnackBar(context, "Item DP not found for this store");
+                            //   return;
+                            // }
 
                             if (mounted) {
                               await showDialog(
