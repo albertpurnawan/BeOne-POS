@@ -12,6 +12,7 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
@@ -23,6 +24,7 @@ import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/otp_submit_close_shift_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class ConfirmToEndShift extends StatefulWidget {
   final CashierBalanceTransactionModel shift;
@@ -35,17 +37,46 @@ class ConfirmToEndShift extends StatefulWidget {
 
 class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
   final _formKey = GlobalKey<FormState>();
-  final usernameController = TextEditingController();
-  final passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
-  final _usernameFocusNode = FocusNode();
   bool _obscureText = true;
   bool _isOTPClicked = false;
   bool _isSendingOTP = false;
 
+  bool _shiftEnabled = false;
+  bool _showKeyboard = true;
+  final _usernameFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final FocusNode _keyboardFocusNode = FocusNode();
+  String currentFocusedField = '';
+  TextEditingController _activeController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
+
+    _usernameFocusNode.addListener(() {
+      if (_usernameFocusNode.hasFocus) {
+        setState(() {
+          currentFocusedField = 'username';
+          _activeController = _usernameController;
+        });
+      }
+    });
+    _passwordFocusNode.addListener(() {
+      if (_passwordFocusNode.hasFocus) {
+        setState(() {
+          currentFocusedField = 'password';
+          _activeController = _passwordController;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<String> checkPassword(String username, String password) async {
@@ -78,7 +109,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
   Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
-    String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
+    String passwordCorrect = await checkPassword(_usernameController.text, _passwordController.text);
     if (passwordCorrect == "Success") {
       if (!context.mounted) return;
       Navigator.pop(childContext);
@@ -86,7 +117,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
           childContext,
           CloseShiftScreen(
             shiftId: widget.shift.docId,
-            username: usernameController.text,
+            username: _usernameController.text,
           ));
 
       try {
@@ -200,11 +231,6 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext parentContext) {
     return ScaffoldMessenger(
       child: Builder(builder: (childContext) {
@@ -238,9 +264,34 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
-                child: const Text(
-                  'Close Shift Confirmation',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Close Shift Confirmation',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                        borderRadius: const BorderRadius.all(Radius.circular(360)),
+                      ),
+                      child: IconButton(
+                        focusColor: const Color.fromARGB(255, 110, 0, 0),
+                        focusNode: _keyboardFocusNode,
+                        icon: Icon(
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showKeyboard = !_showKeyboard;
+                          });
+                        },
+                        tooltip: 'Toggle Keyboard',
+                      ),
+                    ),
+                  ],
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -259,9 +310,9 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                             width: MediaQuery.of(childContext).size.width * 0.5,
                             child: TextFormField(
                               focusNode: _usernameFocusNode,
-                              controller: usernameController,
+                              controller: _usernameController,
                               autofocus: true,
-                              keyboardType: TextInputType.text,
+                              keyboardType: TextInputType.none,
                               onFieldSubmitted: (value) async => await onSubmit(childContext, parentContext),
                               validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
                               textAlign: TextAlign.left,
@@ -281,10 +332,11 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                           SizedBox(
                             width: MediaQuery.of(childContext).size.width * 0.5,
                             child: TextFormField(
-                              controller: passwordController,
+                              controller: _passwordController,
+                              focusNode: _passwordFocusNode,
                               obscureText: _obscureText,
                               autofocus: true,
-                              keyboardType: TextInputType.text,
+                              keyboardType: TextInputType.none,
                               onFieldSubmitted: (value) async {
                                 await onSubmit(childContext, parentContext);
                               },
@@ -355,6 +407,53 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                                 ),
                             ],
                           ),
+                          const SizedBox(height: 15),
+                          (_showKeyboard)
+                              ? SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.5,
+                                  child: KeyboardWidget(
+                                    controller: _activeController,
+                                    isNumericMode: false,
+                                    onKeyPress: (key) async {
+                                      String text = _activeController.text;
+                                      TextSelection currentSelection = _activeController.selection;
+                                      int cursorPosition = currentSelection.start;
+
+                                      if (key.keyType == VirtualKeyboardKeyType.String) {
+                                        String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                        text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                        cursorPosition += inputText.length;
+                                      } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                        switch (key.action) {
+                                          case VirtualKeyboardKeyAction.Backspace:
+                                            if (text.isNotEmpty) {
+                                              text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                              cursorPosition -= 1;
+                                            }
+                                            break;
+                                          case VirtualKeyboardKeyAction.Return:
+                                            _activeController.text = _activeController.text.trimRight();
+
+                                            break;
+                                          case VirtualKeyboardKeyAction.Space:
+                                            text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                            cursorPosition += 1;
+                                            break;
+                                          case VirtualKeyboardKeyAction.Shift:
+                                            _shiftEnabled = !_shiftEnabled;
+                                            break;
+                                          default:
+                                            break;
+                                        }
+                                      }
+                                      _activeController.text = text;
+                                      _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                                      setState(() {});
+                                    },
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
                           const SizedBox(height: 30),
                           Row(
                             children: [

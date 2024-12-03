@@ -19,6 +19,9 @@ import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
+
+import '../../../login/presentation/pages/keyboard_widget.dart';
 
 class OTPEndShiftDialog extends StatefulWidget {
   final CashierBalanceTransactionModel shift;
@@ -40,14 +43,27 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
   bool _isSendingOTP = false;
   bool _isOTPClicked = false;
   bool _isOTPSent = false;
-  late FocusNode _otpFocusNode;
+  final List<FocusNode> _otpFocusNodes = List.generate(6, (_) => FocusNode());
+
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+  String currentFocusedField = '';
+  int _focusedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _otpFocusNode = FocusNode();
     _startTimer();
-    _otpFocusNode.requestFocus();
+    _otpFocusNodes[0].requestFocus();
+    for (int i = 0; i < _otpFocusNodes.length; i++) {
+      _otpFocusNodes[i].addListener(() {
+        if (_otpFocusNodes[i].hasFocus) {
+          setState(() {
+            _focusedIndex = i;
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -56,7 +72,10 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
     for (var controller in _otpControllers) {
       controller.dispose();
     }
-    _otpFocusNode.dispose();
+    _keyboardFocusNode.dispose();
+    for (int i = 0; i < _otpFocusNodes.length; i++) {
+      _otpFocusNodes[i].dispose();
+    }
     super.dispose();
   }
 
@@ -250,7 +269,7 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
                   _isOTPClicked = true;
                   _isSendingOTP = true;
                   _isOTPSent = false;
-                  _otpFocusNode.requestFocus();
+                  _otpFocusNodes[0].requestFocus();
 
                   for (int i = 0; i < 6; i++) {
                     _otpControllers[i].text = "";
@@ -278,9 +297,34 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
-                child: const Text(
-                  'OTP Confirmation',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'OTP Confirmation',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                        borderRadius: const BorderRadius.all(Radius.circular(360)),
+                      ),
+                      child: IconButton(
+                        focusColor: const Color.fromARGB(255, 110, 0, 0),
+                        focusNode: _keyboardFocusNode,
+                        icon: Icon(
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showKeyboard = !_showKeyboard;
+                          });
+                        },
+                        tooltip: 'Toggle Keyboard',
+                      ),
+                    ),
+                  ],
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -305,11 +349,11 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
                                 width: 60,
                                 margin: const EdgeInsets.symmetric(horizontal: 5),
                                 child: TextField(
-                                  focusNode: index == 0 ? _otpFocusNode : null,
+                                  focusNode: _otpFocusNodes[index],
                                   controller: _otpControllers[index],
                                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
                                   maxLength: 1,
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.none,
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     fontSize: 30,
@@ -361,7 +405,7 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
                                           _isOTPClicked = true;
                                           _isSendingOTP = true;
                                           _isOTPSent = false;
-                                          _otpFocusNode.requestFocus();
+                                          _otpFocusNodes[0].requestFocus();
 
                                           for (int i = 0; i < 6; i++) {
                                             _otpControllers[i].text = "";
@@ -414,6 +458,39 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
                                     child: CircularProgressIndicator(),
                                   ),
                           ],
+                          const SizedBox(height: 15),
+                          (_showKeyboard)
+                              ? KeyboardWidget(
+                                  controller: _otpControllers[_focusedIndex],
+                                  isNumericMode: true,
+                                  onKeyPress: (key) async {
+                                    String text = _otpControllers[_focusedIndex].text;
+
+                                    if (key.keyType == VirtualKeyboardKeyType.String) {
+                                      text = key.text ?? '';
+                                      _otpControllers[_focusedIndex].text = text;
+
+                                      if (text.isNotEmpty && _focusedIndex < 5) {
+                                        _otpFocusNodes[_focusedIndex + 1].requestFocus();
+                                      } else if (text.isNotEmpty && _focusedIndex == 5) {
+                                        _updateOtpCode();
+                                        await onSubmit(parentContext, childContext, _otpCode, widget.requester);
+                                      }
+                                    } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                      if (key.action == VirtualKeyboardKeyAction.Backspace && text.isNotEmpty) {
+                                        text = text.substring(0, text.length - 1);
+                                        _otpControllers[_focusedIndex].text = text;
+
+                                        if (text.isEmpty && _focusedIndex > 0) {
+                                          _otpFocusNodes[_focusedIndex - 1].requestFocus();
+                                        }
+                                      }
+                                    }
+
+                                    _focusedIndex = _otpFocusNodes.indexWhere((node) => node.hasFocus);
+                                  },
+                                )
+                              : const SizedBox.shrink(),
                         ],
                       ),
                     ),
