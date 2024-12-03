@@ -4067,7 +4067,7 @@ class _SalesPageState extends State<SalesPage> {
       if (itemScaleFlag == storeScaleFlag) {
         final itemCode = barcode.substring(storeScaleFlagLength, storeScaleFlagLength + storeItemCodeLength);
 
-        final itemQty = double.parse(barcode.substring(storeScaleFlagLength + (storeItemCodeLength),
+        final itemQty = double.parse(barcode.substring(storeScaleFlagLength + storeItemCodeLength,
                 storeScaleFlagLength + storeItemCodeLength + storeQuantityLength)) /
             storeQtyDivider;
 
@@ -4274,7 +4274,11 @@ class _SalesPageState extends State<SalesPage> {
 
       context.read<ReceiptCubit>().removeReceiptItem(receiptItemTarget, context);
     } catch (e) {
-      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+      if (e is RangeError) {
+        SnackBarHelper.presentErrorSnackBar(context, "Please select Item to Remove");
+      } else {
+        SnackBarHelper.presentErrorSnackBar(context, e.toString());
+      }
     }
   }
 

@@ -13,7 +13,7 @@ abstract class Helpers {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: content, action: action));
 
   static String parseMoney(num nominal) {
-    return NumberFormat("#,##0.##").format(nominal);
+    return NumberFormat('#,##0.##').format(nominal);
   }
 
   static String cleanDecimal(num val, int digits) {
@@ -257,6 +257,17 @@ abstract class Helpers {
   static String formatDTToString(DateTime dTime) {
     String formattedString = DateFormat('ddMMyyyyHHmmss').format(dTime.toLocal());
     return formattedString;
+  }
+
+  static String dateWithSlash(String dateString) {
+    final trimmedString = dateString.trim();
+    final DateTime dTime = DateTime.parse(trimmedString);
+
+    final day = dTime.day.toString().padLeft(2, '0');
+    final month = dTime.month.toString().padLeft(2, '0');
+    final year = dTime.year.toString();
+
+    return '$day/$month/$year';
   }
 
   static String formatDateNoSeconds(DateTime dTime) {

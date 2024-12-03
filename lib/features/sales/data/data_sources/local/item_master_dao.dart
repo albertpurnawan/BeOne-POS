@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:pos_fe/core/resources/base_dao.dart';
 import 'package:pos_fe/features/sales/data/models/item_master.dart';
 import 'package:sqflite/sqflite.dart';
@@ -33,6 +35,13 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
     return result.map((itemData) => ItemMasterModel.fromMap(itemData)).toList();
   }
 
+  Future<List<ItemMasterModel>> readAllByScaleActive({required int scaleActive, Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final result = await dbExecutor.query(tableName, where: "scaleActive = ?", whereArgs: [scaleActive]);
+
+    return result.map((itemData) => ItemMasterModel.fromMap(itemData)).toList();
+  }
+
   // Future<ItemMasterModel> getDownPayment({Transaction? txn}) async {
   //   DatabaseExecutor dbExecutor = txn ?? db;
   //   final result = await dbExecutor.query(tableName, where: "itemcode = ?", whereArgs: ["99"]);
@@ -50,7 +59,7 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
 
       if (!keyword.contains("%")) {
         result = await db.rawQuery('''
-    SELECT x0.itemname, x0.itemcode, x1.barcode, x2.price, x4.description FROM toitm AS x0 
+    SELECT DISTINCT x0.itemname, x0.itemcode, x1.barcode, x2.price, x4.description FROM toitm AS x0 
       INNER JOIN tbitm AS x1 ON x1.toitmId = x0.docid 
       INNER JOIN tpln2 AS x2 ON x2.toitmId = x0.docid
       INNER JOIN tpln1 AS x3 On x2.tpln1Id = x3.docid
@@ -59,6 +68,16 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
       ORDER BY itemname
       LIMIT 300
     ''', ["%$keyword%", "%$keyword%", "%$keyword%"]);
+        log('''
+    SELECT x0.itemname, x0.itemcode, x1.barcode, x2.price, x4.description FROM toitm AS x0 
+      INNER JOIN tbitm AS x1 ON x1.toitmId = x0.docid 
+      INNER JOIN tpln2 AS x2 ON x2.toitmId = x0.docid
+      INNER JOIN tpln1 AS x3 On x2.tpln1Id = x3.docid
+      INNER JOIN topln AS x4 ON x3.toplnId = x4.docid
+      WHERE x0.itemcode LIKE %$keyword% OR x1.barcode LIKE %$keyword% OR x0.itemname LIKE %$keyword%
+      ORDER BY itemname
+      LIMIT 300
+    ''');
       } else {
         final String itemNameQuery = keyword.split('%').map((e) => "itemname LIKE '%$e%'").join(" AND ");
         final String barcodeQuery = keyword.split('%').map((e) => "barcode LIKE '%$e%'").join(" AND ");
@@ -79,7 +98,7 @@ class ItemMasterDao extends BaseDao<ItemMasterModel> {
       LIMIT 300
     ''');
       }
-
+      log("result - $result");
       return result;
     } catch (e) {
       rethrow;

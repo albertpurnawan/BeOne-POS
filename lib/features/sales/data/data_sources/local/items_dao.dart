@@ -127,6 +127,17 @@ AND ${ItemFields.toplnId} = ?""",
     return res.isNotEmpty ? ItemModel.fromMap(res[0]) : null;
   }
 
+  Future<List<ItemModel>> readAllByScaleActive({required int scaleActive, Transaction? txn}) async {
+    DatabaseExecutor dbExecutor = txn ?? db;
+    final result = await dbExecutor.query(
+      tableName,
+      where: "scaleactive = ?",
+      whereArgs: [scaleActive],
+    );
+
+    return result.map((itemData) => ItemModel.fromMap(itemData)).toList();
+  }
+
   Future<ItemModel?> getDownPayment({Transaction? txn}) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(

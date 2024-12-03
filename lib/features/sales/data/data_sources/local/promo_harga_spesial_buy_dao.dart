@@ -4,14 +4,10 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class PromoHargaSpesialBuyDao extends BaseDao<PromoHargaSpesialBuyModel> {
   PromoHargaSpesialBuyDao(Database db)
-      : super(
-            db: db,
-            tableName: tablePromoHargaSpesialBuy,
-            modelFields: PromoHargaSpesialBuyFields.values);
+      : super(db: db, tableName: tablePromoHargaSpesialBuy, modelFields: PromoHargaSpesialBuyFields.values);
 
   @override
-  Future<PromoHargaSpesialBuyModel?> readByDocId(
-      String docId, Transaction? txn) async {
+  Future<PromoHargaSpesialBuyModel?> readByDocId(String docId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,
@@ -28,13 +24,10 @@ class PromoHargaSpesialBuyDao extends BaseDao<PromoHargaSpesialBuyModel> {
     DatabaseExecutor dbExecutor = txn ?? db;
     final result = await dbExecutor.query(tableName);
 
-    return result
-        .map((itemData) => PromoHargaSpesialBuyModel.fromMap(itemData))
-        .toList();
+    return result.map((itemData) => PromoHargaSpesialBuyModel.fromMap(itemData)).toList();
   }
 
-  Future<PromoHargaSpesialBuyModel> readByTopsbId(
-      String topsbId, Transaction? txn) async {
+  Future<PromoHargaSpesialBuyModel> readByTopsbId(String topsbId, Transaction? txn) async {
     if (txn != null) {
       final result = await txn.query(
         tableName,
@@ -56,8 +49,7 @@ class PromoHargaSpesialBuyDao extends BaseDao<PromoHargaSpesialBuyModel> {
     }
   }
 
-  Future<List<PromoHargaSpesialBuyModel>> readAllByTopsbId(
-      String topsbId, Transaction? txn) async {
+  Future<List<PromoHargaSpesialBuyModel>> readAllByTopsbId(String topsbId, Transaction? txn) async {
     List<Map<String, dynamic>> result;
 
     if (txn != null) {
@@ -77,5 +69,20 @@ class PromoHargaSpesialBuyDao extends BaseDao<PromoHargaSpesialBuyModel> {
     }
 
     return result.map((map) => PromoHargaSpesialBuyModel.fromMap(map)).toList();
+  }
+
+  Future<List<PromoHargaSpesialBuyModel>> readByToitmLastDate(String toitmId, Transaction? txn) async {
+    final result = await db.rawQuery('''
+      SELECT x0.*
+      FROM tpsb1 AS x0
+      INNER JOIN topsb AS x1 ON x0.topsbId = x1.docid
+      WHERE x1.toitmId = ?
+        AND x1.enddate = (
+          SELECT MAX(enddate)
+          FROM topsb
+          WHERE toitmId = ?
+        )
+    ''', [toitmId, toitmId]);
+    return result.map((row) => PromoHargaSpesialBuyModel.fromMap(row)).toList();
   }
 }
