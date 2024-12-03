@@ -26,6 +26,7 @@ import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_down_payment.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
@@ -268,6 +269,9 @@ class _SalesPageState extends State<SalesPage> {
   // Check Customer
   bool isMember = false;
 
+  // Check Item "DP" on Store
+  bool itemDPAvailable = true;
+
   // =================================================
   //             [END] Variables
   // =================================================
@@ -370,6 +374,13 @@ class _SalesPageState extends State<SalesPage> {
     setState(() {
       isMember = ((receipt.customerEntity != null) && (receipt.customerEntity!.custCode != '99'));
       log("isMember = $isMember");
+    });
+  }
+
+  Future<void> checkItemDPAvailability() async {
+    final dp = await GetIt.instance<GetDownPaymentUseCase>().call();
+    setState(() {
+      itemDPAvailable = (dp != null) ? true : false;
     });
   }
 
@@ -2091,9 +2102,14 @@ class _SalesPageState extends State<SalesPage> {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () async {
+                            await checkItemDPAvailability();
                             if (!isMember) {
                               SnackBarHelper.presentErrorSnackBar(context,
                                   "Please select the customer first, only customer with membership can use Down Payment");
+                              return;
+                            }
+                            if (!itemDPAvailable) {
+                              SnackBarHelper.presentErrorSnackBar(context, "Item DP not found for this store");
                               return;
                             }
 

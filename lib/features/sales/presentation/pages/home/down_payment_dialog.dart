@@ -172,9 +172,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       }
     } else {
       _amountController.text = "";
-      if (mounted) {
-        SnackBarHelper.presentErrorSnackBar(context, "Item DP not found for this store");
-      }
     }
     setState(() {
       isLoadingReceive = false;
