@@ -432,10 +432,26 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                     break;
                                 }
                               }
-                              _activeController.text = text;
-                              _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+                              if (_activeController == _amountController) {
+                                TextEditingValue formattedValue = MoneyInputFormatter().formatEditUpdate(
+                                  TextEditingValue(
+                                    text: text,
+                                    selection: TextSelection.collapsed(offset: text.length),
+                                  ),
+                                  TextEditingValue(
+                                    text: text,
+                                    selection: TextSelection.collapsed(offset: text.length),
+                                  ),
+                                );
+                                _activeController.text = formattedValue.text;
+                                _activeController.selection = formattedValue.selection;
+                                setState(() {});
+                              } else {
+                                _activeController.text = text;
+                                _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
 
-                              setState(() {});
+                                setState(() {});
+                              }
                             },
                           ),
                         )
@@ -987,7 +1003,8 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                       style: const TextStyle(fontSize: 18),
                                       decoration: InputDecoration(
                                         contentPadding: const EdgeInsets.all(10),
-                                        hintText: selectedMOP1 != null ? "Max: $maxAmount" : '',
+                                        hintText:
+                                            selectedMOP1 != null ? "Max: ${Helpers.parseMoney(maxAmount ?? 0)}" : '',
                                         hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
                                         border: const OutlineInputBorder(
                                             borderRadius: BorderRadius.all(Radius.circular(5))),
