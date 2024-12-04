@@ -71,17 +71,13 @@ dependencies:
   package_info_plus: ^8.0.2
   toggle_switch: ^2.3.0
   connectivity_plus: ^6.0.5
-<<<<<<< HEAD
   file_picker: ^8.0.5
   csv: ^6.0.0
-=======
   desktop_multi_window: ^0.2.0
   desktop_lifecycle: ^0.1.1
   collection: ^1.18.0
   intl: ^0.18.1
   carousel_slider: ^4.2.1
-  file_picker: ^5.5.0
->>>>>>> 389b80d6659d587db977346f31b5f92025d7842c
 
 dev_dependencies:
   flutter_test:
@@ -131,12 +127,9 @@ flutter:
     - assets/icon/ruby_pos_icon.png
     - assets/icon/ruby_pos_logo.png
     - assets/images/ruby_pos.png
-<<<<<<< HEAD
     - assets/images/SESA-logo.png
-=======
     - assets/logo/ruby_pos_sesa_icon.png
     
->>>>>>> 389b80d6659d587db977346f31b5f92025d7842c
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

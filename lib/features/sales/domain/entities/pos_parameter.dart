@@ -16,23 +16,6 @@ class POSParameterEntity {
   final String? lastSync;
   final int? customerDisplayActive;
 
-<<<<<<< HEAD
-  var nama1;
-
-  POSParameterEntity({
-    required this.docId,
-    this.createDate,
-    this.updateDate,
-    this.gtentId,
-    this.tostrId,
-    this.storeName,
-    this.tocsrId,
-    this.baseUrl,
-    this.usernameAdmin,
-    this.passwordAdmin,
-    this.lastSync,
-  });
-=======
   POSParameterEntity(
       {required this.docId,
       this.createDate,
@@ -46,7 +29,6 @@ class POSParameterEntity {
       this.passwordAdmin,
       this.lastSync,
       this.customerDisplayActive});
->>>>>>> 389b80d6659d587db977346f31b5f92025d7842c
 
   POSParameterEntity copyWith({
     String? docId,
