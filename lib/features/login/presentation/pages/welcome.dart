@@ -70,19 +70,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   bool haveTopos = false;
   String appVersion = "";
   String buildNumber = "";
+  bool secondDisplay = true;
 
   @override
   void initState() {
+    super.initState();
     checkAppVersion();
     checkTopos();
     checkPermission();
-    super.initState();
     prefs.reload().then((value) {
       setState(() {
         isLoggedIn = prefs.getBool('logStatus') ?? false;
       });
     });
-    // _checkShiftStatus();
   }
 
   @override
@@ -110,7 +110,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Future<void> checkAppVersion() async {
-    final appVersionUseCase = await GetIt.instance<GetAppVersionUseCase>().call();
+    final appVersionUseCase =
+        await GetIt.instance<GetAppVersionUseCase>().call();
     setState(() {
       appVersion = appVersionUseCase.version;
       buildNumber = appVersionUseCase.buildNumber;
@@ -155,7 +156,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               }
                             }
                           : () {
-                              SnackBarHelper.presentErrorSnackBar(context, "Please Setup the Device First");
+                              SnackBarHelper.presentErrorSnackBar(
+                                  context, "Please Setup the Device First");
                             },
                     ),
                   ),
@@ -190,13 +192,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                         )),
                               ).then((value) => Future.delayed(
                                   const Duration(milliseconds: 200),
-                                  () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-                                      statusBarColor: ProjectColors.primary,
-                                      statusBarBrightness: Brightness.light,
-                                      statusBarIconBrightness: Brightness.light))));
+                                  () => SystemChrome.setSystemUIOverlayStyle(
+                                      const SystemUiOverlayStyle(
+                                          statusBarColor: ProjectColors.primary,
+                                          statusBarBrightness: Brightness.light,
+                                          statusBarIconBrightness:
+                                              Brightness.light))));
                             }
                           : () {
-                              SnackBarHelper.presentErrorSnackBar(context, "Please Setup the Device First");
+                              SnackBarHelper.presentErrorSnackBar(
+                                  context, "Please Setup the Device First");
                             },
                     ),
                   ),
@@ -238,7 +243,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     children: [
                       const Text(
                         "Version  ",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       Text(appVersion, style: const TextStyle(fontSize: 16)),
                     ],
@@ -282,7 +288,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           // const Padding(
           //   padding: EdgeInsets.only(bottom: 30),
           //   child: Text(
-          //       "Copyright © 2020 Beone Optima Solusi\nAll right reserved",
+          //       "Copyright 2020 Beone Optima Solusi\nAll right reserved",
           //       textAlign: TextAlign.center,
           //       style:
           //           TextStyle(color: ProjectColors.lightBlack, fontSize: 12)),

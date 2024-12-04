@@ -28,11 +28,15 @@ class POSParameterDao extends BaseDao<POSParameterModel> {
     if (txn != null) {
       final result = await txn.query(tableName);
 
-      return result.map((itemData) => POSParameterModel.fromMap(itemData)).toList();
+      return result
+          .map((itemData) => POSParameterModel.fromMap(itemData))
+          .toList();
     } else {
       final result = await db.query(tableName);
 
-      return result.map((itemData) => POSParameterModel.fromMap(itemData)).toList();
+      return result
+          .map((itemData) => POSParameterModel.fromMap(itemData))
+          .toList();
     }
   }
 

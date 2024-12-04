@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -13,6 +14,7 @@ import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 import 'package:pos_fe/features/settings/presentation/pages/settings.dart';
+import 'package:pos_fe/features/dual_screen/presentation/pages/display.dart';
 
 class AppRouter {
   GoRouter router = GoRouter(
@@ -52,7 +54,8 @@ class AppRouter {
         name: RouteConstants.sales,
         path: "/sales",
         pageBuilder: (context, state) {
-          final SalesRouterExtra salesRouterExtra = state.extra as SalesRouterExtra;
+          final SalesRouterExtra salesRouterExtra =
+              state.extra as SalesRouterExtra;
           return MaterialPage(
             child: SalesPage(
               salesViewType: salesRouterExtra.salesViewType,
@@ -91,7 +94,10 @@ class AppRouter {
         path: "/shifts/close",
         pageBuilder: (context, state) {
           final Map<String, String> data = state.extra as Map<String, String>;
-          return MaterialPage(child: CloseShiftScreen(shiftId: data["shiftId"] as String, username: data["username"]));
+          return MaterialPage(
+              child: CloseShiftScreen(
+                  shiftId: data["shiftId"] as String,
+                  username: data["username"]));
         },
       ),
       GoRoute(
@@ -113,6 +119,24 @@ class AppRouter {
         path: "/checkStocks",
         pageBuilder: (context, state) {
           return const MaterialPage(child: CheckStockScreen());
+        },
+      ),
+      //Dual screen route
+      GoRoute(
+        name: RouteConstants.dualScreen,
+        path: "/dualScreen",
+        pageBuilder: (context, state) {
+          final args = state.extra as Map<String, dynamic>;
+          print("args");
+          print(args);
+          final windowController = args['windowController'] as WindowController;
+
+          return MaterialPage(
+            child: DisplayPage(
+              windowController: windowController,
+              args: args,
+            ),
+          );
         },
       ),
     ],

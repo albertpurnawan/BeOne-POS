@@ -10,4 +10,6 @@ class RouteConstants {
   static String reports = "reports";
   static String mopAdjustment = "mopAdjustment";
   static String checkStocks = "checkStocks";
+  //tes dual screen
+  static String dualScreen = "dualScreen";
 }
