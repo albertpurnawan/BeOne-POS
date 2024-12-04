@@ -427,7 +427,7 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       "minconst": map['minconst'].toDouble() as double,
       "maxconst": map['maxconst'].toDouble() as double,
       "tpmt1Id": map['tpmt1docid'] != null ? map['tpmt1docid'] as String : null,
-      "duitkuexpiryperiod": (map['duitkuexpiryperiod'] != null || map['duitkuexpiryperiod'] == "")
+      "duitkuexpiryperiod": (map['duitkuexpiryperiod'] != null && map['duitkuexpiryperiod'] != "")
           ? int.parse(map['duitkuexpiryperiod'])
           : null,
     });
