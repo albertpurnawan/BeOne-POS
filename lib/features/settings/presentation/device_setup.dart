@@ -16,6 +16,7 @@ import 'package:pos_fe/core/usecases/generate_device_number_usecase.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/core/widgets/custom_input.dart';
+import 'package:pos_fe/features/dual_screen/data/models/dual_screen.dart';
 import 'package:pos_fe/features/login/presentation/pages/confirm_restore_db_dialog.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/token_service.dart';
@@ -25,7 +26,8 @@ import 'package:uuid/uuid.dart';
 
 class DeviceSetupScreen extends StatefulWidget {
   final bool toposExist;
-  const DeviceSetupScreen({Key? key, required this.toposExist}) : super(key: key);
+  const DeviceSetupScreen({Key? key, required this.toposExist})
+      : super(key: key);
 
   @override
   State<DeviceSetupScreen> createState() => _DeviceSetupScreenState();
@@ -180,8 +182,12 @@ class _SettingsFormState extends State<SettingsForm> {
 
       if (!backupFolder.existsSync()) return;
 
-      final backupFiles = backupFolder.listSync().where((file) => file.path.endsWith('.zip')).toList()
-        ..sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+      final backupFiles = backupFolder
+          .listSync()
+          .where((file) => file.path.endsWith('.zip'))
+          .toList()
+        ..sort(
+            (a, b) => b.statSync().modified.compareTo(a.statSync().modified));
       log("backup - $backupFiles");
 
       if (backupFiles.isEmpty) {
@@ -200,7 +206,8 @@ class _SettingsFormState extends State<SettingsForm> {
   Future<String> encryptPassword(String rawPassword) async {
     final encryptPasswordUseCase = GetIt.instance<EncryptPasswordUseCase>();
     try {
-      final encryptedPassword = await encryptPasswordUseCase.call(params: rawPassword);
+      final encryptedPassword =
+          await encryptPasswordUseCase.call(params: rawPassword);
       return encryptedPassword;
     } catch (e, s) {
       debugPrintStack(stackTrace: s);
@@ -224,7 +231,9 @@ class _SettingsFormState extends State<SettingsForm> {
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: CustomInput(
                     controller: gtentController,
-                    validator: (val) => val == null || val.isEmpty ? "TenantId is required" : null,
+                    validator: (val) => val == null || val.isEmpty
+                        ? "TenantId is required"
+                        : null,
                     label: "TenantId",
                     hint: "Tenant Id",
                     prefixIcon: const Icon(Icons.person_2_sharp),
@@ -237,7 +246,9 @@ class _SettingsFormState extends State<SettingsForm> {
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: CustomInput(
                     controller: tostrController,
-                    validator: (val) => val == null || val.isEmpty ? "StoreId is required" : null,
+                    validator: (val) => val == null || val.isEmpty
+                        ? "StoreId is required"
+                        : null,
                     label: "StoreId",
                     hint: "Store Id",
                     prefixIcon: const Icon(Icons.store),
@@ -255,7 +266,9 @@ class _SettingsFormState extends State<SettingsForm> {
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: CustomInput(
                     controller: tocsrController,
-                    validator: (val) => val == null || val.isEmpty ? "CashierId is required" : null,
+                    validator: (val) => val == null || val.isEmpty
+                        ? "CashierId is required"
+                        : null,
                     label: "CashierId",
                     hint: "Cashier Id",
                     prefixIcon: const Icon(Icons.point_of_sale),
@@ -268,7 +281,9 @@ class _SettingsFormState extends State<SettingsForm> {
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: CustomInput(
                     controller: urlController,
-                    validator: (val) => val == null || val.isEmpty ? "BaseUrl is required" : null,
+                    validator: (val) => val == null || val.isEmpty
+                        ? "BaseUrl is required"
+                        : null,
                     label: "BaseUrl",
                     hint: "Base Url",
                     prefixIcon: const Icon(Icons.link_outlined),
@@ -286,7 +301,9 @@ class _SettingsFormState extends State<SettingsForm> {
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: CustomInput(
                     controller: emailController,
-                    validator: (val) => val == null || val.isEmpty ? "Interfacing Email is required" : null,
+                    validator: (val) => val == null || val.isEmpty
+                        ? "Interfacing Email is required"
+                        : null,
                     label: "Interfacing Email",
                     hint: "Interfacing Email",
                     prefixIcon: const Icon(Icons.email_outlined),
@@ -299,7 +316,9 @@ class _SettingsFormState extends State<SettingsForm> {
                   constraints: const BoxConstraints(maxWidth: 400),
                   child: CustomInput(
                     controller: passwordController,
-                    validator: (val) => val == null || val.isEmpty ? "Interfacing Password is required" : null,
+                    validator: (val) => val == null || val.isEmpty
+                        ? "Interfacing Password is required"
+                        : null,
                     obscureText: true,
                     label: "Interfacing Password",
                     hint: "Interfacing Password",
@@ -346,30 +365,101 @@ class _SettingsFormState extends State<SettingsForm> {
                     onTap: () async {
                       try {
                         await prefs.clear();
-                        await GetIt.instance<AppDatabase>().posParameterDao.deleteTopos();
+                        await GetIt.instance<AppDatabase>()
+                            .posParameterDao
+                            .deleteTopos();
 
-                        final hashedPassword = await encryptPassword(passwordController.text);
+                        final hashedPassword =
+                            await encryptPassword(passwordController.text);
 
                         final topos = POSParameterModel(
-                          docId: const Uuid().v4(),
-                          createDate: DateTime.now(),
-                          updateDate: DateTime.now(),
-                          gtentId: gtentController.text,
-                          tostrId: tostrController.text,
-                          storeName: "",
-                          tocsrId: tocsrController.text,
-                          baseUrl: urlController.text,
-                          usernameAdmin: emailController.text,
-                          passwordAdmin: hashedPassword,
-                          lastSync: '2000-01-01 00:00:00',
-                        );
+                            docId: const Uuid().v4(),
+                            createDate: DateTime.now(),
+                            updateDate: DateTime.now(),
+                            gtentId: gtentController.text,
+                            tostrId: tostrController.text,
+                            storeName: "",
+                            tocsrId: tocsrController.text,
+                            baseUrl: urlController.text,
+                            usernameAdmin: emailController.text,
+                            passwordAdmin: hashedPassword,
+                            lastSync: '2000-01-01 00:00:00',
+                            customerDisplayActive: 1);
 
-                        await GetIt.instance<AppDatabase>().posParameterDao.create(data: topos);
+                        await GetIt.instance<AppDatabase>()
+                            .posParameterDao
+                            .create(data: topos);
 
-                        final token = await GetIt.instance<TokenApi>()
-                            .getToken(urlController.text, emailController.text, passwordController.text);
-                        final encryptPasswordUseCase = GetIt.instance<EncryptPasswordUseCase>();
-                        final encryptToken = await encryptPasswordUseCase.call(params: token);
+                        final dummyBanners = [
+                          DualScreenModel(
+                            id: 1,
+                            description: "Welcome Banner",
+                            type: 1,
+                            order: 1,
+                            path:
+                                "https://assets.klikindomaret.com/promos/20231111_11_00_HERO_BNR_1111-HOME-BRAND-SUPER-DEAL.jpg",
+                            duration: 5,
+                            createdAt: DateTime.now(),
+                            updatedAt: DateTime.now(),
+                          ),
+                          DualScreenModel(
+                            id: 2,
+                            description: "Special Promo",
+                            type: 2,
+                            order: 1,
+                            path:
+                                "https://assets.klikindomaret.com/promos/20231101_00_00_HERO_BNR_PROMO-MINGGUAN-1-7-NOV.jpg",
+                            duration: 4,
+                            createdAt: DateTime.now(),
+                            updatedAt: DateTime.now(),
+                          ),
+                          DualScreenModel(
+                            id: 3,
+                            description: "Holiday Sale",
+                            type: 1,
+                            order: 2,
+                            path:
+                                "https://assets.klikindomaret.com/promos/20231111_11_00_HERO_BNR_1111-FLASH-SALE.jpg",
+                            duration: 6,
+                            createdAt: DateTime.now(),
+                            updatedAt: DateTime.now(),
+                          ),
+                          DualScreenModel(
+                            id: 4,
+                            description: "Weekend Deals",
+                            type: 2,
+                            order: 2,
+                            path:
+                                "https://assets.klikindomaret.com/promos/20231111_11_00_HERO_BNR_1111-BRAND-SUPER-DEAL.jpg",
+                            duration: 5,
+                            createdAt: DateTime.now(),
+                            updatedAt: DateTime.now(),
+                          ),
+                          DualScreenModel(
+                            id: 5,
+                            description: "New Products",
+                            type: 1,
+                            order: 3,
+                            path:
+                                "https://assets.klikindomaret.com/promos/20231111_11_00_HERO_BNR_1111-FLASH-SALE-MEKANISME.jpg",
+                            duration: 4,
+                            createdAt: DateTime.now(),
+                            updatedAt: DateTime.now(),
+                          ),
+                        ];
+
+                        await GetIt.instance<AppDatabase>()
+                            .dualScreenDao
+                            .bulkCreate(data: dummyBanners);
+
+                        final token = await GetIt.instance<TokenApi>().getToken(
+                            urlController.text,
+                            emailController.text,
+                            passwordController.text);
+                        final encryptPasswordUseCase =
+                            GetIt.instance<EncryptPasswordUseCase>();
+                        final encryptToken =
+                            await encryptPasswordUseCase.call(params: token);
                         prefs.setString('adminToken', encryptToken);
                         Navigator.pop(context, true);
                       } catch (e, s) {

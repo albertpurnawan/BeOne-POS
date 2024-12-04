@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
+import 'package:pos_fe/features/dual_screen/providers/window_manager_provider.dart';
 import 'package:pos_fe/core/usecases/generate_device_number_usecase.dart';
 import 'package:pos_fe/features/home/domain/usecases/get_app_version.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
@@ -80,7 +81,8 @@ import 'package:pos_fe/features/sales/domain/usecases/get_item_with_and_conditio
 import 'package:pos_fe/features/sales/domain/usecases/get_items.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_items_by_pricelist.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_mop_selections.dart';
-import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart' as sales_get_pos_parameter_use_case;
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart'
+    as sales_get_pos_parameter_use_case;
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdg_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdi_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_toprn_header_and_detail.dart';
@@ -201,8 +203,10 @@ Future<void> initializeDependencies() async {
   sl.registerSingletonAsync<AppDatabase>(() => AppDatabase.init());
   sl.registerSingleton<Uuid>(const Uuid());
   sl.registerSingleton<DeviceInfoPlugin>(DeviceInfoPlugin());
-  sl.registerSingletonAsync<SharedPreferences>(() => SharedPreferences.getInstance());
-  sl.registerSingletonAsync<ReceiptPrinter>(() => ReceiptPrinter.init(), dependsOn: [SharedPreferences]);
+  sl.registerSingletonAsync<SharedPreferences>(
+      () => SharedPreferences.getInstance());
+  sl.registerSingletonAsync<ReceiptPrinter>(() => ReceiptPrinter.init(),
+      dependsOn: [SharedPreferences]);
   /**
    * =================================
    * END OF PACKAGE AND RESOURCES
@@ -239,61 +243,90 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<PriceByItemApi>(PriceByItemApi(sl()));
   sl.registerSingleton<UserApi>(UserApi(sl()));
   sl.registerSingleton<UserRoleApi>(UserRoleApi(sl()));
-  sl.registerSingletonWithDependencies<UsersDao>(() => UsersDao(sl()), dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<UsersDao>(() => UsersDao(sl()),
+      dependsOn: [AppDatabase]);
   sl.registerSingleton<ItemCategoryApi>(ItemCategoryApi(sl()));
   sl.registerSingleton<ItemMasterApi>(ItemMasterApi(sl()));
   sl.registerSingleton<ItemPictureApi>(ItemPictureApi(sl()));
   sl.registerSingleton<PricelistApi>(PricelistApi(sl()));
   sl.registerSingleton<PricelistPeriodApi>(PricelistPeriodApi(sl()));
-  sl.registerSingleton<ProductHierarchyMasterApi>(ProductHierarchyMasterApi(sl()));
+  sl.registerSingleton<ProductHierarchyMasterApi>(
+      ProductHierarchyMasterApi(sl()));
   sl.registerSingleton<ProductHierarchyApi>(ProductHierarchyApi(sl()));
   sl.registerSingleton<VendorGroupApi>(VendorGroupApi(sl()));
   sl.registerSingleton<VendorApi>(VendorApi(sl()));
   sl.registerSingleton<PreferredVendorApi>(PreferredVendorApi(sl()));
   sl.registerSingleton<InvoiceHeaderApi>(InvoiceHeaderApi(sl()));
   sl.registerSingleton<InvoiceDetailApi>(InvoiceDetailApi(sl()));
-  sl.registerSingletonWithDependencies<InvoiceApi>(() => InvoiceApi(sl(), sl()), dependsOn: [SharedPreferences]);
+  sl.registerSingletonWithDependencies<InvoiceApi>(() => InvoiceApi(sl(), sl()),
+      dependsOn: [SharedPreferences]);
   sl.registerSingleton<PayMeansApi>(PayMeansApi(sl()));
   sl.registerSingleton<VouchersSelectionApi>(VouchersSelectionApi(sl()));
   sl.registerSingleton<PromoHargaSpesialApi>(PromoHargaSpesialApi(sl()));
   sl.registerSingleton<PromoHargaSpesialBuyApi>(PromoHargaSpesialBuyApi(sl()));
-  sl.registerSingleton<PromoHargaSpesialAssignStoreApi>(PromoHargaSpesialAssignStoreApi(sl()));
-  sl.registerSingleton<PromoHargaSpesialCustomerGroupApi>(PromoHargaSpesialCustomerGroupApi(sl()));
-  sl.registerSingleton<PromoBonusMultiItemHeaderApi>(PromoBonusMultiItemHeaderApi(sl()));
-  sl.registerSingleton<PromoBonusMultiItemBuyConditionApi>(PromoBonusMultiItemBuyConditionApi(sl()));
-  sl.registerSingleton<PromoBonusMultiItemAssignStoreApi>(PromoBonusMultiItemAssignStoreApi(sl()));
-  sl.registerSingleton<PromoBonusMultiItemGetConditionApi>(PromoBonusMultiItemGetConditionApi(sl()));
-  sl.registerSingleton<PromoBonusMultiItemCustomerGroupApi>(PromoBonusMultiItemCustomerGroupApi(sl()));
-  sl.registerSingleton<PromoDiskonItemHeaderApi>(PromoDiskonItemHeaderApi(sl()));
-  sl.registerSingleton<PromoDiskonItemBuyConditionApi>(PromoDiskonItemBuyConditionApi(sl()));
-  sl.registerSingleton<PromoDiskonItemAssignStoreApi>(PromoDiskonItemAssignStoreApi(sl()));
-  sl.registerSingleton<PromoDiskonItemGetConditionApi>(PromoDiskonItemGetConditionApi(sl()));
-  sl.registerSingleton<PromoDiskonItemCustomerGroupApi>(PromoDiskonItemCustomerGroupApi(sl()));
-  sl.registerSingleton<PromoDiskonGroupItemHeaderApi>(PromoDiskonGroupItemHeaderApi(sl()));
-  sl.registerSingleton<PromoDiskonGroupItemBuyConditionApi>(PromoDiskonGroupItemBuyConditionApi(sl()));
-  sl.registerSingleton<PromoDiskonGroupItemAssignStoreApi>(PromoDiskonGroupItemAssignStoreApi(sl()));
-  sl.registerSingleton<PromoDiskonGroupItemGetConditionApi>(PromoDiskonGroupItemGetConditionApi(sl()));
-  sl.registerSingleton<PromoDiskonGroupItemCustomerGroupApi>(PromoDiskonGroupItemCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoHargaSpesialAssignStoreApi>(
+      PromoHargaSpesialAssignStoreApi(sl()));
+  sl.registerSingleton<PromoHargaSpesialCustomerGroupApi>(
+      PromoHargaSpesialCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemHeaderApi>(
+      PromoBonusMultiItemHeaderApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemBuyConditionApi>(
+      PromoBonusMultiItemBuyConditionApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemAssignStoreApi>(
+      PromoBonusMultiItemAssignStoreApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemGetConditionApi>(
+      PromoBonusMultiItemGetConditionApi(sl()));
+  sl.registerSingleton<PromoBonusMultiItemCustomerGroupApi>(
+      PromoBonusMultiItemCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoDiskonItemHeaderApi>(
+      PromoDiskonItemHeaderApi(sl()));
+  sl.registerSingleton<PromoDiskonItemBuyConditionApi>(
+      PromoDiskonItemBuyConditionApi(sl()));
+  sl.registerSingleton<PromoDiskonItemAssignStoreApi>(
+      PromoDiskonItemAssignStoreApi(sl()));
+  sl.registerSingleton<PromoDiskonItemGetConditionApi>(
+      PromoDiskonItemGetConditionApi(sl()));
+  sl.registerSingleton<PromoDiskonItemCustomerGroupApi>(
+      PromoDiskonItemCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemHeaderApi>(
+      PromoDiskonGroupItemHeaderApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemBuyConditionApi>(
+      PromoDiskonGroupItemBuyConditionApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemAssignStoreApi>(
+      PromoDiskonGroupItemAssignStoreApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemGetConditionApi>(
+      PromoDiskonGroupItemGetConditionApi(sl()));
+  sl.registerSingleton<PromoDiskonGroupItemCustomerGroupApi>(
+      PromoDiskonGroupItemCustomerGroupApi(sl()));
   sl.registerSingleton<PromoBuyXGetYHeaderApi>(PromoBuyXGetYHeaderApi(sl()));
-  sl.registerSingleton<PromoBuyXGetYBuyConditionApi>(PromoBuyXGetYBuyConditionApi(sl()));
-  sl.registerSingleton<PromoBuyXGetYAssignStoreApi>(PromoBuyXGetYAssignStoreApi(sl()));
-  sl.registerSingleton<PromoBuyXGetYGetConditionApi>(PromoBuyXGetYGetConditionApi(sl()));
-  sl.registerSingleton<PromoBuyXGetYCustomerGroupApi>(PromoBuyXGetYCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYBuyConditionApi>(
+      PromoBuyXGetYBuyConditionApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYAssignStoreApi>(
+      PromoBuyXGetYAssignStoreApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYGetConditionApi>(
+      PromoBuyXGetYGetConditionApi(sl()));
+  sl.registerSingleton<PromoBuyXGetYCustomerGroupApi>(
+      PromoBuyXGetYCustomerGroupApi(sl()));
   sl.registerSingleton<PromoCouponHeaderApi>(PromoCouponHeaderApi(sl()));
-  sl.registerSingleton<PromoCouponAssignStoreApi>(PromoCouponAssignStoreApi(sl()));
-  sl.registerSingleton<PromoCouponCustomerGroupApi>(PromoCouponCustomerGroupApi(sl()));
+  sl.registerSingleton<PromoCouponAssignStoreApi>(
+      PromoCouponAssignStoreApi(sl()));
+  sl.registerSingleton<PromoCouponCustomerGroupApi>(
+      PromoCouponCustomerGroupApi(sl()));
   sl.registerSingleton<AuthStoreApi>(AuthStoreApi(sl()));
   sl.registerSingleton<NetzmeApi>(NetzmeApi(sl()));
   sl.registerSingleton<DuitkuApi>(DuitkuApi(sl()));
   sl.registerSingleton<DuitkuVAListApi>(DuitkuVAListApi(sl()));
   sl.registerSingleton<BillOfMaterialApi>(BillOfMaterialApi(sl()));
-  sl.registerSingleton<BillOfMaterialLineItemApi>(BillOfMaterialLineItemApi(sl()));
+  sl.registerSingleton<BillOfMaterialLineItemApi>(
+      BillOfMaterialLineItemApi(sl()));
   sl.registerSingleton<EDCApi>(EDCApi(sl()));
   sl.registerSingleton<BankIssuerApi>(BankIssuerApi(sl()));
   sl.registerSingleton<CampaignApi>(CampaignApi(sl()));
-  sl.registerSingletonWithDependencies<MOPAdjustmentService>(() => MOPAdjustmentService(sl(), sl()),
+  sl.registerSingletonWithDependencies<MOPAdjustmentService>(
+      () => MOPAdjustmentService(sl(), sl()),
       dependsOn: [SharedPreferences]);
-  sl.registerSingletonWithDependencies<OTPServiceAPi>(() => OTPServiceAPi(sl()), dependsOn: [SharedPreferences]);
+  sl.registerSingletonWithDependencies<OTPServiceAPi>(() => OTPServiceAPi(sl()),
+      dependsOn: [SharedPreferences]);
   sl.registerSingleton<CheckStockApi>(CheckStockApi(sl()));
   sl.registerSingleton<DownPaymentApi>(DownPaymentApi(sl()));
   sl.registerSingleton<ReturnApi>(ReturnApi(sl()));
@@ -309,39 +342,59 @@ Future<void> initializeDependencies() async {
    * REPOSITORIES
    * =================================
    */
-  sl.registerSingletonWithDependencies<ItemRepository>(() => ItemRepositoryImpl(sl()), dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<CustomerRepository>(() => CustomerRepositoryImpl(sl()),
+  sl.registerSingletonWithDependencies<ItemRepository>(
+      () => ItemRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<MopSelectionRepository>(() => MopSelectionRepositoryImpl(sl()),
+  sl.registerSingletonWithDependencies<CustomerRepository>(
+      () => CustomerRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<ReceiptRepository>(() => ReceiptRepositoryImpl(sl(), sl()),
+  sl.registerSingletonWithDependencies<MopSelectionRepository>(
+      () => MopSelectionRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<POSParameterRepository>(() => POSParameterRepositoryImpl(sl()),
+  sl.registerSingletonWithDependencies<ReceiptRepository>(
+      () => ReceiptRepositoryImpl(sl(), sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<StoreMasterRepository>(() => StoreMasterRepositoryImpl(sl()),
+  sl.registerSingletonWithDependencies<POSParameterRepository>(
+      () => POSParameterRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<ReceiptContentRepository>(() => ReceiptContentRepositoryImpl(sl()),
+  sl.registerSingletonWithDependencies<StoreMasterRepository>(
+      () => StoreMasterRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<UserAuthRepository>(() => UserAuthRepositoryImpl(sl()),
+  sl.registerSingletonWithDependencies<ReceiptContentRepository>(
+      () => ReceiptContentRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<EmployeeRepository>(() => EmployeeRepositoryImpl(sl()),
+  sl.registerSingletonWithDependencies<UserAuthRepository>(
+      () => UserAuthRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<CreditCardRepository>(() => CreditCardRepositoryImpl(sl()),
+  sl.registerSingletonWithDependencies<EmployeeRepository>(
+      () => EmployeeRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<CampaignRepository>(() => CampaignRepositoryImpl(sl()),
+  sl.registerSingletonWithDependencies<CreditCardRepository>(
+      () => CreditCardRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<QueuedReceiptRepository>(() => QueuedReceiptRepositoryImpl(sl(), sl()),
+  sl.registerSingletonWithDependencies<CampaignRepository>(
+      () => CampaignRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<VouchersSelectionRepository>(() => VouchersSelectionRepositoryImpl(sl()),
+  sl.registerSingletonWithDependencies<QueuedReceiptRepository>(
+      () => QueuedReceiptRepositoryImpl(sl(), sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<PromotionsRepository>(() => PromotionsRepositoryImpl(sl()),
+  sl.registerSingletonWithDependencies<VouchersSelectionRepository>(
+      () => VouchersSelectionRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<CashRegisterRepository>(() => CashRegisterRepositoryImpl(sl()),
+  sl.registerSingletonWithDependencies<PromotionsRepository>(
+      () => PromotionsRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<UserRepository>(() => UserRepositoryImpl(sl()), dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<CustomerGroupRepository>(() => CustomerGroupRepositoryImpl(sl()),
+  sl.registerSingletonWithDependencies<CashRegisterRepository>(
+      () => CashRegisterRepositoryImpl(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<ReturnReceiptRepository>(() => ReturnReceiptRepositoryImpl(sl(), sl()),
+  sl.registerSingletonWithDependencies<UserRepository>(
+      () => UserRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<CustomerGroupRepository>(
+      () => CustomerGroupRepositoryImpl(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<ReturnReceiptRepository>(
+      () => ReturnReceiptRepositoryImpl(sl(), sl()),
       dependsOn: [AppDatabase]);
   /**
    * =================================
@@ -354,89 +407,141 @@ Future<void> initializeDependencies() async {
    * USECASES
    * =================================
    */
-  sl.registerSingletonWithDependencies<GetItemsUseCase>(() => GetItemsUseCase(sl()), dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<GetItemsByPricelistUseCase>(() => GetItemsByPricelistUseCase(sl(), sl(), sl()),
+  sl.registerSingletonWithDependencies<GetItemsUseCase>(
+      () => GetItemsUseCase(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<GetItemUseCase>(() => GetItemUseCase(sl()), dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<GetDownPaymentUseCase>(() => GetDownPaymentUseCase(sl()),
+  sl.registerSingletonWithDependencies<GetItemsByPricelistUseCase>(
+      () => GetItemsByPricelistUseCase(sl(), sl(), sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<GetItemByBarcodeUseCase>(() => GetItemByBarcodeUseCase(sl()),
+  sl.registerSingletonWithDependencies<GetItemUseCase>(
+      () => GetItemUseCase(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<GetItemWithAndConditionUseCase>(() => GetItemWithAndConditionUseCase(sl()),
+  sl.registerSingletonWithDependencies<GetDownPaymentUseCase>(
+      () => GetDownPaymentUseCase(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<GetCustomersUseCase>(() => GetCustomersUseCase(sl()), dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<GetMopSelectionsUseCase>(() => GetMopSelectionsUseCase(sl()),
+  sl.registerSingletonWithDependencies<GetItemByBarcodeUseCase>(
+      () => GetItemByBarcodeUseCase(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<SaveReceiptUseCase>(() => SaveReceiptUseCase(sl()),
+  sl.registerSingletonWithDependencies<GetItemWithAndConditionUseCase>(
+      () => GetItemWithAndConditionUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetCustomersUseCase>(
+      () => GetCustomersUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetMopSelectionsUseCase>(
+      () => GetMopSelectionsUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<SaveReceiptUseCase>(
+      () => SaveReceiptUseCase(sl()),
       dependsOn: [AppDatabase, SharedPreferences]);
-  sl.registerSingletonWithDependencies<QueueReceiptUseCase>(() => QueueReceiptUseCase(sl()),
+  sl.registerSingletonWithDependencies<QueueReceiptUseCase>(
+      () => QueueReceiptUseCase(sl()),
       dependsOn: [AppDatabase, SharedPreferences]);
-  sl.registerSingletonWithDependencies<GetQueuedReceiptsUseCase>(() => GetQueuedReceiptsUseCase(sl()),
+  sl.registerSingletonWithDependencies<GetQueuedReceiptsUseCase>(
+      () => GetQueuedReceiptsUseCase(sl()),
       dependsOn: [AppDatabase, SharedPreferences]);
-  sl.registerSingletonWithDependencies<DeleteQueuedReceiptUseCase>(() => DeleteQueuedReceiptUseCase(sl()),
+  sl.registerSingletonWithDependencies<DeleteQueuedReceiptUseCase>(
+      () => DeleteQueuedReceiptUseCase(sl()),
       dependsOn: [AppDatabase, SharedPreferences]);
-  sl.registerSingletonWithDependencies<DeleteAllQueuedReceiptsUseCase>(() => DeleteAllQueuedReceiptsUseCase(sl()),
+  sl.registerSingletonWithDependencies<DeleteAllQueuedReceiptsUseCase>(
+      () => DeleteAllQueuedReceiptsUseCase(sl()),
       dependsOn: [AppDatabase, SharedPreferences]);
-  sl.registerSingletonWithDependencies<PrintReceiptUseCase>(() => PrintReceiptUseCase(sl(), sl(), sl(), sl()),
+  sl.registerSingletonWithDependencies<PrintReceiptUseCase>(
+      () => PrintReceiptUseCase(sl(), sl(), sl(), sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<OpenCashDrawerUseCase>(() => OpenCashDrawerUseCase(sl()),
+  sl.registerSingletonWithDependencies<OpenCashDrawerUseCase>(
+      () => OpenCashDrawerUseCase(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<PrintOpenShiftUsecase>(() => PrintOpenShiftUsecase(sl(), sl(), sl(), sl()),
+  sl.registerSingletonWithDependencies<PrintOpenShiftUsecase>(
+      () => PrintOpenShiftUsecase(sl(), sl(), sl(), sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<PrintCloseShiftUsecase>(() => PrintCloseShiftUsecase(sl(), sl(), sl(), sl()),
+  sl.registerSingletonWithDependencies<PrintCloseShiftUsecase>(
+      () => PrintCloseShiftUsecase(sl(), sl(), sl(), sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<PrintQrisUseCase>(() => PrintQrisUseCase(sl()), dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<GetPosParameterUseCase>(() => GetPosParameterUseCase(sl()),
+  sl.registerSingletonWithDependencies<PrintQrisUseCase>(
+      () => PrintQrisUseCase(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<sales_get_pos_parameter_use_case.GetPosParameterUseCase>(
+  sl.registerSingletonWithDependencies<GetPosParameterUseCase>(
+      () => GetPosParameterUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<
+          sales_get_pos_parameter_use_case.GetPosParameterUseCase>(
       () => sales_get_pos_parameter_use_case.GetPosParameterUseCase(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<LoginUseCase>(() => LoginUseCase(sl(), sl()),
+  sl.registerSingletonWithDependencies<LoginUseCase>(
+      () => LoginUseCase(sl(), sl()),
       dependsOn: [AppDatabase, SharedPreferences]);
-  sl.registerSingletonWithDependencies<LogoutUseCase>(() => LogoutUseCase(sl()), dependsOn: [SharedPreferences]);
-  sl.registerSingletonWithDependencies<GetEmployeeUseCase>(() => GetEmployeeUseCase(sl(), sl()),
+  sl.registerSingletonWithDependencies<LogoutUseCase>(() => LogoutUseCase(sl()),
+      dependsOn: [SharedPreferences]);
+  sl.registerSingletonWithDependencies<GetEmployeeUseCase>(
+      () => GetEmployeeUseCase(sl(), sl()),
       dependsOn: [AppDatabase, SharedPreferences]);
-  sl.registerSingletonWithDependencies<GetStoreMasterUseCase>(() => GetStoreMasterUseCase(sl()),
+  sl.registerSingletonWithDependencies<GetStoreMasterUseCase>(
+      () => GetStoreMasterUseCase(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<CheckVoucherUseCase>(() => CheckVoucherUseCase(sl()), dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<CreatePromotionsUseCase>(() => CreatePromotionsUseCase(sl()),
+  sl.registerSingletonWithDependencies<CheckVoucherUseCase>(
+      () => CheckVoucherUseCase(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<CheckPromoUseCase>(() => CheckPromoUseCase(sl()), dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<GetCashRegisterUseCase>(() => GetCashRegisterUseCase(sl()),
+  sl.registerSingletonWithDependencies<CreatePromotionsUseCase>(
+      () => CreatePromotionsUseCase(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<GetUserUseCase>(() => GetUserUseCase(sl()), dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<RecalculateTaxUseCase>(() => RecalculateTaxUseCase(), dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<GetEmployeesUseCase>(() => GetEmployeesUseCase(sl()), dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<GetCreditCardUseCase>(() => GetCreditCardUseCase(sl()),
+  sl.registerSingletonWithDependencies<CheckPromoUseCase>(
+      () => CheckPromoUseCase(sl()),
       dependsOn: [AppDatabase]);
-  sl.registerSingletonWithDependencies<GetCampaignUseCase>(() => GetCampaignUseCase(sl()), dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetCashRegisterUseCase>(
+      () => GetCashRegisterUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetUserUseCase>(
+      () => GetUserUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<RecalculateTaxUseCase>(
+      () => RecalculateTaxUseCase(),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetEmployeesUseCase>(
+      () => GetEmployeesUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetCreditCardUseCase>(
+      () => GetCreditCardUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingletonWithDependencies<GetCampaignUseCase>(
+      () => GetCampaignUseCase(sl()),
+      dependsOn: [AppDatabase]);
   sl.registerSingleton<HandleOpenPriceUseCase>(HandleOpenPriceUseCase());
-  sl.registerSingleton<HandleWithoutPromosUseCase>(HandleWithoutPromosUseCase());
+  sl.registerSingleton<HandleWithoutPromosUseCase>(
+      HandleWithoutPromosUseCase());
   sl.registerSingleton<HandlePromosUseCase>(HandlePromosUseCase(sl()));
   sl.registerSingleton<RecalculateReceiptUseCase>(RecalculateReceiptUseCase());
   // toprb usecases
-  sl.registerSingleton<CheckBuyXGetYApplicabilityUseCase>(CheckBuyXGetYApplicabilityUseCase());
-  sl.registerSingleton<HandlePromoBuyXGetYUseCase>(HandlePromoBuyXGetYUseCase());
+  sl.registerSingleton<CheckBuyXGetYApplicabilityUseCase>(
+      CheckBuyXGetYApplicabilityUseCase());
+  sl.registerSingleton<HandlePromoBuyXGetYUseCase>(
+      HandlePromoBuyXGetYUseCase());
   // topsb usecases
-  sl.registerSingleton<HandlePromoSpecialPriceUseCase>(HandlePromoSpecialPriceUseCase());
+  sl.registerSingleton<HandlePromoSpecialPriceUseCase>(
+      HandlePromoSpecialPriceUseCase());
   // topdg usecases
-  sl.registerSingleton<GetPromoTopdgHeaderAndDetailUseCase>(GetPromoTopdgHeaderAndDetailUseCase());
+  sl.registerSingleton<GetPromoTopdgHeaderAndDetailUseCase>(
+      GetPromoTopdgHeaderAndDetailUseCase());
   sl.registerSingletonWithDependencies<CheckPromoTopdgApplicabilityUseCase>(
       () => CheckPromoTopdgApplicabilityUseCase(sl()),
       dependsOn: [AppDatabase]);
   sl.registerSingleton<ApplyPromoTopdgUseCase>(ApplyPromoTopdgUseCase());
-  sl.registerSingletonWithDependencies<HandlePromoTopdgUseCase>(() => HandlePromoTopdgUseCase(sl(), sl(), sl(), sl()),
+  sl.registerSingletonWithDependencies<HandlePromoTopdgUseCase>(
+      () => HandlePromoTopdgUseCase(sl(), sl(), sl(), sl()),
       dependsOn: [CheckPromoTopdgApplicabilityUseCase]);
   // topdi usecases
-  sl.registerSingleton<GetPromoTopdiHeaderAndDetailUseCase>(GetPromoTopdiHeaderAndDetailUseCase());
+  sl.registerSingleton<GetPromoTopdiHeaderAndDetailUseCase>(
+      GetPromoTopdiHeaderAndDetailUseCase());
   sl.registerSingletonWithDependencies<CheckPromoTopdiApplicabilityUseCase>(
       () => CheckPromoTopdiApplicabilityUseCase(sl()),
       dependsOn: [AppDatabase]);
   sl.registerSingleton<ApplyPromoTopdiUseCase>(ApplyPromoTopdiUseCase());
-  sl.registerSingletonWithDependencies<HandlePromoTopdiUseCase>(() => HandlePromoTopdiUseCase(sl(), sl(), sl(), sl()),
+  sl.registerSingletonWithDependencies<HandlePromoTopdiUseCase>(
+      () => HandlePromoTopdiUseCase(sl(), sl(), sl(), sl()),
       dependsOn: [CheckPromoTopdiApplicabilityUseCase]);
   // toprn usecases
-  sl.registerSingleton<GetPromoToprnHeaderAndDetailUseCase>(GetPromoToprnHeaderAndDetailUseCase());
+  sl.registerSingleton<GetPromoToprnHeaderAndDetailUseCase>(
+      GetPromoToprnHeaderAndDetailUseCase());
   sl.registerSingleton<ApplyPromoToprnUseCase>(ApplyPromoToprnUseCase());
   sl.registerSingletonWithDependencies<CheckPromoToprnApplicabilityUseCase>(
       () => CheckPromoToprnApplicabilityUseCase(sl()),
@@ -446,9 +551,11 @@ Future<void> initializeDependencies() async {
   //   () => HandlePromoToprnUseCase(sl(), sl(), sl()),
   // );
 
-  sl.registerSingletonWithDependencies<CashierBalanceTransactionApi>(() => CashierBalanceTransactionApi(sl(), sl()),
+  sl.registerSingletonWithDependencies<CashierBalanceTransactionApi>(
+      () => CashierBalanceTransactionApi(sl(), sl()),
       dependsOn: [SharedPreferences]);
-  sl.registerSingletonWithDependencies<ApplyRoundingUseCase>(() => ApplyRoundingUseCase(sl(), sl()),
+  sl.registerSingletonWithDependencies<ApplyRoundingUseCase>(
+      () => ApplyRoundingUseCase(sl(), sl()),
       dependsOn: [AppDatabase]);
   sl.registerSingleton<ApplyManualRoundingUseCase>(
     ApplyManualRoundingUseCase(roundingMode: RoundingMode.down),
@@ -465,16 +572,18 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<EncryptPasswordUseCase>(EncryptPasswordUseCase());
   sl.registerSingleton<DecryptPasswordUseCase>(DecryptPasswordUseCase());
   sl.registerSingleton<RefreshTokenUseCase>(RefreshTokenUseCase());
-  sl.registerSingleton<GenerateDeviceNumberUseCase>(GenerateDeviceNumberUseCase(sl(), sl()));
+  sl.registerSingleton<GenerateDeviceNumberUseCase>(
+      GenerateDeviceNumberUseCase(sl(), sl()));
   sl.registerSingleton<GetAppVersionUseCase>(GetAppVersionUseCase());
 
-  sl.registerSingletonWithDependencies<GetReturnReceiptUseCase>(() => GetReturnReceiptUseCase(sl()),
+  sl.registerSingletonWithDependencies<GetReturnReceiptUseCase>(
+      () => GetReturnReceiptUseCase(sl()),
       dependsOn: [ReceiptRepository]);
   /**
    * =================================
    * END OF USECASES
    * =================================
    */
-
+  WindowManagerProvider.register();
   return;
 }

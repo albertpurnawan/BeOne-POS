@@ -1,12 +1,15 @@
-import 'dart:developer';
 import 'dart:io';
+import 'dart:convert';
 
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/constants/route_constants.dart';
+import 'package:pos_fe/features/dual_screen/presentation/pages/display.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_manual_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_toprn.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
@@ -50,45 +53,74 @@ import 'package:pos_fe/features/settings/domain/usecases/scheduler.dart';
 import 'package:pos_fe/injection_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:video_player_win/video_player_win.dart';
 
-void main() async {
+void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+
   if (Platform.isWindows || Platform.isLinux) {
-    // Initialize FFI
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
-    // await hotKeyManager.unregister(
-    //     HotKey(key: LogicalKeyboardKey.f10, scope: HotKeyScope.system));
+    if (Platform.isWindows) {
+      WindowsVideoPlayer.registerWith();
+    }
   }
+
+  // Parse window arguments
+  if (args.isNotEmpty) {
+    try {
+      final windowArgs = args.first;
+      print('Raw args: $windowArgs');
+
+      if (windowArgs == 'multi_window') {
+        final windowId = int.parse(args[1]);
+        print('Starting second window with ID: $windowId');
+
+        // Create a separate router for the second window
+        final secondWindowRouter = GoRouter(
+          initialLocation: '/dualScreen',
+          routes: [
+            GoRoute(
+              path: '/dualScreen',
+              builder: (context, state) => DisplayPage(
+                windowController: WindowController.fromWindowId(windowId),
+                args: {
+                  'windowId': windowId,
+                  'business': 'Dual Monitor',
+                },
+              ),
+            ),
+          ],
+        );
+
+        runApp(
+          MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            routerConfig: secondWindowRouter,
+          ),
+        );
+        return;
+      }
+    } catch (e) {
+      print('Error parsing window arguments: $e');
+      print('Args: $args');
+    }
+  }
+
   await initializeDependencies();
   await GetIt.instance.allReady();
-  // await FirstRunManager.checkFirstRun();
   await GetIt.instance<SharedPreferences>().setBool("isSyncing", false);
   await configureBackgroundTasks();
-  // await SentryFlutter.init(
-  //   (options) {
-  //     options.dsn =
-  //         'https://7306b39b56b79ca6f462f271e019822d@o4507461908824064.ingest.us.sentry.io/4507461910724608';
-  //     // Set tracesSampleRate to 1.0 to capture 100% of transactions for performance monitoring.
-  //     // We recommend adjusting this value in production.
-  //     options.tracesSampleRate = 1.0;
-  //     // The sampling rate for profiling is relative to tracesSampleRate
-  //     // Setting to 1.0 will profile 100% of sampled transactions:
-  //     options.profilesSampleRate = 1.0;
-  //   },
-  //   appRunner: () => runApp(const MyApp()),
-  // );
+
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
-    log(details.toString());
-    // if (kReleaseMode) exit(1);
   };
+
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+  const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     // print((GetIt.instance<AppDatabase>().currencyDao.readAll()).toString());
@@ -136,17 +168,31 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<ApplyRoundingUseCase>(),
                       GetIt.instance<GetItemWithAndConditionUseCase>(),
                       GetIt.instance<ApplyPromoToprnUseCase>(),
-                      GetIt.instance<ApplyManualRoundingUseCase>(instanceName: 'roundingDown'),
-                      GetIt.instance<ApplyManualRoundingUseCase>(instanceName: 'roundingUp'),
+                      GetIt.instance<ApplyManualRoundingUseCase>(
+                          instanceName: 'roundingDown'),
+                      GetIt.instance<ApplyManualRoundingUseCase>(
+                          instanceName: 'roundingUp'),
                     )),
-            BlocProvider<CustomersCubit>(create: (context) => CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
+            BlocProvider<CustomersCubit>(
+                create: (context) =>
+                    CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
             BlocProvider<MopSelectionsCubit>(
-                create: (context) => MopSelectionsCubit(GetIt.instance<GetMopSelectionsUseCase>())),
-            BlocProvider<ItemsCubit>(create: (context) => ItemsCubit(GetIt.instance<GetItemsByPricelistUseCase>())),
-            BlocProvider<EmployeesCubit>(create: (context) => EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
-            BlocProvider<CreditCardCubit>(create: (context) => CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
-            BlocProvider<CampaignCubit>(create: (context) => CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
-            BlocProvider<ReturnReceiptCubit>(create: (context) => ReturnReceiptCubit()),
+                create: (context) => MopSelectionsCubit(
+                    GetIt.instance<GetMopSelectionsUseCase>())),
+            BlocProvider<ItemsCubit>(
+                create: (context) =>
+                    ItemsCubit(GetIt.instance<GetItemsByPricelistUseCase>())),
+            BlocProvider<EmployeesCubit>(
+                create: (context) =>
+                    EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
+            BlocProvider<CreditCardCubit>(
+                create: (context) =>
+                    CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
+            BlocProvider<CampaignCubit>(
+                create: (context) =>
+                    CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
+            BlocProvider<ReturnReceiptCubit>(
+                create: (context) => ReturnReceiptCubit()),
           ],
           child: FutureBuilder<String>(
               future: Future.delayed(const Duration(seconds: 5), () {
@@ -172,7 +218,8 @@ class MyApp extends StatelessWidget {
                   title: 'RubyPOS',
                   debugShowCheckedModeBanner: false,
                   theme: ThemeData(
-                    colorScheme: ColorScheme.fromSeed(seedColor: ProjectColors.primary),
+                    colorScheme:
+                        ColorScheme.fromSeed(seedColor: ProjectColors.primary),
                     fontFamily: 'Roboto',
                     useMaterial3: true,
                   ),

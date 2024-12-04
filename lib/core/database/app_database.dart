@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
+import 'package:pos_fe/features/dual_screen/data/datasources/dual_screen_dao.dart';
 import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/approval_invoice_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/assign_price_member_per_store_dao.dart';
@@ -115,6 +116,7 @@ import 'package:pos_fe/features/sales/data/models/customer_contact_person.dart';
 import 'package:pos_fe/features/sales/data/models/customer_cst.dart';
 import 'package:pos_fe/features/sales/data/models/customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/down_payment_items_model.dart';
+import 'package:pos_fe/features/dual_screen/data/models/dual_screen.dart';
 import 'package:pos_fe/features/sales/data/models/duitku_va_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/duitku_va_details.dart';
 import 'package:pos_fe/features/sales/data/models/edc.dart';
@@ -327,6 +329,7 @@ class AppDatabase {
   late BankIssuerDao bankIssuerDao;
   late CampaignDao campaignDao;
   late DownPaymentItemsDao downPaymentItemsDao;
+  late DualScreenDao dualScreenDao;
 
   static String createTinv7 = """
         CREATE TABLE $tableDownPaymentItem (
@@ -352,6 +355,19 @@ class AppDatabase {
           createdat TEXT DEFAULT CURRENT_TIMESTAMP
         )
         """;
+
+  static String createTobnr = """
+      CREATE TABLE $tableDualScreen (
+        ${DualScreenFields.id} INT PRIMARY KEY ,
+        ${DualScreenFields.createdAt} datetime DEFAULT CURRENT_TIMESTAMP,
+        ${DualScreenFields.updatedAt} datetime DEFAULT CURRENT_TIMESTAMP,
+        ${DualScreenFields.description} text DEFAULT NULL,
+        ${DualScreenFields.type} INT DEFAULT NULL,
+        `${DualScreenFields.order}` INT DEFAULT NULL,
+        ${DualScreenFields.path} TEXT DEFAULT NULL,
+        ${DualScreenFields.duration} INT DEFAULT NULL
+        )
+      """;
 
   AppDatabase._init();
 
@@ -489,6 +505,7 @@ PRAGMA foreign_keys = ON;
     bankIssuerDao = BankIssuerDao(_database!);
     campaignDao = CampaignDao(_database!);
     downPaymentItemsDao = DownPaymentItemsDao(_database!);
+    dualScreenDao = DualScreenDao(_database!);
 
     await receiptContentDao.deleteAll();
     await receiptContentDao.bulkCreate(
@@ -3004,9 +3021,10 @@ CREATE TABLE $tablePOSParameter (
   ${POSParameterFields.storeName} text DEFAULT NULL,
   ${POSParameterFields.tocsrId} text DEFAULT NULL,
   ${POSParameterFields.baseUrl} text DEFAULT NULL,
-  ${POSParameterFields.usernameAdmin} text DEFAULT NULL,
+  ${POSParameterFields.usernameAdmin} text DEFAULT NULL,  
   ${POSParameterFields.passwordAdmin} text DEFAULT NULL,
   ${POSParameterFields.lastSync} text DEFAULT NULL,
+  ${POSParameterFields.customerDisplayActive} int DEFAULT NULL,
   $createdAtDefinition
 )
 """);
@@ -3645,6 +3663,7 @@ CREATE TABLE $tableDuitkuVAAssignStore (
 """);
 
         await txn.execute(createTinv7);
+        await txn.execute(createTobnr);
       });
     } catch (e) {
       log(e.toString());
@@ -3807,6 +3826,7 @@ CREATE TABLE $tableDuitkuVAAssignStore (
           '''ALTER TABLE $tableInvoiceDetail ADD COLUMN ${QueuedInvoiceDetailFields.refpos3} text DEFAULT NULL''');
 
       await db.execute(createTinv7);
+      await db.execute(createTobnr);
     },
     'from_version_4_to_version_5': (Database db) async {
       // alter table tostr timbangan

@@ -14,7 +14,9 @@ class POSParameterEntity {
   final String? usernameAdmin;
   final String? passwordAdmin;
   final String? lastSync;
+  final int? customerDisplayActive;
 
+<<<<<<< HEAD
   var nama1;
 
   POSParameterEntity({
@@ -30,6 +32,21 @@ class POSParameterEntity {
     this.passwordAdmin,
     this.lastSync,
   });
+=======
+  POSParameterEntity(
+      {required this.docId,
+      this.createDate,
+      this.updateDate,
+      this.gtentId,
+      this.tostrId,
+      this.storeName,
+      this.tocsrId,
+      this.baseUrl,
+      this.usernameAdmin,
+      this.passwordAdmin,
+      this.lastSync,
+      this.customerDisplayActive});
+>>>>>>> 389b80d6659d587db977346f31b5f92025d7842c
 
   POSParameterEntity copyWith({
     String? docId,
@@ -43,20 +60,22 @@ class POSParameterEntity {
     String? usernameAdmin,
     String? passwordAdmin,
     String? lastSync,
+    int? customerDisplayActive,
   }) {
     return POSParameterEntity(
-      docId: docId ?? this.docId,
-      createDate: createDate ?? this.createDate,
-      updateDate: updateDate ?? this.updateDate,
-      gtentId: gtentId ?? this.gtentId,
-      tostrId: tostrId ?? this.tostrId,
-      storeName: storeName ?? this.storeName,
-      tocsrId: tocsrId ?? this.tocsrId,
-      baseUrl: baseUrl ?? this.baseUrl,
-      usernameAdmin: usernameAdmin ?? this.usernameAdmin,
-      passwordAdmin: passwordAdmin ?? this.passwordAdmin,
-      lastSync: lastSync ?? this.lastSync,
-    );
+        docId: docId ?? this.docId,
+        createDate: createDate ?? this.createDate,
+        updateDate: updateDate ?? this.updateDate,
+        gtentId: gtentId ?? this.gtentId,
+        tostrId: tostrId ?? this.tostrId,
+        storeName: storeName ?? this.storeName,
+        tocsrId: tocsrId ?? this.tocsrId,
+        baseUrl: baseUrl ?? this.baseUrl,
+        usernameAdmin: usernameAdmin ?? this.usernameAdmin,
+        passwordAdmin: passwordAdmin ?? this.passwordAdmin,
+        lastSync: lastSync ?? this.lastSync,
+        customerDisplayActive:
+            customerDisplayActive ?? this.customerDisplayActive);
   }
 
   Map<String, dynamic> toMap() {
@@ -72,6 +91,7 @@ class POSParameterEntity {
       'usernameAdmin': usernameAdmin,
       'passwordAdmin': passwordAdmin,
       'lastSync': lastSync,
+      'customerDisplayActive': customerDisplayActive
     };
   }
 
@@ -94,6 +114,9 @@ class POSParameterEntity {
       passwordAdmin:
           map['passwordAdmin'] != null ? map['passwordAdmin'] as String : null,
       lastSync: map['lastSync'] != null ? map['lastSync'] as String : null,
+      customerDisplayActive: map['customerDisplayActive'] != null
+          ? map['customerDisplayActive'] as int
+          : null,
     );
   }
 
@@ -104,7 +127,7 @@ class POSParameterEntity {
 
   @override
   String toString() {
-    return 'POSParameterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, gtentId: $gtentId, tostrId: $tostrId, storeName: $storeName, tocsrId: $tocsrId, baseUrl: $baseUrl, usernameAdmin: $usernameAdmin, passwordAdmin: $passwordAdmin, lastSync: $lastSync)';
+    return 'POSParameterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, gtentId: $gtentId, tostrId: $tostrId, storeName: $storeName, tocsrId: $tocsrId, baseUrl: $baseUrl, usernameAdmin: $usernameAdmin, passwordAdmin: $passwordAdmin, lastSync: $lastSync, customerDisplayActive: $customerDisplayActive)';
   }
 
   @override
@@ -121,7 +144,8 @@ class POSParameterEntity {
         other.baseUrl == baseUrl &&
         other.usernameAdmin == usernameAdmin &&
         other.passwordAdmin == passwordAdmin &&
-        other.lastSync == lastSync;
+        other.lastSync == lastSync &&
+        other.customerDisplayActive == customerDisplayActive;
   }
 
   @override
@@ -136,6 +160,7 @@ class POSParameterEntity {
         baseUrl.hashCode ^
         usernameAdmin.hashCode ^
         passwordAdmin.hashCode ^
-        lastSync.hashCode;
+        lastSync.hashCode ^
+        customerDisplayActive.hashCode;
   }
 }
