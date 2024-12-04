@@ -22,7 +22,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
   EmployeeEntity? selectedEmployee;
   final FocusNode _employeeInputFocusNode = FocusNode();
   final FocusNode _keyboardFocusNode = FocusNode();
-  late final TextEditingController _employeeTextController = TextEditingController();
+  final TextEditingController _employeeTextController = TextEditingController();
   bool _showKeyboard = true;
   bool _shiftEnabled = false;
 
