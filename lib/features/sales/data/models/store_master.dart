@@ -423,7 +423,9 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       maxDiscount: map['maxdiscount'] != null ? map['maxdiscount'] as int : null,
       duitkuUrl: map['duitkuurl'] != null ? map['duitkuurl'] as String : null,
       duitkuApiKey: map['duitkuapikey'] != null ? map['duitkuapikey'] as String : null,
-      duitkuMerchantCode: map['duitkumerchantcode'] != null ? map['duitkumerchantcode'] as String : null,
+      duitkuMerchantCode: (map['duitkumerchantcode'] != null || map['duitkumerchantcode'] == "")
+          ? map['duitkumerchantcode'] as String
+          : null,
       duitkuExpiryPeriod: map['duitkuexpiryperiod'] != null ? map['duitkuexpiryperiod'] as int : null,
       scaleActive: map['scaleactive'] as int,
       scaleFlag: map['scaleflag'] != null ? map['scaleflag'] as String : null,
@@ -453,7 +455,9 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       "minconst": map['minconst'].toDouble() as double,
       "maxconst": map['maxconst'].toDouble() as double,
       "tpmt1Id": map['tpmt1docid'] != null ? map['tpmt1docid'] as String : null,
-      "duitkuexpiryperiod": map['duitkuexpiryperiod'] != null ? int.parse(map['duitkuexpiryperiod']) : null,
+      "duitkuexpiryperiod": (map['duitkuexpiryperiod'] != null || map['duitkuexpiryperiod'] == "")
+          ? int.parse(map['duitkuexpiryperiod'])
+          : null,
       "scaleactive": map['scaleactive'] != null ? map['scaleactive'] as int : 0,
       "scaleqtydivider": map['scalequantitydivider'] != null ? map['scalequantitydivider'].toDouble() as double : null,
     });
