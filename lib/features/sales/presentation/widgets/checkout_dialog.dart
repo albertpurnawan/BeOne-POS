@@ -140,16 +140,16 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
               _showKeyboard = false;
             });
             break;
-          case 'Alphanumberic':
+          case 'Alphanumeric':
             setState(() {
               _showKeyboard = true;
               _currentNumericMode = false;
             });
             break;
-          case 'Alphanumberic':
+          case 'Numeric':
             setState(() {
               _showKeyboard = true;
-              _currentNumericMode = false;
+              _currentNumericMode = true;
             });
             break;
           default:
@@ -997,6 +997,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                     : CheckoutDialogContent(
                         isMultiMOPs: isMultiMOPs,
                         showKeyboard: _showKeyboard,
+                        keyboardNumeric: _currentNumericMode,
                       ),
             actions: isCharged
                 ? [
@@ -1182,9 +1183,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                             ),
                           ),
                         )),
-                        const SizedBox(
-                          width: 10,
-                        ),
+                        const SizedBox(width: 10),
                         Expanded(
                             child: Column(mainAxisSize: MainAxisSize.min, children: [
                           TextButton(
@@ -1248,9 +1247,11 @@ class CheckoutDialogContent extends StatefulWidget {
     Key? key,
     required this.isMultiMOPs,
     required this.showKeyboard,
+    required this.keyboardNumeric,
   }) : super(key: key);
   final bool isMultiMOPs;
   final bool showKeyboard;
+  final bool keyboardNumeric;
 
   @override
   State<CheckoutDialogContent> createState() => _CheckoutDialogContentState();
@@ -1287,6 +1288,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
   bool _showKeyboardContent = true;
   bool _shiftEnabled = false;
+  bool _keyboardNumeric = false;
 
   @override
   void initState() {
@@ -1301,6 +1303,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     });
     setState(() {
       _showKeyboardContent = widget.showKeyboard;
+      _keyboardNumeric = widget.keyboardNumeric;
     });
   }
 
@@ -1929,6 +1932,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
         _showKeyboardContent = widget.showKeyboard;
       });
     }
+    if (oldWidget.keyboardNumeric != widget.keyboardNumeric) {
+      setState(() {
+        _keyboardNumeric = widget.keyboardNumeric;
+      });
+    }
   }
 
   @override
@@ -2315,7 +2323,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                             ? SizedBox(
                                                                 child: KeyboardWidget(
                                                                     controller: _textEditingControllerCashAmount,
-                                                                    isNumericMode: false,
+                                                                    isNumericMode: _keyboardNumeric,
                                                                     customLayoutKeys: true,
                                                                     height: 200,
                                                                     onKeyPress: (key) async {
@@ -2373,16 +2381,19 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                       );
 
                                                                       TextEditingValue formattedValue =
-                                                                          MoneyInputFormatter().formatEditUpdate(
+                                                                          (receipt.grandTotal >= 0
+                                                                                  ? MoneyInputFormatter()
+                                                                                  : NegativeMoneyInputFormatter())
+                                                                              .formatEditUpdate(
                                                                         TextEditingValue(
                                                                           text: text,
                                                                           selection: TextSelection.collapsed(
-                                                                              offset: cursorPosition),
+                                                                              offset: text.length),
                                                                         ),
                                                                         TextEditingValue(
                                                                           text: text,
                                                                           selection: TextSelection.collapsed(
-                                                                              offset: cursorPosition),
+                                                                              offset: text.length),
                                                                         ),
                                                                       );
 
@@ -2433,10 +2444,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                             (int index) {
                                                               final distinctEdc =
                                                                   mopsByType.map((mop) => mop.tpmt4Id).toSet().toList();
-                                                              dev.log("distinctEdc - $distinctEdc");
+                                                              // dev.log("distinctEdc - $distinctEdc");
                                                               final mop = mopsByType.firstWhere(
                                                                   (mop) => mop.tpmt4Id == distinctEdc[index]);
-                                                              dev.log("mopppp - $mop");
+                                                              // dev.log("mopppp - $mop");
                                                               List<MopSelectionEntity> filteredMops = _values
                                                                   .where((edc) => edc.tpmt4Id == mop.tpmt4Id)
                                                                   .toList();
