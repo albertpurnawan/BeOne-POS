@@ -12,6 +12,7 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/down_payment_service.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
 import 'package:pos_fe/features/sales/data/models/item_master.dart';
@@ -29,6 +30,7 @@ import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.da
 import 'package:pos_fe/features/sales/presentation/widgets/select_employee_dialog.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:uuid/uuid.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class DownPaymentDialog extends StatefulWidget {
   const DownPaymentDialog({super.key});
@@ -71,6 +73,13 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
   double totalAmount = 0;
 
+  bool _shiftEnabled = false;
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool currentNumericMode = false;
+  int _focusedIndex = 0;
+  TextEditingController _activeController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -79,6 +88,34 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     readCustomer();
     tohemIdSelected = stateInvoice.salesTohemId;
     getEmployee(tohemIdSelected ?? "");
+
+    _amountFocusNode.addListener(() {
+      if (_amountFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _amountController;
+          currentNumericMode = true;
+        });
+      }
+    });
+    _remarksFocusNode.addListener(() {
+      if (_remarksFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _remarksController;
+          currentNumericMode = false;
+        });
+      }
+    });
+    for (int i = 0; i < _drawAmountFocusNodes.length; i++) {
+      _drawAmountFocusNodes[i].addListener(() {
+        if (_drawAmountFocusNodes[i].hasFocus) {
+          setState(() {
+            _focusedIndex = i;
+            _activeController = _drawAmountControllers[i];
+            currentNumericMode = true;
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -94,6 +131,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     for (var focusNode in _drawAmountFocusNodes) {
       focusNode.dispose();
     }
+    _activeController.dispose();
     super.dispose();
   }
 
@@ -172,9 +210,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       }
     } else {
       _amountController.text = "";
-      if (mounted) {
-        SnackBarHelper.presentErrorSnackBar(context, "Item DP not found for this store");
-      }
     }
     setState(() {
       isLoadingReceive = false;
@@ -192,6 +227,12 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
         customerSelected = customer;
       });
       membersDP = await getMembersDownPayments();
+      membersDP = [
+        DownPaymentEntity(
+          refpos2: "S0005-24091811502301/001",
+          amount: 10000000,
+        )
+      ];
       if (membersDP.isNotEmpty) {
         _setupControllers();
         if (stateInvoice.downPayments != null &&
@@ -650,48 +691,74 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                   color: ProjectColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
                       'Down Payment',
                       style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                     ),
                     const Spacer(),
-                    ToggleSwitch(
-                      minHeight: 30,
-                      minWidth: 70.0,
-                      cornerRadius: 20.0,
-                      animate: true,
-                      animationDuration: 400,
-                      curve: Curves.easeInOut,
-                      activeBgColors: const [
-                        [ProjectColors.green],
-                        [ProjectColors.green]
+                    Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                            borderRadius: const BorderRadius.all(Radius.circular(360)),
+                          ),
+                          child: IconButton(
+                            focusColor: const Color.fromARGB(255, 110, 0, 0),
+                            focusNode: _keyboardFocusNode,
+                            icon: Icon(
+                              _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _showKeyboard = !_showKeyboard;
+                              });
+                            },
+                            tooltip: 'Toggle Keyboard',
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        ToggleSwitch(
+                          minHeight: 30,
+                          minWidth: 70.0,
+                          cornerRadius: 20.0,
+                          animate: true,
+                          animationDuration: 400,
+                          curve: Curves.easeInOut,
+                          activeBgColors: const [
+                            [ProjectColors.green],
+                            [ProjectColors.green]
+                          ],
+                          activeFgColor: Colors.white,
+                          inactiveBgColor: const Color.fromARGB(255, 211, 211, 211),
+                          inactiveFgColor: ProjectColors.lightBlack,
+                          initialLabelIndex: isReceive ? 0 : 1,
+                          totalSwitches: 2,
+                          labels: const ['Receive', 'Draw'],
+                          customTextStyles: const [
+                            TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                            TextStyle(fontSize: 12, fontWeight: FontWeight.w700)
+                          ],
+                          radiusStyle: true,
+                          onToggle: (index) {
+                            if (index == 0) {
+                              setState(() {
+                                isReceive = true;
+                              });
+                            }
+                            if (index == 1) {
+                              setState(() {
+                                isReceive = false;
+                              });
+                            }
+                          },
+                        ),
                       ],
-                      activeFgColor: Colors.white,
-                      inactiveBgColor: const Color.fromARGB(255, 211, 211, 211),
-                      inactiveFgColor: ProjectColors.lightBlack,
-                      initialLabelIndex: isReceive ? 0 : 1,
-                      totalSwitches: 2,
-                      labels: const ['Receive', 'Draw'],
-                      customTextStyles: const [
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.w700)
-                      ],
-                      radiusStyle: true,
-                      onToggle: (index) {
-                        if (index == 0) {
-                          setState(() {
-                            isReceive = true;
-                          });
-                        }
-                        if (index == 1) {
-                          setState(() {
-                            isReceive = false;
-                          });
-                        }
-                      },
                     ),
                   ],
                 ),
@@ -712,120 +779,178 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                 ),
               ),
               actions: [
-                Row(
+                Column(
                   children: [
-                    Expanded(
-                        child: TextButton(
-                      style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(color: ProjectColors.primary))),
-                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                          overlayColor:
-                              MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Center(
-                        child: RichText(
-                          text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "Cancel",
-                                style: TextStyle(fontWeight: FontWeight.w600),
+                    (_showKeyboard)
+                        ? SizedBox(
+                            width: MediaQuery.of(childContext).size.width * 0.855,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: KeyboardWidget(
+                                controller: _activeController,
+                                isNumericMode: isReceive ? currentNumericMode : true,
+                                customLayoutKeys: true,
+                                height: 200,
+                                onKeyPress: (key) async {
+                                  String text = _activeController.text;
+                                  TextSelection currentSelection = _activeController.selection;
+                                  int cursorPosition = currentSelection.start;
+
+                                  if (key.keyType == VirtualKeyboardKeyType.String) {
+                                    String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                    text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                    cursorPosition += inputText.length;
+                                  } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                    switch (key.action) {
+                                      case VirtualKeyboardKeyAction.Backspace:
+                                        if (text.isNotEmpty && cursorPosition > 0) {
+                                          text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                          cursorPosition -= 1;
+                                        }
+                                        break;
+                                      case VirtualKeyboardKeyAction.Return:
+                                        _activeController.text = _activeController.text.trimRight();
+
+                                        break;
+                                      case VirtualKeyboardKeyAction.Space:
+                                        if (_activeController == _remarksController) {
+                                          text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                          cursorPosition += 1;
+                                        } else {
+                                          text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                          cursorPosition += 1;
+                                        }
+                                        break;
+                                      case VirtualKeyboardKeyAction.Shift:
+                                        _shiftEnabled = !_shiftEnabled;
+                                        break;
+                                      default:
+                                        break;
+                                    }
+                                  }
+                                  _activeController.text = text;
+                                  _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+                                },
                               ),
-                              TextSpan(
-                                text: "  (Esc)",
-                                style: TextStyle(fontWeight: FontWeight.w300),
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                    Row(
+                      children: [
+                        Expanded(
+                            child: TextButton(
+                          style: ButtonStyle(
+                              shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                  side: const BorderSide(color: ProjectColors.primary))),
+                              backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                              overlayColor:
+                                  MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Center(
+                            child: RichText(
+                              text: const TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "Cancel",
+                                    style: TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                  TextSpan(
+                                    text: "  (Esc)",
+                                    style: TextStyle(fontWeight: FontWeight.w300),
+                                  ),
+                                ],
+                                style: TextStyle(color: ProjectColors.primary),
                               ),
-                            ],
-                            style: TextStyle(color: ProjectColors.primary),
+                              overflow: TextOverflow.clip,
+                            ),
                           ),
-                          overflow: TextOverflow.clip,
-                        ),
-                      ),
-                    )),
-                    const SizedBox(width: 10),
-                    Expanded(
-                        child: TextButton(
-                      style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            side: const BorderSide(color: ProjectColors.primary),
-                          )),
-                          backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                      onPressed: isReceive
-                          ? () async {
-                              FocusScope.of(context).unfocus();
-                              final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
-                              if (receiptItems.any((item) => item.itemEntity.itemCode != "99") &&
-                                  receiptItems.any((item) => item.itemEntity.itemCode != "08700000002")) {
-                                SnackBarHelper.presentErrorSnackBar(
-                                    childContext, "Down payment has to be excluded from other transactions");
-                                return;
-                              }
-                              if (salesSelected == "Not Set*") {
-                                SnackBarHelper.presentErrorSnackBar(childContext, "Please select the salesperson");
-                                return;
-                              }
-                              if (receiveZero || _amountController.text == "") {
-                                SnackBarHelper.presentErrorSnackBar(
-                                    childContext, "Please input the Down Payment amount");
-                                return;
-                              }
-                              if (_remarksController.text.isEmpty) {
-                                SnackBarHelper.presentErrorSnackBar(childContext, "Please fill in the remarks");
-                                return;
-                              }
-                              if (await _checkDrawDownPayment()) {
-                                if (childContext.mounted) {
-                                  SnackBarHelper.presentErrorSnackBar(childContext,
-                                      "Receiving and drawing down a payment cannot be processed in a single transaction");
+                        )),
+                        const SizedBox(width: 10),
+                        Expanded(
+                            child: TextButton(
+                          style: ButtonStyle(
+                              shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                                side: const BorderSide(color: ProjectColors.primary),
+                              )),
+                              backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                              overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                          onPressed: isReceive
+                              ? () async {
+                                  FocusScope.of(context).unfocus();
+                                  final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
+                                  if (receiptItems.any((item) => item.itemEntity.itemCode != "99") &&
+                                      receiptItems.any((item) => item.itemEntity.itemCode != "08700000002")) {
+                                    SnackBarHelper.presentErrorSnackBar(
+                                        childContext, "Down payment has to be excluded from other transactions");
+                                    return;
+                                  }
+                                  if (salesSelected == "Not Set*") {
+                                    SnackBarHelper.presentErrorSnackBar(childContext, "Please select the salesperson");
+                                    return;
+                                  }
+                                  if (receiveZero || _amountController.text == "") {
+                                    SnackBarHelper.presentErrorSnackBar(
+                                        childContext, "Please input the Down Payment amount");
+                                    return;
+                                  }
+                                  if (_remarksController.text.isEmpty) {
+                                    SnackBarHelper.presentErrorSnackBar(childContext, "Please fill in the remarks");
+                                    return;
+                                  }
+                                  if (await _checkDrawDownPayment()) {
+                                    if (childContext.mounted) {
+                                      SnackBarHelper.presentErrorSnackBar(childContext,
+                                          "Receiving and drawing down a payment cannot be processed in a single transaction");
+                                    }
+                                    return;
+                                  }
+                                  if (context.mounted) {
+                                    context.pop();
+                                  }
+                                  await _addOrUpdateReceiveDownPayment();
                                 }
-                                return;
-                              }
-                              if (context.mounted) {
-                                context.pop();
-                              }
-                              await _addOrUpdateReceiveDownPayment();
-                            }
-                          : () async {
-                              FocusScope.of(context).unfocus();
-                              if (await _checkReceiveDownPayment()) {
-                                if (childContext.mounted) {
-                                  SnackBarHelper.presentErrorSnackBar(childContext,
-                                      "Receiving and drawing down payment cannot be processed in a single transaction");
-                                }
-                                return;
-                              }
+                              : () async {
+                                  FocusScope.of(context).unfocus();
+                                  if (await _checkReceiveDownPayment()) {
+                                    if (childContext.mounted) {
+                                      SnackBarHelper.presentErrorSnackBar(childContext,
+                                          "Receiving and drawing down payment cannot be processed in a single transaction");
+                                    }
+                                    return;
+                                  }
 
-                              await _resetDrawDownPayment();
+                                  await _resetDrawDownPayment();
 
-                              if (childContext.mounted) {
-                                await _addOrUpdateDrawDownPayment(childContext);
-                              }
+                                  if (childContext.mounted) {
+                                    await _addOrUpdateDrawDownPayment(childContext);
+                                  }
 
-                              await updateSalesAndRemarks();
-                            },
-                      child: Center(
-                        child: RichText(
-                          text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "Save",
-                                style: TextStyle(fontWeight: FontWeight.w600),
+                                  await updateSalesAndRemarks();
+                                },
+                          child: Center(
+                            child: RichText(
+                              text: const TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "Save",
+                                    style: TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                  TextSpan(
+                                    text: "  (F12)",
+                                    style: TextStyle(fontWeight: FontWeight.w300),
+                                  ),
+                                ],
                               ),
-                              TextSpan(
-                                text: "  (F12)",
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                            ],
+                              overflow: TextOverflow.clip,
+                            ),
                           ),
-                          overflow: TextOverflow.clip,
-                        ),
-                      ),
-                    )),
+                        )),
+                      ],
+                    ),
                   ],
                 ),
               ],
@@ -1306,15 +1431,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                                 IntrinsicHeight(
                                                                                   child: GestureDetector(
                                                                                     onTap: () async {
-                                                                                      setState(() {
-                                                                                        grandTotalReceiveDP -=
-                                                                                            (groupedItems[index].price *
-                                                                                                groupedQtys[index]);
-                                                                                        groupedItems
-                                                                                            .remove(itemsDP[index]);
-                                                                                        groupedQtys
-                                                                                            .remove(qtyDP[index]);
-                                                                                      });
                                                                                       await _recalculateDownPayment(
                                                                                           grandTotalReceiveDP);
                                                                                       if (context.mounted) {
@@ -1324,6 +1440,17 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                                                                 "Item ${itemsDP[index].itemName} removed",
                                                                                                 2);
                                                                                       }
+                                                                                      setState(() {
+                                                                                        log("groupedItems 1 - $groupedItems");
+                                                                                        grandTotalReceiveDP -=
+                                                                                            (groupedItems[index].price *
+                                                                                                groupedQtys[index]);
+                                                                                        groupedItems
+                                                                                            .remove(itemsDP[index]);
+                                                                                        groupedQtys
+                                                                                            .remove(qtyDP[index]);
+                                                                                      });
+                                                                                      log("groupedItems 2 - $groupedItems");
                                                                                     },
                                                                                     child: Container(
                                                                                       alignment: Alignment.center,
@@ -1510,6 +1637,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                               inputFormatters: [MoneyInputFormatter()],
                                               controller: _amountController,
                                               focusNode: _amountFocusNode,
+                                              keyboardType: TextInputType.none,
                                               textAlign: TextAlign.end,
                                               decoration: InputDecoration(
                                                 isDense: true,
@@ -1611,6 +1739,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                   maxLength: 300,
                                                   controller: _remarksController,
                                                   focusNode: _remarksFocusNode,
+                                                  keyboardType: TextInputType.none,
                                                   textAlign: TextAlign.start,
                                                   style: const TextStyle(
                                                     fontSize: 16,
@@ -1927,6 +2056,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                                             inputFormatters: [MoneyInputFormatter()],
                                                             controller: _drawAmountControllers[index],
                                                             focusNode: _drawAmountFocusNodes[index],
+                                                            keyboardType: TextInputType.none,
                                                             decoration: const InputDecoration(
                                                               isDense: true,
                                                               contentPadding: EdgeInsets.all(10),
@@ -2351,7 +2481,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
           color: ProjectColors.primary,
           borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
         ),
-        padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+        padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
         child: const Text(
           'Caution',
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),

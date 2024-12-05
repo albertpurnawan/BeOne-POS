@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/field_label.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class InputLineDiscountDialog extends StatefulWidget {
   final ReceiptItemEntity receiptItemEntity;
@@ -31,11 +32,21 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
 
   final TextEditingController _inputReturnedQtyEditingController = TextEditingController();
 
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool _showKeyboard = true;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _inputReturnedQtyEditingController.text = Helpers.parseMoney(widget.lineDiscount);
+  }
+
+  @override
+  void dispose() {
+    _inputReturnedQtyEditingController.dispose();
+    _inputReturnedQtyFocusNode.dispose();
+    _keyboardFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -73,14 +84,40 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
               ),
               const Spacer(),
-              ExcludeFocus(
-                  child: InkWell(
-                onTap: () => _saveLineDiscount(amount: 0),
-                child: const Icon(
-                  Icons.delete_outline_rounded,
-                  color: Colors.white,
-                ),
-              ))
+              Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(360)),
+                    ),
+                    child: IconButton(
+                      focusColor: const Color.fromARGB(255, 110, 0, 0),
+                      focusNode: _keyboardFocusNode,
+                      icon: Icon(
+                        _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showKeyboard = !_showKeyboard;
+                        });
+                      },
+                      tooltip: 'Toggle Keyboard',
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  ExcludeFocus(
+                    child: InkWell(
+                      onTap: () => _saveLineDiscount(amount: 0),
+                      child: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),
@@ -89,7 +126,7 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
         content: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: SizedBox(
-            width: 400,
+            width: MediaQuery.of(context).size.height * 0.5,
             // constraints: BoxConstraints(
             //   maxHeight: MediaQuery.of(context).size.height * 0.6,
             // ),
@@ -110,7 +147,7 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                                 onChanged: (value) => setState(() {}),
                                 autofocus: true,
                                 inputFormatters: [NegativeMoneyInputFormatter()],
-                                keyboardType: TextInputType.number,
+                                keyboardType: TextInputType.none,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 66, 66, 66)),
@@ -290,6 +327,44 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                     ),
                   ),
                 ),
+                (_showKeyboard)
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                        child: KeyboardWidget(
+                          controller: _inputReturnedQtyEditingController,
+                          isNumericMode: true,
+                          customLayoutKeys: false,
+                          onKeyPress: (key) async {
+                            String text = _inputReturnedQtyEditingController.text;
+                            TextSelection currentSelection = _inputReturnedQtyEditingController.selection;
+                            int cursorPosition = currentSelection.start;
+
+                            if (key.keyType == VirtualKeyboardKeyType.String) {
+                              String inputText = key.text ?? '';
+                              text = text.replaceRange(
+                                  (text == '0') ? cursorPosition - 1 : cursorPosition, cursorPosition, inputText);
+                              cursorPosition += inputText.length;
+                            } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                              switch (key.action) {
+                                case VirtualKeyboardKeyAction.Backspace:
+                                  if (text.isNotEmpty) {
+                                    text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                    cursorPosition -= 1;
+                                  }
+                                  break;
+                                default:
+                                  break;
+                              }
+                            }
+                            _inputReturnedQtyEditingController.text = text;
+                            _inputReturnedQtyEditingController.selection =
+                                TextSelection.collapsed(offset: cursorPosition);
+
+                            setState(() {});
+                          },
+                        ),
+                      )
+                    : const SizedBox.shrink(),
               ],
             ),
           ),

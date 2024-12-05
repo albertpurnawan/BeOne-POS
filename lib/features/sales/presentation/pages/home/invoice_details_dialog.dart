@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -21,10 +22,12 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _noteController = TextEditingController();
   final FocusNode _noteFocusNode = FocusNode();
+  final FocusNode _keyboardFocusNode = FocusNode();
   late final ReceiptEntity stateInvoice;
   String? salesSelected;
   String? tohemIdSelected;
   bool containDP = false;
+  bool _showKeyboard = true;
 
   @override
   void initState() {
@@ -41,6 +44,7 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
     _scrollController.dispose();
     _noteController.dispose();
     _noteFocusNode.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
   }
 
@@ -100,10 +104,35 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
             color: ProjectColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
-          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-          child: const Text(
-            'Header Attributes',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Header Attributes',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                  borderRadius: const BorderRadius.all(Radius.circular(360)),
+                ),
+                child: IconButton(
+                  focusColor: const Color.fromARGB(255, 110, 0, 0),
+                  focusNode: _keyboardFocusNode,
+                  icon: Icon(
+                    _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _showKeyboard = !_showKeyboard;
+                    });
+                  },
+                  tooltip: 'Toggle Keyboard',
+                ),
+              ),
+            ],
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -285,11 +314,20 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                   border: OutlineInputBorder(),
                                   counterText: "",
                                 ),
+                                keyboardType: TextInputType.none,
                               ),
                             ),
                           ),
                           const SizedBox(height: 10),
                           const Divider(height: 0),
+                          const SizedBox(height: 20),
+                          (_showKeyboard)
+                              ? KeyboardWidget(
+                                  controller: _noteController,
+                                  isNumericMode: false,
+                                  customLayoutKeys: true,
+                                )
+                              : const SizedBox.shrink(),
                           const SizedBox(height: 20),
                           Row(
                             children: [

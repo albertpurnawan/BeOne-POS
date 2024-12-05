@@ -6,8 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CalculateCash extends StatefulWidget {
   final Function(Map<String, String>) setTotal;
+  final Function(TextEditingController) onControllerProvided;
 
-  const CalculateCash({super.key, required this.setTotal});
+  const CalculateCash({super.key, required this.setTotal, required this.onControllerProvided});
 
   @override
   State<CalculateCash> createState() => _CalculateCashState();
@@ -15,35 +16,46 @@ class CalculateCash extends StatefulWidget {
 
 class _CalculateCashState extends State<CalculateCash> {
   final int maxLength = 10;
-  late TextEditingController controller100k;
-  late TextEditingController controller50k;
-  late TextEditingController controller20k;
-  late TextEditingController controller10k;
-  late TextEditingController controller5k;
-  late TextEditingController controller2k;
-  late TextEditingController controller1k;
-  late TextEditingController controller1kC;
-  late TextEditingController controller500;
-  late TextEditingController controller200;
-  late TextEditingController controller100;
-  late TextEditingController controller50;
+  final TextEditingController controller100k = TextEditingController();
+  final TextEditingController controller50k = TextEditingController();
+  final TextEditingController controller20k = TextEditingController();
+  final TextEditingController controller10k = TextEditingController();
+  final TextEditingController controller5k = TextEditingController();
+  final TextEditingController controller2k = TextEditingController();
+  final TextEditingController controller1k = TextEditingController();
+  final TextEditingController controller500 = TextEditingController();
+  final TextEditingController controller200 = TextEditingController();
+  final TextEditingController controller100 = TextEditingController();
+  final TextEditingController controller50 = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
+  final FocusNode _100kFocusNode = FocusNode();
+  final FocusNode _50kFocusNode = FocusNode();
+  final FocusNode _20kFocusNode = FocusNode();
+  final FocusNode _10kFocusNode = FocusNode();
+  final FocusNode _5kFocusNode = FocusNode();
+  final FocusNode _2kFocusNode = FocusNode();
+  final FocusNode _1kFocusNode = FocusNode();
+  final FocusNode _500FocusNode = FocusNode();
+  final FocusNode _200FocusNode = FocusNode();
+  final FocusNode _100FocusNode = FocusNode();
+  final FocusNode _50FocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    controller100k = TextEditingController();
-    controller50k = TextEditingController();
-    controller20k = TextEditingController();
-    controller10k = TextEditingController();
-    controller5k = TextEditingController();
-    controller2k = TextEditingController();
-    controller1k = TextEditingController();
-    controller500 = TextEditingController();
-    controller200 = TextEditingController();
-    controller100 = TextEditingController();
-    controller50 = TextEditingController();
     _changeTotalCash([]);
+
+    _setupFocusListener(_100kFocusNode, controller100k);
+    _setupFocusListener(_50kFocusNode, controller50k);
+    _setupFocusListener(_20kFocusNode, controller20k);
+    _setupFocusListener(_10kFocusNode, controller10k);
+    _setupFocusListener(_5kFocusNode, controller5k);
+    _setupFocusListener(_2kFocusNode, controller2k);
+    _setupFocusListener(_1kFocusNode, controller1k);
+    _setupFocusListener(_500FocusNode, controller500);
+    _setupFocusListener(_200FocusNode, controller200);
+    _setupFocusListener(_100FocusNode, controller100);
+    _setupFocusListener(_50FocusNode, controller50);
   }
 
   @override
@@ -59,7 +71,26 @@ class _CalculateCashState extends State<CalculateCash> {
     controller200.dispose();
     controller100.dispose();
     controller50.dispose();
+    _100kFocusNode.dispose();
+    _50kFocusNode.dispose();
+    _20kFocusNode.dispose();
+    _10kFocusNode.dispose();
+    _5kFocusNode.dispose();
+    _2kFocusNode.dispose();
+    _1kFocusNode.dispose();
+    _500FocusNode.dispose();
+    _200FocusNode.dispose();
+    _100FocusNode.dispose();
+    _50FocusNode.dispose();
     super.dispose();
+  }
+
+  void _setupFocusListener(FocusNode focusNode, TextEditingController controller) {
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        widget.onControllerProvided(controller);
+      }
+    });
   }
 
   void _changeTotalCash(List values) {
@@ -113,6 +144,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: _100kFocusNode,
                 controller: controller100k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -147,7 +179,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 inputFormatters: [
                   LengthLimitingTextInputFormatter(maxLength),
                 ],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -183,6 +215,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: _50kFocusNode,
                 controller: controller50k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -215,7 +248,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -251,6 +284,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: _20kFocusNode,
                 controller: controller20k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -283,7 +317,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -319,6 +353,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: _10kFocusNode,
                 controller: controller10k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -351,7 +386,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -387,6 +422,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: _5kFocusNode,
                 controller: controller5k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -419,7 +455,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -455,6 +491,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: _2kFocusNode,
                 controller: controller2k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -487,7 +524,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -523,6 +560,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: _1kFocusNode,
                 controller: controller1k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -555,7 +593,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -591,6 +629,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: _500FocusNode,
                 controller: controller500,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -623,7 +662,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -659,6 +698,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: _200FocusNode,
                 controller: controller200,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -691,7 +731,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -727,6 +767,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: _100FocusNode,
                 controller: controller100,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -759,7 +800,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -795,6 +836,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: _50FocusNode,
                 controller: controller50,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -827,7 +869,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),

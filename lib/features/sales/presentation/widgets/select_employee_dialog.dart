@@ -5,8 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/employees_cubit.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class SelectEmployee extends StatefulWidget {
   const SelectEmployee({super.key});
@@ -19,11 +21,15 @@ class _SelectEmployeeState extends State<SelectEmployee> {
   EmployeeEntity? radioValue;
   EmployeeEntity? selectedEmployee;
   final FocusNode _employeeInputFocusNode = FocusNode();
-  late final TextEditingController _employeeTextController = TextEditingController();
+  final FocusNode _keyboardFocusNode = FocusNode();
+  final TextEditingController _employeeTextController = TextEditingController();
+  bool _showKeyboard = true;
+  bool _shiftEnabled = false;
 
   @override
   void dispose() {
     _employeeInputFocusNode.dispose();
+    _keyboardFocusNode.dispose();
     _employeeTextController.dispose();
     super.dispose();
   }
@@ -72,10 +78,35 @@ class _SelectEmployeeState extends State<SelectEmployee> {
             color: ProjectColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-          child: const Text(
-            'Select Employee',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Select Employee',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                  borderRadius: const BorderRadius.all(Radius.circular(360)),
+                ),
+                child: IconButton(
+                  focusColor: const Color.fromARGB(255, 110, 0, 0),
+                  focusNode: _keyboardFocusNode,
+                  icon: Icon(
+                    _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _showKeyboard = !_showKeyboard;
+                    });
+                  },
+                  tooltip: 'Toggle Keyboard',
+                ),
+              ),
+            ],
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -90,7 +121,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
           ),
           child: StatefulBuilder(builder: (context, setState) {
             return SizedBox(
-              width: 350,
+              width: MediaQuery.of(context).size.width * 0.5,
               child: Column(
                 children: [
                   const SizedBox(
@@ -99,6 +130,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: TextField(
+                      controller: _employeeTextController,
                       onSubmitted: (value) {
                         context.read<EmployeesCubit>().getEmployees(searchKeyword: value);
                         _employeeInputFocusNode.requestFocus();
@@ -116,6 +148,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                           fontStyle: FontStyle.italic,
                         ),
                       ),
+                      keyboardType: TextInputType.none,
                     ),
                   ),
                   const SizedBox(
@@ -157,7 +190,57 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                             }));
                       },
                     ),
-                  )
+                  ),
+                  (_showKeyboard)
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: KeyboardWidget(
+                            controller: _employeeTextController,
+                            isNumericMode: false,
+                            customLayoutKeys: true,
+                            onKeyPress: (key) async {
+                              String text = _employeeTextController.text;
+                              TextSelection currentSelection = _employeeTextController.selection;
+                              int cursorPosition = currentSelection.start;
+
+                              if (key.keyType == VirtualKeyboardKeyType.String) {
+                                String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                cursorPosition += inputText.length;
+                              } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                switch (key.action) {
+                                  case VirtualKeyboardKeyAction.Backspace:
+                                    if (text.isNotEmpty) {
+                                      text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                      cursorPosition -= 1;
+                                    }
+                                    break;
+                                  case VirtualKeyboardKeyAction.Return:
+                                    _employeeTextController.text = _employeeTextController.text.trimRight();
+                                    context
+                                        .read<EmployeesCubit>()
+                                        .getEmployees(searchKeyword: _employeeTextController.text);
+                                    _employeeInputFocusNode.requestFocus();
+                                    break;
+                                  case VirtualKeyboardKeyAction.Space:
+                                    text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                    cursorPosition += 1;
+                                    break;
+                                  case VirtualKeyboardKeyAction.Shift:
+                                    _shiftEnabled = !_shiftEnabled;
+                                    break;
+                                  default:
+                                    break;
+                                }
+                              }
+                              _employeeTextController.text = text;
+                              _employeeTextController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                              setState(() {});
+                            },
+                          ),
+                        )
+                      : const SizedBox.shrink(),
                 ],
               ),
             );
@@ -198,9 +281,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                   ),
                 ),
               )),
-              const SizedBox(
-                width: 10,
-              ),
+              const SizedBox(width: 10),
               Expanded(
                 child: TextButton(
                     style: ButtonStyle(

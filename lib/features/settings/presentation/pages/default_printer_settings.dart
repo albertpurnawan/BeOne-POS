@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:thermal_printer/thermal_printer.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class DefaultPrinterSettings extends StatefulWidget {
   const DefaultPrinterSettings({Key? key}) : super(key: key);
@@ -41,6 +43,13 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
   final _ipController = TextEditingController();
   final _portController = TextEditingController();
   BluetoothPrinter? selectedPrinter;
+
+  bool _showKeyboard = Platform.isWindows ? true : false;
+  final FocusNode _ipFocusNode = FocusNode();
+  final FocusNode _portFocusNode = FocusNode();
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool _shiftEnabled = false;
+  TextEditingController _activeController = TextEditingController();
 
   @override
   void initState() {
@@ -118,6 +127,21 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
       log(' ----------------- status tcp $status ------------------ ');
       _currentTCPStatus = status;
     });
+
+    _ipFocusNode.addListener(() {
+      if (_ipFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _ipController;
+        });
+      }
+    });
+    _portFocusNode.addListener(() {
+      if (_portFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _portController;
+        });
+      }
+    });
   }
 
   @override
@@ -128,6 +152,9 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
     _subscriptionTCPStatus?.cancel();
     _portController.dispose();
     _ipController.dispose();
+    _ipFocusNode.dispose();
+    _portFocusNode.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
   }
 
@@ -373,6 +400,31 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
         title: const Text('Default Printer'),
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
+        actions: (Platform.isWindows)
+            ? [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(360)),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showKeyboard = !_showKeyboard;
+                        });
+                      },
+                      tooltip: 'Toggle Keyboard',
+                    ),
+                  ),
+                ),
+              ]
+            : null,
       ),
       body: Center(
         child: SizedBox(
@@ -429,15 +481,13 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                   });
                 },
               ),
-              const SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 20),
               Visibility(
                 visible: defaultPrinterType == PrinterType.bluetooth && Platform.isAndroid,
                 child: SwitchListTile.adaptive(
                   contentPadding: const EdgeInsets.all(10),
                   title: const Text(
-                    "This device supports ble (low energy)",
+                    "This device supports BLE (Bluetooth Low Energy)",
                     textAlign: TextAlign.start,
                     style: TextStyle(fontSize: 16.0),
                   ),
@@ -457,7 +507,7 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                 child: SwitchListTile.adaptive(
                   contentPadding: const EdgeInsets.all(10),
                   title: const Text(
-                    "reconnect",
+                    "Reconnect",
                     textAlign: TextAlign.start,
                     style: TextStyle(fontSize: 16.0),
                   ),
@@ -470,7 +520,7 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                 ),
               ),
               Container(
-                constraints: BoxConstraints(maxHeight: 0.5 * MediaQuery.of(context).size.height),
+                constraints: BoxConstraints(maxHeight: 0.6 * MediaQuery.of(context).size.height),
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(),
                   child: Column(
@@ -541,7 +591,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                           padding: const EdgeInsets.only(top: 10.0),
                           child: TextFormField(
                             controller: _ipController,
-                            keyboardType: const TextInputType.numberWithOptions(signed: true),
+                            keyboardType: TextInputType.none,
+                            focusNode: _ipFocusNode,
                             decoration: const InputDecoration(
                               label: Text("Ip Address"),
                               prefixIcon: Icon(Icons.wifi, size: 24),
@@ -556,7 +607,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                           padding: const EdgeInsets.only(top: 10.0),
                           child: TextFormField(
                             controller: _portController,
-                            keyboardType: const TextInputType.numberWithOptions(signed: true),
+                            keyboardType: TextInputType.none,
+                            focusNode: _portFocusNode,
                             decoration: const InputDecoration(
                               label: Text("Port"),
                               prefixIcon: Icon(Icons.numbers_outlined, size: 24),
@@ -582,14 +634,71 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                             ),
                           ),
                         ),
-                      )
+                      ),
+                      Visibility(
+                        visible: defaultPrinterType == PrinterType.network && Platform.isWindows,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: (_showKeyboard)
+                              ? KeyboardWidget(
+                                  controller: _activeController,
+                                  isNumericMode: false,
+                                  customLayoutKeys: true,
+                                  onKeyPress: (key) {
+                                    String text = _activeController.text;
+                                    TextSelection currentSelection = _activeController.selection;
+                                    int cursorPosition = currentSelection.start;
+
+                                    if (key.keyType == VirtualKeyboardKeyType.String) {
+                                      String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                      text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                      cursorPosition += inputText.length;
+
+                                      (_activeController == _ipController) ? setIpAddress(text) : setPort(text);
+                                    } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                      switch (key.action) {
+                                        case VirtualKeyboardKeyAction.Backspace:
+                                          if (text.isNotEmpty && currentSelection.start > 0) {
+                                            text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                            cursorPosition -= 1;
+
+                                            (_activeController == _ipController) ? setIpAddress(text) : setPort(text);
+                                          }
+                                          break;
+                                        case VirtualKeyboardKeyAction.Return:
+                                          (_shiftEnabled)
+                                              ? FocusScope.of(context).nextFocus()
+                                              : (_activeController == _ipController)
+                                                  ? setIpAddress(text)
+                                                  : setPort(text);
+                                          break;
+                                        case VirtualKeyboardKeyAction.Space:
+                                          text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                          cursorPosition += 1;
+                                          (_activeController == _ipController) ? setIpAddress(text) : setPort(text);
+                                          break;
+                                        case VirtualKeyboardKeyAction.Shift:
+                                          _shiftEnabled = !_shiftEnabled;
+                                          break;
+                                        default:
+                                          break;
+                                      }
+                                    }
+
+                                    _activeController.text = text;
+                                    _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                                    setState(() {});
+                                  },
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(

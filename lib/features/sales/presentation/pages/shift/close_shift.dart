@@ -14,6 +14,7 @@ import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
 import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
@@ -29,11 +30,33 @@ import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.d
 import 'package:pos_fe/features/settings/data/data_sources/remote/cashier_balance_transactions_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
-class CloseShiftScreen extends StatelessWidget {
+class CloseShiftScreen extends StatefulWidget {
   final String shiftId;
   final String? username;
   const CloseShiftScreen({Key? key, required this.shiftId, this.username}) : super(key: key);
+
+  @override
+  State<CloseShiftScreen> createState() => CloseShiftScreenState();
+}
+
+class CloseShiftScreenState extends State<CloseShiftScreen> {
+  bool _showKeyboard = true;
+  bool _shiftEnabled = false;
+  final FocusNode _keyboardFocusNode = FocusNode();
+  TextEditingController _activeController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _keyboardFocusNode.dispose();
+    _activeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,43 +66,101 @@ class CloseShiftScreen extends StatelessWidget {
         title: const Text('Close Shift'),
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
-      ),
-      body: ShaderMask(
-        shaderCallback: (Rect rect) {
-          return const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color.fromARGB(134, 234, 234, 234),
-              Color.fromARGB(43, 234, 234, 234),
-              Colors.transparent,
-              Colors.transparent,
-              Color.fromARGB(43, 234, 234, 234),
-              Color.fromARGB(134, 234, 234, 234),
-            ],
-            stops: [0.0, 0.04, 0.07, 0.93, 0.96, 1.0], // 10% purple, 80% transparent, 10% purple
-          ).createShader(rect);
-        },
-        blendMode: BlendMode.dstOut,
-        // padding: EdgeInsets.symmetric(vertical: 20),
-        // width: double.infinity,
-        child: SingleChildScrollView(
-          // clipBehavior: Clip.antiAliasWithSaveLayer,
-          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 40),
-          child: SizedBox(
-            width: double.infinity,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 10),
-                CloseShiftForm(
-                  shiftId: shiftId,
-                  username: username ?? "",
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            child: Container(
+              decoration: BoxDecoration(
+                color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                borderRadius: const BorderRadius.all(Radius.circular(360)),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                  color: Colors.white,
                 ),
-              ],
+                onPressed: () {
+                  setState(() {
+                    _showKeyboard = !_showKeyboard;
+                  });
+                },
+                tooltip: 'Toggle Keyboard',
+              ),
             ),
           ),
-        ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 30),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 10),
+                  CloseShiftForm(
+                    shiftId: widget.shiftId,
+                    username: widget.username ?? "",
+                    currentController: _activeController,
+                    onControllerProvided: (controller) {
+                      setState(() {
+                        _activeController = controller;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          (_showKeyboard)
+              ? SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.6,
+                  child: KeyboardWidget(
+                    controller: _activeController,
+                    isNumericMode: true,
+                    customLayoutKeys: true,
+                    onKeyPress: (key) async {
+                      String text = _activeController.text;
+                      TextSelection currentSelection = _activeController.selection;
+                      int cursorPosition = currentSelection.start;
+
+                      if (key.keyType == VirtualKeyboardKeyType.String) {
+                        String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                        text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                        cursorPosition += inputText.length;
+                      } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                        switch (key.action) {
+                          case VirtualKeyboardKeyAction.Backspace:
+                            if (text.isNotEmpty && cursorPosition > 0) {
+                              text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                              cursorPosition -= 1;
+                            }
+                            break;
+                          case VirtualKeyboardKeyAction.Return:
+                            _activeController.text = _activeController.text.trimRight();
+
+                            break;
+                          case VirtualKeyboardKeyAction.Space:
+                            text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                            cursorPosition += 1;
+                            break;
+                          case VirtualKeyboardKeyAction.Shift:
+                            _shiftEnabled = !_shiftEnabled;
+                            break;
+                          default:
+                            break;
+                        }
+                      }
+                      _activeController.text = text;
+                      _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                      setState(() {});
+                    },
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ],
       ),
     );
   }
@@ -88,7 +169,16 @@ class CloseShiftScreen extends StatelessWidget {
 class CloseShiftForm extends StatefulWidget {
   final String shiftId;
   final String? username;
-  const CloseShiftForm({Key? key, required this.shiftId, this.username}) : super(key: key);
+  final TextEditingController currentController;
+  final Function(TextEditingController) onControllerProvided;
+
+  const CloseShiftForm({
+    Key? key,
+    required this.shiftId,
+    this.username,
+    required this.currentController,
+    required this.onControllerProvided,
+  }) : super(key: key);
 
   @override
   State<CloseShiftForm> createState() => _CloseShiftFormState();
@@ -114,6 +204,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   UserEntity? openShiftApproverUser;
   EmployeeEntity? openShiftApproverEmployee;
   bool isPrinting = false;
+  late TextEditingController _currentController;
 
   @override
   void initState() {
@@ -123,6 +214,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   @override
   void dispose() {
+    _currentController.dispose();
+    _currentController = widget.currentController;
     super.dispose();
   }
 
@@ -194,7 +287,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   Future<void> checkLastShiftId() async {
     final lastShift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
-    log("lastShift - $checkLastShift");
     if (lastShift!.docId == activeShift!.docId) {
       setState(() {
         checkLastShift = true;
@@ -211,7 +303,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   Future<void> fetchInvoices() async {
     final transaction = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift(shiftId);
-    log("transaction - $transaction");
     setState(() {
       transactions = transaction;
     });
@@ -252,10 +343,10 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       );
 
       final fetched = await GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(start, end);
-      log("fetched - $fetched");
       for (final mop in fetched!) {
-        if ((mop['topmtDesc'] != 'TUNAI')) {
-          if ((mop['topmtDesc'] == 'VOUCHER')) {
+        String mopStringUp = mop['topmtDesc'].toString().toUpperCase();
+        if (mopStringUp != 'TUNAI') {
+          if (mopStringUp == 'VOUCHER') {
             totalVoucher += mop['totalamount'];
           } else {
             nonCash += mop['totalamount'];
@@ -667,7 +758,10 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           height: 20,
           color: Colors.grey,
         ),
-        CalculateCash(setTotal: updateTotalCash),
+        CalculateCash(
+          setTotal: updateTotalCash,
+          onControllerProvided: widget.onControllerProvided,
+        ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -760,151 +854,147 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           height: 50,
           color: Colors.grey,
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 200),
-          child: CustomButton(
-              child: const Text("End Shift"),
-              onTap: () async {
-                try {
-                  if (activeShift == null) throw "Current shift not found";
-                  final userId = await GetIt.instance<AppDatabase>().userDao.readByUsername(widget.username!, null);
-                  if (userId == null) throw "Approver not found in local DB";
-                  final String? currentUserId = prefs.getString("tousrId");
-                  if (currentUserId == null) throw "Unauthenticated";
-                  final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
-                    docId: activeShift!.docId,
-                    createDate: activeShift!.createDate,
-                    updateDate: activeShift!.updateDate,
-                    tocsrId: activeShift!.tocsrId,
-                    tousrId: activeShift!.tousrId,
-                    docNum: activeShift!.docNum,
-                    openDate: activeShift!.openDate,
-                    openTime: activeShift!.openTime,
-                    calcDate: DateTime.now(),
-                    calcTime: DateTime.now(),
-                    closeDate: DateTime.now(),
-                    closeTime: DateTime.now(),
-                    timezone: activeShift!.timezone,
-                    openValue: activeShift!.openValue,
-                    calcValue: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
-                    cashValue: activeShift!.cashValue,
-                    closeValue: Helpers.revertMoneyToDecimalFormat(totalSales),
-                    openedbyId: activeShift!.openedbyId,
-                    closedbyId: currentUserId,
-                    approvalStatus: 1,
-                    refpos: activeShift!.docId,
-                    syncToBos: activeShift!.syncToBos,
-                    closedApproveById: userId.docId,
-                  );
+        CustomButton(
+          child: const Text("End Shift"),
+          onTap: () async {
+            try {
+              if (activeShift == null) throw "Current shift not found";
+              final userId = await GetIt.instance<AppDatabase>().userDao.readByUsername(widget.username!, null);
+              if (userId == null) throw "Approver not found in local DB";
+              final String? currentUserId = prefs.getString("tousrId");
+              if (currentUserId == null) throw "Unauthenticated";
+              final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
+                docId: activeShift!.docId,
+                createDate: activeShift!.createDate,
+                updateDate: activeShift!.updateDate,
+                tocsrId: activeShift!.tocsrId,
+                tousrId: activeShift!.tousrId,
+                docNum: activeShift!.docNum,
+                openDate: activeShift!.openDate,
+                openTime: activeShift!.openTime,
+                calcDate: DateTime.now(),
+                calcTime: DateTime.now(),
+                closeDate: DateTime.now(),
+                closeTime: DateTime.now(),
+                timezone: activeShift!.timezone,
+                openValue: activeShift!.openValue,
+                calcValue: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
+                cashValue: activeShift!.cashValue,
+                closeValue: Helpers.revertMoneyToDecimalFormat(totalSales),
+                openedbyId: activeShift!.openedbyId,
+                closedbyId: currentUserId,
+                approvalStatus: 1,
+                refpos: activeShift!.docId,
+                syncToBos: activeShift!.syncToBos,
+                closedApproveById: userId.docId,
+              );
 
-                  List<MoneyDenominationModel> createDenominationList(Map<String, dynamic> denomination) {
-                    final list = <MoneyDenominationModel>[];
-                    denomination.forEach((key, value) {
-                      if (value.isNotEmpty) {
-                        final nominal = int.parse(key.replaceAll('k', '000'));
-                        final count = int.parse(value);
-                        list.add(MoneyDenominationModel(
-                          docId: const Uuid().v4(),
-                          createDate: DateTime.now(),
-                          updateDate: DateTime.now(),
-                          nominal: nominal,
-                          count: count,
-                          tcsr1Id: activeShift!.docId,
-                        ));
-                      }
-                    });
-                    return list;
+              List<MoneyDenominationModel> createDenominationList(Map<String, dynamic> denomination) {
+                final list = <MoneyDenominationModel>[];
+                denomination.forEach((key, value) {
+                  if (value.isNotEmpty) {
+                    final nominal = int.parse(key.replaceAll('k', '000'));
+                    final count = int.parse(value);
+                    list.add(MoneyDenominationModel(
+                      docId: const Uuid().v4(),
+                      createDate: DateTime.now(),
+                      updateDate: DateTime.now(),
+                      nominal: nominal,
+                      count: count,
+                      tcsr1Id: activeShift!.docId,
+                    ));
                   }
+                });
+                return list;
+              }
 
-                  final denominationList = createDenominationList(denomination!);
+              final denominationList = createDenominationList(denomination!);
 
-                  final bool? isProceed = await showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (context) {
-                        final double numDifference = Helpers.revertMoneyToDecimalFormat(difference);
-                        final String absDifference = Helpers.parseMoney(numDifference.abs());
-                        return ConfirmationDialog(
-                            primaryMsg: "Are you sure to close current shift?",
-                            secondaryMsg: numDifference != 0
-                                ? "There is a $absDifference ${numDifference > 0 ? "surplus" : "deficit"} between expected cash and actual cash."
-                                : "Great! Actual cash has matched the expected cash.");
-                      });
+              final bool? isProceed = await showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) {
+                    final double numDifference = Helpers.revertMoneyToDecimalFormat(difference);
+                    final String absDifference = Helpers.parseMoney(numDifference.abs());
+                    return ConfirmationDialog(
+                        primaryMsg: "Are you sure to close current shift?",
+                        secondaryMsg: numDifference != 0
+                            ? "There is a $absDifference ${numDifference > 0 ? "surplus" : "deficit"} between expected cash and actual cash."
+                            : "Great! Actual cash has matched the expected cash.");
+                  });
 
-                  if (isProceed != true) return;
+              if (isProceed != true) return;
 
-                  await GetIt.instance<AppDatabase>().moneyDenominationDao.bulkCreate(data: denominationList);
-                  await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.update(docId: shiftId, data: shift);
-                  try {
-                    GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(shift);
-                  } catch (e) {
-                    log(e.toString());
-                  }
+              await GetIt.instance<AppDatabase>().moneyDenominationDao.bulkCreate(data: denominationList);
+              await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.update(docId: shiftId, data: shift);
+              try {
+                GetIt.instance<CashierBalanceTransactionApi>().sendTransactions(shift);
+              } catch (e) {
+                log(e.toString());
+              }
 
-                  final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
-                      await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDocId(shift.docId, null);
-                  if (cashierBalanceTransactionEntity == null) {
-                    throw "Close shift failed, current shift not found";
-                  }
-                  final PrintCloseShiftUsecaseParams printCloseShiftUsecaseParams = PrintCloseShiftUsecaseParams(
-                      cashierBalanceTransactionEntity: cashierBalanceTransactionEntity,
-                      totalCashSales: Helpers.revertMoneyToDecimalFormat(totalCashAmount),
-                      expectedCash: Helpers.revertMoneyToDecimalFormat(expectedCash),
-                      totalNonCashSales: Helpers.revertMoneyToDecimalFormat(totalNonCash),
-                      totalSales: Helpers.revertMoneyToDecimalFormat(totalSales),
-                      cashReceived: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
-                      difference: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
-                          Helpers.revertMoneyToDecimalFormat(expectedCash),
-                      approverName: closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "");
-                  try {
-                    GetIt.instance<PrintCloseShiftUsecase>().call(params: printCloseShiftUsecaseParams, printType: 1);
-                  } catch (e) {
-                    log("$e");
-                  }
+              final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
+                  await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDocId(shift.docId, null);
+              if (cashierBalanceTransactionEntity == null) {
+                throw "Close shift failed, current shift not found";
+              }
+              final PrintCloseShiftUsecaseParams printCloseShiftUsecaseParams = PrintCloseShiftUsecaseParams(
+                  cashierBalanceTransactionEntity: cashierBalanceTransactionEntity,
+                  totalCashSales: Helpers.revertMoneyToDecimalFormat(totalCashAmount),
+                  expectedCash: Helpers.revertMoneyToDecimalFormat(expectedCash),
+                  totalNonCashSales: Helpers.revertMoneyToDecimalFormat(totalNonCash),
+                  totalSales: Helpers.revertMoneyToDecimalFormat(totalSales),
+                  cashReceived: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
+                  difference: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
+                      Helpers.revertMoneyToDecimalFormat(expectedCash),
+                  approverName: closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "");
+              try {
+                GetIt.instance<PrintCloseShiftUsecase>().call(params: printCloseShiftUsecaseParams, printType: 1);
+              } catch (e) {
+                log("$e");
+              }
 
-                  if (checkLastShift) {
-                    await prefs.setBool('isOpen', false);
-                    await prefs.setString('tcsr1Id', "");
-                    await GetIt.instance<LogoutUseCase>().call();
-                    await context.read<ReceiptCubit>().resetReceipt();
-                    if (context.mounted) {
-                      await BackupDatabaseUseCase().call(params: BackupDatabaseParams(context: context));
-                    }
-                    await showDialog(
-                        context: NavigationHelper.context!,
-                        barrierDismissible: false,
-                        builder: (context) => PopScope(
-                              canPop: false,
-                              child: CloseShiftSuccessAlertDialog(
-                                closedShift: cashierBalanceTransactionEntity,
-                                printCloseShiftUsecaseParams: printCloseShiftUsecaseParams,
-                              ),
-                            ));
-                    if (context.mounted) {
-                      log('Navigating to welcome route');
-                      context.goNamed(RouteConstants.welcome);
-                    }
-                  } else {
-                    if (!context.mounted) return;
-                    Future.delayed(Durations.short1, () => checkLastShiftId());
-                    log('Navigating to shifts route');
-                    context.goNamed(RouteConstants.home);
-                    await showDialog(
-                        context: NavigationHelper.context!,
-                        builder: (context) => CloseShiftSuccessAlertDialog(
-                              closedShift: cashierBalanceTransactionEntity,
-                              printCloseShiftUsecaseParams: printCloseShiftUsecaseParams,
-                            ));
-                  }
-                } catch (e) {
-                  if (!context.mounted) return;
-                  SnackBarHelper.presentFailSnackBar(context, e.toString());
+              if (checkLastShift) {
+                await prefs.setBool('isOpen', false);
+                await prefs.setString('tcsr1Id', "");
+                await GetIt.instance<LogoutUseCase>().call();
+                await context.read<ReceiptCubit>().resetReceipt();
+                if (context.mounted) {
+                  await BackupDatabaseUseCase().call(params: BackupDatabaseParams(context: context));
                 }
-              }),
+                await showDialog(
+                    context: NavigationHelper.context!,
+                    barrierDismissible: false,
+                    builder: (context) => PopScope(
+                          canPop: false,
+                          child: CloseShiftSuccessAlertDialog(
+                            closedShift: cashierBalanceTransactionEntity,
+                            printCloseShiftUsecaseParams: printCloseShiftUsecaseParams,
+                          ),
+                        ));
+                if (context.mounted) {
+                  log('Navigating to welcome route');
+                  context.goNamed(RouteConstants.welcome);
+                }
+              } else {
+                if (!context.mounted) return;
+                Future.delayed(Durations.short1, () => checkLastShiftId());
+                log('Navigating to shifts route');
+                context.goNamed(RouteConstants.home);
+                await showDialog(
+                    context: NavigationHelper.context!,
+                    builder: (context) => CloseShiftSuccessAlertDialog(
+                          closedShift: cashierBalanceTransactionEntity,
+                          printCloseShiftUsecaseParams: printCloseShiftUsecaseParams,
+                        ));
+              }
+            } catch (e) {
+              if (!context.mounted) return;
+              SnackBarHelper.presentFailSnackBar(context, e.toString());
+            }
+          },
         ),
-        const SizedBox(
-          height: 30,
-        ),
+        const SizedBox(height: 20),
       ],
     );
   }

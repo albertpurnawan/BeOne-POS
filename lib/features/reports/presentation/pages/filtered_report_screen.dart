@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/reports/presentation/widgets/table_report_item_widget.dart';
 import 'package:pos_fe/features/reports/presentation/widgets/table_report_mop_widget.dart';
 import 'package:pos_fe/features/reports/presentation/widgets/table_report_shift_widget.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class FiltereReportScreen extends StatefulWidget {
   const FiltereReportScreen({super.key});
@@ -19,7 +21,11 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
   DateTime? selectedFromDate;
   DateTime? selectedToDate;
   String? searchedQuery;
-  TextEditingController searchController = TextEditingController();
+  TextEditingController _searchController = TextEditingController();
+
+  bool _shiftEnabled = false;
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -32,7 +38,8 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
 
   @override
   void dispose() {
-    searchController.dispose();
+    _searchController.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
   }
 
@@ -80,262 +87,341 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
         title: const Text('Reports'),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(32, 24, 32, 24),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.13,
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const SizedBox(
-                                  width: 100,
-                                  height: 30,
-                                  child: Text(
-                                    "From",
-                                    style: TextStyle(
-                                      color: ProjectColors.mediumBlack,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 20,
-                                  height: 30,
-                                  child: Text(
-                                    ":",
-                                    style: TextStyle(
-                                      color: ProjectColors.mediumBlack,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () => selectDate(context, true),
-                                  child: SizedBox(
-                                    width: 100,
-                                    height: 30,
-                                    child: Text(
-                                      selectedFromDate == null
-                                          ? Helpers.dateToString(DateTime.now().toLocal())
-                                          : '${selectedFromDate!.toLocal()}'.split(' ')[0],
-                                      style: const TextStyle(
-                                        color: ProjectColors.mediumBlack,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              children: [
-                                const SizedBox(
-                                  width: 100,
-                                  height: 30,
-                                  child: Text(
-                                    "To",
-                                    style: TextStyle(
-                                      color: ProjectColors.mediumBlack,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 20,
-                                  height: 30,
-                                  child: Text(
-                                    ":",
-                                    style: TextStyle(
-                                      color: ProjectColors.mediumBlack,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () => selectDate(context, false),
-                                  child: SizedBox(
-                                    width: 100,
-                                    height: 30,
-                                    child: Text(
-                                      selectedToDate == null
-                                          ? Helpers.dateToString(DateTime.now().toLocal())
-                                          : '${selectedToDate!.toLocal()}'.split(' ')[0],
-                                      style: const TextStyle(
-                                        color: ProjectColors.mediumBlack,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Row(
-                              children: [
-                                const SizedBox(
-                                  width: 100,
-                                  height: 30,
-                                  child: Text(
-                                    "Report By",
-                                    style: TextStyle(
-                                      color: ProjectColors.mediumBlack,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 20,
-                                  height: 30,
-                                  child: Text(
-                                    ":",
-                                    style: TextStyle(
-                                      color: ProjectColors.mediumBlack,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 280,
-                                  height: 30,
-                                  child: DropdownButton<String>(
-                                    value: selectedFilter,
-                                    isExpanded: true,
-                                    icon: null,
-                                    elevation: 18,
-                                    style: const TextStyle(
-                                      color: ProjectColors.mediumBlack,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                    underline: const SizedBox(),
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        selectedFilter = newValue!;
-                                        searchController.text = "";
-                                        searchedQuery = "";
-                                      });
-                                    },
-                                    items: filterOptions.map<DropdownMenuItem<String>>((String value) {
-                                      return DropdownMenuItem<String>(
-                                        value: value,
-                                        child: Text(value),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: 400,
-                                  height: 30,
-                                  child: TextField(
-                                    controller: searchController,
-                                    decoration: const InputDecoration(
-                                      contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 8),
-                                      border: OutlineInputBorder(),
-                                      hintText: 'Search...',
-                                      hintStyle: TextStyle(
-                                        color: ProjectColors.mediumBlack,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                    style: const TextStyle(
-                                      color: ProjectColors.mediumBlack,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        searchedQuery = value;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            child: Container(
+              decoration: BoxDecoration(
+                color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                borderRadius: const BorderRadius.all(Radius.circular(360)),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                  color: Colors.white,
                 ),
-                // --- Content Goes Here ---
-                Container(
-                  width: double.infinity,
-                  height: 5.0,
-                  decoration: BoxDecoration(
-                    color: ProjectColors.primary,
-                    borderRadius: BorderRadius.circular(2.5),
-                  ),
-                ),
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  width: MediaQuery.of(context).size.width,
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                  child: (selectedFilter == "Invoice")
-                      ? TableReportShift(
-                          fromDate: selectedFromDate,
-                          toDate: selectedToDate,
-                          searchQuery: searchedQuery,
-                        )
-                      : (selectedFilter == "MOP")
-                          ? TableReportMop(
-                              fromDate: selectedFromDate,
-                              toDate: selectedToDate,
-                              searchQuery: searchedQuery,
-                            )
-                          : (selectedFilter == "Item")
-                              ? TableReportItem(
-                                  fromDate: selectedFromDate,
-                                  toDate: selectedToDate,
-                                  searchQuery: searchedQuery,
-                                )
-                              : null,
-                ),
-              ],
+                onPressed: () {
+                  setState(() {
+                    _showKeyboard = !_showKeyboard;
+                  });
+                },
+                tooltip: 'Toggle Keyboard',
+              ),
             ),
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(32, 10, 32, 10),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height * 0.13,
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const SizedBox(
+                                width: 100,
+                                height: 30,
+                                child: Text(
+                                  "From",
+                                  style: TextStyle(
+                                    color: ProjectColors.mediumBlack,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 20,
+                                height: 30,
+                                child: Text(
+                                  ":",
+                                  style: TextStyle(
+                                    color: ProjectColors.mediumBlack,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () => selectDate(context, true),
+                                child: SizedBox(
+                                  width: 100,
+                                  height: 30,
+                                  child: Text(
+                                    selectedFromDate == null
+                                        ? Helpers.dateToString(DateTime.now().toLocal())
+                                        : '${selectedFromDate!.toLocal()}'.split(' ')[0],
+                                    style: const TextStyle(
+                                      color: ProjectColors.mediumBlack,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              const SizedBox(
+                                width: 100,
+                                height: 30,
+                                child: Text(
+                                  "To",
+                                  style: TextStyle(
+                                    color: ProjectColors.mediumBlack,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 20,
+                                height: 30,
+                                child: Text(
+                                  ":",
+                                  style: TextStyle(
+                                    color: ProjectColors.mediumBlack,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () => selectDate(context, false),
+                                child: SizedBox(
+                                  width: 100,
+                                  height: 30,
+                                  child: Text(
+                                    selectedToDate == null
+                                        ? Helpers.dateToString(DateTime.now().toLocal())
+                                        : '${selectedToDate!.toLocal()}'.split(' ')[0],
+                                    style: const TextStyle(
+                                      color: ProjectColors.mediumBlack,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              const SizedBox(
+                                width: 100,
+                                height: 30,
+                                child: Text(
+                                  "Report By",
+                                  style: TextStyle(
+                                    color: ProjectColors.mediumBlack,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 20,
+                                height: 30,
+                                child: Text(
+                                  ":",
+                                  style: TextStyle(
+                                    color: ProjectColors.mediumBlack,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 280,
+                                height: 30,
+                                child: DropdownButton<String>(
+                                  value: selectedFilter,
+                                  isExpanded: true,
+                                  icon: null,
+                                  elevation: 18,
+                                  style: const TextStyle(
+                                    color: ProjectColors.mediumBlack,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  underline: const SizedBox(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectedFilter = newValue!;
+                                      _searchController.text = "";
+                                      searchedQuery = "";
+                                    });
+                                  },
+                                  items: filterOptions.map<DropdownMenuItem<String>>((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 400,
+                                height: 30,
+                                child: TextField(
+                                  controller: _searchController,
+                                  decoration: const InputDecoration(
+                                    contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 8),
+                                    border: OutlineInputBorder(),
+                                    hintText: 'Search...',
+                                    hintStyle: TextStyle(
+                                      color: ProjectColors.mediumBlack,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                  style: const TextStyle(
+                                    color: ProjectColors.mediumBlack,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  keyboardType: TextInputType.none,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      searchedQuery = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // --- Content Goes Here ---
+              Container(
+                width: double.infinity,
+                height: 5.0,
+                decoration: BoxDecoration(
+                  color: ProjectColors.primary,
+                  borderRadius: BorderRadius.circular(2.5),
+                ),
+              ),
+              Container(
+                height: MediaQuery.of(context).size.height * 0.4,
+                width: MediaQuery.of(context).size.width,
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                child: (selectedFilter == "Invoice")
+                    ? TableReportShift(
+                        fromDate: selectedFromDate,
+                        toDate: selectedToDate,
+                        searchQuery: searchedQuery,
+                      )
+                    : (selectedFilter == "MOP")
+                        ? TableReportMop(
+                            fromDate: selectedFromDate,
+                            toDate: selectedToDate,
+                            searchQuery: searchedQuery,
+                          )
+                        : (selectedFilter == "Item")
+                            ? TableReportItem(
+                                fromDate: selectedFromDate,
+                                toDate: selectedToDate,
+                                searchQuery: searchedQuery,
+                              )
+                            : null,
+              ),
+              (_showKeyboard)
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: IntrinsicHeight(
+                        child: KeyboardWidget(
+                          controller: _searchController,
+                          isNumericMode: false,
+                          customLayoutKeys: true,
+                          onKeyPress: (key) async {
+                            String text = _searchController.text;
+                            TextSelection currentSelection = _searchController.selection;
+                            int cursorPosition = currentSelection.start;
+
+                            if (key.keyType == VirtualKeyboardKeyType.String) {
+                              String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                              text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                              cursorPosition += inputText.length;
+                              setState(() {
+                                searchedQuery = text;
+                              });
+                            } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                              switch (key.action) {
+                                case VirtualKeyboardKeyAction.Backspace:
+                                  if (text.isNotEmpty) {
+                                    text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                    cursorPosition -= 1;
+                                  }
+                                  setState(() {
+                                    searchedQuery = text;
+                                  });
+                                  break;
+                                case VirtualKeyboardKeyAction.Return:
+                                  _searchController.text = _searchController.text.trimRight();
+                                  setState(() {
+                                    searchedQuery = _searchController.text;
+                                  });
+                                  break;
+                                case VirtualKeyboardKeyAction.Space:
+                                  text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                  cursorPosition += 1;
+                                  break;
+                                case VirtualKeyboardKeyAction.Shift:
+                                  _shiftEnabled = !_shiftEnabled;
+                                  break;
+                                default:
+                                  break;
+                              }
+                            }
+                            _searchController.text = text;
+                            _searchController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ],
           ),
         ),
       ),
