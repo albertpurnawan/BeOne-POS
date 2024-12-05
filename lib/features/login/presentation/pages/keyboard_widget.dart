@@ -78,12 +78,12 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     } else if (key.keyType == VirtualKeyboardKeyType.Action) {
       switch (key.action) {
         case VirtualKeyboardKeyAction.Backspace:
-          _startBackspaceRepeater(() {
-            if (text.isNotEmpty && cursorPosition > 0) {
-              text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-              cursorPosition -= 1;
-            }
-          });
+          // _startBackspaceRepeater(() {
+          if (text.isNotEmpty && cursorPosition > 0) {
+            text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+            cursorPosition -= 1;
+          }
+          // });
           break;
 
         case VirtualKeyboardKeyAction.Return:

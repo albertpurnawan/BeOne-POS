@@ -391,16 +391,16 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                                         }
                                         break;
                                       case VirtualKeyboardKeyAction.Return:
-                                        _invoiceDocNumTextController.text =
-                                            _invoiceDocNumTextController.text.trimRight();
-
-                                        _invoiceDocNumFocusNode.unfocus();
-                                        final invoiceSearched =
-                                            await _searchInvoiceDetail(_invoiceDocNumTextController.text);
-                                        setState(() {
-                                          invoiceFound = invoiceSearched;
-                                          showInvoice = false;
-                                        });
+                                        _activeController.text = _activeController.text.trimRight();
+                                        if (_activeController == _invoiceDocNumTextController) {
+                                          _invoiceDocNumFocusNode.unfocus();
+                                          final invoiceSearched =
+                                              await _searchInvoiceDetail(_invoiceDocNumTextController.text);
+                                          setState(() {
+                                            invoiceFound = invoiceSearched;
+                                            showInvoice = false;
+                                          });
+                                        }
                                         break;
                                       case VirtualKeyboardKeyAction.Space:
                                         text = text.replaceRange(cursorPosition, cursorPosition, ' ');

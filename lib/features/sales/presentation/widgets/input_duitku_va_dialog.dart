@@ -9,8 +9,10 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/duitku_va_details.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class InputDuitkuVADialog extends StatefulWidget {
   const InputDuitkuVADialog({
@@ -36,14 +38,12 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
   String? selectedPaymentMethod;
   DuitkuVADetailsEntity? vaDuitku;
   final _textEditingControllerVAAmount = TextEditingController();
-  // final _textEditingControllerRemarks = TextEditingController();
   bool isErr = false;
   bool isConnected = true;
   String errMsg = "Invalid amount";
   MopSelectionEntity? mopVA;
 
   late FocusNode _focusNodeVADropdown;
-  // FocusNode _focusNodeRemarks = FocusNode();
   late final _focusNodeVAAmount = FocusNode(
     onKeyEvent: (node, event) {
       if (event.runtimeType == KeyUpEvent) {
@@ -111,6 +111,10 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
     },
   );
 
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool _showKeyboard = true;
+  String initialAmount = "";
+
   @override
   initState() {
     super.initState();
@@ -129,6 +133,7 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
     // _textEditingControllerRemarks.dispose();
     _focusNodeVAAmount.dispose();
     _focusNodeVADropdown.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
   }
 
@@ -163,9 +168,34 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
               ),
               padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
-              child: const Text(
-                'Select Virtual Account',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Select Virtual Account',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(360)),
+                    ),
+                    child: IconButton(
+                      focusColor: const Color.fromARGB(255, 110, 0, 0),
+                      focusNode: _keyboardFocusNode,
+                      icon: Icon(
+                        _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showKeyboard = !_showKeyboard;
+                        });
+                      },
+                      tooltip: 'Toggle Keyboard',
+                    ),
+                  ),
+                ],
               ),
             ),
             titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -278,8 +308,8 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                         controller: _textEditingControllerVAAmount,
                         autofocus: true,
                         inputFormatters: [MoneyInputFormatter()],
-                        keyboardType: TextInputType.number,
-                        textAlign: TextAlign.center,
+                        keyboardType: TextInputType.none,
+                        textAlign: TextAlign.start,
                         style: const TextStyle(fontSize: 18),
                         onChanged: (value) {
                           final double mopAmount = Helpers.revertMoneyToDecimalFormat(value);
@@ -347,7 +377,6 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                             amount: mopAmount,
                             tpmt7Id: vaDuitku!.docId,
                           );
-                          log("mopVA- $mopVA");
                           widget.onVASelected(mopVA!);
                           context.pop(mopAmount);
                         },
@@ -372,7 +401,85 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                             )),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
+                    (_showKeyboard)
+                        ? KeyboardWidget(
+                            controller: _textEditingControllerVAAmount,
+                            isNumericMode: true,
+                            customLayoutKeys: true,
+                            onKeyPress: (key) async {
+                              String text = _textEditingControllerVAAmount.text;
+                              TextSelection currentSelection = _textEditingControllerVAAmount.selection;
+                              int cursorPosition = currentSelection.end;
+
+                              if (key.keyType == VirtualKeyboardKeyType.String) {
+                                String inputText = key.text ?? '';
+                                text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                cursorPosition += inputText.length;
+
+                                final double mopAmount = Helpers.revertMoneyToDecimalFormat(text);
+                                if (mopAmount > widget.amount) {
+                                  setState(() {
+                                    isErr = true;
+                                    errMsg = "Max amount exceeded";
+                                  });
+                                } else if (mopAmount <= 0) {
+                                  setState(() {
+                                    isErr = true;
+                                    errMsg = "Amount can't be negative or zero";
+                                  });
+                                } else if (isErr) {
+                                  setState(() {
+                                    isErr = false;
+                                    errMsg = "Invalid amount";
+                                  });
+                                }
+                              } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                switch (key.action) {
+                                  case VirtualKeyboardKeyAction.Backspace:
+                                    if (text.isNotEmpty && cursorPosition > 0) {
+                                      text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                      cursorPosition -= 1;
+
+                                      final double mopAmount = Helpers.revertMoneyToDecimalFormat(text);
+                                      if (mopAmount > widget.amount) {
+                                        setState(() {
+                                          isErr = true;
+                                          errMsg = "Max amount exceeded";
+                                        });
+                                      } else if (mopAmount <= 0) {
+                                        setState(() {
+                                          isErr = true;
+                                          errMsg = "Amount can't be negative or zero";
+                                        });
+                                      } else if (isErr) {
+                                        setState(() {
+                                          isErr = false;
+                                          errMsg = "Invalid amount";
+                                        });
+                                      }
+                                    }
+                                    break;
+                                  default:
+                                    break;
+                                }
+                              }
+                              TextEditingValue formattedValue = MoneyInputFormatter().formatEditUpdate(
+                                TextEditingValue(
+                                  text: text,
+                                  selection: TextSelection.collapsed(offset: cursorPosition),
+                                ),
+                                TextEditingValue(
+                                  text: text,
+                                  selection: TextSelection.collapsed(offset: cursorPosition),
+                                ),
+                              );
+                              _textEditingControllerVAAmount.text = formattedValue.text;
+                              _textEditingControllerVAAmount.selection = formattedValue.selection;
+                              setState(() {});
+                            },
+                          )
+                        : const SizedBox.shrink(),
                     // SizedBox(
                     //   height: 50,
                     //   child: TextFormField(
@@ -534,7 +641,7 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                 ],
               ),
             ],
-            actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+            actionsPadding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
           ),
         );
       }),

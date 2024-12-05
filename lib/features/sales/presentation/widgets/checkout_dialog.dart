@@ -1309,10 +1309,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
   @override
   void dispose() {
-    super.dispose();
     _textEditingControllerCashAmount.dispose();
     _focusNodeCashAmount.dispose();
     _grandTotalSubs.cancel();
+    super.dispose();
   }
 
   Future<void> _checkConnection() async {
@@ -1720,32 +1720,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
       await showDialog(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            surfaceTintColor: Colors.transparent,
-            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
-            title: Container(
-              decoration: const BoxDecoration(
-                color: ProjectColors.primary,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
-              ),
-              padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
-              child: const Text(
-                'Redeem Voucher',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
-              ),
-            ),
-            titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-            contentPadding: const EdgeInsets.all(0),
-            content: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.5,
-              width: MediaQuery.of(context).size.width * 0.6,
-              child: VoucherCheckout(
-                onVouchersRedeemed: handleVouchersRedeemed,
-                tpmt3Id: mop.tpmt3Id,
-                voucherType: mop.subType,
-              ),
-            ),
+          return VoucherCheckout(
+            onVouchersRedeemed: handleVouchersRedeemed,
+            tpmt3Id: mop.tpmt3Id,
+            voucherType: mop.subType,
           );
         },
       );
@@ -2322,88 +2300,90 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                         (_showKeyboardContent)
                                                             ? SizedBox(
                                                                 child: KeyboardWidget(
-                                                                    controller: _textEditingControllerCashAmount,
-                                                                    isNumericMode: _keyboardNumeric,
-                                                                    customLayoutKeys: true,
-                                                                    height: 200,
-                                                                    onKeyPress: (key) async {
-                                                                      String text =
-                                                                          _textEditingControllerCashAmount.text;
-                                                                      TextSelection currentSelection =
-                                                                          _textEditingControllerCashAmount.selection;
-                                                                      int cursorPosition = currentSelection.start;
+                                                                  controller: _textEditingControllerCashAmount,
+                                                                  isNumericMode: _keyboardNumeric,
+                                                                  customLayoutKeys: true,
+                                                                  height: 200,
+                                                                  onKeyPress: (key) async {
+                                                                    String text = _textEditingControllerCashAmount.text;
+                                                                    TextSelection currentSelection =
+                                                                        _textEditingControllerCashAmount.selection;
+                                                                    int cursorPosition = currentSelection.start;
 
-                                                                      _focusNodeCashAmount.requestFocus();
+                                                                    _focusNodeCashAmount.requestFocus();
 
-                                                                      if (key.keyType ==
-                                                                          VirtualKeyboardKeyType.String) {
-                                                                        String inputText =
-                                                                            (_shiftEnabled ? key.capsText : key.text) ??
-                                                                                '';
-                                                                        text = text.replaceRange(
-                                                                            cursorPosition, cursorPosition, inputText);
-                                                                        cursorPosition += inputText.length;
-                                                                      } else if (key.keyType ==
-                                                                          VirtualKeyboardKeyType.Action) {
-                                                                        switch (key.action) {
-                                                                          case VirtualKeyboardKeyAction.Backspace:
-                                                                            if (text.isNotEmpty && cursorPosition > 0) {
-                                                                              text = text.replaceRange(
-                                                                                  cursorPosition - 1,
-                                                                                  cursorPosition,
-                                                                                  '');
-                                                                              cursorPosition -= 1;
-                                                                            }
-                                                                            break;
-
-                                                                          case VirtualKeyboardKeyAction.Return:
-                                                                            text = text.trimRight();
-                                                                            break;
-
-                                                                          case VirtualKeyboardKeyAction.Space:
-                                                                            text = text.replaceRange(
-                                                                                cursorPosition, cursorPosition, ' ');
-                                                                            cursorPosition += 1;
-                                                                            break;
-
-                                                                          case VirtualKeyboardKeyAction.Shift:
-                                                                            _shiftEnabled = !_shiftEnabled;
-                                                                            break;
-
-                                                                          default:
-                                                                            break;
-                                                                        }
-                                                                      }
+                                                                    if (key.keyType == VirtualKeyboardKeyType.String) {
+                                                                      String inputText =
+                                                                          (_shiftEnabled ? key.capsText : key.text) ??
+                                                                              '';
+                                                                      text = text.replaceRange(
+                                                                          cursorPosition, cursorPosition, inputText);
+                                                                      cursorPosition += inputText.length;
 
                                                                       _onChangedCashAmountTextField(
-                                                                        value: text,
-                                                                        mopsByType: mopsByType,
-                                                                      );
+                                                                          value: text, mopsByType: mopsByType);
+                                                                    } else if (key.keyType ==
+                                                                        VirtualKeyboardKeyType.Action) {
+                                                                      switch (key.action) {
+                                                                        case VirtualKeyboardKeyAction.Backspace:
+                                                                          if (text.isNotEmpty && cursorPosition > 0) {
+                                                                            text = text.replaceRange(
+                                                                                cursorPosition - 1, cursorPosition, '');
+                                                                            cursorPosition -= 1;
 
-                                                                      TextEditingValue formattedValue =
-                                                                          (receipt.grandTotal >= 0
-                                                                                  ? MoneyInputFormatter()
-                                                                                  : NegativeMoneyInputFormatter())
-                                                                              .formatEditUpdate(
-                                                                        TextEditingValue(
-                                                                          text: text,
-                                                                          selection: TextSelection.collapsed(
-                                                                              offset: text.length),
-                                                                        ),
-                                                                        TextEditingValue(
-                                                                          text: text,
-                                                                          selection: TextSelection.collapsed(
-                                                                              offset: text.length),
-                                                                        ),
-                                                                      );
+                                                                            _onChangedCashAmountTextField(
+                                                                                value: text, mopsByType: mopsByType);
+                                                                          }
+                                                                          break;
 
-                                                                      _textEditingControllerCashAmount.text =
-                                                                          formattedValue.text;
-                                                                      _textEditingControllerCashAmount.selection =
-                                                                          formattedValue.selection;
+                                                                        case VirtualKeyboardKeyAction.Return:
+                                                                          text = text.trimRight();
+                                                                          break;
 
-                                                                      setState(() {});
-                                                                    }),
+                                                                        case VirtualKeyboardKeyAction.Space:
+                                                                          text = text.replaceRange(
+                                                                              cursorPosition, cursorPosition, ' ');
+                                                                          cursorPosition += 1;
+
+                                                                          _onChangedCashAmountTextField(
+                                                                              value: text, mopsByType: mopsByType);
+                                                                          break;
+
+                                                                        case VirtualKeyboardKeyAction.Shift:
+                                                                          _shiftEnabled = !_shiftEnabled;
+                                                                          break;
+
+                                                                        default:
+                                                                          break;
+                                                                      }
+                                                                    }
+
+                                                                    TextEditingValue formattedValue =
+                                                                        (receipt.grandTotal >= 0
+                                                                                ? MoneyInputFormatter()
+                                                                                : NegativeMoneyInputFormatter())
+                                                                            .formatEditUpdate(
+                                                                      TextEditingValue(
+                                                                        text: text,
+                                                                        selection: TextSelection.collapsed(
+                                                                            offset: cursorPosition),
+                                                                      ),
+                                                                      TextEditingValue(
+                                                                        text: text,
+                                                                        selection: TextSelection.collapsed(
+                                                                            offset: cursorPosition),
+                                                                      ),
+                                                                    );
+
+                                                                    _textEditingControllerCashAmount.text =
+                                                                        formattedValue.text;
+
+                                                                    _textEditingControllerCashAmount.selection =
+                                                                        formattedValue.selection;
+
+                                                                    setState(() {});
+                                                                  },
+                                                                ),
                                                               )
                                                             : const SizedBox.shrink(),
                                                         const SizedBox(height: 20),

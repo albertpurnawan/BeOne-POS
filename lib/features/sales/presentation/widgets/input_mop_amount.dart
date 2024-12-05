@@ -1,12 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class InputMopAmountDialog extends StatefulWidget {
   const InputMopAmountDialog({
@@ -26,6 +27,10 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
   TextEditingController _textEditingControllerOpenPrice = TextEditingController();
   bool isErr = false;
   String errMsg = "Invalid";
+
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool _showKeyboard = true;
+  String initialAmount = "";
 
   late final _focusNodeOpenPrice = FocusNode(
     onKeyEvent: (node, event) {
@@ -57,17 +62,22 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
   initState() {
     super.initState();
     if (widget.max != double.infinity) {
-      final String initialAmount = Helpers.parseMoney(widget.max);
+      initialAmount = Helpers.parseMoney(widget.max);
       _textEditingControllerOpenPrice = TextEditingController.fromValue(TextEditingValue(
-          text: initialAmount, selection: TextSelection(baseOffset: 0, extentOffset: initialAmount.length)));
+        text: initialAmount,
+        selection: TextSelection(
+          baseOffset: 0,
+          extentOffset: initialAmount.length,
+        ),
+      ));
     }
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _textEditingControllerOpenPrice.dispose();
     _focusNodeOpenPrice.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
   }
 
@@ -83,9 +93,34 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
         ),
         padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
-        child: const Text(
-          'Input Amount',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Input Amount',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                borderRadius: const BorderRadius.all(Radius.circular(360)),
+              ),
+              child: IconButton(
+                focusColor: const Color.fromARGB(255, 110, 0, 0),
+                focusNode: _keyboardFocusNode,
+                icon: Icon(
+                  _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _showKeyboard = !_showKeyboard;
+                  });
+                },
+                tooltip: 'Toggle Keyboard',
+              ),
+            ),
+          ],
         ),
       ),
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -140,7 +175,7 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                   controller: _textEditingControllerOpenPrice,
                   autofocus: true,
                   inputFormatters: [NegativeMoneyInputFormatter()],
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.none,
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 18),
                   onChanged: (value) {
@@ -191,6 +226,60 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                       )),
                 ),
               ),
+              (_showKeyboard)
+                  ? Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: KeyboardWidget(
+                        controller: _textEditingControllerOpenPrice,
+                        isNumericMode: true,
+                        customLayoutKeys: true,
+                        onKeyPress: (key) async {
+                          String text = _textEditingControllerOpenPrice.text;
+                          TextSelection currentSelection = _textEditingControllerOpenPrice.selection;
+                          int cursorPosition = currentSelection.end;
+
+                          if (key.keyType == VirtualKeyboardKeyType.String) {
+                            String inputText = key.text ?? '';
+                            text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                            cursorPosition += inputText.length;
+                          } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                            switch (key.action) {
+                              case VirtualKeyboardKeyAction.Backspace:
+                                if (text.isNotEmpty && cursorPosition > 0) {
+                                  text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                  cursorPosition -= 1;
+                                }
+                                break;
+                              case VirtualKeyboardKeyAction.Return:
+                                _textEditingControllerOpenPrice.text = _textEditingControllerOpenPrice.text.trimRight();
+
+                                break;
+                              case VirtualKeyboardKeyAction.Space:
+                                text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                cursorPosition += 1;
+
+                                break;
+                              default:
+                                break;
+                            }
+                          }
+                          TextEditingValue formattedValue = MoneyInputFormatter().formatEditUpdate(
+                            TextEditingValue(
+                              text: text,
+                              selection: TextSelection.collapsed(offset: cursorPosition),
+                            ),
+                            TextEditingValue(
+                              text: text,
+                              selection: TextSelection.collapsed(offset: cursorPosition),
+                            ),
+                          );
+                          _textEditingControllerOpenPrice.text = formattedValue.text;
+                          _textEditingControllerOpenPrice.selection = formattedValue.selection;
+                          setState(() {});
+                        },
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             ],
           ),
         ),
