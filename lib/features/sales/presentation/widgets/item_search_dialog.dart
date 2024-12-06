@@ -319,13 +319,19 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                 customLayoutKeys: true,
                                 onKeyPress: (key) async {
                                   String text = _textEditingController.text;
+                                  TextSelection currentSelection = _textEditingController.selection;
+                                  int cursorPosition = currentSelection.start;
+
                                   if (key.keyType == VirtualKeyboardKeyType.String) {
-                                    text = text + ((_shiftEnabled ? key.capsText : key.text) ?? '');
+                                    String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                    text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                    cursorPosition += inputText.length;
                                   } else if (key.keyType == VirtualKeyboardKeyType.Action) {
                                     switch (key.action) {
                                       case VirtualKeyboardKeyAction.Backspace:
                                         if (text.isNotEmpty) {
-                                          text = text.substring(0, text.length - 1);
+                                          text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                          cursorPosition -= 1;
                                         }
                                         break;
                                       case VirtualKeyboardKeyAction.Return:
@@ -333,7 +339,8 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                         await onSubmit();
                                         break;
                                       case VirtualKeyboardKeyAction.Space:
-                                        text = text + (key.text ?? '');
+                                        text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                        cursorPosition += 1;
                                         break;
                                       case VirtualKeyboardKeyAction.Shift:
                                         _shiftEnabled = !_shiftEnabled;
@@ -343,7 +350,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                     }
                                   }
                                   _textEditingController.text = text;
-                                  _textEditingController.selection = TextSelection.collapsed(offset: text.length);
+                                  _textEditingController.selection = TextSelection.collapsed(offset: cursorPosition);
 
                                   setState(() {});
                                 },

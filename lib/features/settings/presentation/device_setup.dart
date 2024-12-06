@@ -483,6 +483,7 @@ class _SettingsFormState extends State<SettingsForm> {
                             usernameAdmin: emailController.text,
                             passwordAdmin: hashedPassword,
                             lastSync: '2000-01-01 00:00:00',
+                            defaultShowKeyboard: 0,
                           );
 
                           await GetIt.instance<AppDatabase>().posParameterDao.create(data: topos);
