@@ -3,6 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
@@ -10,6 +11,8 @@ import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
@@ -35,12 +38,32 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
   final FocusNode _keyboardFocusNode = FocusNode();
 
   @override
+  void initState() {
+    getDefaultKeyboardPOSParameter();
+    super.initState();
+  }
+
+  @override
   void dispose() {
     _keyboardFocusNode.dispose();
     _searchInputFocusNode.dispose();
     _scrollController.dispose();
     _textEditingController.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<void> onSubmit() async {
@@ -317,6 +340,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                 controller: _textEditingController,
                                 isNumericMode: false,
                                 customLayoutKeys: true,
+                                isShiftEnabled: _shiftEnabled,
                                 onKeyPress: (key) async {
                                   String text = _textEditingController.text;
                                   TextSelection currentSelection = _textEditingController.selection;
