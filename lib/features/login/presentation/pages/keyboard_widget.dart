@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -9,6 +9,7 @@ class KeyboardWidget extends StatefulWidget {
   final bool isNumericMode;
   final void Function(VirtualKeyboardKey)? onKeyPress;
   final bool customLayoutKeys;
+  final bool? isShiftEnabled;
   final double? height;
   const KeyboardWidget({
     super.key,
@@ -16,6 +17,7 @@ class KeyboardWidget extends StatefulWidget {
     required this.isNumericMode,
     this.onKeyPress,
     this.height,
+    this.isShiftEnabled,
     required this.customLayoutKeys,
   });
 
@@ -27,7 +29,8 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
   bool _shiftEnabled = false;
   bool _isNumericMode = false;
   double _height = 0;
-  Timer? _backspaceTimer;
+
+  // Timer? _backspaceTimer;
 
   late TextEditingController _controllerText;
 
@@ -51,20 +54,20 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
     }
   }
 
-  void _startBackspaceRepeater(VoidCallback onBackspace) {
-    _stopBackspaceRepeater();
+  // void _startBackspaceRepeater(VoidCallback onBackspace) {
+  //   _stopBackspaceRepeater();
 
-    onBackspace();
+  //   onBackspace();
 
-    _backspaceTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      onBackspace();
-    });
-  }
+  //   _backspaceTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+  //     onBackspace();
+  //   });
+  // }
 
-  void _stopBackspaceRepeater() {
-    _backspaceTimer?.cancel();
-    _backspaceTimer = null;
-  }
+  // void _stopBackspaceRepeater() {
+  //   _backspaceTimer?.cancel();
+  //   _backspaceTimer = null;
+  // }
 
   void _defaultOnKeyPress(VirtualKeyboardKey key) {
     String text = widget.controller.text;
@@ -117,6 +120,7 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
 
   @override
   Widget build(BuildContext context) {
+    log("${widget.isShiftEnabled}");
     return Center(
       child: FocusScope(
         canRequestFocus: false,
@@ -133,9 +137,11 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                 textColor: ProjectColors.primary,
                 textController: _controllerText,
                 customLayoutKeys: widget.customLayoutKeys
-                    ? CustomKeyboardLayoutKeys(
-                        [_shiftEnabled ? VirtualKeyboardDefaultLayouts.Arabic : VirtualKeyboardDefaultLayouts.English],
-                      )
+                    ? CustomKeyboardLayoutKeys([
+                        (widget.isShiftEnabled != null && widget.isShiftEnabled == true)
+                            ? VirtualKeyboardDefaultLayouts.Arabic
+                            : VirtualKeyboardDefaultLayouts.English
+                      ], _shiftEnabled)
                     : null,
                 defaultLayouts: const [VirtualKeyboardDefaultLayouts.English, VirtualKeyboardDefaultLayouts.Arabic],
                 //reverseLayout :true,
@@ -152,7 +158,8 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
 
 class CustomKeyboardLayoutKeys extends VirtualKeyboardLayoutKeys {
   List<VirtualKeyboardDefaultLayouts> defaultLayouts;
-  CustomKeyboardLayoutKeys(this.defaultLayouts);
+  bool isShiftEnabled;
+  CustomKeyboardLayoutKeys(this.defaultLayouts, this.isShiftEnabled);
 
   @override
   int getLanguagesCount() => defaultLayouts.length;
@@ -161,9 +168,9 @@ class CustomKeyboardLayoutKeys extends VirtualKeyboardLayoutKeys {
   List<List> getLanguage(int index) {
     switch (defaultLayouts[index]) {
       case VirtualKeyboardDefaultLayouts.English:
-        return _defaultEnglishLayout;
+        return isShiftEnabled ? _defaultShiftLayout : _defaultEnglishLayout;
       case VirtualKeyboardDefaultLayouts.Arabic:
-        return _defaultShiftLayout;
+        return _defaultArabicLayout;
       default:
     }
     return _defaultEnglishLayout;
@@ -187,11 +194,24 @@ const List<List> _defaultShiftLayout = [
   // Row 1
   ['!', '@', '#', '\$', '%', '^', '&', '*', '(', ')'],
   // Row 2
-  ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', VirtualKeyboardKeyAction.Backspace],
+  ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', VirtualKeyboardKeyAction.Backspace],
   // Row 3
-  ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ':', '"', VirtualKeyboardKeyAction.Return],
+  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', VirtualKeyboardKeyAction.Return],
   // Row 4
-  [VirtualKeyboardKeyAction.Shift, 'z', 'x', 'c', 'v', 'b', 'n', 'm', '<', '>', '?', VirtualKeyboardKeyAction.Shift],
+  [VirtualKeyboardKeyAction.Shift, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', VirtualKeyboardKeyAction.Shift],
+  // Row 5
+  [VirtualKeyboardKeyAction.SwithLanguage, '~', VirtualKeyboardKeyAction.Space, '_', '+', '|']
+];
+
+const List<List> _defaultArabicLayout = [
+  // Row 1
+  ['!', '@', '#', '\$', '%', '^', '&', '*', '(', ')'],
+  // Row 2
+  ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', VirtualKeyboardKeyAction.Backspace],
+  // Row 3
+  ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', ':', '"', VirtualKeyboardKeyAction.Return],
+  // Row 4
+  [VirtualKeyboardKeyAction.Shift, 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?', VirtualKeyboardKeyAction.Shift],
   // Row 5
   [VirtualKeyboardKeyAction.SwithLanguage, '~', VirtualKeyboardKeyAction.Space, '_', '+', '|']
 ];
