@@ -195,84 +195,313 @@ class _DisplayPageState extends State<DisplayPage> {
     }
   }
 
+  double _calculateColumnWidth(BuildContext context, double percentage) {
+    return MediaQuery.of(context).size.width * percentage;
+  }
+
   Widget _buildSalesDisplay() {
+    // return Expanded(
+    //   child: Stack(children: [
+    //     DataTable(
+    //       columns: const [
+    //         DataColumn(
+    //           label: Center(
+    //             child: Text(
+    //               'No',
+    //               style: TextStyle(color: Colors.white),
+    //             ),
+    //           ),
+    //         ),
+    //         DataColumn(
+    //           label: Center(
+    //             child: Text(
+    //               'Item Name',
+    //               style: TextStyle(color: Colors.white),
+    //             ),
+    //           ),
+    //         ),
+    //         DataColumn(
+    //           label: Center(
+    //             child: Text(
+    //               'Qty.',
+    //               style: TextStyle(color: Colors.white),
+    //             ),
+    //           ),
+    //         ),
+    //         DataColumn(
+    //           label: Center(
+    //             child: Text(
+    //               'Discount',
+    //               style: TextStyle(color: Colors.white),
+    //             ),
+    //           ),
+    //         ),
+    //         DataColumn(
+    //           label: Center(
+    //             child: Text(
+    //               'Total',
+    //               style: TextStyle(color: Colors.white),
+    //             ),
+    //           ),
+    //         ),
+    //       ],
+    //       rows: currentSalesData['items'] == null
+    //           ? []
+    //           : List<DataRow>.generate(
+    //               currentSalesData['items']!.length,
+    //               (index) {
+    //                 final item = currentSalesData['items']![index];
+    //                 WidgetsBinding.instance.addPostFrameCallback((_) {
+    //                   _scrollToBottom();
+    //                 });
+    //                 return DataRow(
+    //                   cells: [
+    //                     DataCell(Text('${index + 1}')),
+    //                     DataCell(Text('${item['name']}')),
+    //                     DataCell(Text('${item['quantity']}')),
+    //                     DataCell(Text('${item['discount'] ?? '-'}')),
+    //                     DataCell(Text(Helpers.parseMoney(item['total']))),
+    //                   ],
+    //                 );
+    //               },
+    //             ),
+    //     ),
+    //     SingleChildScrollView(
+    //       controller: _scrollController,
+    //       scrollDirection: Axis.vertical,
+    //       child: DataTable(
+    //         // headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
+    //         dataRowMaxHeight: double.infinity,
+    //         // headingTextStyle: TextStyle(
+    //         //   fontSize: 14,
+    //         // ),
+    //         // dataTextStyle: TextStyle(
+    //         //   fontSize: 10,
+    //         // ),
+    //         border: TableBorder.symmetric(outside: BorderSide(width: 1)),
+    //         columns: const [
+    //           DataColumn(
+    //             label: Center(
+    //               child: Text(
+    //                 'No',
+    //                 style: TextStyle(color: Colors.white),
+    //               ),
+    //             ),
+    //           ),
+    //           DataColumn(
+    //             label: Center(
+    //               child: Text(
+    //                 'Item Name',
+    //                 style: TextStyle(color: Colors.white),
+    //               ),
+    //             ),
+    //           ),
+    //           DataColumn(
+    //             label: Center(
+    //               child: Text(
+    //                 'Qty.',
+    //                 style: TextStyle(color: Colors.white),
+    //               ),
+    //             ),
+    //           ),
+    //           DataColumn(
+    //             label: Center(
+    //               child: Text(
+    //                 'Discount',
+    //                 style: TextStyle(color: Colors.white),
+    //               ),
+    //             ),
+    //           ),
+    //           DataColumn(
+    //             label: Center(
+    //               child: Text(
+    //                 'Total',
+    //                 style: TextStyle(color: Colors.white),
+    //               ),
+    //             ),
+    //           ),
+    //         ],
+    //         rows: currentSalesData['items'] == null
+    //             ? []
+    //             : List<DataRow>.generate(
+    //                 currentSalesData['items']!.length,
+    //                 (index) {
+    //                   final item = currentSalesData['items']![index];
+    //                   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //                     _scrollToBottom();
+    //                   });
+    //                   return DataRow(
+    //                     cells: [
+    //                       DataCell(Text('${index + 1}')),
+    //                       DataCell(Text('${item['name']}')),
+    //                       DataCell(Text('${item['quantity']}')),
+    //                       DataCell(Text('${item['discount'] ?? '-'}')),
+    //                       DataCell(Text(Helpers.parseMoney(item['total']))),
+    //                     ],
+    //                   );
+    //                 },
+    //               ),
+    //       ),
+    //     ),
+    //   ]),
+    // );
     return Expanded(
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        scrollDirection: Axis.vertical,
-        child: DataTable(
-          headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
-          dataRowMaxHeight: double.infinity,
-          headingTextStyle: TextStyle(
-            fontSize: 14,
+      child: Stack(
+        children: [
+          // Data Table for the rows (data table)
+          Positioned.fill(
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              scrollDirection: Axis.vertical,
+              child: DataTable(
+                headingRowColor:
+                    MaterialStateProperty.all(ProjectColors.primary),
+                dataRowMaxHeight: double.infinity,
+                headingTextStyle: TextStyle(fontSize: 12),
+                dataTextStyle: TextStyle(fontSize: 10),
+                border: TableBorder.symmetric(outside: BorderSide(width: 1)),
+                columnSpacing: 0,
+                columns: [
+                  DataColumn(
+                    label: SizedBox(
+                      width: _calculateColumnWidth(context, 0.015),
+                      child: const Text(
+                        'No',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: SizedBox(
+                      width: _calculateColumnWidth(context, 0.095),
+                      child: const Text(
+                        'Item Name',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: SizedBox(
+                      width: _calculateColumnWidth(context, 0.015),
+                      child: const Text(
+                        'Qty',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: SizedBox(
+                      width: _calculateColumnWidth(context, 0.035),
+                      child: const Text(
+                        'Discount',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: SizedBox(
+                      width: _calculateColumnWidth(context, 0.045),
+                      child: const Text(
+                        'Total',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+                rows: currentSalesData['items'] == null
+                    ? []
+                    : List<DataRow>.generate(
+                        currentSalesData['items']!.length,
+                        (index) {
+                          final item = currentSalesData['items']![index];
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            _scrollToBottom();
+                          });
+                          return DataRow(
+                            cells: [
+                              DataCell(SizedBox(
+                                  width: _calculateColumnWidth(context, 0.015),
+                                  child: Text('${index + 1}'))),
+                              DataCell(SizedBox(
+                                  width: _calculateColumnWidth(context, 0.1),
+                                  child: Text('${item['name']}'))),
+                              DataCell(SizedBox(
+                                  width: _calculateColumnWidth(context, 0.015),
+                                  child: Text('${item['quantity']}'))),
+                              DataCell(SizedBox(
+                                  width: _calculateColumnWidth(context, 0.035),
+                                  child: Text('${item['discount'] ?? '-'}'))),
+                              DataCell(SizedBox(
+                                  width: _calculateColumnWidth(context, 0.043),
+                                  child:
+                                      Text(Helpers.parseMoney(item['total'])))),
+                            ],
+                          );
+                        },
+                      ),
+              ),
+            ),
           ),
-          dataTextStyle: TextStyle(
-            fontSize: 10,
+          // Data Table for the header (static part)
+          Positioned.fill(
+            child: DataTable(
+              headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
+              dataRowMaxHeight: double.infinity,
+              headingTextStyle: TextStyle(fontSize: 12),
+              dataTextStyle: TextStyle(fontSize: 10),
+              border: TableBorder.symmetric(outside: BorderSide(width: 1)),
+              columnSpacing: 0,
+              columns: [
+                DataColumn(
+                  label: SizedBox(
+                    width: _calculateColumnWidth(context, 0.014),
+                    child: const Text(
+                      'No',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: SizedBox(
+                    width: _calculateColumnWidth(context, 0.095),
+                    child: const Text(
+                      'Item Name',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: SizedBox(
+                    width: _calculateColumnWidth(context, 0.015),
+                    child: const Text(
+                      'Qty',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: SizedBox(
+                    width: _calculateColumnWidth(context, 0.035),
+                    child: const Text(
+                      'Discount',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                DataColumn(
+                  label: SizedBox(
+                    width: _calculateColumnWidth(context, 0.045),
+                    child: const Text(
+                      'Total',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+              rows: [], // Empty rows for header as it's a static part
+            ),
           ),
-          border: TableBorder.symmetric(outside: BorderSide(width: 1)),
-          columns: const [
-            DataColumn(
-              label: Center(
-                child: Text(
-                  'No',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            DataColumn(
-              label: Center(
-                child: Text(
-                  'Item Name',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            DataColumn(
-              label: Center(
-                child: Text(
-                  'Qty.',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            DataColumn(
-              label: Center(
-                child: Text(
-                  'Discount',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            DataColumn(
-              label: Center(
-                child: Text(
-                  'Total',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-          rows: currentSalesData['items'] == null
-              ? []
-              : List<DataRow>.generate(
-                  currentSalesData['items']!.length,
-                  (index) {
-                    final item = currentSalesData['items']![index];
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _scrollToBottom();
-                    });
-                    return DataRow(
-                      cells: [
-                        DataCell(Text('${index + 1}')),
-                        DataCell(Text('${item['name']}')),
-                        DataCell(Text('${item['quantity']}')),
-                        DataCell(Text('${item['discount'] ?? '-'}')),
-                        DataCell(Text(Helpers.parseMoney(item['total']))),
-                      ],
-                    );
-                  },
-                ),
-        ),
+        ],
       ),
     );
   }
@@ -790,26 +1019,28 @@ class _DisplayPageState extends State<DisplayPage> {
                                               topLeft: Radius.circular(8),
                                               topRight: Radius.circular(8))),
                                       child: Padding(
-                                        padding: EdgeInsets.all(8.0),
+                                        padding: const EdgeInsets.all(8.0),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             const Text('Customer',
                                                 style: TextStyle(
-                                                    color: Colors.white)),
+                                                    color: Colors.white,
+                                                    fontSize: 12)),
                                             Text(
                                                 _getSafeStringValue(
                                                     currentSalesData,
                                                     'customerName'),
                                                 style: const TextStyle(
-                                                    color: Colors.white)),
+                                                    color: Colors.white,
+                                                    fontSize: 14)),
                                           ],
                                         ),
                                       ),
                                     ),
                                     Padding(
-                                      padding: EdgeInsets.all(8.0),
+                                      padding: const EdgeInsets.all(8.0),
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
@@ -818,25 +1049,34 @@ class _DisplayPageState extends State<DisplayPage> {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              const Text('Total Discount'),
+                                              const Text(
+                                                'Total Discount',
+                                                style: TextStyle(fontSize: 12),
+                                              ),
                                               Text(
-                                                  'Rp ${_getSafeStringValue(currentSalesData, 'totalDiscount')}'),
+                                                  'Rp ${_getSafeStringValue(currentSalesData, 'totalDiscount')}',
+                                                  style: const TextStyle(
+                                                      fontSize: 12)),
                                             ],
                                           ),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              const Text('Grand Total'),
+                                              const Text('Grand Total',
+                                                  style:
+                                                      TextStyle(fontSize: 12)),
                                               Text(
-                                                  'Rp ${_getSafeStringValue(currentSalesData, 'grandTotal')}'),
+                                                  'Rp ${_getSafeStringValue(currentSalesData, 'grandTotal')}',
+                                                  style: const TextStyle(
+                                                      fontSize: 12)),
                                             ],
                                           ),
                                         ],
                                       ),
                                     ),
                                     Padding(
-                                      padding: EdgeInsets.all(8.0),
+                                      padding: const EdgeInsets.all(8.0),
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
@@ -845,18 +1085,26 @@ class _DisplayPageState extends State<DisplayPage> {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text('Total Payment'),
+                                              const Text('Total Payment',
+                                                  style:
+                                                      TextStyle(fontSize: 12)),
                                               Text(
-                                                  'Rp ${_getSafeStringValue(currentSalesData, 'totalPayment')}'),
+                                                  'Rp ${_getSafeStringValue(currentSalesData, 'totalPayment')}',
+                                                  style: const TextStyle(
+                                                      fontSize: 12)),
                                             ],
                                           ),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text('Changed'),
+                                              const Text('Changed',
+                                                  style:
+                                                      TextStyle(fontSize: 12)),
                                               Text(
-                                                  'Rp ${_getSafeStringValue(currentSalesData, 'changed')}'),
+                                                  'Rp ${_getSafeStringValue(currentSalesData, 'changed')}',
+                                                  style: const TextStyle(
+                                                      fontSize: 12)),
                                             ],
                                           ),
                                         ],
@@ -885,8 +1133,8 @@ class _DisplayPageState extends State<DisplayPage> {
                                 child: LayoutBuilder(
                                   builder: (context, constraints) {
                                     final fontSize = constraints.maxWidth > 800
-                                        ? 32.0
-                                        : 24.0;
+                                        ? 24.0
+                                        : 20.0;
                                     return Column(
                                       children: [
                                         Text(
