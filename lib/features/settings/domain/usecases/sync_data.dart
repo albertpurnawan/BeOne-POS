@@ -2478,6 +2478,7 @@ Future<void> syncData() async {
         usernameAdmin: singleTopos.usernameAdmin,
         passwordAdmin: singleTopos.passwordAdmin,
         lastSync: (isComplete) ? nextSyncDate : singleTopos.lastSync,
+        defaultShowKeyboard: singleTopos.defaultShowKeyboard,
       );
 
       if (isComplete) await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);

@@ -2904,6 +2904,7 @@ class _FetchScreenState extends State<FetchScreen> {
           usernameAdmin: singleTopos.usernameAdmin,
           passwordAdmin: singleTopos.passwordAdmin,
           lastSync: (isComplete) ? nextSyncDate : singleTopos.lastSync,
+          defaultShowKeyboard: singleTopos.defaultShowKeyboard,
         );
 
         if (isComplete) await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);

@@ -16,6 +16,7 @@ class POSParameterFields {
     usernameAdmin,
     passwordAdmin,
     lastSync,
+    defaultShowKeyboard,
   ];
 
   static const String docId = 'docid';
@@ -29,6 +30,7 @@ class POSParameterFields {
   static const String usernameAdmin = "usernameadmin";
   static const String passwordAdmin = "passwordadmin";
   static const String lastSync = "lastsync";
+  static const String defaultShowKeyboard = "defaultshowkeyboard";
 }
 
 class POSParameterModel extends POSParameterEntity implements BaseModel {
@@ -44,6 +46,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
     required super.usernameAdmin,
     required super.passwordAdmin,
     required super.lastSync,
+    required super.defaultShowKeyboard,
   });
 
   @override
@@ -60,6 +63,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       'usernameadmin': usernameAdmin,
       'passwordadmin': passwordAdmin,
       'lastsync': lastSync, // toIsoString
+      'defaultshowkeyboard': defaultShowKeyboard,
     };
   }
 
@@ -76,6 +80,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       usernameAdmin: map['usernameadmin'] != null ? map['usernameadmin'] as String : null,
       passwordAdmin: map['passwordadmin'] != null ? map['passwordadmin'] as String : null,
       lastSync: map['lastsync'] != null ? map['lastsync'] as String : null,
+      defaultShowKeyboard: map['defaultshowkeyboard'] != null ? map['defaultshowkeyboard'] as int : 0,
     );
   }
 
@@ -92,6 +97,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       usernameAdmin: entity.usernameAdmin,
       passwordAdmin: entity.passwordAdmin,
       lastSync: entity.lastSync,
+      defaultShowKeyboard: entity.defaultShowKeyboard,
     );
   }
 }
