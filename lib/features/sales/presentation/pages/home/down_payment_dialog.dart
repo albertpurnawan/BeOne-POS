@@ -20,9 +20,11 @@ import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_items_entity.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_down_payment.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/quantity_receive_dp_dialog.dart';
@@ -77,7 +79,6 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
   bool _showKeyboard = true;
   final FocusNode _keyboardFocusNode = FocusNode();
   bool currentNumericMode = false;
-  int _focusedIndex = 0;
   TextEditingController _activeController = TextEditingController();
 
   @override
@@ -109,13 +110,13 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       _drawAmountFocusNodes[i].addListener(() {
         if (_drawAmountFocusNodes[i].hasFocus) {
           setState(() {
-            _focusedIndex = i;
             _activeController = _drawAmountControllers[i];
             currentNumericMode = true;
           });
         }
       });
     }
+    getDefaultKeyboardPOSParameter();
   }
 
   @override
@@ -133,6 +134,20 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
     }
     _activeController.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   void getEmployee(String tohemId) async {
