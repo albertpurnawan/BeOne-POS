@@ -30,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
+    // getDefaultKeyboardPOSParameter();
   }
 
   @override
@@ -37,6 +38,20 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
     _keyboardFocusNode.dispose();
   }
+
+  // Future<void> getDefaultKeyboardPOSParameter() async {
+  //   try {
+  //     final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+  //     if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+  //     setState(() {
+  //       showVirtualKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+  //     });
+  //   } catch (e) {
+  //     if (mounted) {
+  //       SnackBarHelper.presentFailSnackBar(context, e.toString());
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -278,10 +293,13 @@ class _LoginFormState extends State<LoginForm> {
           ),
           const SizedBox(height: 20),
           _showKeyboard
-              ? KeyboardWidget(
-                  controller: activeController,
-                  isNumericMode: false,
-                  customLayoutKeys: true,
+              ? Padding(
+                  padding: const EdgeInsets.fromLTRB(50, 20, 50, 0),
+                  child: KeyboardWidget(
+                    controller: activeController,
+                    isNumericMode: false,
+                    customLayoutKeys: true,
+                  ),
                 )
               : const SizedBox(),
         ]),
