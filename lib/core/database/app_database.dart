@@ -236,7 +236,7 @@ import 'package:pos_fe/features/settings/data/models/receipt_content.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
-  final int databaseVersion = 5;
+  final int databaseVersion = 6;
   final _databaseName = "pos_fe.db";
 
   Database? _database;
@@ -3805,6 +3805,16 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       // alter table tostr timbangan
       await db.execute(
           '''ALTER TABLE $tableStoreMasters ADD COLUMN ${ItemMasterFields.scaleActive} tinyint NOT NULL DEFAULT '0' ''');
+      // alter table topos showKeyboard
+      await db.execute(
+          '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.defaultShowKeyboard} int NOT NULL DEFAULT '0' ''');
+      // alter table topos showKeyboard
+      await db.execute(
+          '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.customerDisplayActive} int NOT NULL DEFAULT null ''');
+    },
+    'from_version_5_to_version_6': (Database db) async {
+      // create table banner
+      await db.execute(createTobnr);
       // alter table topos showKeyboard
       await db.execute(
           '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.defaultShowKeyboard} int NOT NULL DEFAULT '0' ''');
