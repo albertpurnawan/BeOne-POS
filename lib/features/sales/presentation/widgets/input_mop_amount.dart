@@ -343,6 +343,11 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                                 break;
                               case VirtualKeyboardKeyAction.Return:
                                 _textEditingControllerOpenPrice.text = _textEditingControllerOpenPrice.text.trimRight();
+                                final double mopAmount =
+                                    Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text);
+                                if (mopAmount == double.infinity) return;
+                                if (mopAmount > widget.max) return;
+                                context.pop(mopAmount);
 
                                 break;
                               case VirtualKeyboardKeyAction.Space:
