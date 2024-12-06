@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:math' show max;
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
@@ -7,6 +9,7 @@ import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/dual_screen/data/models/dual_screen.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:pos_fe/features/dual_screen/services/send_data_window_service.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
 
@@ -125,6 +128,12 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
     try {
       setState(() => isLoading = true);
 
+      // If no unsaved banners, use all large and small banners
+      if (unsavedBanners.isEmpty) {
+        unsavedBanners.addAll(largeBanners);
+        unsavedBanners.addAll(smallBanners);
+      }
+
       // Get all existing banners to find the last ID
       final allBanners =
           await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
@@ -144,23 +153,55 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
       var currentLargeOrder = lastLargeOrder;
       var currentSmallOrder = lastSmallOrder;
       for (final banner in unsavedBanners) {
-        currentId++;
-        final order =
-            banner.type == 1 ? ++currentLargeOrder : ++currentSmallOrder;
-
-        final bannerToSave = DualScreenModel(
-          id: currentId,
-          description: banner.description,
-          type: banner.type,
-          order: order,
-          path: banner.path,
-          duration: banner.duration,
-          createdAt: banner.createdAt,
-          updatedAt: banner.updatedAt,
+        // Check if banner already exists in database
+        final existingBanner = allBanners.firstWhere(
+          (b) => b.id == banner.id,
+          orElse: () => DualScreenModel(
+            id: 0,
+            description: '',
+            type: 0,
+            order: 0,
+            path: '',
+            duration: 0,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
         );
-        await GetIt.instance<AppDatabase>()
-            .dualScreenDao
-            .create(data: bannerToSave);
+
+        // If banner doesn't exist in database, increment ID and order
+        if (existingBanner.id == 0) {
+          currentId++;
+          final order =
+              banner.type == 1 ? ++currentLargeOrder : ++currentSmallOrder;
+
+          final bannerToSave = DualScreenModel(
+            id: currentId,
+            description: banner.description,
+            type: banner.type,
+            order: order,
+            path: banner.path,
+            duration: banner.duration,
+            createdAt: banner.createdAt,
+            updatedAt: banner.updatedAt,
+          );
+          await GetIt.instance<AppDatabase>()
+              .dualScreenDao
+              .create(data: bannerToSave);
+        } else {
+          // Update existing banner
+          final updatedBanner = DualScreenModel(
+            id: existingBanner.id,
+            description: banner.description,
+            type: banner.type,
+            order: existingBanner.order,
+            path: banner.path,
+            duration: banner.duration,
+            createdAt: existingBanner.createdAt,
+            updatedAt: DateTime.now(),
+          );
+          await GetIt.instance<AppDatabase>().dualScreenDao.updateById(
+              id: existingBanner.id.toString(), data: updatedBanner);
+        }
       }
       await _updateCustomerDisplayActive();
 
@@ -173,6 +214,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
       // Refresh banners to get the updated list with proper IDs
       await refreshBanners();
 
+      await _sendToDisplay();
       if (mounted) {
         SnackBarHelper.presentSuccessSnackBar(
             context, 'All changes saved successfully', 3);
@@ -184,6 +226,20 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
             context, 'Error saving changes: ${e.toString()}');
       }
     }
+  }
+
+  Future<void> _sendToDisplay() async {
+    final data = await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
+    final windows = await DesktopMultiWindow.getAllSubWindowIds();
+    if (windows.isEmpty) {
+      debugPrint('No display window found');
+      return;
+    }
+    final windowId = windows[0];
+    final jsonData = jsonEncode(data);
+    debugPrint("Sending data to display: $jsonData");
+    final sendingData =
+        await sendData(windowId, jsonData, 'updateSalesData', 'Sales');
   }
 
   void onDropdownChanged(String? newValue) {
@@ -246,6 +302,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -406,9 +463,63 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                                         description: banner.description,
                                         path: banner.path,
                                         duration: banner.duration.toString(),
-                                        onSave: (data) async {
-                                          // Handle save
-                                          await refreshBanners();
+                                        onSave: (updatedData) async {
+                                          // Find the index of the banner in the appropriate list
+                                          final List<DualScreenModel>
+                                              targetList = banner.type == 1
+                                                  ? largeBanners
+                                                  : smallBanners;
+
+                                          final index = targetList.indexWhere(
+                                              (b) => b.id == banner.id);
+
+                                          if (index != -1) {
+                                            // Create an updated banner model
+                                            final updatedBanner =
+                                                DualScreenModel(
+                                              id: banner.id,
+                                              description:
+                                                  updatedData['description'],
+                                              type: banner.type,
+                                              order: banner.order,
+                                              path: updatedData['path'],
+                                              duration: updatedData['duration'],
+                                              createdAt: banner.createdAt,
+                                              updatedAt: DateTime.now(),
+                                            );
+                                            print(
+                                                '========================================== $updatedBanner');
+                                            // Update the banner in the unsaved list if it exists
+                                            final unsavedIndex =
+                                                unsavedBanners.indexWhere(
+                                                    (b) => b.id == banner.id);
+                                            if (unsavedIndex != -1) {
+                                              setState(() {
+                                                unsavedBanners[unsavedIndex] =
+                                                    updatedBanner;
+                                              });
+                                            }
+
+                                            // Update the banner in the appropriate list
+                                            setState(() {
+                                              if (banner.type == 1) {
+                                                largeBanners[index] =
+                                                    updatedBanner;
+                                              } else {
+                                                smallBanners[index] =
+                                                    updatedBanner;
+                                              }
+                                              _hasUnsavedChanges = true;
+                                            });
+
+                                            // Show success message
+                                            if (mounted) {
+                                              SnackBarHelper.presentSuccessSnackBar(
+                                                  context,
+                                                  'Banner updated. Click Save to persist changes.',
+                                                  3);
+                                            }
+                                          }
                                         },
                                       ),
                                     );
@@ -521,13 +632,12 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                   width: MediaQuery.of(context).size.width * 0.8,
                   child: Column(
                     children: [
-                      const SizedBox(height: 32),
                       buildBannerTable('Large Banners', largeBanners),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 16),
                       buildBannerTable('Small Banners', smallBanners),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -634,7 +744,7 @@ class _BannerPopupState extends State<BannerPopup> {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.any,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4', 'mov', 'avi', 'webm'],
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4'],
         allowMultiple: false,
       );
 

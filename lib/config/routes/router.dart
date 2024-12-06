@@ -127,8 +127,6 @@ class AppRouter {
         path: "/dualScreen",
         pageBuilder: (context, state) {
           final args = state.extra as Map<String, dynamic>;
-          print("args");
-          print(args);
           final windowController = args['windowController'] as WindowController;
 
           return MaterialPage(

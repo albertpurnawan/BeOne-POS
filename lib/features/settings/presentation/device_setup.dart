@@ -397,7 +397,7 @@ class _SettingsFormState extends State<SettingsForm> {
                             type: 1,
                             order: 1,
                             path:
-                                "https://assets.klikindomaret.com/promos/20231111_11_00_HERO_BNR_1111-HOME-BRAND-SUPER-DEAL.jpg",
+                                "https://www.uyilo.org.za/wp-content/uploads/2022/04/Sesalogo700x700-01-e1650832696130.png",
                             duration: 5,
                             createdAt: DateTime.now(),
                             updatedAt: DateTime.now(),
@@ -408,7 +408,7 @@ class _SettingsFormState extends State<SettingsForm> {
                             type: 2,
                             order: 1,
                             path:
-                                "https://assets.klikindomaret.com/promos/20231101_00_00_HERO_BNR_PROMO-MINGGUAN-1-7-NOV.jpg",
+                                "https://statik.tempo.co/data/2023/11/11/id_1253477/1253477_720.jpg",
                             duration: 4,
                             createdAt: DateTime.now(),
                             updatedAt: DateTime.now(),
@@ -419,7 +419,7 @@ class _SettingsFormState extends State<SettingsForm> {
                             type: 1,
                             order: 2,
                             path:
-                                "https://assets.klikindomaret.com/promos/20231111_11_00_HERO_BNR_1111-FLASH-SALE.jpg",
+                                "https://asset-a.grid.id/crop/0x0:0x0/x/photo/2022/08/13/kenali-apa-itu-sesaid-cara-bel-20220813112540.jpg",
                             duration: 6,
                             createdAt: DateTime.now(),
                             updatedAt: DateTime.now(),
@@ -430,7 +430,7 @@ class _SettingsFormState extends State<SettingsForm> {
                             type: 2,
                             order: 2,
                             path:
-                                "https://assets.klikindomaret.com/promos/20231111_11_00_HERO_BNR_1111-BRAND-SUPER-DEAL.jpg",
+                                "https://sesa.id/cdn/shop/collections/sub_category_banner_produk_segar_1890x690_3c3e982f-ca8b-4be6-ab36-6f9b7085eda5_1200x1200.jpg?v=1693821566",
                             duration: 5,
                             createdAt: DateTime.now(),
                             updatedAt: DateTime.now(),
@@ -441,7 +441,7 @@ class _SettingsFormState extends State<SettingsForm> {
                             type: 1,
                             order: 3,
                             path:
-                                "https://assets.klikindomaret.com/promos/20231111_11_00_HERO_BNR_1111-FLASH-SALE-MEKANISME.jpg",
+                                "https://www.marketeers.com/_next/image/?url=https%3A%2F%2Fimagedelivery.net%2F2MtOYVTKaiU0CCt-BLmtWw%2F305c6ecf-5bd3-409e-931c-caa2d1945900%2Fw%3D1066&w=1920&q=75",
                             duration: 4,
                             createdAt: DateTime.now(),
                             updatedAt: DateTime.now(),

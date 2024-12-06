@@ -90,4 +90,17 @@ class DualScreenDao extends BaseDao<DualScreenModel> {
     if (maps.isEmpty) return null;
     return DualScreenModel.fromMap(maps.first);
   }
+
+  Future<void> updateById(
+      {required String id,
+      required DualScreenModel data,
+      Transaction? txn}) async {
+    if (txn != null) {
+      await txn
+          .update(tableName, data.toMap(), where: "id = ?", whereArgs: [id]);
+    } else {
+      await db
+          .update(tableName, data.toMap(), where: "id = ?", whereArgs: [id]);
+    }
+  }
 }

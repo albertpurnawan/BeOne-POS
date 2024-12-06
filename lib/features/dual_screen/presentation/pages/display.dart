@@ -1,24 +1,19 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
-import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/dual_screen/data/models/dual_screen.dart';
-import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as path;
-import 'package:pos_fe/features/sales/domain/repository/cash_register_repository.dart';
 
 class DisplayPage extends StatefulWidget {
   const DisplayPage({
@@ -35,6 +30,10 @@ class DisplayPage extends StatefulWidget {
 }
 
 class _DisplayPageState extends State<DisplayPage> {
+  List<DualScreenModel> largeBannersUrl = [];
+  List<DualScreenModel> smallBannersUrl = [];
+  List<DualScreenModel> largeBannersLocal = [];
+  List<DualScreenModel> smallBannersLocal = [];
   List<DualScreenModel> largeBanners = [];
   List<DualScreenModel> smallBanners = [];
   Map<String, VideoPlayerController?> videoControllers = {};
@@ -46,65 +45,53 @@ class _DisplayPageState extends State<DisplayPage> {
   Timer? _timer2;
   int _currentIndex = 0;
   int _currentIndex2 = 0;
-  bool tabSales = true;
-  bool tabStock = true;
-  bool isVideoTop = true;
-  bool isVideoBot = true;
+  VideoPlayerController? _videoControllerLarge;
+  VideoPlayerController? _videoControllerSmall;
+  bool _isLargeVideoInitialized = false;
+  bool _isSmallVideoInitialized = false;
+
   final dio = Dio();
   SharedPreferences? _prefs;
-  CashierBalanceTransactionModel? _activeShift;
+  late Map<String, dynamic> dataMap;
 
   // Add sales data state
-  Map<String, dynamic> currentSalesData = {};
-  String? cashRegisterId;
-  String? username;
+  late Map<String, dynamic> currentSalesData;
+
+  VideoPlayerController? _videoController;
 
   Future<void> _loadBanners() async {
     try {
       setState(() => isLoading = true);
-      print('Debug - Starting to load banners');
 
-      // Ensure database is initialized
-      final allBanners =
-          await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
-      print('All banners: $allBanners');
-      // if (appDatabase == null) {
-      //   print('Debug - AppDatabase is not initialized');
+      final allBanners = (dataMap['dualScreenModel'] as List<dynamic>)
+          .map((banner) =>
+              DualScreenModel.fromMap(banner as Map<String, dynamic>))
+          .toList();
 
-      //   // Attempt to initialize the database if not already registered
-      //   final newDatabase = await AppDatabase.init();
-      //   GetIt.instance.registerSingleton<AppDatabase>(newDatabase);
-      // }
+      setState(() {
+        largeBannersUrl = allBanners
+            .where((banner) => banner.type == 1 && banner.path.contains('http'))
+            .toList()
+          ..sort((a, b) => a.order.compareTo(b.order));
+        smallBannersUrl = allBanners
+            .where((banner) => banner.type == 2 && banner.path.contains('http'))
+            .toList()
+          ..sort((a, b) => a.order.compareTo(b.order));
 
-      // // Get all banners from database
-      // final allBanners =
-      //     await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
+        largeBannersLocal = allBanners
+            .where(
+                (banner) => banner.type == 1 && !banner.path.contains('http'))
+            .toList()
+          ..sort((a, b) => a.order.compareTo(b.order));
+        smallBannersLocal = allBanners
+            .where(
+                (banner) => banner.type == 2 && !banner.path.contains('http'))
+            .toList()
+          ..sort((a, b) => a.order.compareTo(b.order));
 
-      // // Additional debug information
-      // print('Debug - Total banners fetched: ${allBanners.length}');
-      // allBanners.forEach((banner) {
-      //   print(
-      //       'Debug - Banner: type=${banner.type}, path=${banner.path}, order=${banner.order}');
-      // });
-
-      // if (allBanners.isEmpty) {
-      //   print('Debug - No banners found in the database');
-      // }
-
-      // setState(() {
-      //   // Split banners by type (1 for large, 2 for small)
-      //   largeBanners = allBanners.where((banner) => banner.type == 1).toList()
-      //     ..sort((a, b) => a.order.compareTo(b.order));
-      //   smallBanners = allBanners.where((banner) => banner.type == 2).toList()
-      //     ..sort((a, b) => a.order.compareTo(b.order));
-
-      //   print('Debug - Large banners count: ${largeBanners.length}');
-      //   print('Debug - Small banners count: ${smallBanners.length}');
-
-      //   isLoading = false;
-      // });
+        isLoading = false;
+      });
     } catch (e, stackTrace) {
-      print('Debug - Detailed error loading banners:');
       print('Error: $e');
       print('Stacktrace: $stackTrace');
 
@@ -116,119 +103,79 @@ class _DisplayPageState extends State<DisplayPage> {
             'Failed to load banners. Please check your connection and try again. Error: ${e.toString()}');
       }
     }
-  }
-
-  Future<void> _getCashRegisterData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final tocsrId = prefs.getString('tocsr_id');
-
-      if (tocsrId != null) {
-        final cashRegisterRepository = GetIt.instance<CashRegisterRepository>();
-        final cashRegister =
-            await cashRegisterRepository.getCashRegisterByDocId(tocsrId);
-
-        if (cashRegister != null) {
-          setState(() {
-            cashRegisterId = cashRegister.idKassa;
-          });
-          debugPrint('Cash Register ID: $cashRegisterId');
-        }
-      }
-    } catch (e) {
-      debugPrint('Error getting cash register data: $e');
-    }
-  }
-
-  Future<void> _initializeShiftData() async {
-    try {
-      final db = GetIt.instance<AppDatabase>();
-      final shift = await db.cashierBalanceTransactionDao.readLastValue();
-      if (mounted && shift != null) {
-        setState(() {
-          _activeShift = shift;
-          cashRegisterId = shift.tocsrId;
-        });
-        print('Debug - Loaded shift data: ${shift.tocsrId}');
-      }
-    } catch (e) {
-      print('Debug - Error loading shift data: $e');
-    }
-  }
-
-  Future<void> _initializePrefs() async {
-    try {
-      _prefs = await SharedPreferences.getInstance();
-      if (mounted) {
-        setState(() {
-          username = _prefs?.getString('username') ?? 'Unknown User';
-        });
-        print('Debug - Username from prefs: $username');
-      }
-    } catch (e) {
-      print('Debug - Error initializing SharedPreferences: $e');
-    }
-  }
-
-  Future<void> _initializeUserData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      setState(() {
-        username = prefs.getString('username') ?? '...';
-      });
-    } catch (e) {
-      debugPrint('Error getting username: $e');
-    }
+    _downloadAllBanners();
   }
 
   @override
   void initState() {
     super.initState();
-    _initializeVideos();
-    _startTimers();
+
+    // Initialize currentSalesData with default values
+    currentSalesData = {
+      'customerName': '-',
+      'items': [],
+      'totalDiscount': '-',
+      'grandTotal': '-',
+      'totalPayment': '-',
+      'changed': '-'
+    };
+
+    // Setup window listener before processing data
     _setupWindowListener();
-    _initializePrefs();
-    _initializeShiftData();
-    _loadBanners();
 
-    // Initialize data from window arguments
-    final args = widget.args;
-    print('Debug - Received window arguments: $args');
-
-    if (args != null) {
-      final receivedUsername = args['username'];
-      final receivedCashRegisterId = args['cashRegisterId'];
-      print('Debug - Received username: $receivedUsername');
-      print('Debug - Received cash register ID: $receivedCashRegisterId');
-
+    if (widget.args.containsKey('data')) {
+      dataMap = jsonDecode(widget.args['data']);
       setState(() {
-        username = receivedUsername ?? username ?? 'Unknown User';
-        cashRegisterId = receivedCashRegisterId ??
-            _activeShift?.tocsrId ??
-            'Unknown Register';
+        dataMap = jsonDecode(widget.args['data']);
+        currentSalesData = dataMap;
       });
-    } else {
-      print('Debug - No arguments received from main window');
     }
+    _loadBanners();
   }
 
   void _setupWindowListener() {
     DesktopMultiWindow.setMethodHandler((call, fromWindowId) async {
-      debugPrint('Received message from window $fromWindowId: ${call.method}');
 
       switch (call.method) {
         case 'updateSalesData':
           try {
             final String jsonString = call.arguments as String;
-            debugPrint('Received data: $jsonString');
             final data = jsonDecode(jsonString);
             setState(() {
               currentSalesData = data;
-              tabSales = true;
             });
             return true;
           } catch (e, stackTrace) {
             debugPrint('Error processing sales data: $e');
+            debugPrint(stackTrace.toString());
+            return false;
+          }
+        case 'updateBannerData':
+          try {
+            final String jsonString = call.arguments as String;
+            final data = jsonDecode(jsonString);
+
+            setState(() {
+              // Update the entire dualScreenModel
+              dataMap['dualScreenModel'] = data;
+
+              // Immediately update banner-specific fields
+              if (data is Map) {
+                // Update large banner if present
+                if (data.containsKey('largeBannersUrl') &&
+                    data['largeBannersUrl'] is List &&
+                    data['largeBannersUrl'].isNotEmpty) {
+                }
+
+                // Update small banner if present
+                if (data.containsKey('smallBannersUrl') &&
+                    data['smallBannersUrl'] is List &&
+                    data['smallBannersUrl'].isNotEmpty) {
+                }
+              }
+            });
+          } catch (e, stackTrace) {
+            debugPrint('Error processing banner data: $e');
             debugPrint(stackTrace.toString());
             return false;
           }
@@ -307,7 +254,7 @@ class _DisplayPageState extends State<DisplayPage> {
                           DataCell(Text('${index + 1}')),
                           DataCell(Text('${item['name']}')),
                           DataCell(Text('${item['quantity']}')),
-                          DataCell(Text('${item['promos'] ?? '-'}')),
+                          DataCell(Text('${item['discount'] ?? '-'}')),
                           DataCell(Text(Helpers.parseMoney(item['total']))),
                         ],
                       );
@@ -319,229 +266,409 @@ class _DisplayPageState extends State<DisplayPage> {
     );
   }
 
-  Future<void> _initializeVideos() async {
-    final videos = largeBanners.where((media) => media.type == 2);
-    for (var video in videos) {
-      final url = video.path;
-      _downloadAndInitVideo(url);
-    }
-    final videos2 = smallBanners.where((media) => media.type == 2);
-    for (var video in videos2) {
-      final url = video.path;
-      _downloadAndInitVideo(url);
+  Future<void> _downloadAllBanners() async {
+    try {
+      // Initialize Dio for downloads with detailed logging
+      final dio = Dio(BaseOptions(
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        sendTimeout: const Duration(seconds: 30),
+      ));
+
+      // Add interceptor for detailed logging
+      dio.interceptors.add(InterceptorsWrapper(
+        onRequest: (options, handler) {
+          return handler.next(options);
+        },
+        onError: (DioException e, handler) {
+          debugPrint('❌ Download Error: ${e.message}');
+          debugPrint('❌ Error Details: ${e.toString()}');
+          return handler.next(e);
+        },
+      ));
+
+      // Get the application documents directory
+      final Directory appDocDir = await getApplicationDocumentsDirectory();
+      final largeBannnerStorage =
+          Directory('${appDocDir.path}/POS/largeBanner/');
+      final smallBannnerStorage =
+          Directory('${appDocDir.path}/POS/smallBanner/');
+
+      // Create banners directory if it doesn't exist
+      if (!await largeBannnerStorage.exists()) {
+        await largeBannnerStorage.create(recursive: true);
+
+      } else {
+        final List<FileSystemEntity> files =
+            await largeBannnerStorage.list().toList();
+        for (var file in files) {
+          if (file is File) {
+            await file.delete();
+          }
+        }
+      }
+
+      if (!await smallBannnerStorage.exists()) {
+        await smallBannnerStorage.create(recursive: true);
+      } else {
+        final List<FileSystemEntity> files =
+            await smallBannnerStorage.list().toList();
+        for (var file in files) {
+          if (file is File) {
+            await file.delete();
+          }
+        }
+      }
+
+      // Download and categorize banners
+      final List<DualScreenModel> downloadedLargeBanners = [];
+      final List<DualScreenModel> downloadedSmallBanners = [];
+
+      // Download large banners
+      for (var banner in largeBannersUrl) {
+        if (banner.path.isNotEmpty) {
+          try {
+            // Generate a more readable filename using banner ID or order'
+            String filename;
+            if (_isVideoFile(banner.path)) {
+              filename =
+                  'large_banner_${DateTime.now().millisecondsSinceEpoch}_${banner.id ?? banner.order}.mp4';
+            } else {
+              filename =
+                  'large_banner_${DateTime.now().millisecondsSinceEpoch}_${banner.id ?? banner.order}.jpg';
+            }
+
+            final File localFile =
+                File('${largeBannnerStorage.path}/$filename');
+
+            // Clean up old file if it exists
+            if (await localFile.exists()) {
+              await localFile.delete();
+            }
+
+            // Download with Dio
+            await dio.download(
+              banner.path,
+              localFile.path,
+              options: Options(
+                receiveTimeout: const Duration(seconds: 30),
+                sendTimeout: const Duration(seconds: 30),
+              ),
+              onReceiveProgress: (received, total) {
+                if (total != -1) {
+                  final progress = (received / total * 100).toStringAsFixed(2);
+                }
+              },
+            );
+
+            // Verify file was downloaded successfully
+            if (await localFile.exists() && await localFile.length() > 0) {
+              // Create a new banner model with local file path
+              final downloadedBanner = DualScreenModel(
+                id: banner.id,
+                description: banner.description,
+                type: banner.type,
+                order: banner.order,
+                path: localFile.path,
+                duration: banner.duration,
+                createdAt: banner.createdAt,
+                updatedAt: DateTime.now(),
+              );
+
+              downloadedLargeBanners.add(downloadedBanner);
+            } else {
+              debugPrint('❌ Failed to download large banner: ${banner.path}');
+            }
+          } catch (e) {
+            debugPrint('❌ Error downloading large banner ${banner.path}: $e');
+          }
+        }
+      }
+
+      // Download small banners
+      for (var banner in smallBannersUrl) {
+        if (banner.path.isNotEmpty) {
+          try {
+
+            // Generate a unique filename
+            String filename;
+            if (_isVideoFile(banner.path)) {
+              filename =
+                  'small_banner_${DateTime.now().millisecondsSinceEpoch}_${banner.id ?? banner.order}.mp4';
+            } else {
+              filename =
+                  'small_banner_${DateTime.now().millisecondsSinceEpoch}_${banner.id ?? banner.order}.jpg';
+            }
+
+            final File localFile =
+                File('${smallBannnerStorage.path}/$filename');
+
+            // Download with Dio
+            await dio.download(
+              banner.path,
+              localFile.path,
+              options: Options(
+                receiveTimeout: const Duration(seconds: 30),
+                sendTimeout: const Duration(seconds: 30),
+              ),
+              onReceiveProgress: (received, total) {
+                if (total != -1) {
+                  final progress = (received / total * 100).toStringAsFixed(2);
+                }
+              },
+            );
+
+            // Verify file was downloaded successfully
+            if (await localFile.exists() && await localFile.length() > 0) {
+              // Create a new banner model with local file path
+              final downloadedBanner = DualScreenModel(
+                id: banner.id,
+                description: banner.description,
+                type: banner.type,
+                order: banner.order,
+                path: localFile.path,
+                duration: banner.duration,
+                createdAt: banner.createdAt,
+                updatedAt: DateTime.now(),
+              );
+
+              downloadedSmallBanners.add(downloadedBanner);
+            } else {
+              debugPrint('❌ Failed to download small banner: ${banner.path}');
+            }
+          } catch (e) {
+            debugPrint('❌ Error downloading small banner ${banner.path}: $e');
+          }
+        }
+      }
+
+      // Update state with downloaded banners
+      setState(() {
+        downloadedLargeBanners
+          ..addAll(largeBannersLocal)
+          ..sort((a, b) => a.order.compareTo(b.order));
+        downloadedSmallBanners
+          ..addAll(smallBannersLocal)
+          ..sort((a, b) => a.order.compareTo(b.order));
+        this.largeBanners = downloadedLargeBanners;
+        this.smallBanners = downloadedSmallBanners;
+      });
+      _startTimers();
+    } catch (e) {
+      debugPrint('❌ Critical Error in _downloadAllBanners: $e');
     }
   }
 
-  Future<void> _downloadAndInitVideo(String url) async {
-    try {
-      setState(() {
-        videoDownloading[url] = true;
-      });
+  // Helper method to extract file extension
+  String _getFileExtension(String url) {
+    final uri = Uri.parse(url);
+    final path = uri.path;
+    return path.split('.').last;
+  }
 
-      // Create videos directory in assets
-      final appDir = await getApplicationDocumentsDirectory();
-      final videoDir = Directory(path.join(appDir.path, 'assets', 'videos'));
-      await videoDir.create(recursive: true);
+  // Helper method to check if a file is an image
+  bool _isImageFile(String path) {
+    final imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+    return imageExtensions.any((ext) => path.toLowerCase().endsWith(ext));
+  }
 
-      final fileName = path.basename(url);
-      final localPath = path.join(videoDir.path, fileName);
-      final file = File(localPath);
+  // Helper method to check if a file is a video
+  bool _isVideoFile(String path) {
+    final videoExtensions = ['.mp4', '.avi', '.mov', '.mkv', '.wmv'];
+    return videoExtensions.any((ext) => path.toLowerCase().endsWith(ext));
+  }
 
-      if (!await file.exists()) {
-        print('Downloading video from: $url');
-        print('Saving to: $localPath');
-        await dio.download(url, localPath);
-      }
+  // Helper method to safely get string value
+  String _getSafeStringValue(Map<String, dynamic> data, String key) {
+    return data[key] != null ? data[key].toString() : '-';
+  }
 
-      if (videoControllers[url]?.value.isInitialized ?? false) {
-        await videoControllers[url]?.dispose();
-        videoControllers[url] = null;
-      }
+  // Validate if file exists and is downloadable
+  bool _isValidMediaFile(String path) {
+    if (path.isEmpty) return false;
 
-      print('Initializing video controller for: $localPath');
-      final controller = VideoPlayerController.file(file);
-
-      try {
-        await controller.initialize();
-        print('Video initialized successfully');
-        print('Video duration: ${controller.value.duration}');
-        print('Video size: ${controller.value.size}');
-
-        controller.addListener(() {
-          if (controller.value.position >= controller.value.duration) {
-            setState(() {
-              _isVideoPlaying = false;
-              if (largeBanners.any((m) => m.path == url)) {
-                _moveToNextItem();
-              } else {
-                _moveToNextItem2();
-              }
-            });
-          }
-        });
-
-        setState(() {
-          videoControllers[url] = controller;
-          videoDownloading[url] = false;
-          localVideoPaths[url] = localPath;
-        });
-      } catch (initError) {
-        print('Error initializing video controller: $initError');
-        await controller.dispose();
-        setState(() {
-          videoDownloading[url] = false;
-          videoControllers.remove(url);
-        });
-      }
-    } catch (e) {
-      print('Error downloading/initializing video: $e');
-      setState(() {
-        videoDownloading[url] = false;
-        videoControllers.remove(url);
-      });
-    }
+    final file = File(path);
+    bool exists = file.existsSync();
+    bool isReadable = exists && file.statSync().size > 0;
+    return isReadable;
   }
 
   void _startTimers() {
-    _timer1 = Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (!mounted || _isVideoPlaying) return;
-      _moveToNextItem();
-    });
-    _timer2 = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (!mounted || _isVideoPlaying) return;
-      _moveToNextItem2();
-    });
+    // Cancel existing timers if they exist
+    _timer1?.cancel();
+    _timer2?.cancel();
+    if (largeBanners.isNotEmpty) {
+      // Only start timer if current banner is not a video
+      if (!_isVideoFile(largeBanners[_currentIndex].path)) {
+        _timer1 = Timer.periodic(
+            Duration(seconds: largeBanners[_currentIndex].duration), (timer) {
+          if (!mounted) return;
+          _moveToNextItem();
+        });
+      }
+    }
+
+    if (smallBanners.isNotEmpty) {
+      // Only start timer if current banner is not a video
+      if (!_isVideoFile(smallBanners[_currentIndex2].path)) {
+        _timer2 = Timer.periodic(
+            Duration(seconds: smallBanners[_currentIndex2].duration), (timer) {
+          if (!mounted) return;
+          _moveToNextItem2();
+        });
+      }
+    }
   }
 
   void _moveToNextItem() {
     if (!mounted || largeBanners.isEmpty) return;
     setState(() {
-      // Sort largeBanners by order
-      largeBanners.sort((a, b) => a.order.compareTo(b.order));
-      final currentIndex =
-          largeBanners.indexWhere((banner) => banner.order == _currentIndex);
-      final nextIndex = (currentIndex + 1) % largeBanners.length;
-      _currentIndex = largeBanners[nextIndex].order;
-
-      final currentMedia = largeBanners[nextIndex];
-      if (currentMedia.type == 2) {
-        final controller = videoControllers[currentMedia.path];
-        if (controller != null) {
-          controller.play();
-          _isVideoPlaying = true;
-        }
-      }
+      _currentIndex = (_currentIndex + 1) % largeBanners.length;
     });
   }
 
   void _moveToNextItem2() {
     if (!mounted || smallBanners.isEmpty) return;
     setState(() {
-      // Sort smallBanners by order
-      smallBanners.sort((a, b) => a.order.compareTo(b.order));
-      final currentIndex =
-          smallBanners.indexWhere((banner) => banner.order == _currentIndex2);
-      final nextIndex = (currentIndex + 1) % smallBanners.length;
-      _currentIndex2 = smallBanners[nextIndex].order;
-
-      final currentMedia = smallBanners[nextIndex];
-      if (currentMedia.type == 2) {
-        final controller = videoControllers[currentMedia.path];
-        if (controller != null) {
-          controller.play();
-          _isVideoPlaying = true;
-        }
-      }
+      _currentIndex2 = (_currentIndex2 + 1) % smallBanners.length;
     });
   }
 
-  Widget _buildMediaWidget(DualScreenModel banner) {
-    if (banner.type == 1) {
-      // Large banners
-      return CachedNetworkImage(
-        imageUrl: banner.path,
-        placeholder: (context, url) => CircularProgressIndicator(),
-        errorWidget: (context, url, error) => Icon(Icons.error),
-      );
-    } else if (banner.type == 2) {
-      // Video banners
-      _downloadAndPlayVideo(banner);
-      final controller = videoControllers[banner.path];
-      return controller != null && controller.value.isInitialized
-          ? AspectRatio(
-              aspectRatio: controller.value.aspectRatio,
-              child: VideoPlayer(controller),
-            )
-          : CircularProgressIndicator();
-    } else {
-      return Container();
-    }
-  }
-
-  Widget _buildBanner(DualScreenModel banner) {
-    print('Debug - Building banner of type: ${banner.type}');
-    if (banner.type == 1) {
-      // Large banners
-      return CachedNetworkImage(
-        imageUrl: banner.path,
-        placeholder: (context, url) => CircularProgressIndicator(),
-        errorWidget: (context, url, error) => Icon(Icons.error),
-      );
-    } else if (banner.type == 2) {
-      // Small banners
-      return CachedNetworkImage(
-        imageUrl: banner.path,
-        placeholder: (context, url) => CircularProgressIndicator(),
-        errorWidget: (context, url, error) => Icon(Icons.error),
-      );
-    } else {
-      return Container();
-    }
-  }
-
-  Future<void> _downloadAndPlayVideo(DualScreenModel banner) async {
+  Future<void> _initializeVideoController(String path, bool isLarge) async {
     try {
-      if (videoDownloading[banner.path] == true) return;
-      videoDownloading[banner.path] = true;
-
-      final dir = await getApplicationDocumentsDirectory();
-      final filePath = path.join(dir.path, path.basename(banner.path));
-
-      if (!File(filePath).existsSync()) {
-        await dio.download(banner.path, filePath);
+      final pathNormalized = path.replaceAll('\\', '\\\\');
+      final controller = VideoPlayerController.file(File(pathNormalized));
+      if (isLarge) {
+        if (_videoControllerLarge != null) {
+          await _videoControllerLarge!.dispose();
+        }
+        _videoControllerLarge = controller;
+      } else {
+        if (_videoControllerSmall != null) {
+          await _videoControllerSmall!.dispose();
+        }
+        _videoControllerSmall = controller;
       }
 
-      final controller = VideoPlayerController.file(File(filePath));
       await controller.initialize();
+      controller.play();
+
+      // Add video completion listener
+      controller.addListener(() {
+        if (controller.value.position >= controller.value.duration) {
+          if (isLarge) {
+            _timer1?.cancel(); // Cancel the timer for large banner
+            _moveToNextItem();
+          } else {
+            _timer2?.cancel(); // Cancel the timer for small banner
+            _moveToNextItem2();
+          }
+        }
+      });
 
       setState(() {
-        videoControllers[banner.path] = controller;
-        localVideoPaths[banner.path] = filePath;
+        if (isLarge) {
+          _isLargeVideoInitialized = true;
+        } else {
+          _isSmallVideoInitialized = true;
+        }
       });
     } catch (e) {
-      SnackBarHelper.presentErrorSnackBar(
-          context, 'Error downloading video: ${e.toString()}');
-    } finally {
-      videoDownloading[banner.path] = false;
+      log("Error initializing video controller: $e");
+      if (isLarge) {
+        _isLargeVideoInitialized = false;
+        _timer1?.cancel();
+        // Move to next large banner
+        setState(() {
+          _currentIndex = (_currentIndex + 1) % largeBanners.length;
+        });
+      } else {
+        _isSmallVideoInitialized = false;
+        _timer2?.cancel();
+        // Move to next small banner
+        setState(() {
+          _currentIndex2 = (_currentIndex2 + 1) % smallBanners.length;
+        });
+      }
+    }
+  }
+
+  Future<Widget> _buildLargeBannerMedia(DualScreenModel banner) async {
+    if (_isVideoFile(banner.path)) {
+      await _initializeVideoController(banner.path, true);
+
+      if (_isLargeVideoInitialized && _videoControllerLarge != null) {
+        return AspectRatio(
+          aspectRatio: _videoControllerLarge!.value.aspectRatio,
+          child: VideoPlayer(_videoControllerLarge!),
+        );
+      } else {
+        // Move to next banner if video failed to initialize
+        _moveToNextItem();
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      }
+    } else {
+      return Image.file(
+        File(banner.path),
+        fit: BoxFit.fill,
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+      );
+    }
+  }
+
+  Widget _buildSmallBannerMedia(DualScreenModel banner) {
+    if (_isVideoFile(banner.path)) {
+      // Initialize video if not already done
+      if (!_isSmallVideoInitialized) {
+        _initializeVideoController(banner.path, false);
+      }
+
+      if (_isSmallVideoInitialized && _videoControllerSmall != null) {
+        return AspectRatio(
+          aspectRatio: _videoControllerSmall!.value.aspectRatio,
+          child: VideoPlayer(_videoControllerSmall!),
+        );
+      } else {
+        // Move to next banner if video failed to initialize
+        _moveToNextItem2();
+        return const Center(child: CircularProgressIndicator());
+      }
+    } else {
+      return Image.file(
+        File(banner.path),
+        fit: BoxFit.fill,
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+      );
     }
   }
 
   @override
   void dispose() {
-    // Dispose video controllers
-    for (var controller in videoControllers.values) {
-      controller?.dispose();
+    _timer1?.cancel();
+    _timer2?.cancel();
+
+    if (_videoControllerLarge != null) {
+      _videoControllerLarge!.dispose();
+      _videoControllerLarge = null;
+      _isLargeVideoInitialized = false;
     }
 
-    // Clear cached files
+    if (_videoControllerSmall != null) {
+      _videoControllerSmall!.dispose();
+      _videoControllerSmall = null;
+      _isSmallVideoInitialized = false;
+    }
+
     localVideoPaths.forEach((path, filePath) {
       final file = File(filePath);
       if (file.existsSync()) {
         file.deleteSync();
       }
     });
-
-    // Clear other caches if necessary
 
     super.dispose();
   }
@@ -555,248 +682,309 @@ class _DisplayPageState extends State<DisplayPage> {
           body: Stack(children: [
             Row(
               children: [
-                if (tabSales) ...[
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20, bottom: 40, right: 12),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Image.asset(
-                                "assets/logo/ruby_pos_sesa_icon.png",
-                                fit: BoxFit.contain,
-                                height: 110,
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    width: 1,
-                                    color: Colors.grey,
-                                  ),
-                                  borderRadius: BorderRadius.circular(4),
+                Expanded(
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(left: 20, bottom: 40, right: 12),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Image.asset(
+                              "assets/logo/ruby_pos_sesa_icon.png",
+                              fit: BoxFit.contain,
+                              height: 110,
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 1,
+                                  color: Colors.grey,
                                 ),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: ProjectColors.primary,
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(4),
-                                          topRight: Radius.circular(4),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'Cash Register',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 8,
-                                        ),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(
+                                      color: ProjectColors.primary,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(4),
+                                        topRight: Radius.circular(4),
                                       ),
                                     ),
-                                    Text(
-                                      _activeShift?.tocsrId ??
-                                          cashRegisterId ??
-                                          'Unknown Register',
-                                      style: const TextStyle(
-                                        fontSize: 32,
-                                        fontWeight: FontWeight.bold,
+                                    child: const Text(
+                                      'Cash Register',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 8,
                                       ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    DateFormat('EEEE, dd MMM yyyy')
-                                        .format(DateTime.now()),
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                  const Text(
-                                    'SESA Store SCDB',
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
+                                    ),
                                   ),
                                   Text(
-                                    username ?? '',
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                  ),
+                                    dataMap['cashRegisterId'] ??
+                                        'Unknown Register',
+                                    style: const TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
                                 ],
                               ),
-                            ],
-                          ),
-                          _buildSalesDisplay(),
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 8.0, right: 8.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        border: Border.all(
-                                          width: 1,
-                                          color: Colors.grey,
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  DateFormat('EEEE, dd MMM yyyy')
+                                      .format(DateTime.now()),
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                                Text(
+                                  dataMap['storeName'] ?? '',
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  dataMap['cashierName'] ?? '',
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        _buildSalesDisplay(),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 8.0, right: 8.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                        width: 1,
+                                        color: Colors.grey,
+                                      ),
+                                      borderRadius: BorderRadius.circular(8)),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        decoration: const BoxDecoration(
+                                            color: ProjectColors.primary,
+                                            borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(8),
+                                                topRight: Radius.circular(8))),
+                                        child: Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              const Text('Customer',
+                                                  style: TextStyle(
+                                                      color: Colors.white)),
+                                              Text(
+                                                  _getSafeStringValue(
+                                                      currentSalesData,
+                                                      'customerName'),
+                                                  style: const TextStyle(
+                                                      color: Colors.white)),
+                                            ],
+                                          ),
                                         ),
-                                        borderRadius: BorderRadius.circular(8)),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          decoration: const BoxDecoration(
-                                              color: ProjectColors.primary,
-                                              borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(8),
-                                                  topRight:
-                                                      Radius.circular(8))),
-                                          child: const Padding(
-                                            padding: EdgeInsets.all(8.0),
-                                            child: Row(
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment
                                                       .spaceBetween,
                                               children: [
-                                                Text('Customer',
-                                                    style: TextStyle(
-                                                        color: Colors.white)),
-                                                Text('NON MEMBER',
-                                                    style: TextStyle(
-                                                        color: Colors.white)),
+                                                const Text('Total Discount'),
+                                                Text(
+                                                    'Rp ${_getSafeStringValue(currentSalesData, 'totalDiscount')}'),
                                               ],
                                             ),
-                                          ),
-                                        ),
-                                        const Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text('Total Discount'),
-                                              Text('Grand Total'),
-                                            ],
-                                          ),
-                                        ),
-                                        const Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text('Total Payment'),
-                                              Text('Changed'),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // Grand Total Section
-                              Expanded(
-                                flex: 2,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 8.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: Colors.green,
-                                    ),
-                                    padding: const EdgeInsets.all(40.0),
-                                    child: LayoutBuilder(
-                                      builder: (context, constraints) {
-                                        final fontSize =
-                                            constraints.maxWidth > 800
-                                                ? 32.0
-                                                : 24.0;
-                                        return Column(
-                                          children: [
-                                            Text(
-                                              'Grand Total',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: fontSize),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              'IDR 2,439,000',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: fontSize),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                const Text('Grand Total'),
+                                                Text(
+                                                    'Rp ${_getSafeStringValue(currentSalesData, 'grandTotal')}'),
+                                              ],
                                             ),
                                           ],
-                                        );
-                                      },
-                                    ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text('Total Payment'),
+                                                Text(
+                                                    'Rp ${_getSafeStringValue(currentSalesData, 'totalPayment')}'),
+                                              ],
+                                            ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text('Changed'),
+                                                Text(
+                                                    'Rp ${_getSafeStringValue(currentSalesData, 'changed')}'),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
+                            ),
+                            // Grand Total Section
+                            Expanded(
+                              flex: 2,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    color: currentSalesData['items'] != null &&
+                                            currentSalesData['items'].length > 0
+                                        ? Colors.green
+                                            .shade700 // Darker green when items added
+                                        : Colors.green,
+                                  ),
+                                  padding: const EdgeInsets.all(40.0),
+                                  child: LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      final fontSize =
+                                          constraints.maxWidth > 800
+                                              ? 32.0
+                                              : 24.0;
+                                      return Column(
+                                        children: [
+                                          Text(
+                                            'Grand Total',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: fontSize),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'IDR ${_getSafeStringValue(currentSalesData, 'grandTotal')}',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: fontSize),
+                                          ),
+                                          if (currentSalesData['items'] !=
+                                                  null &&
+                                              currentSalesData['items'].length >
+                                                  0)
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 8.0),
+                                              child: Text(
+                                                'Items: ${currentSalesData['items'].length}',
+                                                style: TextStyle(
+                                                  color: Colors.white70,
+                                                  fontSize: fontSize * 0.5,
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
                 // Right side: Images with fixed width
                 Container(
                   width: 1264, // Fixed width for the right side
                   child: Column(
                     children: [
-                      if (isVideoTop) ...[
-                        Expanded(
-                          flex: 7,
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 10),
-                            child: largeBanners.isNotEmpty &&
-                                    _currentIndex < largeBanners.length
-                                ? _buildMediaWidget(largeBanners.firstWhere(
-                                    (banner) => banner.order == _currentIndex))
-                                : Container(), // Fallback for empty or out-of-range index
+                      Expanded(
+                        flex: 7,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 1000),
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            );
+                          },
+                          child: FutureBuilder<Widget>(
+                            future: largeBanners.isNotEmpty
+                                ? _buildLargeBannerMedia(
+                                    largeBanners[_currentIndex],
+                                  )
+                                : Future.value(const Center(
+                                    child: CircularProgressIndicator(),
+                                  )),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return snapshot.data!;
+                              }
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
                           ),
                         ),
-                      ],
+                      ),
                       const SizedBox(height: 8),
-                      if (isVideoBot) ...[
-                        Expanded(
-                          flex: 3,
-                          child: CarouselSlider(
-                            options: CarouselOptions(autoPlay: true),
-                            items: smallBanners.map((banner) {
-                              if (banner.type == 1) {
-                                return _buildBanner(banner);
-                              } else if (banner.type == 2) {
-                                _downloadAndPlayVideo(banner);
-                                final controller =
-                                    videoControllers[banner.path];
-                                return controller != null &&
-                                        controller.value.isInitialized
-                                    ? AspectRatio(
-                                        aspectRatio:
-                                            controller.value.aspectRatio,
-                                        child: VideoPlayer(controller),
-                                      )
-                                    : CircularProgressIndicator();
-                              } else {
-                                return Container();
-                              }
-                            }).toList(),
+                      Expanded(
+                        flex: 3,
+                        child: CarouselSlider(
+                          options: CarouselOptions(
+                            height: double.infinity,
+                            viewportFraction: 1.0,
+                            autoPlay: true,
+                            autoPlayInterval: const Duration(seconds: 3),
+                            autoPlayAnimationDuration:
+                                const Duration(milliseconds: 800),
+                            autoPlayCurve: Curves.fastOutSlowIn,
+                            pauseAutoPlayOnTouch: true,
                           ),
-                        )
-                      ]
+                          items: smallBanners
+                              .map((banner) => _buildSmallBannerMedia(banner))
+                              .toList(),
+                        ),
+                      )
                     ],
                   ),
                 )

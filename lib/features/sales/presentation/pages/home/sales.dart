@@ -19,6 +19,7 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
+import 'package:pos_fe/features/dual_screen/services/send_data_window_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
@@ -44,8 +45,6 @@ import 'package:pos_fe/features/sales/presentation/widgets/return_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_customer_dialog.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pos_fe/features/dual_screen/providers/window_manager_provider.dart';
-import 'package:pos_fe/features/dual_screen/services/window_manager_service.dart';
 
 class SalesPage extends StatefulWidget {
   const SalesPage({
@@ -310,10 +309,6 @@ class _SalesPageState extends State<SalesPage> {
   // Check Customer
   bool isMember = false;
 
-  bool secondDisplay = true;
-  WindowController? secondWindowController;
-  int? windowId;
-
   // =================================================
   //             [END] Variables
   // =================================================
@@ -359,8 +354,6 @@ class _SalesPageState extends State<SalesPage> {
     _newReceiptItemQuantityFocusNode.dispose();
     _textEditingControllerNewReceiptItemCode.dispose();
     _textEditingControllerNewReceiptItemQuantity.dispose();
-    WindowManagerProvider.service
-        .removeWindow(WindowManagerService.SALES_WINDOW);
     super.dispose();
   }
 
@@ -665,8 +658,9 @@ class _SalesPageState extends State<SalesPage> {
                                               height: 10,
                                             ),
                                             Expanded(
-                                                flex: 3,
-                                                child: _buttonGroup1V3()),
+                                              flex: 3,
+                                              child: _buttonGroup1V3(),
+                                            ),
                                             const SizedBox(
                                               height: 10,
                                             ),
@@ -714,55 +708,16 @@ class _SalesPageState extends State<SalesPage> {
     );
   }
 
-  void _sendToDisplay() async {
-    try {
-      final windows = await DesktopMultiWindow.getAllSubWindowIds();
-      if (windows.isEmpty) {
-        debugPrint('No display window found');
-        return;
-      }
-      final windowId = windows[0];
-
-      final state = context.read<ReceiptCubit>().state;
-      final Map<String, dynamic> data = {
-        'docNum': state.docNum,
-        'customerName': state.customerEntity?.custName ?? 'NON MEMBER',
-        'items': state.receiptItems
-            .map((item) => {
-                  'name': item.itemEntity.itemName,
-                  'quantity': item.quantity,
-                  'discount': item.promos
-                      .fold(0.0, (sum, promo) => sum + (promo.discAmount ?? 0)),
-                  'total': item.totalAmount,
-                })
-            .toList(),
-        'totalDiscount': state.discAmount,
-        'grandTotal': state.grandTotal,
-        'totalPayment': state.totalPayment,
-        'changed': state.changed,
-      };
-
-      final jsonData = jsonEncode(data);
-      debugPrint("Sending data to display: $jsonData");
-
-      final result = await DesktopMultiWindow.invokeMethod(
-          windowId, 'updateSalesData', jsonData);
-      debugPrint("Send result: $result");
-    } catch (e, stackTrace) {
-      print('Error send data to client display from sales: $e');
-    }
-  }
-
   // =================================================
   //             [START] Widgets
   // =================================================
 
   Widget _receiptItemsList() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _sendToDisplay();
+    });
     return BlocBuilder<ReceiptCubit, ReceiptEntity>(
       builder: (context, state) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _sendToDisplay();
-        });
         return Expanded(
           flex: 16,
           child: Container(
@@ -1852,7 +1807,6 @@ class _SalesPageState extends State<SalesPage> {
                     child: SizedBox.expand(
                       child: OutlinedButton(
                           onPressed: null,
-
                           // onPressed: () async {
                           //   setState(() {
                           //     isEditingNewReceiptItemCode = false;
@@ -3905,7 +3859,6 @@ class _SalesPageState extends State<SalesPage> {
                                       .text),
                               3);
 
-                      // _newReceiptItemQuantityFocusNode.unfocus();
                       _newReceiptItemCodeFocusNode.requestFocus();
                     }
                   }),
@@ -4004,8 +3957,8 @@ class _SalesPageState extends State<SalesPage> {
                 final double? qtyToDouble = double.tryParse(
                     _textEditingControllerNewReceiptItemQuantity.text);
                 _textEditingControllerNewReceiptItemQuantity
-                    .text = qtyToDouble ==
-                        null
+                    .text = qtyToDouble == null ||
+                        qtyToDouble == 0
                     ? "1"
                     : Helpers.cleanDecimal(
                         double.parse(
@@ -4288,8 +4241,8 @@ class _SalesPageState extends State<SalesPage> {
                                     _textEditingControllerNewReceiptItemQuantity
                                         .text);
                                 _textEditingControllerNewReceiptItemQuantity
-                                    .text = qtyToDouble ==
-                                        null
+                                    .text = qtyToDouble == null ||
+                                        qtyToDouble == 0
                                     ? "1"
                                     : Helpers.cleanDecimal(
                                         double.parse(
@@ -4300,7 +4253,6 @@ class _SalesPageState extends State<SalesPage> {
                                 _newReceiptItemQuantityFocusNode.unfocus();
                                 isEditingNewReceiptItemQty = false;
                                 isEditingNewReceiptItemCode = true;
-
                                 Future.delayed(
                                     const Duration(milliseconds: 20),
                                     () => _newReceiptItemCodeFocusNode
@@ -4444,13 +4396,12 @@ class _SalesPageState extends State<SalesPage> {
             final double? qtyToDouble = double.tryParse(
                 _textEditingControllerNewReceiptItemQuantity.text);
             _textEditingControllerNewReceiptItemQuantity.text =
-                qtyToDouble == null
+                qtyToDouble == null || qtyToDouble == 0
                     ? "1"
                     : Helpers.cleanDecimal(
                         double.parse(
                             _textEditingControllerNewReceiptItemQuantity.text),
                         3);
-
             // _newReceiptItemQuantityFocusNode.unfocus();
             isEditingNewReceiptItemQty = false;
             isEditingNewReceiptItemCode = true;
@@ -4468,13 +4419,6 @@ class _SalesPageState extends State<SalesPage> {
         context.read<ReceiptCubit>().queueReceipt();
         SnackBarHelper.presentSuccessSnackBar(
             context, "Pending order added", 3);
-
-        setState(() {
-          isEditingNewReceiptItemQty = false;
-          isUpdatingReceiptItemQty = false;
-          isEditingNewReceiptItemCode = true;
-          _newReceiptItemCodeFocusNode.requestFocus();
-        });
       } else if (event.physicalKey == (PhysicalKeyboardKey.f9)) {
         setState(() {
           isEditingNewReceiptItemCode = false;
@@ -4538,7 +4482,7 @@ class _SalesPageState extends State<SalesPage> {
           final double? qtyToDouble = double.tryParse(
               _textEditingControllerNewReceiptItemQuantity.text);
           _textEditingControllerNewReceiptItemQuantity.text =
-              qtyToDouble == null
+              qtyToDouble == null || qtyToDouble == 0
                   ? "1"
                   : Helpers.cleanDecimal(
                       double.parse(
@@ -4646,7 +4590,9 @@ class _SalesPageState extends State<SalesPage> {
         isEditingNewReceiptItemCode = true;
         final double? qtyToDouble =
             double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
-        _textEditingControllerNewReceiptItemQuantity.text = qtyToDouble == null
+        _textEditingControllerNewReceiptItemQuantity.text = qtyToDouble ==
+                    null ||
+                qtyToDouble == 0
             ? "1"
             : Helpers.cleanDecimal(
                 double.parse(_textEditingControllerNewReceiptItemQuantity.text),
@@ -4654,53 +4600,6 @@ class _SalesPageState extends State<SalesPage> {
 
         _newReceiptItemCodeFocusNode.requestFocus();
       });
-    }
-  }
-
-  Future<AddUpdateReceiptItemsParams?> checkScallableItem(String barcode) async {
-    final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
-    if (topos == null) throw "Failed to retrieve POS Parameter";
-    final store = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos.tostrId ?? "", null);
-    if (store == null) throw "Failed to retrieve Store Parameter";
-
-    final storeScaleActive = store.scaleActive;
-    final storeScaleFlag = store.scaleFlag ?? "";
-    final storeScaleFlagLength = storeScaleFlag.length;
-    final storeItemCodeLength = store.scaleItemCodeLength ?? 0;
-    final storeQuantityLength = store.scaleQuantityLength ?? 0;
-    final storeQtyDivider = store.scaleQtyDivider ?? 1000;
-    if (storeScaleActive == 1) {
-      final itemScaleFlag = barcode.substring(0, storeScaleFlagLength);
-
-      if (itemScaleFlag == storeScaleFlag) {
-        final itemCode = barcode.substring(storeScaleFlagLength, storeScaleFlagLength + storeItemCodeLength);
-
-        final itemQty = double.parse(barcode.substring(storeScaleFlagLength + storeItemCodeLength,
-                storeScaleFlagLength + storeItemCodeLength + storeQuantityLength)) /
-            storeQtyDivider;
-
-        final item = await GetIt.instance<AppDatabase>().itemsDao.readItemByBarcode(itemCode);
-        if (item == null) throw "Failed to retrieve Item Parameter";
-
-        if (item.scaleActive == 1) {
-          final updatedParams = AddUpdateReceiptItemsParams(
-              barcode: itemCode,
-              itemEntity: null,
-              quantity: itemQty,
-              context: context,
-              onOpenPriceInputted: () => setState(() {
-                    isEditingNewReceiptItemCode = true;
-                    _newReceiptItemCodeFocusNode.requestFocus();
-                  }));
-          return updatedParams;
-        } else {
-          return null;
-        }
-      } else {
-        return null;
-      }
-    } else {
-      return null;
     }
   }
 
@@ -4717,17 +4616,7 @@ class _SalesPageState extends State<SalesPage> {
       }
 
       if (mounted) {
-        if (params.barcode != null && isUpdatingReceiptItemQty == false) {
-          final updatedParams = await checkScallableItem(params.barcode ?? "");
-
-          if (updatedParams != null) {
-            await context.read<ReceiptCubit>().addUpdateReceiptItems(updatedParams);
-          } else {
-            await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
-          }
-        } else {
-          await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
-        }
+        await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
       }
 
       indexIsSelect = [-1, 0];
@@ -4914,11 +4803,69 @@ class _SalesPageState extends State<SalesPage> {
           .read<ReceiptCubit>()
           .removeReceiptItem(receiptItemTarget, context);
     } catch (e) {
-      if (e is RangeError) {
-        SnackBarHelper.presentErrorSnackBar(context, "Please select Item to Remove");
-      } else {
-        SnackBarHelper.presentErrorSnackBar(context, e.toString());
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
+  }
+
+  void _sendToDisplay() async {
+    try {
+      final windows = await DesktopMultiWindow.getAllSubWindowIds();
+      if (windows.isEmpty) {
+        debugPrint('No display window found');
+        return;
       }
+      final windowId = windows[0];
+      final state = context.read<ReceiptCubit>().state;
+      final List<Map<String, dynamic>> items = state.receiptItems.map((item) {
+        final totalDiscount = item.promos.fold(
+            0.0,
+            (sum, promo) =>
+                sum +
+                ((item.itemEntity.includeTax == 1)
+                    ? (-1 * promo.discAmount!) *
+                        ((100 + item.itemEntity.taxRate) / 100)
+                    : (-1 * promo.discAmount!)));
+        return {
+          'name': item.itemEntity.itemName,
+          'quantity': item.quantity.toInt(),
+          'discount': Helpers.parseMoney(totalDiscount.round()),
+          'total': item.totalAmount,
+        };
+      }).toList();
+
+      final double calculatedTotalDiscount = items.fold(
+          0.0,
+          (sum, item) =>
+              sum +
+              double.parse(item['discount']
+                  .toString()
+                  .replaceAll(RegExp(r'[^0-9.]'), '')));
+
+      final double calculatedGrandTotal =
+          items.fold(0.0, (sum, item) => sum + item['total']);
+
+      final Map<String, dynamic> data = {
+        'docNum': state.docNum,
+        'customerName': state.customerEntity?.custName ?? 'NON MEMBER',
+        'items': items,
+        'totalDiscount': Helpers.parseMoney(calculatedTotalDiscount.round()),
+        'grandTotal': Helpers.parseMoney(calculatedGrandTotal.round()),
+        'totalPayment': state.totalPayment == null
+            ? 0
+            : Helpers.parseMoney(state.totalPayment!.round()),
+        'changed': state.changed == null
+            ? 0
+            : Helpers.parseMoney(state.changed!.round()),
+      };
+
+      final jsonData = jsonEncode(data);
+      debugPrint("Sending data to display: $jsonData");
+      final sendingData =
+          await sendData(windowId, jsonData, 'updateSalesData', 'Sales');
+
+      debugPrint("Send result: $sendingData");
+    } catch (e, stackTrace) {
+      print('Error send data to client display from sales: $e');
     }
   }
 

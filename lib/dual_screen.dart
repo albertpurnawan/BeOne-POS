@@ -86,7 +86,6 @@ class _DualScreenState extends State<DualScreen> {
       textInputController.clear();
       final result =
           await DesktopMultiWindow.invokeMethod(windowId!, "onSend", text);
-      debugPrint("onSend result: $result");
     }
 
     return Column(

@@ -11,9 +11,9 @@ import 'package:pos_fe/config/routes/router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/core/database/app_database.dart';
-import 'package:pos_fe/features/dual_screen/providers/window_manager_provider.dart';
+import 'package:pos_fe/features/dual_screen/data/models/send_data.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
-import 'package:pos_fe/features/dual_screen/services/window_manager_service.dart';
+import 'package:pos_fe/features/dual_screen/services/create_window_service.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
@@ -48,11 +48,6 @@ class _HomeScreenState extends State<HomeScreen> {
   bool changeColor = false;
   String? lastSync;
   Timer? _timer;
-  Timer? _windowCheckTimer;
-  bool secondDisplay = true;
-  WindowController? secondWindowController;
-  int? windowId;
-  final windowManager = WindowManagerProvider.service;
 
   @override
   void initState() {
@@ -63,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
     countTotalShifts();
     getLastSync();
     checkIsSyncing();
-    initWindow();
+    getDataWindow();
     now = DateTime.now();
     morningEpoch =
         DateTime(now.year, now.month, now.day, 4, 0, 0).millisecondsSinceEpoch;
@@ -88,18 +83,39 @@ class _HomeScreenState extends State<HomeScreen> {
       await countTotalShifts();
       await getLastSync();
     });
+  }
 
-    // Add periodic check for second window
-    _windowCheckTimer =
-        Timer.periodic(const Duration(seconds: 5), (timer) async {
-      final windowManager = WindowManagerProvider.service;
-      final hasWindow = await windowManager
-          .hasWindow(WindowManagerService.DUAL_SCREEN_WINDOW);
-      if (!hasWindow) {
-        print('Second window closed, attempting to reopen...');
-        await initWindow();
-      }
-    });
+  Future<void> getDataWindow() async {
+    final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+    SharedPreferences? prefs = await SharedPreferences.getInstance();
+    try {
+      final monitor = await DesktopMultiWindow.getAllSubWindowIds();
+      await prefs.setBool("isCustomerDisplayActive", true);
+    } catch (e) {
+      await prefs.setBool("isCustomerDisplayActive", false);
+    }
+    if (topos[0].customerDisplayActive == 1 &&
+        prefs.getBool("isCustomerDisplayActive") == false) {
+      final cashier =
+          await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(
+                topos[0].tocsrId!,
+                null,
+              );
+      final store =
+          await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(
+                topos[0].tostrId!,
+                null,
+              );
+      final allBanners =
+          await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
+      SendBaseData dataWindow = SendBaseData(
+          cashierName: prefs.getString('username').toString(),
+          cashRegisterId: cashier!.idKassa,
+          storeName: store!.storeName,
+          windowId: 1,
+          dualScreenModel: allBanners);
+      initWindow(mounted, dataWindow);
+    }
   }
 
   Future<void> fetchActiveShift() async {
@@ -107,7 +123,6 @@ class _HomeScreenState extends State<HomeScreen> {
       final shift = await GetIt.instance<AppDatabase>()
           .cashierBalanceTransactionDao
           .readLastValue();
-      print('Debug - Fetched active shift: $shift');
       setState(() {
         activeShift = shift;
       });
@@ -205,81 +220,78 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> initWindow() async {
-    try {
-      if (!mounted) {
-        return;
-      }
+  // Future<void> initWindow() async {
+  //   try {
+  //     if (!mounted) {
+  //       return;
+  //     }
 
-      if (await windowManager
-          .hasWindow(WindowManagerService.DUAL_SCREEN_WINDOW)) {
-        print('Window already open, focusing existing window');
-        await windowManager
-            .focusWindow(WindowManagerService.DUAL_SCREEN_WINDOW);
-        return;
-      }
+  //     if (await windowManager
+  //         .hasWindow(WindowManagerService.DUAL_SCREEN_WINDOW)) {
+  //       print('Window already open, focusing existing window');
+  //       await windowManager
+  //           .focusWindow(WindowManagerService.DUAL_SCREEN_WINDOW);
+  //       return;
+  //     }
 
-      print('Creating new window');
-      
-      // Make sure to load the active shift first
-      await fetchActiveShift();
-      
-      // Wait a short moment to ensure state is updated
-      await Future.delayed(const Duration(milliseconds: 100));
-      
-      if (activeShift == null) {
-        print('Debug - Active shift is still null after fetching');
-        return;
-      }
+  //     print('Creating new window');
 
-      final prefs = await SharedPreferences.getInstance();
-      final username = prefs.getString('username');
-      
-      // Debug logging
-      print('Debug - Username from prefs: $username');
-      print('Debug - Active shift: $activeShift');
-      print('Debug - Cash register ID: ${activeShift?.tocsrId}');
+  //     // Make sure to load the active shift first
+  //     await fetchActiveShift();
 
-      final windowArgs = {
-        'args1': 'multi_window',
-        'args2': 100,
-        'args3': true,
-        'business': 'Dual Monitor',
-        'route': '/dualScreen',
-        'windowId': 100,
-        'username': username,
-        'cashRegisterId': activeShift?.tocsrId,
-      };
-      
-      print('Debug - Window arguments: $windowArgs');
-      
-      final window = await windowManager.createWindow(
-        WindowManagerService.DUAL_SCREEN_WINDOW,
-        arguments: windowArgs,
-        size: const Size(1280, 720),
-        title: 'Client Window',
-      );
+  //     // Wait a short moment to ensure state is updated
+  //     await Future.delayed(const Duration(milliseconds: 100));
 
-      if (window != null) {
-        await window.center();
-        await window.show();
-        print("window - ${window.windowId}");
-        setState(() {
-          windowId = window.windowId;
-          secondWindowController = WindowController.fromWindowId(windowId!);
-        });
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
+  //     if (activeShift == null) {
+  //       print('Debug - Active shift is still null after fetching');
+  //       return;
+  //     }
+
+  //     final prefs = await SharedPreferences.getInstance();
+  //     final username = prefs.getString('username');
+
+  //     // Debug logging
+  //     print('Debug - Username from prefs: $username');
+  //     print('Debug - Active shift: $activeShift');
+  //     print('Debug - Cash register ID: ${activeShift?.tocsrId}');
+
+  //     final windowArgs = {
+  //       'args1': 'multi_window',
+  //       'args2': 100,
+  //       'args3': true,
+  //       'business': 'Dual Monitor',
+  //       'route': '/dualScreen',
+  //       'windowId': 100,
+  //       'username': username,
+  //       'cashRegisterId': activeShift?.tocsrId,
+  //     };
+
+  //     print('Debug - Window arguments: $windowArgs');
+
+  //     final window = await windowManager.createWindow(
+  //       WindowManagerService.DUAL_SCREEN_WINDOW,
+  //       arguments: windowArgs,
+  //       size: const Size(1280, 720),
+  //       title: 'Client Window',
+  //     );
+
+  //     if (window != null) {
+  //       await window.center();
+  //       await window.show();
+  //       print("window - ${window.windowId}");
+  //       setState(() {
+  //         windowId = window.windowId;
+  //         secondWindowController = WindowController.fromWindowId(windowId!);
+  //       });
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   @override
   void dispose() {
     _timer?.cancel();
-    _windowCheckTimer?.cancel();
-    WindowManagerProvider.service
-        .removeWindow(WindowManagerService.DUAL_SCREEN_WINDOW);
     super.dispose();
   }
 
