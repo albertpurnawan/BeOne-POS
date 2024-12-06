@@ -423,7 +423,9 @@ class StoreMasterModel extends StoreMasterEntity implements BaseModel {
       maxDiscount: map['maxdiscount'] != null ? map['maxdiscount'] as int : null,
       duitkuUrl: map['duitkuurl'] != null ? map['duitkuurl'] as String : null,
       duitkuApiKey: map['duitkuapikey'] != null ? map['duitkuapikey'] as String : null,
-      duitkuMerchantCode: map['duitkumerchantcode'] != null ? map['duitkumerchantcode'] as String : null,
+      duitkuMerchantCode: (map['duitkumerchantcode'] != null || map['duitkumerchantcode'] == "")
+          ? map['duitkumerchantcode'] as String
+          : null,
       duitkuExpiryPeriod: map['duitkuexpiryperiod'] != null ? map['duitkuexpiryperiod'] as int : null,
       scaleActive: map['scaleactive'] as int,
       scaleFlag: map['scaleflag'] != null ? map['scaleflag'] as String : null,

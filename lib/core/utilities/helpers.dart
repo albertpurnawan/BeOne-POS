@@ -13,7 +13,7 @@ abstract class Helpers {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: content, action: action));
 
   static String parseMoney(num nominal) {
-    return NumberFormat("#,##0.##").format(nominal);
+    return NumberFormat('#,##0.##').format(nominal);
   }
 
   static String cleanDecimal(num val, int digits) {
