@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/credit_card.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/credit_card_cubit.dart';
 import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
@@ -25,11 +29,31 @@ class _SelectCardTypeState extends State<SelectCardType> {
   bool _shiftEnabled = false;
 
   @override
+  void initState() {
+    super.initState();
+    getDefaultKeyboardPOSParameter();
+  }
+
+  @override
   void dispose() {
     _creditCardInputFocusNode.dispose();
     _creditCardTextController.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   @override
@@ -196,6 +220,7 @@ class _SelectCardTypeState extends State<SelectCardType> {
                             controller: _creditCardTextController,
                             isNumericMode: false,
                             customLayoutKeys: true,
+                            isShiftEnabled: _shiftEnabled,
                             onKeyPress: (key) async {
                               String text = _creditCardTextController.text;
                               TextSelection currentSelection = _creditCardTextController.selection;

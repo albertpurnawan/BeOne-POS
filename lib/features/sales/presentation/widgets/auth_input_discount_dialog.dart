@@ -67,6 +67,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     _usernameFocusNode.addListener(() {
       if (_usernameFocusNode.hasFocus) {
@@ -92,6 +93,20 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<String> checkPassword(String username, String password) async {
@@ -384,7 +399,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureText ? Icons.visibility : Icons.visibility_off,
+                                    _obscureText ? Icons.visibility_off : Icons.visibility,
                                     size: 20,
                                   ),
                                   onPressed: () {
@@ -445,6 +460,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                     controller: _activeController,
                                     isNumericMode: false,
                                     customLayoutKeys: true,
+                                    isShiftEnabled: _shiftEnabled,
                                     onKeyPress: (key) async {
                                       String text = _activeController.text;
                                       TextSelection currentSelection = _activeController.selection;

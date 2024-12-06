@@ -10,9 +10,11 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_coupon_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_toprn_applicability.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_toprn_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -38,6 +40,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     // _couponFocusNode.requestFocus();
     if (context.read<ReceiptCubit>().state.coupons.isNotEmpty) {
@@ -52,6 +55,20 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
     _keyboardListenerFocusNode.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<void> _checkCoupons(BuildContext context, String couponCode) async {
@@ -693,7 +710,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                       children: [
                         if (state.coupons.isEmpty)
                           Container(
-                            height: MediaQuery.of(context).size.height * 0.3,
+                            height: MediaQuery.of(context).size.height * 0.2,
                             alignment: Alignment.center,
                             padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                             child: const EmptyList(
@@ -708,6 +725,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                   controller: _textEditorCouponController,
                                   isNumericMode: false,
                                   customLayoutKeys: true,
+                                  height: 225,
                                 ),
                               )
                             : const SizedBox.shrink(),

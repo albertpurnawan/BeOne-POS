@@ -52,6 +52,7 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     _startTimer();
     _otpFocusNodes[0].requestFocus();
@@ -77,6 +78,20 @@ class _OTPEndShiftDialogState extends State<OTPEndShiftDialog> {
       _otpFocusNodes[i].dispose();
     }
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<void> resendOTP() async {

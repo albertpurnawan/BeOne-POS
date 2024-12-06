@@ -587,6 +587,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     isCharged = widget.isCharged ?? false;
     if (context.read<ReceiptCubit>().state.grandTotal <= 0) isMultiMOPs = false;
@@ -597,6 +598,20 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     _keyboardListenerFocusNode.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   @override
@@ -2303,6 +2318,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                   controller: _textEditingControllerCashAmount,
                                                                   isNumericMode: _keyboardNumeric,
                                                                   customLayoutKeys: true,
+                                                                  isShiftEnabled: _shiftEnabled,
                                                                   height: 200,
                                                                   onKeyPress: (key) async {
                                                                     String text = _textEditingControllerCashAmount.text;
@@ -2377,7 +2393,6 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
                                                                     _textEditingControllerCashAmount.text =
                                                                         formattedValue.text;
-
                                                                     _textEditingControllerCashAmount.selection =
                                                                         formattedValue.selection;
 

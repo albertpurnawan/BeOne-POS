@@ -9,10 +9,13 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_redeem_vouchers_fail_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_redeem_vouchers_success_dialog.dart';
@@ -252,12 +255,32 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
   }
 
   @override
+  void initState() {
+    getDefaultKeyboardPOSParameter();
+    super.initState();
+  }
+
+  @override
   void dispose() {
     _voucherFocusNode.dispose();
     _voucherCheckController.dispose();
     _keyboardListenerFocusNode.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   @override
@@ -597,6 +620,7 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                           controller: _voucherCheckController,
                           isNumericMode: false,
                           customLayoutKeys: true,
+                          isShiftEnabled: _shiftEnabled,
                           onKeyPress: (key) async {
                             String text = _voucherCheckController.text;
                             TextSelection currentSelection = _voucherCheckController.selection;

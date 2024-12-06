@@ -48,6 +48,7 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     _startTimer();
     _otpFocusNodes[0].requestFocus();
@@ -73,6 +74,20 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
       _otpFocusNodes[i].dispose();
     }
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   void _startTimer() {

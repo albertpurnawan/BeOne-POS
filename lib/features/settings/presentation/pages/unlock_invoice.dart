@@ -58,6 +58,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     _invoiceDocNumFocusNode.requestFocus();
 
@@ -97,6 +98,20 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
     _passwordFocusNode.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<List<InvoiceDetailModel>?> _searchInvoiceDetail(String docNum) async {
@@ -373,6 +388,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                                 controller: _activeController,
                                 isNumericMode: false,
                                 customLayoutKeys: true,
+                                isShiftEnabled: _shiftEnabled,
                                 onKeyPress: (key) async {
                                   String text = _activeController.text;
                                   TextSelection currentSelection = _activeController.selection;
@@ -732,7 +748,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscureText ? Icons.visibility : Icons.visibility_off,
+                              _obscureText ? Icons.visibility_off : Icons.visibility,
                               size: 20,
                             ),
                             onPressed: () {

@@ -112,7 +112,8 @@ class _SalesPageState extends State<SalesPage> {
         scrollToReceiptItemByIndex(indexIsSelect[0]);
 
         return KeyEventResult.skipRemainingHandlers;
-      } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && indexIsSelect[0] < state.receiptItems.length) {
+      } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
+          indexIsSelect[0] < state.receiptItems.length - 1) {
         if (indexIsSelect[1] == 0) return KeyEventResult.skipRemainingHandlers;
         setState(() {
           indexIsSelect = [indexIsSelect[0] + 1, 1];
@@ -2108,10 +2109,11 @@ class _SalesPageState extends State<SalesPage> {
                                   "Please select the customer first, only customer with membership can use Down Payment");
                               return;
                             }
-                            // if (!itemDPAvailable) {
-                            //   SnackBarHelper.presentErrorSnackBar(context, "Item DP not found for this store");
-                            //   return;
-                            // }
+                            if (!itemDPAvailable) {
+                              SnackBarHelper.presentErrorSnackBar(
+                                  context, "Item Down Payment not found for this store");
+                              return;
+                            }
 
                             if (mounted) {
                               await showDialog(

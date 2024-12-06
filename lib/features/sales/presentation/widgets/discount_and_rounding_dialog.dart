@@ -59,10 +59,14 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   final FocusNode _keyboardFocusNode = FocusNode();
   bool _showKeyboard = true;
   bool _shiftEnabled = false;
+  bool _currentNumericMode = true;
+  bool _isDropdownShown = false;
+  final GlobalKey _iconButtonKey = GlobalKey();
   TextEditingController _activeController = TextEditingController();
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
 
     final ReceiptEntity state = context.read<ReceiptCubit>().state;
@@ -123,6 +127,88 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     _keyboardFocusNode.dispose();
     // _activeController.dispose();
     super.dispose();
+  }
+
+  void _toggleKeyboard() {
+    if (_isDropdownShown) {
+      setState(() {
+        _showKeyboard = !_showKeyboard;
+      });
+    } else {
+      _showDropdown();
+    }
+  }
+
+  void _showDropdown() async {
+    final RenderBox renderBox = _iconButtonKey.currentContext!.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+
+    await showMenu(
+      context: context,
+      surfaceTintColor: Colors.transparent,
+      color: const Color.fromARGB(255, 245, 245, 245),
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy + renderBox.size.height,
+        offset.dx + renderBox.size.width,
+        offset.dy,
+      ),
+      items: [
+        const PopupMenuItem(
+          value: "Alphanumeric",
+          child: Text("Alphanumeric"),
+        ),
+        const PopupMenuItem(
+          value: "Numeric",
+          child: Text("Numeric"),
+        ),
+        const PopupMenuItem(
+          value: "Off",
+          child: Text("Off"),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        switch (value) {
+          case 'Off':
+            setState(() {
+              _showKeyboard = false;
+            });
+            break;
+          case 'Alphanumeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = false;
+            });
+            break;
+          case 'Numeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = true;
+            });
+            break;
+          default:
+            setState(() {
+              _showKeyboard = true;
+            });
+            break;
+        }
+      }
+    });
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   double getLineDiscountsTotal() {
@@ -345,6 +431,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                             borderRadius: const BorderRadius.all(Radius.circular(360)),
                           ),
                           child: IconButton(
+                            key: _iconButtonKey,
                             focusColor: const Color.fromARGB(255, 110, 0, 0),
                             focusNode: _keyboardFocusNode,
                             icon: Icon(
@@ -352,9 +439,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                               color: Colors.white,
                             ),
                             onPressed: () {
-                              setState(() {
-                                _showKeyboard = !_showKeyboard;
-                              });
+                              _toggleKeyboard();
                             },
                             tooltip: 'Toggle Keyboard',
                           ),
@@ -546,9 +631,10 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                             padding: const EdgeInsets.fromLTRB(15, 5, 15, 0),
                             child: KeyboardWidget(
                               controller: _activeController,
-                              isNumericMode: (_activeController == _textEditorHeaderDiscountController) ? true : false,
+                              isNumericMode: _currentNumericMode,
                               customLayoutKeys: true,
                               height: 175,
+                              isShiftEnabled: _shiftEnabled,
                               onKeyPress: (key) async {
                                 String text = _activeController.text;
                                 TextSelection currentSelection = _activeController.selection;
@@ -590,8 +676,24 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                       break;
                                   }
                                 }
-                                _activeController.text = text;
-                                _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+                                if (_activeController == _textEditorHeaderDiscountController) {
+                                  TextEditingValue formattedValue = NegativeMoneyInputFormatter().formatEditUpdate(
+                                    TextEditingValue(
+                                      text: text,
+                                      selection: TextSelection.collapsed(offset: cursorPosition),
+                                    ),
+                                    TextEditingValue(
+                                      text: text,
+                                      selection: TextSelection.collapsed(offset: cursorPosition),
+                                    ),
+                                  );
+
+                                  _activeController.text = formattedValue.text;
+                                  _activeController.selection = formattedValue.selection;
+                                } else {
+                                  _activeController.text = text;
+                                  _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+                                }
 
                                 setState(() {});
 

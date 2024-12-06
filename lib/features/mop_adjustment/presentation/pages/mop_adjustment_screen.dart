@@ -19,6 +19,7 @@ import 'package:pos_fe/features/sales/data/models/mop_adjustment_header.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/mop_adjustment_service.dart';
 import 'package:uuid/uuid.dart';
 import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
@@ -73,6 +74,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     generateTmpadDocNum();
     _shiftDocnumFocusNode.requestFocus();
@@ -113,6 +115,20 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
     _remarkFocusNode.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<List<CashierBalanceTransactionModel>?> _searchShift(String docNum) async {
@@ -336,6 +352,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                             controller: _activeController,
                             isNumericMode: currentNumericMode,
                             customLayoutKeys: true,
+                            isShiftEnabled: _shiftEnabled,
                             onKeyPress: (key) async {
                               String text = _activeController.text;
                               TextSelection currentSelection = _activeController.selection;
@@ -348,7 +365,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                 if (_activeController == _amountController) {
                                   amountChanged = Helpers.revertMoneyToDecimalFormat(text);
                                   if (amountChanged != null && text.isNotEmpty) {
-                                    if (amountChanged! > maxAmount!) {
+                                    if (amountChanged! > (maxAmount ?? 0)) {
                                       setState(() {
                                         isErr = true;
                                         errMsg = "Invalid amount";
@@ -374,7 +391,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                       if (_activeController == _amountController) {
                                         amountChanged = Helpers.revertMoneyToDecimalFormat(text);
                                         if (amountChanged != null && text.isNotEmpty) {
-                                          if (amountChanged! > maxAmount!) {
+                                          if (amountChanged! > (maxAmount ?? 0)) {
                                             setState(() {
                                               isErr = true;
                                               errMsg = "Invalid amount";
@@ -418,8 +435,6 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                     }
                                     break;
                                   case VirtualKeyboardKeyAction.Space:
-                                    text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                    cursorPosition += 1;
                                     if (_activeController == _remarksController) {
                                       text = text.replaceRange(cursorPosition, cursorPosition, ' ');
                                       cursorPosition += 1;

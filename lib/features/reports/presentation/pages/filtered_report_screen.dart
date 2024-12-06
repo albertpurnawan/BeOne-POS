@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/reports/presentation/widgets/table_report_item_widget.dart';
 import 'package:pos_fe/features/reports/presentation/widgets/table_report_mop_widget.dart';
 import 'package:pos_fe/features/reports/presentation/widgets/table_report_shift_widget.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class FiltereReportScreen extends StatefulWidget {
@@ -29,6 +33,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     final DateTime now = DateTime.now();
     selectedFromDate = DateTime(now.year, now.month, now.day, 0, 0, 0, 0);
@@ -41,6 +46,20 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
     _searchController.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<void> selectDate(BuildContext context, bool isFromDate) async {
@@ -372,6 +391,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                           controller: _searchController,
                           isNumericMode: false,
                           customLayoutKeys: true,
+                          isShiftEnabled: _shiftEnabled,
                           onKeyPress: (key) async {
                             String text = _searchController.text;
                             TextSelection currentSelection = _searchController.selection;

@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/receipt_printer.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:thermal_printer/thermal_printer.dart';
@@ -53,6 +56,7 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     if (Platform.isWindows) defaultPrinterType = PrinterType.usb;
     super.initState();
 
@@ -156,6 +160,20 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
     _portFocusNode.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   // method to scan devices according PrinterType
@@ -644,6 +662,7 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                                   controller: _activeController,
                                   isNumericMode: false,
                                   customLayoutKeys: true,
+                                  isShiftEnabled: _shiftEnabled,
                                   onKeyPress: (key) {
                                     String text = _activeController.text;
                                     TextSelection currentSelection = _activeController.selection;

@@ -31,7 +31,7 @@ class DeviceSetupScreen extends StatefulWidget {
 }
 
 class _DeviceSetupScreenState extends State<DeviceSetupScreen> {
-  bool showKeyboard = true;
+  bool showKeyboard = false;
 
   @override
   void initState() {
@@ -44,7 +44,7 @@ class _DeviceSetupScreenState extends State<DeviceSetupScreen> {
   //     final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
   //     if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
   //     setState(() {
-  //       showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+  //       _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
   //     });
   //   } catch (e) {
   //     if (mounted) {

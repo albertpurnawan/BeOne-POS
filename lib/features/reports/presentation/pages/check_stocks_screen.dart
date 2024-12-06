@@ -9,6 +9,8 @@ import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/reports/data/data_source/remote/check_stock_service.dart';
 import 'package:pos_fe/features/sales/data/models/check_stock.dart';
 import 'package:pos_fe/features/sales/domain/entities/check_stock.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class CheckStockScreen extends StatefulWidget {
@@ -33,6 +35,7 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     _focusNode.requestFocus();
   }
@@ -43,6 +46,20 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
     _focusNode.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<List<dynamic>?> _searchItem(String query) async {
@@ -145,11 +162,12 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                   (_showKeyboard)
                       ? SizedBox(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
                             child: KeyboardWidget(
                               controller: _itemInputController,
                               isNumericMode: false,
                               customLayoutKeys: true,
+                              isShiftEnabled: _shiftEnabled,
                               onKeyPress: (key) async {
                                 String text = _itemInputController.text;
                                 TextSelection currentSelection = _itemInputController.selection;

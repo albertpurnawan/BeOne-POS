@@ -9,8 +9,10 @@ import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/field_label.dart';
 import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/return_receipt.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_return_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/return_receipt_cubit.dart';
@@ -51,6 +53,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     initValues();
 
@@ -86,6 +89,20 @@ class _ReturnDialogState extends State<ReturnDialog> {
     _invoiceNumberFocusNode.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   @override
@@ -341,6 +358,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                         controller: _activeController,
                         isNumericMode: false,
                         customLayoutKeys: true,
+                        isShiftEnabled: _shiftEnabled,
                         onKeyPress: (key) async {
                           String text = _activeController.text;
                           TextSelection currentSelection = _activeController.selection;

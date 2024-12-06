@@ -11,6 +11,8 @@ import 'package:pos_fe/features/sales/domain/entities/campaign.dart';
 import 'package:pos_fe/features/sales/domain/entities/credit_card.dart';
 import 'package:pos_fe/features/sales/domain/entities/edc_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_campaign_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_card_type.dart';
@@ -103,6 +105,7 @@ class _EDCDialogState extends State<EDCDialog> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     fetchMOP();
     currentAmount = widget.max;
@@ -166,6 +169,20 @@ class _EDCDialogState extends State<EDCDialog> {
     _keyboardFocusNode.dispose();
     _activeController.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<void> fetchMOP() async {
@@ -743,6 +760,7 @@ class _EDCDialogState extends State<EDCDialog> {
                                   controller: _activeController,
                                   isNumericMode: _currentNumericMode,
                                   customLayoutKeys: true,
+                                  isShiftEnabled: _shiftEnabled,
                                   onKeyPress: (key) async {
                                     String text = _activeController.text;
                                     TextSelection currentSelection = _activeController.selection;

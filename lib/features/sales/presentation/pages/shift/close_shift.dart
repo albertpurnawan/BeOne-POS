@@ -42,13 +42,15 @@ class CloseShiftScreen extends StatefulWidget {
 }
 
 class CloseShiftScreenState extends State<CloseShiftScreen> {
-  bool _showKeyboard = true;
+  bool _showKeyboard = false;
   bool _shiftEnabled = false;
   final FocusNode _keyboardFocusNode = FocusNode();
   TextEditingController _activeController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
+    // getDefaultKeyboardPOSParameter();
   }
 
   @override
@@ -57,6 +59,23 @@ class CloseShiftScreenState extends State<CloseShiftScreen> {
     _activeController.dispose();
     super.dispose();
   }
+
+  // Future<void> getDefaultKeyboardPOSParameter() async {
+  //   try {
+  //     final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+  //     if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+
+  //     if (mounted) {
+  //       setState(() {
+  //         _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+  //       });
+  //     }
+  //   } catch (e) {
+  //     if (mounted) {
+  //       SnackBarHelper.presentFailSnackBar(context, e.toString());
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

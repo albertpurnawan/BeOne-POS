@@ -53,6 +53,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
 
     _usernameFocusNode.addListener(() {
@@ -76,6 +77,20 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<String> checkPassword(String username, String password) async {
@@ -353,7 +368,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureText ? Icons.visibility : Icons.visibility_off,
+                                    _obscureText ? Icons.visibility_off : Icons.visibility,
                                     size: 20,
                                   ),
                                   onPressed: () {
@@ -414,6 +429,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                                     controller: _activeController,
                                     isNumericMode: false,
                                     customLayoutKeys: true,
+                                    isShiftEnabled: _shiftEnabled,
                                   ),
                                 )
                               : const SizedBox.shrink(),

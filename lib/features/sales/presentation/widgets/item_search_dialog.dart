@@ -193,13 +193,17 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                           onSubmitted: (_) => onSubmit(),
                           autofocus: true,
                           focusNode: _searchInputFocusNode,
-                          decoration: const InputDecoration(
-                            suffixIcon: Icon(
-                              Icons.search,
-                              size: 16,
+                          decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                              icon: const Icon(
+                                Icons.search,
+                                size: 16,
+                              ),
+                              onPressed: () => onSubmit(),
                             ),
+
                             hintText: "Enter item name, code, or barcode",
-                            hintStyle: TextStyle(
+                            hintStyle: const TextStyle(
                               fontSize: 16,
                               fontStyle: FontStyle.italic,
                             ),
