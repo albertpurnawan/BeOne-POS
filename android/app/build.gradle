@@ -1,7 +1,7 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    id "dev.flutter.flutter-gradle-plugin"
+    id "dev.flutter.flutter-gradle-plugin"  
 }
 
 def localProperties = new Properties()
@@ -20,7 +20,7 @@ if (flutterVersionCode == null) {
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
     flutterVersionName = '1.0'
-}
+}   
 
 android {
     namespace "com.example.pos_fe"
@@ -51,6 +51,7 @@ android {
         // targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -66,4 +67,6 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+  implementation 'com.android.support:multidex:1.0.3'
+}

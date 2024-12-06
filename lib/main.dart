@@ -1,12 +1,13 @@
 import 'dart:developer';
 import 'dart:io';
-
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/features/dual_screen/presentation/pages/display.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_manual_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_toprn.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
@@ -51,7 +52,7 @@ import 'package:pos_fe/injection_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-void main() async {
+void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isWindows || Platform.isLinux) {
     // Initialize FFI
@@ -60,6 +61,44 @@ void main() async {
     // await hotKeyManager.unregister(
     //     HotKey(key: LogicalKeyboardKey.f10, scope: HotKeyScope.system));
   }
+
+  if (args.isNotEmpty) {
+    try {
+      final windowArgs = args.first;
+
+      if (windowArgs == 'multi_window') {
+        final windowId = int.parse(args[1]);
+        final argument = args[2].isEmpty;
+
+        // Create a separate router for the second window
+        final secondWindowRouter = GoRouter(
+          initialLocation: '/dualScreen',
+          routes: [
+            GoRoute(
+              path: '/dualScreen',
+              builder: (context, state) => DisplayPage(
+                windowController: WindowController.fromWindowId(windowId),
+                args: {
+                  'data': args[2].toString(),
+                },
+              ),
+            ),
+          ],
+        );
+        runApp(
+          MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            routerConfig: secondWindowRouter,
+          ),
+        );
+
+        return;
+      }
+    } catch (e) {
+      print('Error parsing window arguments: $e');
+    }
+  }
+
   await initializeDependencies();
   await GetIt.instance.allReady();
   // await FirstRunManager.checkFirstRun();
@@ -87,8 +126,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+  const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     // print((GetIt.instance<AppDatabase>().currencyDao.readAll()).toString());
@@ -136,17 +174,31 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<ApplyRoundingUseCase>(),
                       GetIt.instance<GetItemWithAndConditionUseCase>(),
                       GetIt.instance<ApplyPromoToprnUseCase>(),
-                      GetIt.instance<ApplyManualRoundingUseCase>(instanceName: 'roundingDown'),
-                      GetIt.instance<ApplyManualRoundingUseCase>(instanceName: 'roundingUp'),
+                      GetIt.instance<ApplyManualRoundingUseCase>(
+                          instanceName: 'roundingDown'),
+                      GetIt.instance<ApplyManualRoundingUseCase>(
+                          instanceName: 'roundingUp'),
                     )),
-            BlocProvider<CustomersCubit>(create: (context) => CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
+            BlocProvider<CustomersCubit>(
+                create: (context) =>
+                    CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
             BlocProvider<MopSelectionsCubit>(
-                create: (context) => MopSelectionsCubit(GetIt.instance<GetMopSelectionsUseCase>())),
-            BlocProvider<ItemsCubit>(create: (context) => ItemsCubit(GetIt.instance<GetItemsByPricelistUseCase>())),
-            BlocProvider<EmployeesCubit>(create: (context) => EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
-            BlocProvider<CreditCardCubit>(create: (context) => CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
-            BlocProvider<CampaignCubit>(create: (context) => CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
-            BlocProvider<ReturnReceiptCubit>(create: (context) => ReturnReceiptCubit()),
+                create: (context) => MopSelectionsCubit(
+                    GetIt.instance<GetMopSelectionsUseCase>())),
+            BlocProvider<ItemsCubit>(
+                create: (context) =>
+                    ItemsCubit(GetIt.instance<GetItemsByPricelistUseCase>())),
+            BlocProvider<EmployeesCubit>(
+                create: (context) =>
+                    EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
+            BlocProvider<CreditCardCubit>(
+                create: (context) =>
+                    CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
+            BlocProvider<CampaignCubit>(
+                create: (context) =>
+                    CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
+            BlocProvider<ReturnReceiptCubit>(
+                create: (context) => ReturnReceiptCubit()),
           ],
           child: FutureBuilder<String>(
               future: Future.delayed(const Duration(seconds: 5), () {
@@ -167,12 +219,13 @@ class MyApp extends StatelessWidget {
                 }
 
                 final str = snapshot.data!;
-                debugPrint(str);
+                debugPrint('ini debug str${str}');
                 return MaterialApp.router(
                   title: 'RubyPOS',
                   debugShowCheckedModeBanner: false,
                   theme: ThemeData(
-                    colorScheme: ColorScheme.fromSeed(seedColor: ProjectColors.primary),
+                    colorScheme:
+                        ColorScheme.fromSeed(seedColor: ProjectColors.primary),
                     fontFamily: 'Roboto',
                     useMaterial3: true,
                   ),
