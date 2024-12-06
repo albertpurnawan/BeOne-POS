@@ -125,7 +125,7 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                               border: const OutlineInputBorder(),
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  _hidePassword ? Icons.visibility_off : Icons.visibility,
+                                  _hidePassword ? Icons.visibility : Icons.visibility_off,
                                   color: Colors.grey,
                                 ),
                                 onPressed: () {

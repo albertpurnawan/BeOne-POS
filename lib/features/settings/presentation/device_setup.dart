@@ -34,6 +34,26 @@ class _DeviceSetupScreenState extends State<DeviceSetupScreen> {
   bool showKeyboard = true;
 
   @override
+  void initState() {
+    super.initState();
+    // getDefaultKeyboardPOSParameter();
+  }
+
+  // Future<void> getDefaultKeyboardPOSParameter() async {
+  //   try {
+  //     final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+  //     if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+  //     setState(() {
+  //       showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+  //     });
+  //   } catch (e) {
+  //     if (mounted) {
+  //       SnackBarHelper.presentFailSnackBar(context, e.toString());
+  //     }
+  //   }
+  // }
+
+  @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: ProjectColors.primary,
@@ -116,7 +136,7 @@ class _SettingsFormState extends State<SettingsForm> {
   final FocusNode _passwordFocusNode = FocusNode();
 
   bool _hidePassword = true;
-  String currentFocusedField = '';
+  TextEditingController _activeController = TextEditingController();
   String device = "";
 
   @override
@@ -129,42 +149,42 @@ class _SettingsFormState extends State<SettingsForm> {
     _gtentFocusNode.addListener(() {
       if (_gtentFocusNode.hasFocus) {
         setState(() {
-          currentFocusedField = 'gtent';
+          _activeController = gtentController;
         });
       }
     });
     _tostrFocusNode.addListener(() {
       if (_tostrFocusNode.hasFocus) {
         setState(() {
-          currentFocusedField = 'tostr';
+          _activeController = tostrController;
         });
       }
     });
     _tocsrFocusNode.addListener(() {
       if (_tocsrFocusNode.hasFocus) {
         setState(() {
-          currentFocusedField = 'tocsr';
+          _activeController = tocsrController;
         });
       }
     });
     _urlFocusNode.addListener(() {
       if (_urlFocusNode.hasFocus) {
         setState(() {
-          currentFocusedField = 'url';
+          _activeController = urlController;
         });
       }
     });
     _emailFocusNode.addListener(() {
       if (_emailFocusNode.hasFocus) {
         setState(() {
-          currentFocusedField = 'email';
+          _activeController = emailController;
         });
       }
     });
     _passwordFocusNode.addListener(() {
       if (_passwordFocusNode.hasFocus) {
         setState(() {
-          currentFocusedField = 'password';
+          _activeController = passwordController;
         });
       }
     });
@@ -267,27 +287,6 @@ class _SettingsFormState extends State<SettingsForm> {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController? activeController;
-    switch (currentFocusedField) {
-      case 'gtent':
-        activeController = gtentController;
-        break;
-      case 'tostr':
-        activeController = tostrController;
-        break;
-      case 'tocsr':
-        activeController = tocsrController;
-        break;
-      case 'url':
-        activeController = urlController;
-        break;
-      case 'email':
-        activeController = emailController;
-        break;
-      default:
-        activeController = passwordController;
-        break;
-    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Form(
@@ -431,7 +430,7 @@ class _SettingsFormState extends State<SettingsForm> {
                         border: const OutlineInputBorder(),
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _hidePassword ? Icons.visibility_off : Icons.visibility,
+                            _hidePassword ? Icons.visibility : Icons.visibility_off,
                             color: Colors.grey,
                           ),
                           onPressed: () {
@@ -451,7 +450,7 @@ class _SettingsFormState extends State<SettingsForm> {
             const SizedBox(height: 30),
             (widget.showKeyboard)
                 ? KeyboardWidget(
-                    controller: activeController,
+                    controller: _activeController,
                     isNumericMode: false,
                     customLayoutKeys: true,
                   )

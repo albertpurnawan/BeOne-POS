@@ -95,7 +95,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
       return storeMasterEntity;
     } catch (e) {
-      SnackBarHelper.presentFailSnackBar(context, e.toString());
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
       return null;
     }
   }
