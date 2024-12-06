@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -135,7 +136,6 @@ class _DisplayPageState extends State<DisplayPage> {
 
   void _setupWindowListener() {
     DesktopMultiWindow.setMethodHandler((call, fromWindowId) async {
-
       switch (call.method) {
         case 'updateSalesData':
           try {
@@ -164,14 +164,12 @@ class _DisplayPageState extends State<DisplayPage> {
                 // Update large banner if present
                 if (data.containsKey('largeBannersUrl') &&
                     data['largeBannersUrl'] is List &&
-                    data['largeBannersUrl'].isNotEmpty) {
-                }
+                    data['largeBannersUrl'].isNotEmpty) {}
 
                 // Update small banner if present
                 if (data.containsKey('smallBannersUrl') &&
                     data['smallBannersUrl'] is List &&
-                    data['smallBannersUrl'].isNotEmpty) {
-                }
+                    data['smallBannersUrl'].isNotEmpty) {}
               }
             });
           } catch (e, stackTrace) {
@@ -185,82 +183,95 @@ class _DisplayPageState extends State<DisplayPage> {
     });
   }
 
+  final ScrollController _scrollController = ScrollController();
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
   Widget _buildSalesDisplay() {
     return Expanded(
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          border: Border.all(
-            width: 1,
-            color: Colors.grey,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        scrollDirection: Axis.vertical,
+        child: DataTable(
+          headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
+          dataRowMaxHeight: double.infinity,
+          headingTextStyle: TextStyle(
+            fontSize: 14,
           ),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: DataTable(
-            headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
-            columns: const [
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'No',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Item Name',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Qty.',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Discount',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Total',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-            rows: currentSalesData['items'] == null
-                ? []
-                : List<DataRow>.generate(
-                    currentSalesData['items']!.length,
-                    (index) {
-                      final item = currentSalesData['items']![index];
-                      return DataRow(
-                        cells: [
-                          DataCell(Text('${index + 1}')),
-                          DataCell(Text('${item['name']}')),
-                          DataCell(Text('${item['quantity']}')),
-                          DataCell(Text('${item['discount'] ?? '-'}')),
-                          DataCell(Text(Helpers.parseMoney(item['total']))),
-                        ],
-                      );
-                    },
-                  ),
+          dataTextStyle: TextStyle(
+            fontSize: 10,
           ),
+          border: TableBorder.symmetric(outside: BorderSide(width: 1)),
+          columns: const [
+            DataColumn(
+              label: Center(
+                child: Text(
+                  'No',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            DataColumn(
+              label: Center(
+                child: Text(
+                  'Item Name',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            DataColumn(
+              label: Center(
+                child: Text(
+                  'Qty.',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            DataColumn(
+              label: Center(
+                child: Text(
+                  'Discount',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            DataColumn(
+              label: Center(
+                child: Text(
+                  'Total',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+          rows: currentSalesData['items'] == null
+              ? []
+              : List<DataRow>.generate(
+                  currentSalesData['items']!.length,
+                  (index) {
+                    final item = currentSalesData['items']![index];
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _scrollToBottom();
+                    });
+                    return DataRow(
+                      cells: [
+                        DataCell(Text('${index + 1}')),
+                        DataCell(Text('${item['name']}')),
+                        DataCell(Text('${item['quantity']}')),
+                        DataCell(Text('${item['discount'] ?? '-'}')),
+                        DataCell(Text(Helpers.parseMoney(item['total']))),
+                      ],
+                    );
+                  },
+                ),
         ),
       ),
     );
@@ -297,7 +308,6 @@ class _DisplayPageState extends State<DisplayPage> {
       // Create banners directory if it doesn't exist
       if (!await largeBannnerStorage.exists()) {
         await largeBannnerStorage.create(recursive: true);
-
       } else {
         final List<FileSystemEntity> files =
             await largeBannnerStorage.list().toList();
@@ -389,7 +399,6 @@ class _DisplayPageState extends State<DisplayPage> {
       for (var banner in smallBannersUrl) {
         if (banner.path.isNotEmpty) {
           try {
-
             // Generate a unique filename
             String filename;
             if (_isVideoFile(banner.path)) {
@@ -612,7 +621,7 @@ class _DisplayPageState extends State<DisplayPage> {
     } else {
       return Image.file(
         File(banner.path),
-        fit: BoxFit.fill,
+        fit: BoxFit.cover,
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
       );
@@ -679,318 +688,313 @@ class _DisplayPageState extends State<DisplayPage> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-          body: Stack(children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(left: 20, bottom: 40, right: 12),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Image.asset(
-                              "assets/logo/ruby_pos_sesa_icon.png",
-                              fit: BoxFit.contain,
-                              height: 110,
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  width: 1,
-                                  color: Colors.grey,
-                                ),
-                                borderRadius: BorderRadius.circular(4),
+          body: Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.only(left: 20, bottom: 40, right: 12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Image.asset(
+                            "assets/logo/ruby_pos_sesa_icon.png",
+                            fit: BoxFit.contain,
+                            height: 110,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                width: 1,
+                                color: Colors.grey,
                               ),
-                              child: Column(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: const BoxDecoration(
-                                      color: ProjectColors.primary,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(4),
-                                        topRight: Radius.circular(4),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'Cash Register',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 8,
-                                      ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: ProjectColors.primary,
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(4),
+                                      topRight: Radius.circular(4),
                                     ),
                                   ),
-                                  Text(
-                                    dataMap['cashRegisterId'] ??
-                                        'Unknown Register',
-                                    style: const TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.bold,
+                                  child: const Text(
+                                    'Cash Register',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 8,
                                     ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  DateFormat('EEEE, dd MMM yyyy')
-                                      .format(DateTime.now()),
-                                  style: const TextStyle(fontSize: 14),
+                                  ),
                                 ),
                                 Text(
-                                  dataMap['storeName'] ?? '',
+                                  dataMap['cashRegisterId'] ??
+                                      'Unknown Register',
                                   style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  dataMap['cashierName'] ?? '',
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                ),
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
                               ],
                             ),
-                          ],
-                        ),
-                        _buildSalesDisplay(),
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(top: 8.0, right: 8.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      border: Border.all(
-                                        width: 1,
-                                        color: Colors.grey,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                DateFormat('EEEE, dd MMM yyyy')
+                                    .format(DateTime.now()),
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                              Text(
+                                dataMap['storeName'] ?? '',
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                dataMap['cashierName'] ?? '',
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      _buildSalesDisplay(),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 8.0, right: 8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    border: Border.all(
+                                      width: 1,
+                                      color: Colors.grey,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8)),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      decoration: const BoxDecoration(
+                                          color: ProjectColors.primary,
+                                          borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(8),
+                                              topRight: Radius.circular(8))),
+                                      child: Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            const Text('Customer',
+                                                style: TextStyle(
+                                                    color: Colors.white)),
+                                            Text(
+                                                _getSafeStringValue(
+                                                    currentSalesData,
+                                                    'customerName'),
+                                                style: const TextStyle(
+                                                    color: Colors.white)),
+                                          ],
+                                        ),
                                       ),
-                                      borderRadius: BorderRadius.circular(8)),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        decoration: const BoxDecoration(
-                                            color: ProjectColors.primary,
-                                            borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(8),
-                                                topRight: Radius.circular(8))),
-                                        child: Padding(
-                                          padding: EdgeInsets.all(8.0),
-                                          child: Row(
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
-                                              const Text('Customer',
-                                                  style: TextStyle(
-                                                      color: Colors.white)),
+                                              const Text('Total Discount'),
                                               Text(
-                                                  _getSafeStringValue(
-                                                      currentSalesData,
-                                                      'customerName'),
-                                                  style: const TextStyle(
-                                                      color: Colors.white)),
+                                                  'Rp ${_getSafeStringValue(currentSalesData, 'totalDiscount')}'),
                                             ],
                                           ),
-                                        ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              const Text('Grand Total'),
+                                              Text(
+                                                  'Rp ${_getSafeStringValue(currentSalesData, 'grandTotal')}'),
+                                            ],
+                                          ),
+                                        ],
                                       ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                const Text('Total Discount'),
-                                                Text(
-                                                    'Rp ${_getSafeStringValue(currentSalesData, 'totalDiscount')}'),
-                                              ],
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                const Text('Grand Total'),
-                                                Text(
-                                                    'Rp ${_getSafeStringValue(currentSalesData, 'grandTotal')}'),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('Total Payment'),
+                                              Text(
+                                                  'Rp ${_getSafeStringValue(currentSalesData, 'totalPayment')}'),
+                                            ],
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text('Changed'),
+                                              Text(
+                                                  'Rp ${_getSafeStringValue(currentSalesData, 'changed')}'),
+                                            ],
+                                          ),
+                                        ],
                                       ),
-                                      Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text('Total Payment'),
-                                                Text(
-                                                    'Rp ${_getSafeStringValue(currentSalesData, 'totalPayment')}'),
-                                              ],
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text('Changed'),
-                                                Text(
-                                                    'Rp ${_getSafeStringValue(currentSalesData, 'changed')}'),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
-                            // Grand Total Section
-                            Expanded(
-                              flex: 2,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    color: currentSalesData['items'] != null &&
-                                            currentSalesData['items'].length > 0
-                                        ? Colors.green
-                                            .shade700 // Darker green when items added
-                                        : Colors.green,
-                                  ),
-                                  padding: const EdgeInsets.all(40.0),
-                                  child: LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      final fontSize =
-                                          constraints.maxWidth > 800
-                                              ? 32.0
-                                              : 24.0;
-                                      return Column(
-                                        children: [
-                                          Text(
-                                            'Grand Total',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: fontSize),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            'IDR ${_getSafeStringValue(currentSalesData, 'grandTotal')}',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: fontSize),
-                                          ),
-                                          if (currentSalesData['items'] !=
-                                                  null &&
-                                              currentSalesData['items'].length >
-                                                  0)
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 8.0),
-                                              child: Text(
-                                                'Items: ${currentSalesData['items'].length}',
-                                                style: TextStyle(
-                                                  color: Colors.white70,
-                                                  fontSize: fontSize * 0.5,
-                                                ),
+                          ),
+                          // Grand Total Section
+                          Expanded(
+                            flex: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(16),
+                                  color: currentSalesData['items'] != null &&
+                                          currentSalesData['items'].length > 0
+                                      ? Colors.green
+                                          .shade700 // Darker green when items added
+                                      : Colors.green,
+                                ),
+                                padding: const EdgeInsets.all(25.0),
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final fontSize = constraints.maxWidth > 800
+                                        ? 32.0
+                                        : 24.0;
+                                    return Column(
+                                      children: [
+                                        Text(
+                                          'Grand Total',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: fontSize),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'IDR ${_getSafeStringValue(currentSalesData, 'grandTotal')}',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: fontSize),
+                                        ),
+                                        if (currentSalesData['items'] != null &&
+                                            currentSalesData['items'].length >
+                                                0)
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 8.0),
+                                            child: Text(
+                                              'Items: ${currentSalesData['items'].length}',
+                                              style: TextStyle(
+                                                color: Colors.white70,
+                                                fontSize: fontSize * 0.5,
                                               ),
                                             ),
-                                        ],
-                                      );
-                                    },
-                                  ),
+                                          ),
+                                      ],
+                                    );
+                                  },
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                // Right side: Images with fixed width
-                Container(
-                  width: 1264, // Fixed width for the right side
-                  child: Column(
-                    children: [
-                      Expanded(
-                        flex: 7,
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 1000),
-                          transitionBuilder:
-                              (Widget child, Animation<double> animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            );
-                          },
-                          child: FutureBuilder<Widget>(
-                            future: largeBanners.isNotEmpty
-                                ? _buildLargeBannerMedia(
-                                    largeBanners[_currentIndex],
-                                  )
-                                : Future.value(const Center(
-                                    child: CircularProgressIndicator(),
-                                  )),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                return snapshot.data!;
-                              }
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            },
                           ),
-                        ),
+                        ],
                       ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        flex: 3,
-                        child: CarouselSlider(
-                          options: CarouselOptions(
-                            height: double.infinity,
-                            viewportFraction: 1.0,
-                            autoPlay: true,
-                            autoPlayInterval: const Duration(seconds: 3),
-                            autoPlayAnimationDuration:
-                                const Duration(milliseconds: 800),
-                            autoPlayCurve: Curves.fastOutSlowIn,
-                            pauseAutoPlayOnTouch: true,
-                          ),
-                          items: smallBanners
-                              .map((banner) => _buildSmallBannerMedia(banner))
-                              .toList(),
-                        ),
-                      )
                     ],
                   ),
-                )
-              ],
-            ),
-          ]),
+                ),
+              ),
+              // Right side: Images with fixed width
+              Container(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height * 0.5,
+                  minWidth: MediaQuery.of(context).size.width * 0.5,
+                  maxHeight: MediaQuery.of(context).size.height * 1,
+                  maxWidth: MediaQuery.of(context).size.width * 0.6,
+                ),
+                width: 1264, // Fixed width for the right side
+                child: Column(
+                  children: [
+                    Expanded(
+                      flex: 7,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 1000),
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          );
+                        },
+                        child: FutureBuilder<Widget>(
+                          future: largeBanners.isNotEmpty
+                              ? _buildLargeBannerMedia(
+                                  largeBanners[_currentIndex],
+                                )
+                              : Future.value(const Center(
+                                  child: CircularProgressIndicator(),
+                                )),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return snapshot.data!;
+                            }
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      flex: 3,
+                      child: CarouselSlider(
+                        options: CarouselOptions(
+                          height: double.infinity,
+                          viewportFraction: 1.0,
+                          autoPlay: true,
+                          autoPlayInterval: const Duration(seconds: 3),
+                          autoPlayAnimationDuration:
+                              const Duration(milliseconds: 800),
+                          autoPlayCurve: Curves.fastOutSlowIn,
+                          pauseAutoPlayOnTouch: true,
+                        ),
+                        items: smallBanners
+                            .map((banner) => _buildSmallBannerMedia(banner))
+                            .toList(),
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
         ));
   }
 }
