@@ -154,24 +154,32 @@ class _DisplayPageState extends State<DisplayPage> {
           try {
             final String jsonString = call.arguments as String;
             final data = jsonDecode(jsonString);
-
             setState(() {
-              // Update the entire dualScreenModel
               dataMap['dualScreenModel'] = data;
-
-              // Immediately update banner-specific fields
               if (data is Map) {
-                // Update large banner if present
                 if (data.containsKey('largeBannersUrl') &&
                     data['largeBannersUrl'] is List &&
                     data['largeBannersUrl'].isNotEmpty) {}
-
-                // Update small banner if present
                 if (data.containsKey('smallBannersUrl') &&
                     data['smallBannersUrl'] is List &&
                     data['smallBannersUrl'].isNotEmpty) {}
               }
             });
+          } catch (e, stackTrace) {
+            debugPrint('Error processing banner data: $e');
+            debugPrint(stackTrace.toString());
+            return false;
+          }
+        case 'updateCheckoutData':
+          try {
+            final String jsonString = call.arguments as String;
+            final data = jsonDecode(jsonString);
+            debugPrint('INI DATA DARI CHECKOUT$data');
+            setState(() {
+              currentSalesData['grandTotal'] = data['grandTotal'];
+              currentSalesData['changed'] = data['changed'];
+            });
+            return true;
           } catch (e, stackTrace) {
             debugPrint('Error processing banner data: $e');
             debugPrint(stackTrace.toString());
@@ -195,313 +203,253 @@ class _DisplayPageState extends State<DisplayPage> {
     }
   }
 
-  double _calculateColumnWidth(BuildContext context, double percentage) {
-    return MediaQuery.of(context).size.width * percentage;
+  double _getResponsiveFontSize(BuildContext context, {bool isHeader = false}) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Calculate base size based on screen dimensions
+    final baseSize =
+        (screenWidth * screenHeight) / (1920 * 1080); // normalized to 1080p
+
+    // Scale font size proportionally
+    final scaleFactor = isHeader ? 1.2 : 1.0;
+    final fontSize = (baseSize * 16 * scaleFactor).clamp(
+        isHeader ? 10.0 : 8.0, // minimum size
+        isHeader ? 20.0 : 18.0 // maximum size
+        );
+
+    return fontSize;
+  }
+
+  double _getColumnWidth(BuildContext context, String columnType) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    print('screenwidth $screenWidth');
+    final totalWidth =
+        screenWidth * 0.4; // Since container width is 40% of screen
+
+    // Dynamic ratios based on available width
+    final Map<String, double> columnRatios = {
+      'no': 0.05,
+      'name': 0.30,
+      'qty': 0.07,
+      'discount': 0.17,
+      'total': 0.18,
+    };
+
+    return totalWidth * (columnRatios[columnType] ?? 0.1);
+  }
+
+  double _getHeaderHeight(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    // Make header height responsive but with min/max bounds
+    return (screenHeight * 0.06).clamp(40.0, 60.0);
+  }
+
+  double _getHeaderPadding(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    return (screenHeight * 0.01).clamp(4.0, 12.0);
+  }
+
+  Widget _buildTableCell({
+    required BuildContext context,
+    required String text,
+    required bool isHeader,
+  }) {
+    final fontSize = _getResponsiveFontSize(context, isHeader: isHeader);
+    final verticalPadding = isHeader ? _getHeaderPadding(context) : 8.0;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        vertical: verticalPadding,
+        horizontal: 4,
+      ),
+      child: Center(
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isHeader ? Colors.white : Colors.black87,
+            fontSize: fontSize,
+            fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
+          ),
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.visible,
+          softWrap: true,
+        ),
+      ),
+    );
   }
 
   Widget _buildSalesDisplay() {
-    // return Expanded(
-    //   child: Stack(children: [
-    //     DataTable(
-    //       columns: const [
-    //         DataColumn(
-    //           label: Center(
-    //             child: Text(
-    //               'No',
-    //               style: TextStyle(color: Colors.white),
-    //             ),
-    //           ),
-    //         ),
-    //         DataColumn(
-    //           label: Center(
-    //             child: Text(
-    //               'Item Name',
-    //               style: TextStyle(color: Colors.white),
-    //             ),
-    //           ),
-    //         ),
-    //         DataColumn(
-    //           label: Center(
-    //             child: Text(
-    //               'Qty.',
-    //               style: TextStyle(color: Colors.white),
-    //             ),
-    //           ),
-    //         ),
-    //         DataColumn(
-    //           label: Center(
-    //             child: Text(
-    //               'Discount',
-    //               style: TextStyle(color: Colors.white),
-    //             ),
-    //           ),
-    //         ),
-    //         DataColumn(
-    //           label: Center(
-    //             child: Text(
-    //               'Total',
-    //               style: TextStyle(color: Colors.white),
-    //             ),
-    //           ),
-    //         ),
-    //       ],
-    //       rows: currentSalesData['items'] == null
-    //           ? []
-    //           : List<DataRow>.generate(
-    //               currentSalesData['items']!.length,
-    //               (index) {
-    //                 final item = currentSalesData['items']![index];
-    //                 WidgetsBinding.instance.addPostFrameCallback((_) {
-    //                   _scrollToBottom();
-    //                 });
-    //                 return DataRow(
-    //                   cells: [
-    //                     DataCell(Text('${index + 1}')),
-    //                     DataCell(Text('${item['name']}')),
-    //                     DataCell(Text('${item['quantity']}')),
-    //                     DataCell(Text('${item['discount'] ?? '-'}')),
-    //                     DataCell(Text(Helpers.parseMoney(item['total']))),
-    //                   ],
-    //                 );
-    //               },
-    //             ),
-    //     ),
-    //     SingleChildScrollView(
-    //       controller: _scrollController,
-    //       scrollDirection: Axis.vertical,
-    //       child: DataTable(
-    //         // headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
-    //         dataRowMaxHeight: double.infinity,
-    //         // headingTextStyle: TextStyle(
-    //         //   fontSize: 14,
-    //         // ),
-    //         // dataTextStyle: TextStyle(
-    //         //   fontSize: 10,
-    //         // ),
-    //         border: TableBorder.symmetric(outside: BorderSide(width: 1)),
-    //         columns: const [
-    //           DataColumn(
-    //             label: Center(
-    //               child: Text(
-    //                 'No',
-    //                 style: TextStyle(color: Colors.white),
-    //               ),
-    //             ),
-    //           ),
-    //           DataColumn(
-    //             label: Center(
-    //               child: Text(
-    //                 'Item Name',
-    //                 style: TextStyle(color: Colors.white),
-    //               ),
-    //             ),
-    //           ),
-    //           DataColumn(
-    //             label: Center(
-    //               child: Text(
-    //                 'Qty.',
-    //                 style: TextStyle(color: Colors.white),
-    //               ),
-    //             ),
-    //           ),
-    //           DataColumn(
-    //             label: Center(
-    //               child: Text(
-    //                 'Discount',
-    //                 style: TextStyle(color: Colors.white),
-    //               ),
-    //             ),
-    //           ),
-    //           DataColumn(
-    //             label: Center(
-    //               child: Text(
-    //                 'Total',
-    //                 style: TextStyle(color: Colors.white),
-    //               ),
-    //             ),
-    //           ),
-    //         ],
-    //         rows: currentSalesData['items'] == null
-    //             ? []
-    //             : List<DataRow>.generate(
-    //                 currentSalesData['items']!.length,
-    //                 (index) {
-    //                   final item = currentSalesData['items']![index];
-    //                   WidgetsBinding.instance.addPostFrameCallback((_) {
-    //                     _scrollToBottom();
-    //                   });
-    //                   return DataRow(
-    //                     cells: [
-    //                       DataCell(Text('${index + 1}')),
-    //                       DataCell(Text('${item['name']}')),
-    //                       DataCell(Text('${item['quantity']}')),
-    //                       DataCell(Text('${item['discount'] ?? '-'}')),
-    //                       DataCell(Text(Helpers.parseMoney(item['total']))),
-    //                     ],
-    //                   );
-    //                 },
-    //               ),
-    //       ),
-    //     ),
-    //   ]),
-    // );
+    // Ensure scroll to bottom whenever data changes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
+
     return Expanded(
-      child: Stack(
-        children: [
-          // Data Table for the rows (data table)
-          Positioned.fill(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              scrollDirection: Axis.vertical,
-              child: DataTable(
-                headingRowColor:
-                    MaterialStateProperty.all(ProjectColors.primary),
-                dataRowMaxHeight: double.infinity,
-                headingTextStyle: TextStyle(fontSize: 12),
-                dataTextStyle: TextStyle(fontSize: 10),
-                border: TableBorder.symmetric(outside: BorderSide(width: 1)),
-                columnSpacing: 0,
-                columns: [
-                  DataColumn(
-                    label: SizedBox(
-                      width: _calculateColumnWidth(context, 0.015),
-                      child: const Text(
-                        'No',
-                        style: TextStyle(color: Colors.white),
-                      ),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            width: 1,
+            color: Colors.black.withOpacity(0.5),
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        width: double.infinity,
+        child: Column(
+          children: [
+            // Sticky Header
+            Container(
+              height: _getHeaderHeight(context),
+              decoration: BoxDecoration(
+                color: ProjectColors.primary,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: _buildTableCell(
+                      context: context,
+                      text: 'No',
+                      isHeader: true,
                     ),
                   ),
-                  DataColumn(
-                    label: SizedBox(
-                      width: _calculateColumnWidth(context, 0.095),
-                      child: const Text(
-                        'Item Name',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                  Expanded(
+                    flex: 30,
+                    child: _buildTableCell(
+                      context: context,
+                      text: 'Item Name',
+                      isHeader: true,
                     ),
                   ),
-                  DataColumn(
-                    label: SizedBox(
-                      width: _calculateColumnWidth(context, 0.015),
-                      child: const Text(
-                        'Qty',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                  Expanded(
+                    flex: 7,
+                    child: _buildTableCell(
+                      context: context,
+                      text: 'Qty',
+                      isHeader: true,
                     ),
                   ),
-                  DataColumn(
-                    label: SizedBox(
-                      width: _calculateColumnWidth(context, 0.035),
-                      child: const Text(
-                        'Discount',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                  Expanded(
+                    flex: 17,
+                    child: _buildTableCell(
+                      context: context,
+                      text: 'Discount',
+                      isHeader: true,
                     ),
                   ),
-                  DataColumn(
-                    label: SizedBox(
-                      width: _calculateColumnWidth(context, 0.045),
-                      child: const Text(
-                        'Total',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                  Expanded(
+                    flex: 18,
+                    child: _buildTableCell(
+                      context: context,
+                      text: 'Total',
+                      isHeader: true,
                     ),
                   ),
                 ],
-                rows: currentSalesData['items'] == null
-                    ? []
-                    : List<DataRow>.generate(
-                        currentSalesData['items']!.length,
-                        (index) {
-                          final item = currentSalesData['items']![index];
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            _scrollToBottom();
-                          });
-                          return DataRow(
-                            cells: [
-                              DataCell(SizedBox(
-                                  width: _calculateColumnWidth(context, 0.015),
-                                  child: Text('${index + 1}'))),
-                              DataCell(SizedBox(
-                                  width: _calculateColumnWidth(context, 0.1),
-                                  child: Text('${item['name']}'))),
-                              DataCell(SizedBox(
-                                  width: _calculateColumnWidth(context, 0.015),
-                                  child: Text('${item['quantity']}'))),
-                              DataCell(SizedBox(
-                                  width: _calculateColumnWidth(context, 0.035),
-                                  child: Text('${item['discount'] ?? '-'}'))),
-                              DataCell(SizedBox(
-                                  width: _calculateColumnWidth(context, 0.043),
-                                  child:
-                                      Text(Helpers.parseMoney(item['total'])))),
-                            ],
-                          );
-                        },
-                      ),
               ),
             ),
-          ),
-          // Data Table for the header (static part)
-          Positioned.fill(
-            child: DataTable(
-              headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
-              dataRowMaxHeight: double.infinity,
-              headingTextStyle: TextStyle(fontSize: 12),
-              dataTextStyle: TextStyle(fontSize: 10),
-              border: TableBorder.symmetric(outside: BorderSide(width: 1)),
-              columnSpacing: 0,
-              columns: [
-                DataColumn(
-                  label: SizedBox(
-                    width: _calculateColumnWidth(context, 0.014),
-                    child: const Text(
-                      'No',
-                      style: TextStyle(color: Colors.white),
-                    ),
+            // List items with auto-scroll
+            Expanded(
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (scrollInfo) {
+                  if (scrollInfo is ScrollEndNotification) {
+                    // Store the current scroll position
+                    final currentPosition = _scrollController.position.pixels;
+                    final maxScroll =
+                        _scrollController.position.maxScrollExtent;
+                    // If we're near the bottom, keep scrolling to bottom for new items
+                    if (currentPosition >= maxScroll - 50) {
+                      _scrollToBottom();
+                    }
+                  }
+                  return true;
+                },
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Column(
+                    children: [
+                      if (currentSalesData['items'] != null)
+                        ...List.generate(
+                          currentSalesData['items']!.length,
+                          (index) {
+                            final item = currentSalesData['items']![index];
+                            return Container(
+                              constraints: BoxConstraints(
+                                minHeight: 40,
+                              ),
+                              decoration: BoxDecoration(
+                                color: index % 2 == 0
+                                    ? Colors.white
+                                    : Colors.grey.shade50,
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey.shade300,
+                                    width: 1,
+                                  ),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 5,
+                                    child: _buildTableCell(
+                                      context: context,
+                                      text: '${index + 1}',
+                                      isHeader: false,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 30,
+                                    child: _buildTableCell(
+                                      context: context,
+                                      text: '${item['name']}',
+                                      isHeader: false,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 7,
+                                    child: _buildTableCell(
+                                      context: context,
+                                      text: '${item['quantity']}',
+                                      isHeader: false,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 17,
+                                    child: _buildTableCell(
+                                      context: context,
+                                      text: '${item['discount'] ?? '-'}',
+                                      isHeader: false,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 18,
+                                    child: _buildTableCell(
+                                      context: context,
+                                      text: Helpers.parseMoney(item['total']),
+                                      isHeader: false,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                    ],
                   ),
                 ),
-                DataColumn(
-                  label: SizedBox(
-                    width: _calculateColumnWidth(context, 0.095),
-                    child: const Text(
-                      'Item Name',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-                DataColumn(
-                  label: SizedBox(
-                    width: _calculateColumnWidth(context, 0.015),
-                    child: const Text(
-                      'Qty',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-                DataColumn(
-                  label: SizedBox(
-                    width: _calculateColumnWidth(context, 0.035),
-                    child: const Text(
-                      'Discount',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-                DataColumn(
-                  label: SizedBox(
-                    width: _calculateColumnWidth(context, 0.045),
-                    child: const Text(
-                      'Total',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ],
-              rows: [], // Empty rows for header as it's a static part
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -911,338 +859,348 @@ class _DisplayPageState extends State<DisplayPage> {
     super.dispose();
   }
 
+  Widget _buildInfoRow(String label, String value, double fontSize) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: fontSize,
+              color: Colors.black87,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomerSection(
+      BuildContext context, Map<String, dynamic> data) {
+    return Expanded(
+      flex: 2,
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: MediaQuery.of(context).size.height * 0.01,
+          right: MediaQuery.of(context).size.width * 0.01,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              width: 0.5,
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              print('constrains $constraints');
+              final baseSize =
+                  (constraints.maxWidth * constraints.maxHeight) / (800 * 600);
+              final fontSize = (baseSize * 14).clamp(10.0, 16.0);
+              final headerFontSize = (fontSize * 1.2).clamp(12.0, 18.0);
+              final padding = (baseSize * 12).clamp(6.0, 10.0);
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: ProjectColors.primary,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(8),
+                      ),
+                    ),
+                    padding: EdgeInsets.all(padding),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Customer',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: headerFontSize,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          _getSafeStringValue(data, 'customerName'),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: headerFontSize,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(padding),
+                    child: Column(
+                      children: [
+                        _buildInfoRow(
+                          'Total Discount',
+                          'Rp ${_getSafeStringValue(data, 'totalDiscount')}',
+                          fontSize,
+                        ),
+                        _buildInfoRow(
+                          'Grand Total',
+                          'Rp ${_getSafeStringValue(data, 'grandTotal')}',
+                          fontSize,
+                        ),
+                        SizedBox(height: padding),
+                        _buildInfoRow(
+                          'Total Payment',
+                          'Rp ${_getSafeStringValue(data, 'totalPayment')}',
+                          fontSize,
+                        ),
+                        _buildInfoRow(
+                          'Changed',
+                          'Rp ${_getSafeStringValue(data, 'changed')}',
+                          fontSize,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGrandTotalSection(
+      BuildContext context, Map<String, dynamic> data) {
+    final hasItems = data['items'] != null && data['items'].length > 0;
+
+    return Expanded(
+      flex: 2,
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: MediaQuery.of(context).size.height * 0.01,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: hasItems ? Colors.green.shade700 : Colors.green,
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final baseSize =
+                  (constraints.maxWidth * constraints.maxHeight) / (800 * 600);
+              final fontSize = (baseSize * 20).clamp(14.0, 24.0);
+              final padding = (baseSize * 16).clamp(8.0, 42.0);
+
+              return Padding(
+                padding: EdgeInsets.all(padding),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Grand Total',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: fontSize * 0.8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: padding * 0.5),
+                    Text(
+                      'IDR ${_getSafeStringValue(data, 'grandTotal')}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: fontSize * 0.8,
+                      ),
+                    ),
+                    SizedBox(height: padding * 0.5),
+                    Text(
+                      'Items: ${data['items'] != null ? data['items'].length : 0}',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: fontSize * 0.6,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cashier = _prefs?.getString('username');
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding:
-                      const EdgeInsets.only(left: 20, bottom: 40, right: 12),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Image.asset(
-                            "assets/logo/ruby_pos_sesa_icon.png",
-                            fit: BoxFit.contain,
-                            height: 110,
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                width: 1,
-                                color: Colors.grey,
-                              ),
-                              borderRadius: BorderRadius.circular(4),
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 20, bottom: 40, right: 12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Image.asset(
+                          "assets/logo/ruby_pos_sesa_icon.png",
+                          fit: BoxFit.contain,
+                          height: 110,
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              width: 1,
+                              color: Colors.grey,
                             ),
-                            child: Column(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: ProjectColors.primary,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(4),
-                                      topRight: Radius.circular(4),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    'Cash Register',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 8,
-                                    ),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(
+                                  color: ProjectColors.primary,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(4),
+                                    topRight: Radius.circular(4),
                                   ),
                                 ),
-                                Text(
-                                  dataMap['cashRegisterId'] ??
-                                      'Unknown Register',
-                                  style: const TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
+                                child: const Text(
+                                  'Cash Register',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 8,
                                   ),
-                                )
-                              ],
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                DateFormat('EEEE, dd MMM yyyy')
-                                    .format(DateTime.now()),
-                                style: const TextStyle(fontSize: 14),
+                                ),
                               ),
                               Text(
-                                dataMap['storeName'] ?? '',
+                                dataMap['cashRegisterId'] ?? 'Unknown Register',
                                 style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                dataMap['cashierName'] ?? '',
-                                style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold),
-                              ),
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
                             ],
                           ),
-                        ],
-                      ),
-                      _buildSalesDisplay(),
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 8.0, right: 8.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                      width: 1,
-                                      color: Colors.grey,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8)),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                          color: ProjectColors.primary,
-                                          borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(8),
-                                              topRight: Radius.circular(8))),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Text('Customer',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 12)),
-                                            Text(
-                                                _getSafeStringValue(
-                                                    currentSalesData,
-                                                    'customerName'),
-                                                style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 14)),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text(
-                                                'Total Discount',
-                                                style: TextStyle(fontSize: 12),
-                                              ),
-                                              Text(
-                                                  'Rp ${_getSafeStringValue(currentSalesData, 'totalDiscount')}',
-                                                  style: const TextStyle(
-                                                      fontSize: 12)),
-                                            ],
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text('Grand Total',
-                                                  style:
-                                                      TextStyle(fontSize: 12)),
-                                              Text(
-                                                  'Rp ${_getSafeStringValue(currentSalesData, 'grandTotal')}',
-                                                  style: const TextStyle(
-                                                      fontSize: 12)),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text('Total Payment',
-                                                  style:
-                                                      TextStyle(fontSize: 12)),
-                                              Text(
-                                                  'Rp ${_getSafeStringValue(currentSalesData, 'totalPayment')}',
-                                                  style: const TextStyle(
-                                                      fontSize: 12)),
-                                            ],
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text('Changed',
-                                                  style:
-                                                      TextStyle(fontSize: 12)),
-                                              Text(
-                                                  'Rp ${_getSafeStringValue(currentSalesData, 'changed')}',
-                                                  style: const TextStyle(
-                                                      fontSize: 12)),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          // Grand Total Section
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: currentSalesData['items'] != null &&
-                                          currentSalesData['items'].length > 0
-                                      ? Colors.green
-                                          .shade700 // Darker green when items added
-                                      : Colors.green,
-                                ),
-                                padding: const EdgeInsets.all(25.0),
-                                child: LayoutBuilder(
-                                  builder: (context, constraints) {
-                                    final fontSize = constraints.maxWidth > 800
-                                        ? 24.0
-                                        : 20.0;
-                                    return Column(
-                                      children: [
-                                        Text(
-                                          'Grand Total',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: fontSize),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'IDR ${_getSafeStringValue(currentSalesData, 'grandTotal')}',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: fontSize),
-                                        ),
-                                        if (currentSalesData['items'] != null &&
-                                            currentSalesData['items'].length >
-                                                0)
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 8.0),
-                                            child: Text(
-                                              'Items: ${currentSalesData['items'].length}',
-                                              style: TextStyle(
-                                                color: Colors.white70,
-                                                fontSize: fontSize * 0.5,
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // Right side: Images with fixed width
-              Container(
-                constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height * 0.5,
-                  minWidth: MediaQuery.of(context).size.width * 0.5,
-                  maxHeight: MediaQuery.of(context).size.height * 1,
-                  maxWidth: MediaQuery.of(context).size.width * 0.6,
-                ),
-                width: 1264, // Fixed width for the right side
-                child: Column(
-                  children: [
-                    Expanded(
-                      flex: 7,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 1000),
-                        transitionBuilder:
-                            (Widget child, Animation<double> animation) {
-                          return FadeTransition(
-                            opacity: animation,
-                            child: child,
-                          );
-                        },
-                        child: FutureBuilder<Widget>(
-                          future: largeBanners.isNotEmpty
-                              ? _buildLargeBannerMedia(
-                                  largeBanners[_currentIndex],
-                                )
-                              : Future.value(const Center(
-                                  child: CircularProgressIndicator(),
-                                )),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return snapshot.data!;
-                            }
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          },
                         ),
-                      ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              DateFormat('EEEE, dd MMM yyyy')
+                                  .format(DateTime.now()),
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            Text(
+                              dataMap['storeName'] ?? '',
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              dataMap['cashierName'] ?? '',
+                              style: const TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Expanded(
-                      flex: 3,
-                      child: CarouselSlider(
-                        options: CarouselOptions(
-                          height: double.infinity,
-                          viewportFraction: 1.0,
-                          autoPlay: true,
-                          autoPlayInterval: const Duration(seconds: 3),
-                          autoPlayAnimationDuration:
-                              const Duration(milliseconds: 800),
-                          autoPlayCurve: Curves.fastOutSlowIn,
-                          pauseAutoPlayOnTouch: true,
-                        ),
-                        items: smallBanners
-                            .map((banner) => _buildSmallBannerMedia(banner))
-                            .toList(),
-                      ),
-                    )
+                    _buildSalesDisplay(),
+                    Row(
+                      children: [
+                        _buildCustomerSection(context, currentSalesData),
+                        _buildGrandTotalSection(context, currentSalesData),
+                      ],
+                    ),
                   ],
                 ),
-              )
-            ],
-          ),
-        ));
+              ),
+            ),
+            // Right side: Images with fixed width
+            Container(
+              constraints: BoxConstraints(
+                minHeight: MediaQuery.of(context).size.height * 0.5,
+                minWidth: MediaQuery.of(context).size.width * 0.5,
+                maxHeight: MediaQuery.of(context).size.height * 1,
+                maxWidth: MediaQuery.of(context).size.width * 0.6,
+              ),
+              width: 1264, // Fixed width for the right side
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 7,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 1000),
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
+                      child: FutureBuilder<Widget>(
+                        future: largeBanners.isNotEmpty
+                            ? _buildLargeBannerMedia(
+                                largeBanners[_currentIndex],
+                              )
+                            : Future.value(const Center(
+                                child: CircularProgressIndicator(),
+                              )),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return snapshot.data!;
+                          }
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    flex: 3,
+                    child: CarouselSlider(
+                      options: CarouselOptions(
+                        height: double.infinity,
+                        viewportFraction: 1.0,
+                        autoPlay: true,
+                        autoPlayInterval: const Duration(seconds: 3),
+                        autoPlayAnimationDuration:
+                            const Duration(milliseconds: 800),
+                        autoPlayCurve: Curves.fastOutSlowIn,
+                        pauseAutoPlayOnTouch: true,
+                      ),
+                      items: smallBanners
+                          .map((banner) => _buildSmallBannerMedia(banner))
+                          .toList(),
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }

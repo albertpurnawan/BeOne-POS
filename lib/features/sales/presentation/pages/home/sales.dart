@@ -4859,7 +4859,7 @@ class _SalesPageState extends State<SalesPage> {
       };
 
       final jsonData = jsonEncode(data);
-      debugPrint("Sending data to display: $jsonData");
+      debugPrint("Sending data to display from sales: $jsonData");
       final sendingData =
           await sendData(windowId, jsonData, 'updateSalesData', 'Sales');
 

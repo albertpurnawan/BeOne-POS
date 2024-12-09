@@ -229,17 +229,24 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
   }
 
   Future<void> _sendToDisplay() async {
-    final data = await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
-    final windows = await DesktopMultiWindow.getAllSubWindowIds();
-    if (windows.isEmpty) {
-      debugPrint('No display window found');
+    try {
+      final windows = await DesktopMultiWindow.getAllSubWindowIds();
+      if (windows.isEmpty) {
+        debugPrint('No display window found');
+        return;
+      }
+      final windowId = windows[0];
+      final data = await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
+      final jsonData = jsonEncode(data);
+      debugPrint("Sending data to display: $jsonData");
+      final sendingData =
+          await sendData(windowId, jsonData, 'updateBannerData', 'checkout');
+      debugPrint("Send result: $sendingData");
+    } catch (e, stackTrace) {
+      debugPrint('Error sending data to display: $e');
+      debugPrint(stackTrace.toString());
       return;
     }
-    final windowId = windows[0];
-    final jsonData = jsonEncode(data);
-    debugPrint("Sending data to display: $jsonData");
-    final sendingData =
-        await sendData(windowId, jsonData, 'updateSalesData', 'Sales');
   }
 
   void onDropdownChanged(String? newValue) {
