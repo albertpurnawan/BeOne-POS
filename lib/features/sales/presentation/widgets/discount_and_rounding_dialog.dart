@@ -119,6 +119,15 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     searchedLineDiscountInputs = lineDiscountInputs;
     _textEditorHeaderDiscountAmountController.text =
         Helpers.parseMoney(state.discHeaderManual ?? 0);
+
+    // Calculate and set the discount percentage
+    if ((state.discHeaderManual ?? 0) != 0) {
+      final percentage =
+          ((state.discHeaderManual ?? 0) / initialGrandTotal * 100).abs();
+      _textEditorHeaderDiscountPercentController.text =
+          '${percentage.toStringAsFixed(2)}%';
+    }
+
     isManualRounded = widget.manualRounded;
     initialRounding = state.rounding.roundToDouble();
 
@@ -144,6 +153,10 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
         });
       }
     });
+
+    // Set initial active controller to percentage
+    _activeController = _textEditorHeaderDiscountPercentController;
+    _discountPercentFocusNode.requestFocus();
   }
 
   @override
