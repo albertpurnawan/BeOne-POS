@@ -3820,7 +3820,7 @@ CREATE TABLE $tableDuitkuVAAssignStore (
           '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.defaultShowKeyboard} int NOT NULL DEFAULT '0' ''');
       // alter table topos showKeyboard
       await db.execute(
-          '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.customerDisplayActive} int NOT NULL DEFAULT null ''');
+          '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.customerDisplayActive} int DEFAULT null ''');
       // create table banner
       await db.execute(createTobnr);
     },
