@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/field_label.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class InputLineDiscountDialog extends StatefulWidget {
   final ReceiptItemEntity receiptItemEntity;
@@ -31,11 +35,108 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
 
   final TextEditingController _inputReturnedQtyEditingController = TextEditingController();
 
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool _showKeyboard = true;
+  bool _shiftEnabled = false;
+  bool _currentNumericMode = true;
+  bool _isDropdownShown = false;
+  final GlobalKey _iconButtonKey = GlobalKey();
+
   @override
   void initState() {
-    // TODO: implement initState
+    getDefaultKeyboardPOSParameter();
     super.initState();
     _inputReturnedQtyEditingController.text = Helpers.parseMoney(widget.lineDiscount);
+  }
+
+  @override
+  void dispose() {
+    _inputReturnedQtyEditingController.dispose();
+    _inputReturnedQtyFocusNode.dispose();
+    _keyboardFocusNode.dispose();
+    super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
+  }
+
+  void _toggleKeyboard() {
+    if (_isDropdownShown) {
+      setState(() {
+        _showKeyboard = !_showKeyboard;
+      });
+    } else {
+      _showDropdown();
+    }
+  }
+
+  void _showDropdown() async {
+    final RenderBox renderBox = _iconButtonKey.currentContext!.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+
+    await showMenu(
+      context: context,
+      surfaceTintColor: Colors.transparent,
+      color: const Color.fromARGB(255, 245, 245, 245),
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy + renderBox.size.height,
+        offset.dx + renderBox.size.width,
+        offset.dy,
+      ),
+      items: [
+        const PopupMenuItem(
+          value: "Alphanumeric",
+          child: Text("Alphanumeric"),
+        ),
+        const PopupMenuItem(
+          value: "Numeric",
+          child: Text("Numeric"),
+        ),
+        const PopupMenuItem(
+          value: "Off",
+          child: Text("Off"),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        switch (value) {
+          case 'Off':
+            setState(() {
+              _showKeyboard = false;
+            });
+            break;
+          case 'Alphanumeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = false;
+            });
+            break;
+          case 'Numeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = true;
+            });
+            break;
+          default:
+            setState(() {
+              _showKeyboard = true;
+            });
+            break;
+        }
+      }
+    });
   }
 
   @override
@@ -73,14 +174,41 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
               ),
               const Spacer(),
-              ExcludeFocus(
-                  child: InkWell(
-                onTap: () => _saveLineDiscount(amount: 0),
-                child: const Icon(
-                  Icons.delete_outline_rounded,
-                  color: Colors.white,
-                ),
-              ))
+              Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(360)),
+                    ),
+                    child: IconButton(
+                      focusColor: const Color.fromARGB(255, 110, 0, 0),
+                      focusNode: _keyboardFocusNode,
+                      key: _iconButtonKey,
+                      icon: Icon(
+                        _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _toggleKeyboard();
+                        });
+                      },
+                      tooltip: 'Toggle Keyboard',
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  ExcludeFocus(
+                    child: InkWell(
+                      onTap: () => _saveLineDiscount(amount: 0),
+                      child: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),
@@ -89,7 +217,7 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
         content: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
           child: SizedBox(
-            width: 400,
+            width: MediaQuery.of(context).size.width * 0.5,
             // constraints: BoxConstraints(
             //   maxHeight: MediaQuery.of(context).size.height * 0.6,
             // ),
@@ -110,7 +238,7 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                                 onChanged: (value) => setState(() {}),
                                 autofocus: true,
                                 inputFormatters: [NegativeMoneyInputFormatter()],
-                                keyboardType: TextInputType.number,
+                                keyboardType: TextInputType.none,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 66, 66, 66)),
@@ -290,6 +418,70 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                     ),
                   ),
                 ),
+                (_showKeyboard)
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                        child: KeyboardWidget(
+                          controller: _inputReturnedQtyEditingController,
+                          isNumericMode: _currentNumericMode,
+                          customLayoutKeys: true,
+                          isShiftEnabled: _shiftEnabled,
+                          onKeyPress: (key) async {
+                            String text = _inputReturnedQtyEditingController.text;
+                            TextSelection currentSelection = _inputReturnedQtyEditingController.selection;
+                            int cursorPosition = currentSelection.start;
+
+                            if (key.keyType == VirtualKeyboardKeyType.String) {
+                              String inputText = key.text ?? '';
+                              text = text.replaceRange(
+                                  (text == '0') ? cursorPosition - 1 : cursorPosition, cursorPosition, inputText);
+                              cursorPosition += inputText.length;
+                            } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                              switch (key.action) {
+                                case VirtualKeyboardKeyAction.Backspace:
+                                  if (text.isNotEmpty && cursorPosition > 0) {
+                                    text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                    cursorPosition -= 1;
+                                  }
+                                  break;
+
+                                case VirtualKeyboardKeyAction.Return:
+                                  text = text.trimRight();
+                                  break;
+
+                                case VirtualKeyboardKeyAction.Space:
+                                  text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                  cursorPosition += 1;
+
+                                  break;
+
+                                case VirtualKeyboardKeyAction.Shift:
+                                  _shiftEnabled = !_shiftEnabled;
+                                  break;
+
+                                default:
+                                  break;
+                              }
+                            }
+                            TextEditingValue formattedValue = NegativeMoneyInputFormatter().formatEditUpdate(
+                              TextEditingValue(
+                                text: text,
+                                selection: TextSelection.collapsed(offset: cursorPosition),
+                              ),
+                              TextEditingValue(
+                                text: text,
+                                selection: TextSelection.collapsed(offset: cursorPosition),
+                              ),
+                            );
+
+                            _inputReturnedQtyEditingController.text = formattedValue.text;
+                            _inputReturnedQtyEditingController.selection = formattedValue.selection;
+
+                            setState(() {});
+                          },
+                        ),
+                      )
+                    : const SizedBox.shrink(),
               ],
             ),
           ),

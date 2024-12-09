@@ -12,6 +12,7 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
@@ -35,17 +36,61 @@ class ConfirmToEndShift extends StatefulWidget {
 
 class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
   final _formKey = GlobalKey<FormState>();
-  final usernameController = TextEditingController();
-  final passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
-  final _usernameFocusNode = FocusNode();
   bool _obscureText = true;
   bool _isOTPClicked = false;
   bool _isSendingOTP = false;
 
+  bool _shiftEnabled = false;
+  bool _showKeyboard = true;
+  final _usernameFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final FocusNode _keyboardFocusNode = FocusNode();
+  String currentFocusedField = '';
+  TextEditingController _activeController = TextEditingController();
+
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
+
+    _usernameFocusNode.addListener(() {
+      if (_usernameFocusNode.hasFocus) {
+        setState(() {
+          currentFocusedField = 'username';
+          _activeController = _usernameController;
+        });
+      }
+    });
+    _passwordFocusNode.addListener(() {
+      if (_passwordFocusNode.hasFocus) {
+        setState(() {
+          currentFocusedField = 'password';
+          _activeController = _passwordController;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<String> checkPassword(String username, String password) async {
@@ -78,7 +123,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
   Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
-    String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
+    String passwordCorrect = await checkPassword(_usernameController.text, _passwordController.text);
     if (passwordCorrect == "Success") {
       if (!context.mounted) return;
       Navigator.pop(childContext);
@@ -86,7 +131,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
           childContext,
           CloseShiftScreen(
             shiftId: widget.shift.docId,
-            username: usernameController.text,
+            username: _usernameController.text,
           ));
 
       try {
@@ -200,11 +245,6 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext parentContext) {
     return ScaffoldMessenger(
       child: Builder(builder: (childContext) {
@@ -238,9 +278,34 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
-                child: const Text(
-                  'Close Shift Confirmation',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Close Shift Confirmation',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                        borderRadius: const BorderRadius.all(Radius.circular(360)),
+                      ),
+                      child: IconButton(
+                        focusColor: const Color.fromARGB(255, 110, 0, 0),
+                        focusNode: _keyboardFocusNode,
+                        icon: Icon(
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showKeyboard = !_showKeyboard;
+                          });
+                        },
+                        tooltip: 'Toggle Keyboard',
+                      ),
+                    ),
+                  ],
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -259,9 +324,9 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                             width: MediaQuery.of(childContext).size.width * 0.5,
                             child: TextFormField(
                               focusNode: _usernameFocusNode,
-                              controller: usernameController,
+                              controller: _usernameController,
                               autofocus: true,
-                              keyboardType: TextInputType.text,
+                              keyboardType: TextInputType.none,
                               onFieldSubmitted: (value) async => await onSubmit(childContext, parentContext),
                               validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
                               textAlign: TextAlign.left,
@@ -281,10 +346,11 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                           SizedBox(
                             width: MediaQuery.of(childContext).size.width * 0.5,
                             child: TextFormField(
-                              controller: passwordController,
+                              controller: _passwordController,
+                              focusNode: _passwordFocusNode,
                               obscureText: _obscureText,
                               autofocus: true,
-                              keyboardType: TextInputType.text,
+                              keyboardType: TextInputType.none,
                               onFieldSubmitted: (value) async {
                                 await onSubmit(childContext, parentContext);
                               },
@@ -302,7 +368,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureText ? Icons.visibility : Icons.visibility_off,
+                                    _obscureText ? Icons.visibility_off : Icons.visibility,
                                     size: 20,
                                   ),
                                   onPressed: () {
@@ -355,6 +421,18 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                                 ),
                             ],
                           ),
+                          const SizedBox(height: 15),
+                          (_showKeyboard)
+                              ? SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.5,
+                                  child: KeyboardWidget(
+                                    controller: _activeController,
+                                    isNumericMode: false,
+                                    customLayoutKeys: true,
+                                    isShiftEnabled: _shiftEnabled,
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
                           const SizedBox(height: 30),
                           Row(
                             children: [

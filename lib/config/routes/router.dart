@@ -2,8 +2,8 @@
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:pos_fe/core/constants/route_constants.dart';
+import 'package:pos_fe/features/dual_screen/presentation/pages/display.dart';
 import 'package:pos_fe/features/home/presentation/pages/home.dart';
 import 'package:pos_fe/features/login/presentation/pages/login.dart';
 import 'package:pos_fe/features/login/presentation/pages/welcome.dart';
@@ -14,7 +14,6 @@ import 'package:pos_fe/features/sales/presentation/pages/home/sales.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/close_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/shift_list.dart';
 import 'package:pos_fe/features/settings/presentation/pages/settings.dart';
-import 'package:pos_fe/features/dual_screen/presentation/pages/display.dart';
 
 class AppRouter {
   GoRouter router = GoRouter(
@@ -54,8 +53,7 @@ class AppRouter {
         name: RouteConstants.sales,
         path: "/sales",
         pageBuilder: (context, state) {
-          final SalesRouterExtra salesRouterExtra =
-              state.extra as SalesRouterExtra;
+          final SalesRouterExtra salesRouterExtra = state.extra as SalesRouterExtra;
           return MaterialPage(
             child: SalesPage(
               salesViewType: salesRouterExtra.salesViewType,
@@ -96,8 +94,9 @@ class AppRouter {
           final Map<String, String> data = state.extra as Map<String, String>;
           return MaterialPage(
               child: CloseShiftScreen(
-                  shiftId: data["shiftId"] as String,
-                  username: data["username"]));
+            shiftId: data["shiftId"] as String,
+            username: data["username"],
+          ));
         },
       ),
       GoRoute(

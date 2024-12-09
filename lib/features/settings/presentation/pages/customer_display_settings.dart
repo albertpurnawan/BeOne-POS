@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:math' show max;
+
 import 'package:desktop_multi_window/desktop_multi_window.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/dual_screen/data/models/dual_screen.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:pos_fe/features/dual_screen/services/send_data_window_service.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
@@ -279,6 +279,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
       usernameAdmin: _posParameter!.usernameAdmin,
       passwordAdmin: _posParameter!.passwordAdmin,
       lastSync: _posParameter!.lastSync,
+      defaultShowKeyboard: _posParameter!.defaultShowKeyboard,
       customerDisplayActive: dbValue,
     );
 

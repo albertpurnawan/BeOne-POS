@@ -14,21 +14,24 @@ class POSParameterEntity {
   final String? usernameAdmin;
   final String? passwordAdmin;
   final String? lastSync;
+  final int? defaultShowKeyboard;
   final int? customerDisplayActive;
 
-  POSParameterEntity(
-      {required this.docId,
-      this.createDate,
-      this.updateDate,
-      this.gtentId,
-      this.tostrId,
-      this.storeName,
-      this.tocsrId,
-      this.baseUrl,
-      this.usernameAdmin,
-      this.passwordAdmin,
-      this.lastSync,
-      this.customerDisplayActive});
+  POSParameterEntity({
+    required this.docId,
+    this.createDate,
+    this.updateDate,
+    this.gtentId,
+    this.tostrId,
+    this.storeName,
+    this.tocsrId,
+    this.baseUrl,
+    this.usernameAdmin,
+    this.passwordAdmin,
+    this.lastSync,
+    this.defaultShowKeyboard,
+    this.customerDisplayActive,
+  });
 
   POSParameterEntity copyWith({
     String? docId,
@@ -42,6 +45,7 @@ class POSParameterEntity {
     String? usernameAdmin,
     String? passwordAdmin,
     String? lastSync,
+    int? defaultShowKeyboard,
     int? customerDisplayActive,
   }) {
     return POSParameterEntity(
@@ -56,8 +60,8 @@ class POSParameterEntity {
         usernameAdmin: usernameAdmin ?? this.usernameAdmin,
         passwordAdmin: passwordAdmin ?? this.passwordAdmin,
         lastSync: lastSync ?? this.lastSync,
-        customerDisplayActive:
-            customerDisplayActive ?? this.customerDisplayActive);
+        defaultShowKeyboard: defaultShowKeyboard ?? this.defaultShowKeyboard,
+        customerDisplayActive: customerDisplayActive ?? this.customerDisplayActive);
   }
 
   Map<String, dynamic> toMap() {
@@ -73,6 +77,7 @@ class POSParameterEntity {
       'usernameAdmin': usernameAdmin,
       'passwordAdmin': passwordAdmin,
       'lastSync': lastSync,
+      'defaultShowKeyboard': defaultShowKeyboard,
       'customerDisplayActive': customerDisplayActive
     };
   }
@@ -80,25 +85,18 @@ class POSParameterEntity {
   factory POSParameterEntity.fromMap(Map<String, dynamic> map) {
     return POSParameterEntity(
       docId: map['docId'] as String,
-      createDate: map['createDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int)
-          : null,
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-          : null,
+      createDate: map['createDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int) : null,
+      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
       gtentId: map['gtentId'] != null ? map['gtentId'] as String : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       storeName: map['storeName'] != null ? map['storeName'] as String : null,
       tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
       baseUrl: map['baseUrl'] != null ? map['baseUrl'] as String : null,
-      usernameAdmin:
-          map['usernameAdmin'] != null ? map['usernameAdmin'] as String : null,
-      passwordAdmin:
-          map['passwordAdmin'] != null ? map['passwordAdmin'] as String : null,
+      usernameAdmin: map['usernameAdmin'] != null ? map['usernameAdmin'] as String : null,
+      passwordAdmin: map['passwordAdmin'] != null ? map['passwordAdmin'] as String : null,
       lastSync: map['lastSync'] != null ? map['lastSync'] as String : null,
-      customerDisplayActive: map['customerDisplayActive'] != null
-          ? map['customerDisplayActive'] as int
-          : null,
+      defaultShowKeyboard: map['defaultShowKeyboard'] != null ? map['defaultShowKeyboard'] as int : null,
+      customerDisplayActive: map['customerDisplayActive'] != null ? map['customerDisplayActive'] as int : null,
     );
   }
 
@@ -109,7 +107,7 @@ class POSParameterEntity {
 
   @override
   String toString() {
-    return 'POSParameterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, gtentId: $gtentId, tostrId: $tostrId, storeName: $storeName, tocsrId: $tocsrId, baseUrl: $baseUrl, usernameAdmin: $usernameAdmin, passwordAdmin: $passwordAdmin, lastSync: $lastSync, customerDisplayActive: $customerDisplayActive)';
+    return 'POSParameterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, gtentId: $gtentId, tostrId: $tostrId, storeName: $storeName, tocsrId: $tocsrId, baseUrl: $baseUrl, usernameAdmin: $usernameAdmin, passwordAdmin: $passwordAdmin, lastSync: $lastSync, defaultShowKeyboard: $defaultShowKeyboard, customerDisplayActive: $customerDisplayActive)';
   }
 
   @override
@@ -127,6 +125,7 @@ class POSParameterEntity {
         other.usernameAdmin == usernameAdmin &&
         other.passwordAdmin == passwordAdmin &&
         other.lastSync == lastSync &&
+        other.defaultShowKeyboard == defaultShowKeyboard &&
         other.customerDisplayActive == customerDisplayActive;
   }
 
@@ -143,6 +142,7 @@ class POSParameterEntity {
         usernameAdmin.hashCode ^
         passwordAdmin.hashCode ^
         lastSync.hashCode ^
+        defaultShowKeyboard.hashCode ^
         customerDisplayActive.hashCode;
   }
 }

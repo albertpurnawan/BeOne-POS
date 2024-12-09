@@ -12,6 +12,7 @@ import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
@@ -25,6 +26,7 @@ import 'package:pos_fe/features/sales/presentation/widgets/input_line_discount_d
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class DiscountAndRoundingDialog extends StatefulWidget {
   final String docnum;
@@ -54,8 +56,17 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   List<LineDiscountParameter> searchedLineDiscountInputs = [];
   final FocusNode _searchLineDiscountFocusNode = FocusNode();
 
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool _showKeyboard = true;
+  bool _shiftEnabled = false;
+  bool _currentNumericMode = true;
+  bool _isDropdownShown = false;
+  final GlobalKey _iconButtonKey = GlobalKey();
+  TextEditingController _activeController = TextEditingController();
+
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
 
     final ReceiptEntity state = context.read<ReceiptCubit>().state;
@@ -89,6 +100,21 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     _textEditorHeaderDiscountController.text = Helpers.parseMoney(state.discHeaderManual ?? 0);
     isManualRounded = widget.manualRounded;
     initialRounding = state.rounding.roundToDouble();
+
+    _discountFocusNode.addListener(() {
+      if (_discountFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _textEditorHeaderDiscountController;
+        });
+      }
+    });
+    _searchLineDiscountFocusNode.addListener(() {
+      if (_searchLineDiscountFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _textEditorLineDiscountController;
+        });
+      }
+    });
   }
 
   @override
@@ -98,7 +124,91 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     _keyboardListenerFocusNode.dispose();
     _focusScopeNode.dispose();
     _focusScopeWarningNode.dispose();
+    _keyboardFocusNode.dispose();
+    // _activeController.dispose();
     super.dispose();
+  }
+
+  void _toggleKeyboard() {
+    if (_isDropdownShown) {
+      setState(() {
+        _showKeyboard = !_showKeyboard;
+      });
+    } else {
+      _showDropdown();
+    }
+  }
+
+  void _showDropdown() async {
+    final RenderBox renderBox = _iconButtonKey.currentContext!.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+
+    await showMenu(
+      context: context,
+      surfaceTintColor: Colors.transparent,
+      color: const Color.fromARGB(255, 245, 245, 245),
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy + renderBox.size.height,
+        offset.dx + renderBox.size.width,
+        offset.dy,
+      ),
+      items: [
+        const PopupMenuItem(
+          value: "Alphanumeric",
+          child: Text("Alphanumeric"),
+        ),
+        const PopupMenuItem(
+          value: "Numeric",
+          child: Text("Numeric"),
+        ),
+        const PopupMenuItem(
+          value: "Off",
+          child: Text("Off"),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        switch (value) {
+          case 'Off':
+            setState(() {
+              _showKeyboard = false;
+            });
+            break;
+          case 'Alphanumeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = false;
+            });
+            break;
+          case 'Numeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = true;
+            });
+            break;
+          default:
+            setState(() {
+              _showKeyboard = true;
+            });
+            break;
+        }
+      }
+    });
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   double getLineDiscountsTotal() {
@@ -190,6 +300,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   }
 
   void _searchItemLineDiscount() {
+    log("_textEditorLineDiscountController.text - ${_textEditorLineDiscountController.text}");
     setState(() {
       searchedLineDiscountInputs = lineDiscountInputs
           .where((element) =>
@@ -200,16 +311,16 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
               element.receiptItemEntity.itemEntity.barcode
                   .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)))
           .toList();
-      log(lineDiscountInputs
-          .where((element) =>
-              element.receiptItemEntity.itemEntity.itemName
-                  .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)) ||
-              element.receiptItemEntity.itemEntity.itemCode
-                  .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)) ||
-              element.receiptItemEntity.itemEntity.barcode
-                  .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)))
-          .toList()
-          .toString());
+      // log(lineDiscountInputs
+      //     .where((element) =>
+      //         element.receiptItemEntity.itemEntity.itemName
+      //             .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)) ||
+      //         element.receiptItemEntity.itemEntity.itemCode
+      //             .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)) ||
+      //         element.receiptItemEntity.itemEntity.barcode
+      //             .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)))
+      //     .toList()
+      //     .toString());
       log(searchedLineDiscountInputs.toString());
     });
   }
@@ -268,7 +379,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                   color: ProjectColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                padding: const EdgeInsets.fromLTRB(25, 5, 10, 5),
                 child: Row(
                   children: [
                     const Text(
@@ -276,40 +387,64 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                       style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                     ),
                     const Spacer(),
-                    ToggleSwitch(
-                      minHeight: 30,
-                      // minWidth: 80.0,
-                      cornerRadius: 5,
-                      animate: true,
-                      animationDuration: 400,
-                      curve: Curves.easeInOut,
-                      activeBgColors: const [
-                        [ProjectColors.green],
-                        [ProjectColors.green]
+                    Row(
+                      children: [
+                        ToggleSwitch(
+                          minHeight: 30,
+                          // minWidth: 80.0,
+                          cornerRadius: 5,
+                          animate: true,
+                          animationDuration: 400,
+                          curve: Curves.easeInOut,
+                          activeBgColors: const [
+                            [ProjectColors.green],
+                            [ProjectColors.green]
+                          ],
+                          activeFgColor: Colors.white,
+                          inactiveBgColor: const Color.fromARGB(255, 211, 211, 211),
+                          inactiveFgColor: ProjectColors.lightBlack,
+                          initialLabelIndex: isHeaderDiscount ? 0 : 1,
+                          totalSwitches: 2,
+                          labels: const ['Header', 'Line'],
+                          customTextStyles: const [
+                            TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                            TextStyle(fontSize: 12, fontWeight: FontWeight.w700)
+                          ],
+                          radiusStyle: true,
+                          onToggle: (index) {
+                            if (index == 0) {
+                              setState(() {
+                                isHeaderDiscount = true;
+                              });
+                            }
+                            if (index == 1) {
+                              setState(() {
+                                isHeaderDiscount = false;
+                              });
+                            }
+                          },
+                        ),
+                        const SizedBox(width: 5),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                            borderRadius: const BorderRadius.all(Radius.circular(360)),
+                          ),
+                          child: IconButton(
+                            key: _iconButtonKey,
+                            focusColor: const Color.fromARGB(255, 110, 0, 0),
+                            focusNode: _keyboardFocusNode,
+                            icon: Icon(
+                              _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              _toggleKeyboard();
+                            },
+                            tooltip: 'Toggle Keyboard',
+                          ),
+                        ),
                       ],
-                      activeFgColor: Colors.white,
-                      inactiveBgColor: const Color.fromARGB(255, 211, 211, 211),
-                      inactiveFgColor: ProjectColors.lightBlack,
-                      initialLabelIndex: isHeaderDiscount ? 0 : 1,
-                      totalSwitches: 2,
-                      labels: const ['Header', 'Line'],
-                      customTextStyles: const [
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.w700)
-                      ],
-                      radiusStyle: true,
-                      onToggle: (index) {
-                        if (index == 0) {
-                          setState(() {
-                            isHeaderDiscount = true;
-                          });
-                        }
-                        if (index == 1) {
-                          setState(() {
-                            isHeaderDiscount = false;
-                          });
-                        }
-                      },
                     ),
                   ],
                 ),
@@ -320,7 +455,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                 width: MediaQuery.of(context).size.width * 0.4,
                 color: Colors.white,
                 constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                  maxHeight: MediaQuery.of(context).size.height * 0.9,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -491,6 +626,89 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                         ),
                       ),
                     ),
+                    (_showKeyboard)
+                        ? Padding(
+                            padding: const EdgeInsets.fromLTRB(15, 5, 15, 0),
+                            child: KeyboardWidget(
+                              controller: _activeController,
+                              isNumericMode: _currentNumericMode,
+                              customLayoutKeys: true,
+                              height: 175,
+                              isShiftEnabled: _shiftEnabled,
+                              onKeyPress: (key) async {
+                                String text = _activeController.text;
+                                TextSelection currentSelection = _activeController.selection;
+                                int cursorPosition = currentSelection.start;
+
+                                if (key.keyType == VirtualKeyboardKeyType.String) {
+                                  String inputText = key.text ?? '';
+                                  text = text.replaceRange(
+                                      (_activeController == _textEditorHeaderDiscountController && text == '0')
+                                          ? cursorPosition - 1
+                                          : cursorPosition,
+                                      cursorPosition,
+                                      inputText);
+                                  cursorPosition += inputText.length;
+                                } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                  switch (key.action) {
+                                    case VirtualKeyboardKeyAction.Backspace:
+                                      if (text.isNotEmpty && cursorPosition > 0) {
+                                        text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                        cursorPosition -= 1;
+                                      }
+                                      break;
+                                    case VirtualKeyboardKeyAction.Return:
+                                      if (_shiftEnabled) {
+                                        FocusScope.of(context).nextFocus();
+                                      }
+                                      break;
+
+                                    case VirtualKeyboardKeyAction.Space:
+                                      text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                      cursorPosition += 1;
+                                      break;
+
+                                    case VirtualKeyboardKeyAction.Shift:
+                                      _shiftEnabled = !_shiftEnabled;
+                                      break;
+
+                                    default:
+                                      break;
+                                  }
+                                }
+                                if (_activeController == _textEditorHeaderDiscountController) {
+                                  TextEditingValue formattedValue = NegativeMoneyInputFormatter().formatEditUpdate(
+                                    TextEditingValue(
+                                      text: text,
+                                      selection: TextSelection.collapsed(offset: cursorPosition),
+                                    ),
+                                    TextEditingValue(
+                                      text: text,
+                                      selection: TextSelection.collapsed(offset: cursorPosition),
+                                    ),
+                                  );
+
+                                  _activeController.text = formattedValue.text;
+                                  _activeController.selection = formattedValue.selection;
+                                } else {
+                                  _activeController.text = text;
+                                  _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+                                }
+
+                                setState(() {});
+
+                                if (_activeController == _textEditorLineDiscountController) {
+                                  try {
+                                    _searchItemLineDiscount();
+                                    _searchLineDiscountFocusNode.requestFocus();
+                                  } catch (e) {
+                                    SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                                  }
+                                }
+                              },
+                            ),
+                          )
+                        : const SizedBox.shrink(),
                   ],
                 ),
               ),
@@ -577,6 +795,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
         child: TextFormField(
           focusNode: _discountFocusNode,
           controller: _textEditorHeaderDiscountController,
+          keyboardType: TextInputType.none,
           onFieldSubmitted: (value) async => await onSubmit(),
           onChanged: (value) => setState(() {}),
           autofocus: true,
@@ -608,6 +827,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
           textInputAction: TextInputAction.search,
           focusNode: _searchLineDiscountFocusNode,
           controller: _textEditorLineDiscountController,
+          keyboardType: TextInputType.none,
           onChanged: (value) {
             try {
               _searchItemLineDiscount();
@@ -1033,7 +1253,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
             color: ProjectColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
-          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+          padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
           child: const Text(
             'Caution',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),

@@ -9,12 +9,17 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/vouchers_selection_service.dart';
 import 'package:pos_fe/features/sales/data/models/vouchers_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_redeem_vouchers_fail_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_redeem_vouchers_success_dialog.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class VoucherCheckout extends StatefulWidget {
   final Function(
@@ -44,6 +49,10 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
   String errMessage = "";
   bool isError = false;
   final FocusNode _keyboardListenerFocusNode = FocusNode();
+
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool _showKeyboard = true;
+  bool _shiftEnabled = false;
 
   List<Widget> _buildVoucherRows(
     List<VouchersSelectionModel> vouchers,
@@ -246,358 +255,484 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
   }
 
   @override
+  void initState() {
+    getDefaultKeyboardPOSParameter();
+    super.initState();
+  }
+
+  @override
   void dispose() {
     _voucherFocusNode.dispose();
     _voucherCheckController.dispose();
     _keyboardListenerFocusNode.dispose();
-
+    _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final receiptCubit = context.read<ReceiptCubit>();
 
-    return Focus(
-      // autofocus: true,
-      onKeyEvent: (node, value) {
-        // log(value.physicalKey.toString());
-        // log(_voucherFocusNode.hasPrimaryFocus.toString());
-        if (value.runtimeType == KeyUpEvent) return KeyEventResult.handled;
-
-        if (value.physicalKey == PhysicalKeyboardKey.f12) {
-          _redeemVouchers();
-          return KeyEventResult.handled;
-        } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
-          context.pop();
-          return KeyEventResult.handled;
-        } else if ((value.physicalKey == PhysicalKeyboardKey.enter ||
-                value.physicalKey == PhysicalKeyboardKey.arrowDown) &&
-            !_voucherFocusNode.hasPrimaryFocus) {
-          _voucherFocusNode.requestFocus();
-          return KeyEventResult.handled;
-        }
-
-        return KeyEventResult.ignored;
-      },
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
+      title: Container(
+        decoration: const BoxDecoration(
+          color: ProjectColors.primary,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+        ),
+        padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const SizedBox(
-              height: 10,
+            const Text(
+              'Redeem Voucher',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
             ),
-            Row(
+            Container(
+              decoration: BoxDecoration(
+                color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                borderRadius: const BorderRadius.all(Radius.circular(360)),
+              ),
+              child: IconButton(
+                focusColor: const Color.fromARGB(255, 110, 0, 0),
+                focusNode: _keyboardFocusNode,
+                icon: Icon(
+                  _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _showKeyboard = !_showKeyboard;
+                  });
+                },
+                tooltip: 'Toggle Keyboard',
+              ),
+            ),
+          ],
+        ),
+      ),
+      titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+      contentPadding: const EdgeInsets.all(0),
+      content: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.8,
+        width: MediaQuery.of(context).size.width * 0.6,
+        child: Focus(
+          // autofocus: true,
+          onKeyEvent: (node, value) {
+            // log(value.physicalKey.toString());
+            // log(_voucherFocusNode.hasPrimaryFocus.toString());
+            if (value.runtimeType == KeyUpEvent) return KeyEventResult.handled;
+
+            if (value.physicalKey == PhysicalKeyboardKey.f12) {
+              _redeemVouchers();
+              return KeyEventResult.handled;
+            } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
+              context.pop();
+              return KeyEventResult.handled;
+            } else if ((value.physicalKey == PhysicalKeyboardKey.enter ||
+                    value.physicalKey == PhysicalKeyboardKey.arrowDown) &&
+                !_voucherFocusNode.hasPrimaryFocus) {
+              _voucherFocusNode.requestFocus();
+              return KeyEventResult.handled;
+            }
+
+            return KeyEventResult.ignored;
+          },
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: TextField(
-                    autofocus: true,
-                    focusNode: _voucherFocusNode,
-                    onTapOutside: (event) => _voucherFocusNode.requestFocus(),
-                    controller: _voucherCheckController,
-                    // onTap: () {
-                    //   _value = mopsByType[0].tpmt3Id;
-                    //   updateReceiptMop();
-                    // },
-                    // onChanged: (value) => setState(() {
-                    //   _cashAmount = Helpers.revertMoneyToDecimalFormat(value).toInt();
-                    //   updateReceiptMop();
-                    // }),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 24),
-                    decoration: InputDecoration(
-                      constraints: const BoxConstraints(minHeight: 48, maxHeight: 48),
-                      contentPadding: const EdgeInsets.all(10),
-                      hintText: "Serial Number",
-                      hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
-                      border: const OutlineInputBorder(),
-                      prefixIcon: Icon(
-                        Icons.confirmation_number_outlined,
-                        size: 24,
-                        color: _voucherFocusNode.hasFocus ? ProjectColors.primary : null,
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        autofocus: true,
+                        focusNode: _voucherFocusNode,
+                        onTapOutside: (event) => _voucherFocusNode.requestFocus(),
+                        controller: _voucherCheckController,
+                        // onTap: () {
+                        //   _value = mopsByType[0].tpmt3Id;
+                        //   updateReceiptMop();
+                        // },
+                        // onChanged: (value) => setState(() {
+                        //   _cashAmount = Helpers.revertMoneyToDecimalFormat(value).toInt();
+                        //   updateReceiptMop();
+                        // }),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 24),
+                        decoration: InputDecoration(
+                          constraints: const BoxConstraints(minHeight: 48, maxHeight: 48),
+                          contentPadding: const EdgeInsets.all(10),
+                          hintText: "Serial Number",
+                          hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+                          border: const OutlineInputBorder(),
+                          prefixIcon: Icon(
+                            Icons.confirmation_number_outlined,
+                            size: 24,
+                            color: _voucherFocusNode.hasFocus ? ProjectColors.primary : null,
+                          ),
+                        ),
+                        onSubmitted: (value) async {
+                          try {
+                            await _checkVoucher(value);
+                            _voucherFocusNode.requestFocus();
+                          } catch (e) {
+                            _voucherFocusNode.requestFocus();
+                          }
+                        },
+                        keyboardType: TextInputType.none,
                       ),
                     ),
-                    onSubmitted: (value) async {
-                      try {
-                        await _checkVoucher(value);
-                        _voucherFocusNode.requestFocus();
-                      } catch (e) {
-                        _voucherFocusNode.requestFocus();
-                      }
-                    },
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    SizedBox(
+                        width: 80,
+                        height: 48,
+                        child: TextButton(
+                          style: ButtonStyle(
+                              shape: MaterialStatePropertyAll(
+                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                              backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                              overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                          onPressed: () async => await _checkVoucher(_voucherCheckController.text),
+                          child: const Center(
+                              child: Text(
+                            "Check",
+                            style: TextStyle(color: Colors.white),
+                          )),
+                        ))
+                  ],
+                ),
+                minPurchaseFulfilled && !isError
+                    ? const Text("")
+                    : Text(
+                        errMessage,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                Row(children: [
+                  const SizedBox(
+                    width: 140,
+                    child: Text(
+                      "Count",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ),
+                  Text(
+                    ":  ${(vouchers.length + receiptCubit.state.vouchers.where((element) => element.type == widget.voucherType).length).toString()}",
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ]),
+                Row(children: [
+                  const SizedBox(
+                    width: 140,
+                    child: Text(
+                      "Total Amount",
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ),
+                  Text(
+                    ":  ${Helpers.parseMoney(vouchersAmount + (receiptCubit.state.vouchers.where((element) => element.type == widget.voucherType).map((e) => e.voucherAmount).fold<num>(0, (value, element) => value + element)))}",
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ]),
+                const Divider(
+                  color: Colors.black,
+                ),
+                if (vouchers.isNotEmpty || receiptCubit.state.vouchers.isNotEmpty)
+                  const SizedBox(
+                    width: double.infinity,
+                    child: Column(mainAxisSize: MainAxisSize.min, children: [
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 40,
+                            child: Text(
+                              "No",
+                              style:
+                                  TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Expanded(
+                            child: Text(
+                              "Serial Number",
+                              style:
+                                  TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Expanded(
+                            child: Text(
+                              "Name",
+                              style:
+                                  TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 15,
+                          ),
+                          Expanded(
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                "Amount",
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 3,
+                      ),
+                    ]),
+                  ),
+                if (vouchers.isNotEmpty || receiptCubit.state.vouchers.isNotEmpty)
+                  const SizedBox(
+                    height: 7,
+                  ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (vouchers.isEmpty && receiptCubit.state.vouchers.isEmpty)
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
+                              child: EmptyList(
+                                  height: 70,
+                                  imagePath: "assets/images/empty-search.svg",
+                                  sentence: "Tadaa.. There is nothing here!\nInput a voucher to start."),
+                            ),
+                          ..._buildVoucherRows(
+                              context
+                                  .read<ReceiptCubit>()
+                                  .state
+                                  .vouchers
+                                  .map((e) => VouchersSelectionModel.fromEntity(e))
+                                  .toList(),
+                              true),
+                          ..._buildVoucherRows(vouchers, false).toList(),
+                          // ...[
+                          //   ...context
+                          //       .read<ReceiptCubit>()
+                          //       .state
+                          //       .vouchers
+                          //       .map((e) => VouchersSelectionModel.fromEntity(e)),
+                          //   ...vouchers
+                          // ].asMap().entries.map((entry) {
+                          //   int index = entry.key;
+                          //   VouchersSelectionModel voucher = entry.value;
+                          //   // return Text(
+                          //   //     "${voucher.voucherAlias} - ${voucher.voucherAmount}");
+
+                          //   return SizedBox(
+                          //     width: double.infinity,
+                          //     child:
+                          //         Column(mainAxisSize: MainAxisSize.min, children: [
+                          //       Row(
+                          //         children: [
+                          //           SizedBox(
+                          //             width: 20,
+                          //             child: Text(
+                          //               "${index + 1}",
+                          //               style: TextStyle(fontSize: 18),
+                          //             ),
+                          //           ),
+                          //           const SizedBox(
+                          //             width: 15,
+                          //           ),
+                          //           Expanded(
+                          //             child: Text(
+                          //               voucher.serialNo,
+                          //               style: TextStyle(fontSize: 18),
+                          //             ),
+                          //           ),
+                          //           const SizedBox(
+                          //             width: 15,
+                          //           ),
+                          //           Expanded(
+                          //             child: Text(
+                          //               voucher.voucherAlias,
+                          //               style: TextStyle(fontSize: 18),
+                          //             ),
+                          //           ),
+                          //           const SizedBox(
+                          //             width: 15,
+                          //           ),
+                          //           Expanded(
+                          //             child: Align(
+                          //               alignment: Alignment.centerRight,
+                          //               child: Text(
+                          //                 Helpers.parseMoney(voucher.voucherAmount),
+                          //                 style: TextStyle(fontSize: 18),
+                          //               ),
+                          //             ),
+                          //           ),
+                          //         ],
+                          //       ),
+                          //       SizedBox(
+                          //         height: 3,
+                          //       ),
+                          //     ]),
+                          //   );
+                          // }).toList(),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(
-                  width: 10,
-                ),
-                SizedBox(
-                    width: 80,
-                    height: 48,
-                    child: TextButton(
+                (_showKeyboard)
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: KeyboardWidget(
+                          controller: _voucherCheckController,
+                          isNumericMode: false,
+                          customLayoutKeys: true,
+                          isShiftEnabled: _shiftEnabled,
+                          onKeyPress: (key) async {
+                            String text = _voucherCheckController.text;
+                            TextSelection currentSelection = _voucherCheckController.selection;
+                            int cursorPosition = currentSelection.start;
+
+                            if (key.keyType == VirtualKeyboardKeyType.String) {
+                              String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                              text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                              cursorPosition += inputText.length;
+                            } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                              switch (key.action) {
+                                case VirtualKeyboardKeyAction.Backspace:
+                                  if (text.isNotEmpty) {
+                                    text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                    cursorPosition -= 1;
+                                  }
+                                  break;
+                                case VirtualKeyboardKeyAction.Return:
+                                  try {
+                                    await _checkVoucher(text);
+                                    text = "";
+                                    _voucherFocusNode.requestFocus();
+                                  } catch (e) {
+                                    _voucherFocusNode.requestFocus();
+                                  }
+                                  break;
+                                case VirtualKeyboardKeyAction.Space:
+                                  text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                  cursorPosition += 1;
+                                  break;
+                                case VirtualKeyboardKeyAction.Shift:
+                                  _shiftEnabled = !_shiftEnabled;
+                                  break;
+                                default:
+                                  break;
+                              }
+                            }
+                            _voucherCheckController.text = text;
+                            _voucherCheckController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                            setState(() {});
+                          },
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+                Row(
+                  children: [
+                    Expanded(
+                        child: TextButton(
+                      style: ButtonStyle(
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                              side: const BorderSide(color: ProjectColors.primary))),
+                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                          overlayColor:
+                              MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Center(
+                        child: RichText(
+                          text: const TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Cancel",
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              TextSpan(
+                                text: "  (Esc)",
+                                style: TextStyle(fontWeight: FontWeight.w300),
+                              ),
+                            ],
+                            style: TextStyle(color: ProjectColors.primary),
+                          ),
+                          overflow: TextOverflow.clip,
+                        ),
+                      ),
+                    )),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                        child: TextButton(
                       style: ButtonStyle(
                           shape:
                               MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
                           backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                           overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                      onPressed: () async => await _checkVoucher(_voucherCheckController.text),
-                      child: const Center(
-                          child: Text(
-                        "Check",
-                        style: TextStyle(color: Colors.white),
-                      )),
+                      onPressed: () async => await _redeemVouchers(),
+                      child: Center(
+                        child: RichText(
+                          text: const TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Redeem",
+                                style: TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                              TextSpan(
+                                text: "  (F12)",
+                                style: TextStyle(fontWeight: FontWeight.w300),
+                              ),
+                            ],
+                          ),
+                          overflow: TextOverflow.clip,
+                        ),
+                      ),
                     ))
+                  ],
+                ),
               ],
             ),
-            minPurchaseFulfilled && !isError
-                ? const Text("")
-                : Text(
-                    errMessage,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-            Row(children: [
-              const SizedBox(
-                width: 140,
-                child: Text(
-                  "Count",
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-              Text(
-                ":  ${(vouchers.length + receiptCubit.state.vouchers.where((element) => element.type == widget.voucherType).length).toString()}",
-                style: const TextStyle(fontSize: 18),
-              ),
-            ]),
-            Row(children: [
-              const SizedBox(
-                width: 140,
-                child: Text(
-                  "Total Amount",
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-              Text(
-                ":  ${Helpers.parseMoney(vouchersAmount + (receiptCubit.state.vouchers.where((element) => element.type == widget.voucherType).map((e) => e.voucherAmount).fold<num>(0, (value, element) => value + element)))}",
-                style: const TextStyle(fontSize: 18),
-              ),
-            ]),
-            const Divider(
-              color: Colors.black,
-            ),
-            if (vouchers.isNotEmpty || receiptCubit.state.vouchers.isNotEmpty)
-              const SizedBox(
-                width: double.infinity,
-                child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 40,
-                        child: Text(
-                          "No",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                        child: Text(
-                          "Serial Number",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                        child: Text(
-                          "Name",
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 15,
-                      ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            "Amount",
-                            style:
-                                TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: ProjectColors.lightBlack),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 3,
-                  ),
-                ]),
-              ),
-            if (vouchers.isNotEmpty || receiptCubit.state.vouchers.isNotEmpty)
-              const SizedBox(
-                height: 7,
-              ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: SizedBox(
-                  width: double.infinity,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (vouchers.isEmpty && receiptCubit.state.vouchers.isEmpty)
-                        const Padding(
-                          padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
-                          child: EmptyList(
-                              height: 70,
-                              imagePath: "assets/images/empty-search.svg",
-                              sentence: "Tadaa.. There is nothing here!\nInput a voucher to start."),
-                        ),
-                      ..._buildVoucherRows(
-                          context
-                              .read<ReceiptCubit>()
-                              .state
-                              .vouchers
-                              .map((e) => VouchersSelectionModel.fromEntity(e))
-                              .toList(),
-                          true),
-                      ..._buildVoucherRows(vouchers, false).toList(),
-                      // ...[
-                      //   ...context
-                      //       .read<ReceiptCubit>()
-                      //       .state
-                      //       .vouchers
-                      //       .map((e) => VouchersSelectionModel.fromEntity(e)),
-                      //   ...vouchers
-                      // ].asMap().entries.map((entry) {
-                      //   int index = entry.key;
-                      //   VouchersSelectionModel voucher = entry.value;
-                      //   // return Text(
-                      //   //     "${voucher.voucherAlias} - ${voucher.voucherAmount}");
-
-                      //   return SizedBox(
-                      //     width: double.infinity,
-                      //     child:
-                      //         Column(mainAxisSize: MainAxisSize.min, children: [
-                      //       Row(
-                      //         children: [
-                      //           SizedBox(
-                      //             width: 20,
-                      //             child: Text(
-                      //               "${index + 1}",
-                      //               style: TextStyle(fontSize: 18),
-                      //             ),
-                      //           ),
-                      //           const SizedBox(
-                      //             width: 15,
-                      //           ),
-                      //           Expanded(
-                      //             child: Text(
-                      //               voucher.serialNo,
-                      //               style: TextStyle(fontSize: 18),
-                      //             ),
-                      //           ),
-                      //           const SizedBox(
-                      //             width: 15,
-                      //           ),
-                      //           Expanded(
-                      //             child: Text(
-                      //               voucher.voucherAlias,
-                      //               style: TextStyle(fontSize: 18),
-                      //             ),
-                      //           ),
-                      //           const SizedBox(
-                      //             width: 15,
-                      //           ),
-                      //           Expanded(
-                      //             child: Align(
-                      //               alignment: Alignment.centerRight,
-                      //               child: Text(
-                      //                 Helpers.parseMoney(voucher.voucherAmount),
-                      //                 style: TextStyle(fontSize: 18),
-                      //               ),
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //       SizedBox(
-                      //         height: 3,
-                      //       ),
-                      //     ]),
-                      //   );
-                      // }).toList(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                    child: TextButton(
-                  style: ButtonStyle(
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side: const BorderSide(color: ProjectColors.primary))),
-                      backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                      overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Center(
-                    child: RichText(
-                      text: const TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Cancel",
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          TextSpan(
-                            text: "  (Esc)",
-                            style: TextStyle(fontWeight: FontWeight.w300),
-                          ),
-                        ],
-                        style: TextStyle(color: ProjectColors.primary),
-                      ),
-                      overflow: TextOverflow.clip,
-                    ),
-                  ),
-                )),
-                const SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                    child: TextButton(
-                  style: ButtonStyle(
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
-                      backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                  onPressed: () async => await _redeemVouchers(),
-                  child: Center(
-                    child: RichText(
-                      text: const TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Redeem",
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          TextSpan(
-                            text: "  (F12)",
-                            style: TextStyle(fontWeight: FontWeight.w300),
-                          ),
-                        ],
-                      ),
-                      overflow: TextOverflow.clip,
-                    ),
-                  ),
-                ))
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );

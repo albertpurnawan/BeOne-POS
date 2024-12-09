@@ -325,13 +325,14 @@ class InvoiceApi {
             "tohem_id": (item['tohemId'] == "") ? invHead[0].salesTohemId : item['tohemId'],
             "refpos2": item['refpos2'],
             "refpos3": item['refpos3'],
-            "promotion": filteredPromotions
+            "promotion": filteredPromotions,
           };
         }).toList(),
         "invoice_payment": invoicePayments,
         "promotion": promotionsHeader,
         "approval": approvals,
         "downpayment_docnums": docnums,
+        "flaginvoice": 2,
       };
       if (invHead[0].salesTohemId != "") {
         dataToSend["sales_tohem_id"] = invHead[0].salesTohemId;

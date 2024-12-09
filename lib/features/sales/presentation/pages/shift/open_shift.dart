@@ -13,13 +13,15 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
-import 'package:pos_fe/core/widgets/custom_input.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
 import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/user.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_cash_register.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_user.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
 import 'package:pos_fe/features/sales/domain/usecases/print_open_shift.dart';
@@ -40,10 +42,13 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
   CashRegisterEntity? cashRegister;
   UserEntity? user;
 
+  bool _showKeyboard = true;
+
   @override
   void initState() {
     super.initState();
     populateData();
+    getDefaultKeyboardPOSParameter();
   }
 
   Future<void> populateData() async {
@@ -77,27 +82,99 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
     super.dispose();
   }
 
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color.fromARGB(255, 234, 234, 234),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(5.0)),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            OpenShiftForm(
-              tostrId: posParameter?.tostrId,
-              storeName: posParameter?.storeName,
-              user: user,
-              formattedDate: formattedDate,
-              cashRegister: cashRegister,
+    return ScaffoldMessenger(
+      child: Builder(builder: (childContext) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: AlertDialog(
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.transparent,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(5.0)),
             ),
-          ],
-        ),
-      ),
+            title: Container(
+              decoration: const BoxDecoration(
+                color: ProjectColors.primary,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+              ),
+              padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Open Shift',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(360)),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showKeyboard = !_showKeyboard;
+                        });
+                      },
+                      tooltip: 'Toggle Keyboard',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            contentPadding: const EdgeInsets.all(0),
+            content: Container(
+              width: MediaQuery.of(context).size.width * 0.5,
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 234, 234, 234),
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(5.0)),
+              ),
+              child: SingleChildScrollView(
+                child: IntrinsicHeight(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      OpenShiftForm(
+                        tostrId: posParameter?.tostrId,
+                        storeName: posParameter?.storeName,
+                        user: user,
+                        formattedDate: formattedDate,
+                        cashRegister: cashRegister,
+                        showKeyboardAmount: _showKeyboard,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      }),
     );
   }
 }
@@ -110,6 +187,7 @@ class OpenShiftForm extends StatefulWidget {
     required this.user,
     required this.formattedDate,
     required this.cashRegister,
+    required this.showKeyboardAmount,
   }) : super(key: key);
 
   final String? tostrId;
@@ -117,16 +195,19 @@ class OpenShiftForm extends StatefulWidget {
   final UserEntity? user;
   final String? formattedDate;
   final CashRegisterEntity? cashRegister;
+  final bool showKeyboardAmount;
 
   @override
   State<OpenShiftForm> createState() => _OpenShiftFormState();
 }
 
 class _OpenShiftFormState extends State<OpenShiftForm> {
-  late TextEditingController openValueController;
+  final TextEditingController _openValueController = TextEditingController();
+  final FocusNode _amountFocusNode = FocusNode();
   SharedPreferences prefs = GetIt.instance<SharedPreferences>();
 
   ReceiptPrinter? receiptPrinter;
+  late bool _showKeyboardAmount;
 
   late Timer _timer;
   ValueNotifier<String> formattedDate = ValueNotifier<String>(Helpers.formatDate(DateTime.now()));
@@ -141,14 +222,26 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
       formattedDate.value = Helpers.formatDate(DateTime.now());
     });
     super.initState();
-    openValueController = TextEditingController();
+    _showKeyboardAmount = widget.showKeyboardAmount;
+    _amountFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
     _timer.cancel();
-    openValueController.dispose();
+    _openValueController.dispose();
+    _amountFocusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(OpenShiftForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.showKeyboardAmount != oldWidget.showKeyboardAmount) {
+      setState(() {
+        _showKeyboardAmount = widget.showKeyboardAmount;
+      });
+    }
   }
 
   @override
@@ -156,392 +249,398 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
     final formKey = GlobalKey<FormState>();
 
     return Center(
-        child: Form(
-            key: formKey,
-            child: Column(children: [
-              const SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      flex: 3,
-                      child: Text(
-                        'Store',
-                        style: TextStyle(
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                    const Text(
-                      ':',
+      child: Form(
+        key: formKey,
+        child: Column(
+          children: [
+            const SizedBox(
+              height: 20,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  const Expanded(
+                    flex: 3,
+                    child: Text(
+                      'Store',
                       style: TextStyle(
                         fontSize: 18,
                       ),
                     ),
-                    const SizedBox(
-                      width: 15,
+                  ),
+                  const Text(
+                    ':',
+                    style: TextStyle(
+                      fontSize: 18,
                     ),
-                    Expanded(
-                      flex: 8,
-                      child: Text(
-                        '${widget.storeName}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                        ),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    flex: 8,
+                    child: Text(
+                      '${widget.storeName}',
+                      style: const TextStyle(
+                        fontSize: 18,
                       ),
                     ),
-                  ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  const Expanded(
+                    flex: 3,
+                    child: Text(
+                      'Cash Register',
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                  const Text(
+                    ':',
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    flex: 8,
+                    child: Text(
+                      widget.cashRegister?.description ?? "",
+                      style: const TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  const Expanded(
+                    flex: 3,
+                    child: Text(
+                      'Cashier',
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                  const Text(
+                    ':',
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    flex: 8,
+                    child: Text(
+                      '${widget.user?.username}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  const Expanded(
+                    flex: 3,
+                    child: Text(
+                      'Opened at',
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                  const Text(
+                    ':',
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    flex: 8,
+                    child: ValueListenableBuilder(
+                      valueListenable: formattedDate,
+                      builder: (context, value, child) {
+                        return Text(
+                          value,
+                          style: const TextStyle(
+                            fontSize: 18,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color.fromARGB(255, 238, 238, 238),
+                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                  border: Border.fromBorderSide(BorderSide(color: ProjectColors.primary)),
                 ),
-              ),
-              const SizedBox(height: 5),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
+                child: Column(
                   children: [
-                    const Expanded(
-                      flex: 3,
-                      child: Text(
-                        'Cash Register',
-                        style: TextStyle(
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 10),
                     const Text(
-                      ':',
+                      'Opening Balance',
                       style: TextStyle(
-                        fontSize: 18,
+                        color: ProjectColors.mediumBlack,
+                        fontSize: 25,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(
-                      width: 15,
-                    ),
-                    Expanded(
-                      flex: 8,
-                      child: Text(
-                        widget.cashRegister?.description ?? "",
-                        style: const TextStyle(
-                          fontSize: 18,
+                    const SizedBox(height: 15),
+                    Container(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: TextFormField(
+                        onEditingComplete: () async {
+                          try {
+                            if (!formKey.currentState!.validate()) return;
+
+                            final inputText = _openValueController.text.replaceAll(',', '');
+                            final double inputValue = double.tryParse(inputText) ?? 0.0;
+
+                            final store =
+                                await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(widget.tostrId!, null);
+                            final storeCode = store!.storeCode;
+                            final date = DateTime.now();
+
+                            String formattedDate = DateFormat('yyMMddHHmmss').format(date);
+                            final countShift =
+                                await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDate(date);
+
+                            final number = ((countShift!.length) + 1).toString().padLeft(3, '0');
+                            final docnum = '$storeCode-$formattedDate-$number-S';
+
+                            final shiftId = const Uuid().v4();
+
+                            final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
+                              docId: shiftId,
+                              createDate: DateTime.now(),
+                              updateDate: DateTime.now(),
+                              tocsrId: widget.cashRegister?.docId,
+                              tousrId: widget.user?.docId,
+                              docNum: docnum,
+                              openDate: DateTime.now(),
+                              openTime: DateTime.now(),
+                              calcDate: DateTime.utc(1970, 1, 1),
+                              calcTime: DateTime.utc(1970, 1, 1),
+                              closeDate: DateTime.utc(1970, 1, 1),
+                              closeTime: DateTime.utc(1970, 1, 1),
+                              timezone: "GMT+07",
+                              openValue: inputValue,
+                              calcValue: 0,
+                              cashValue: 0,
+                              closeValue: 0,
+                              openedbyId: widget.user?.docId,
+                              closedbyId: "",
+                              approvalStatus: 0,
+                              refpos: shiftId,
+                              syncToBos: null,
+                              closedApproveById: null,
+                            );
+                            await _insertCashierBalanceTransaction(shift);
+
+                            final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
+                                await GetIt.instance<AppDatabase>()
+                                    .cashierBalanceTransactionDao
+                                    .readByDocId(shift.docId, null);
+                            if (cashierBalanceTransactionEntity == null) throw "Open Shift Fail";
+
+                            final prefs = GetIt.instance<SharedPreferences>();
+                            await prefs.setBool('isOpen', true);
+                            await prefs.setString('tcsr1Id', shift.docId);
+
+                            final printOpenShiftUsecase = GetIt.instance<PrintOpenShiftUsecase>();
+                            await printOpenShiftUsecase.call(params: shift, printType: 1);
+                            await GetIt.instance<OpenCashDrawerUseCase>().call();
+
+                            context.pop(shift);
+                          } catch (e) {
+                            context.pop();
+                            await prefs.setBool('isOpen', false);
+                            await prefs.setString('tcsr1Id', "");
+                            SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                          }
+                        },
+                        controller: _openValueController,
+                        focusNode: _amountFocusNode,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a value';
+                          }
+
+                          return null;
+                        },
+                        decoration: const InputDecoration(
+                          labelText: "Amount",
+                          hintText: "Enter Amount of Opening Balance",
+                          hintStyle: TextStyle(
+                            fontStyle: FontStyle.italic,
+                          ),
+                          prefixIcon: Icon(Icons.monetization_on_outlined),
+                          border: OutlineInputBorder(),
                         ),
+                        inputFormatters: [MoneyInputFormatter()],
+                        keyboardType: TextInputType.none,
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 5),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      flex: 3,
-                      child: Text(
-                        'Cashier',
-                        style: TextStyle(
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                    const Text(
-                      ':',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 15,
-                    ),
-                    Expanded(
-                      flex: 8,
-                      child: Text(
-                        '${widget.user?.username}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 5),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      flex: 3,
-                      child: Text(
-                        'Opened at',
-                        style: TextStyle(
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                    const Text(
-                      ':',
-                      style: TextStyle(
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 15,
-                    ),
-                    Expanded(
-                      flex: 8,
-                      child: ValueListenableBuilder(
-                        valueListenable: formattedDate,
-                        builder: (context, value, child) {
-                          return Text(
-                            value,
-                            style: const TextStyle(
-                              fontSize: 18,
+                    const SizedBox(height: 10),
+                    (_showKeyboardAmount)
+                        ? Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                            child: KeyboardWidget(
+                              controller: _openValueController,
+                              isNumericMode: true,
+                              customLayoutKeys: true,
                             ),
-                          );
+                          )
+                        : const SizedBox.shrink(),
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: Container(
+                        height: 55,
+                        padding: const EdgeInsets.fromLTRB(10, 0, 0, 10),
+                        child: TextButton(
+                          style: ButtonStyle(
+                              shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                  side: const BorderSide(color: ProjectColors.primary))),
+                              backgroundColor: MaterialStateColor.resolveWith(
+                                (states) => const Color.fromARGB(255, 234, 234, 234),
+                              ),
+                              overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                          onPressed: () {
+                            context.pop(null);
+                          },
+                          child: const Center(
+                              child: Text(
+                            "Cancel",
+                            style: TextStyle(color: ProjectColors.primary, fontWeight: FontWeight.w700),
+                          )),
+                        )),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    flex: 3,
+                    child: Container(
+                      height: 55,
+                      padding: const EdgeInsets.fromLTRB(0, 0, 10, 10),
+                      child: CustomButton(
+                        padding: const EdgeInsets.all(0),
+                        child: const Text("Open Shift"),
+                        onTap: () async {
+                          try {
+                            if (!formKey.currentState!.validate()) return;
+
+                            final inputText = _openValueController.text.replaceAll(',', '');
+                            final double inputValue = double.tryParse(inputText) ?? 0.0;
+
+                            final store =
+                                await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(widget.tostrId!, null);
+                            final storeCode = store!.storeCode;
+                            final date = DateTime.now();
+
+                            String formattedDate = DateFormat('yyMMddHHmmss').format(date);
+                            final countShift =
+                                await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDate(date);
+
+                            final number = ((countShift!.length) + 1).toString().padLeft(3, '0');
+                            final docnum = '$storeCode-$formattedDate-$number-S';
+
+                            final shiftId = const Uuid().v4();
+
+                            final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
+                              docId: shiftId,
+                              createDate: DateTime.now(),
+                              updateDate: DateTime.now(),
+                              tocsrId: widget.cashRegister?.docId,
+                              tousrId: widget.user?.docId,
+                              docNum: docnum,
+                              openDate: DateTime.now(),
+                              openTime: DateTime.now(),
+                              calcDate: DateTime.utc(1970, 1, 1),
+                              calcTime: DateTime.utc(1970, 1, 1),
+                              closeDate: DateTime.utc(1970, 1, 1),
+                              closeTime: DateTime.utc(1970, 1, 1),
+                              timezone: "GMT+07",
+                              openValue: inputValue,
+                              calcValue: 0,
+                              cashValue: 0,
+                              closeValue: 0,
+                              openedbyId: widget.user?.docId,
+                              closedbyId: "",
+                              approvalStatus: 0,
+                              refpos: shiftId,
+                              syncToBos: null,
+                              closedApproveById: null,
+                            );
+                            await _insertCashierBalanceTransaction(shift);
+                            final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
+                                await GetIt.instance<AppDatabase>()
+                                    .cashierBalanceTransactionDao
+                                    .readByDocId(shift.docId, null);
+                            if (cashierBalanceTransactionEntity == null) throw "Open Shift Fail";
+
+                            final prefs = GetIt.instance<SharedPreferences>();
+                            await prefs.setString('tcsr1Id', shift.docId);
+                            await prefs.setBool('isOpen', true);
+
+                            final printOpenShiftUsecase = GetIt.instance<PrintOpenShiftUsecase>();
+                            await printOpenShiftUsecase.call(params: shift, printType: 1);
+                            await GetIt.instance<OpenCashDrawerUseCase>().call();
+
+                            context.pop(shift);
+                          } catch (e) {
+                            context.pop(null);
+                            await prefs.setBool('isOpen', false);
+                            await prefs.setString('tcsr1Id', "");
+                            SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                          }
                         },
                       ),
                     ),
-                  ],
-                ),
+                  )
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Container(
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 238, 238, 238),
-                    borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                    border: Border.fromBorderSide(BorderSide(color: ProjectColors.primary)),
-                  ),
-                  child: Column(
-                    children: [
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const Text(
-                        'Opening Balance',
-                        style: TextStyle(
-                          color: ProjectColors.mediumBlack,
-                          fontSize: 25,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Container(
-                        constraints: const BoxConstraints(maxWidth: 400),
-                        child: CustomInput(
-                          onEditingComplete: () async {
-                            try {
-                              if (!formKey.currentState!.validate()) return;
-
-                              final inputText = openValueController.text.replaceAll(',', '');
-                              final double inputValue = double.tryParse(inputText) ?? 0.0;
-
-                              final store =
-                                  await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(widget.tostrId!, null);
-                              final storeCode = store!.storeCode;
-                              final date = DateTime.now();
-
-                              String formattedDate = DateFormat('yyMMddHHmmss').format(date);
-                              final countShift =
-                                  await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDate(date);
-
-                              final number = ((countShift!.length) + 1).toString().padLeft(3, '0');
-                              final docnum = '$storeCode-$formattedDate-$number-S';
-
-                              final shiftId = const Uuid().v4();
-
-                              final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
-                                docId: shiftId,
-                                createDate: DateTime.now(),
-                                updateDate: DateTime.now(),
-                                tocsrId: widget.cashRegister?.docId,
-                                tousrId: widget.user?.docId,
-                                docNum: docnum,
-                                openDate: DateTime.now(),
-                                openTime: DateTime.now(),
-                                calcDate: DateTime.utc(1970, 1, 1),
-                                calcTime: DateTime.utc(1970, 1, 1),
-                                closeDate: DateTime.utc(1970, 1, 1),
-                                closeTime: DateTime.utc(1970, 1, 1),
-                                timezone: "GMT+07",
-                                openValue: inputValue,
-                                calcValue: 0,
-                                cashValue: 0,
-                                closeValue: 0,
-                                openedbyId: widget.user?.docId,
-                                closedbyId: "",
-                                approvalStatus: 0,
-                                refpos: shiftId,
-                                syncToBos: null,
-                                closedApproveById: null,
-                              );
-                              await _insertCashierBalanceTransaction(shift);
-
-                              final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
-                                  await GetIt.instance<AppDatabase>()
-                                      .cashierBalanceTransactionDao
-                                      .readByDocId(shift.docId, null);
-                              if (cashierBalanceTransactionEntity == null) throw "Open Shift Fail";
-
-                              final prefs = GetIt.instance<SharedPreferences>();
-                              await prefs.setBool('isOpen', true);
-                              await prefs.setString('tcsr1Id', shift.docId);
-
-                              final printOpenShiftUsecase = GetIt.instance<PrintOpenShiftUsecase>();
-                              await printOpenShiftUsecase.call(params: shift, printType: 1);
-                              await GetIt.instance<OpenCashDrawerUseCase>().call();
-
-                              context.pop(shift);
-                            } catch (e) {
-                              context.pop();
-                              await prefs.setBool('isOpen', false);
-                              await prefs.setString('tcsr1Id', "");
-                              SnackBarHelper.presentErrorSnackBar(context, e.toString());
-                            }
-                            // if (!context.mounted) return;
-                            // if (context.mounted)
-                            //   context.pushNamed(RouteConstants.home);
-                          },
-                          autofocus: true,
-                          controller: openValueController,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a value';
-                            }
-
-                            return null;
-                          },
-                          inputFormatters: [MoneyInputFormatter()],
-                          keyboardType: TextInputType.number,
-                          hint: "Enter Amount of Opening Balance",
-                          prefixIcon: const Icon(Icons.monetization_on_outlined),
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: double.infinity,
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Container(
-                          height: 55,
-                          padding: const EdgeInsets.fromLTRB(10, 0, 0, 10),
-                          child: TextButton(
-                            style: ButtonStyle(
-                                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    side: const BorderSide(color: ProjectColors.primary))),
-                                backgroundColor: MaterialStateColor.resolveWith(
-                                  (states) => const Color.fromARGB(255, 234, 234, 234),
-                                ),
-                                overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
-                            onPressed: () {
-                              context.pop(null);
-                            },
-                            child: const Center(
-                                child: Text(
-                              "Cancel",
-                              style: TextStyle(color: ProjectColors.primary, fontWeight: FontWeight.w700),
-                            )),
-                          )),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Container(
-                        height: 55,
-                        padding: const EdgeInsets.fromLTRB(0, 0, 10, 10),
-                        child: CustomButton(
-                          padding: const EdgeInsets.all(0),
-                          child: const Text("Open Shift"),
-                          onTap: () async {
-                            try {
-                              if (!formKey.currentState!.validate()) return;
-
-                              final inputText = openValueController.text.replaceAll(',', '');
-                              final double inputValue = double.tryParse(inputText) ?? 0.0;
-
-                              final store =
-                                  await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(widget.tostrId!, null);
-                              final storeCode = store!.storeCode;
-                              final date = DateTime.now();
-
-                              String formattedDate = DateFormat('yyMMddHHmmss').format(date);
-                              final countShift =
-                                  await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readByDate(date);
-
-                              final number = ((countShift!.length) + 1).toString().padLeft(3, '0');
-                              final docnum = '$storeCode-$formattedDate-$number-S';
-
-                              final shiftId = const Uuid().v4();
-
-                              final CashierBalanceTransactionModel shift = CashierBalanceTransactionModel(
-                                docId: shiftId,
-                                createDate: DateTime.now(),
-                                updateDate: DateTime.now(),
-                                tocsrId: widget.cashRegister?.docId,
-                                tousrId: widget.user?.docId,
-                                docNum: docnum,
-                                openDate: DateTime.now(),
-                                openTime: DateTime.now(),
-                                calcDate: DateTime.utc(1970, 1, 1),
-                                calcTime: DateTime.utc(1970, 1, 1),
-                                closeDate: DateTime.utc(1970, 1, 1),
-                                closeTime: DateTime.utc(1970, 1, 1),
-                                timezone: "GMT+07",
-                                openValue: inputValue,
-                                calcValue: 0,
-                                cashValue: 0,
-                                closeValue: 0,
-                                openedbyId: widget.user?.docId,
-                                closedbyId: "",
-                                approvalStatus: 0,
-                                refpos: shiftId,
-                                syncToBos: null,
-                                closedApproveById: null,
-                              );
-                              await _insertCashierBalanceTransaction(shift);
-                              final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
-                                  await GetIt.instance<AppDatabase>()
-                                      .cashierBalanceTransactionDao
-                                      .readByDocId(shift.docId, null);
-                              if (cashierBalanceTransactionEntity == null) throw "Open Shift Fail";
-
-                              final prefs = GetIt.instance<SharedPreferences>();
-                              await prefs.setString('tcsr1Id', shift.docId);
-                              await prefs.setBool('isOpen', true);
-
-                              final printOpenShiftUsecase = GetIt.instance<PrintOpenShiftUsecase>();
-                              await printOpenShiftUsecase.call(params: shift, printType: 1);
-                              await GetIt.instance<OpenCashDrawerUseCase>().call();
-
-                              context.pop(shift);
-                            } catch (e) {
-                              context.pop(null);
-                              await prefs.setBool('isOpen', false);
-                              await prefs.setString('tcsr1Id', "");
-                              SnackBarHelper.presentErrorSnackBar(context, e.toString());
-                            }
-                            // if (!context.mounted) return;
-                            // if (context.mounted)
-                            //   context.pushNamed(RouteConstants.home);
-                          },
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ])));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

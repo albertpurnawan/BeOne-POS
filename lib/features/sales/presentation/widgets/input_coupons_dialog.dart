@@ -9,9 +9,12 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_coupon_header.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_toprn_applicability.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_toprn_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
@@ -32,8 +35,12 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
 
   List<PromoCouponHeaderEntity> couponList = [];
 
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool _showKeyboard = true;
+
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     // _couponFocusNode.requestFocus();
     if (context.read<ReceiptCubit>().state.coupons.isNotEmpty) {
@@ -46,7 +53,22 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
     _textEditorCouponController.dispose();
     _couponFocusNode.dispose();
     _keyboardListenerFocusNode.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<void> _checkCoupons(BuildContext context, String couponCode) async {
@@ -135,7 +157,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                     color: ProjectColors.primary,
                     borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                   ),
-                  padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+                  padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -149,50 +171,75 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                           ),
                         ),
                       ),
-                      OutlinedButton(
-                        focusNode: FocusNode(skipTraversal: true),
-                        style: OutlinedButton.styleFrom(
-                          elevation: 5,
-                          shadowColor: Colors.black87,
-                          backgroundColor: ProjectColors.primary,
-                          padding: const EdgeInsets.all(10),
-                          foregroundColor: Colors.white,
-                          side: const BorderSide(
-                            color: Colors.white,
-                            width: 1.5,
-                          ),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                        ),
-                        onPressed: () => _saveCoupons([])
-                            .then((value) => SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3)),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.replay_rounded,
-                              size: 18,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(
-                              width: 6,
-                            ),
-                            RichText(
-                              text: const TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: "Reset",
-                                    style: TextStyle(fontWeight: FontWeight.w600),
-                                  ),
-                                  TextSpan(
-                                    text: " (F9)",
-                                    style: TextStyle(fontWeight: FontWeight.w300),
-                                  ),
-                                ],
-                                style: TextStyle(height: 1, fontSize: 12),
+                      Row(
+                        children: [
+                          OutlinedButton(
+                            focusNode: FocusNode(skipTraversal: true),
+                            style: OutlinedButton.styleFrom(
+                              elevation: 5,
+                              shadowColor: Colors.black87,
+                              backgroundColor: ProjectColors.primary,
+                              padding: const EdgeInsets.all(10),
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(
+                                color: Colors.white,
+                                width: 1.5,
                               ),
-                              overflow: TextOverflow.clip,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
                             ),
-                          ],
-                        ),
+                            onPressed: () => _saveCoupons([]).then(
+                                (value) => SnackBarHelper.presentSuccessSnackBar(childContext, "Reset success", 3)),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.replay_rounded,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(
+                                  width: 6,
+                                ),
+                                RichText(
+                                  text: const TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: "Reset",
+                                        style: TextStyle(fontWeight: FontWeight.w600),
+                                      ),
+                                      TextSpan(
+                                        text: " (F9)",
+                                        style: TextStyle(fontWeight: FontWeight.w300),
+                                      ),
+                                    ],
+                                    style: TextStyle(height: 1, fontSize: 12),
+                                  ),
+                                  overflow: TextOverflow.clip,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                              borderRadius: const BorderRadius.all(Radius.circular(360)),
+                            ),
+                            child: IconButton(
+                              focusColor: const Color.fromARGB(255, 110, 0, 0),
+                              focusNode: _keyboardFocusNode,
+                              icon: Icon(
+                                _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _showKeyboard = !_showKeyboard;
+                                });
+                              },
+                              tooltip: 'Toggle Keyboard',
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -200,7 +247,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                 titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                 contentPadding: const EdgeInsets.all(0),
                 content: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.5,
+                  height: MediaQuery.of(context).size.height * 0.7,
                   width: MediaQuery.of(context).size.width * 0.7,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -457,7 +504,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                     _couponFocusNode.requestFocus();
                                   },
                             autofocus: true,
-                            keyboardType: TextInputType.text,
+                            keyboardType: TextInputType.none,
                             textAlign: TextAlign.center,
                             style: const TextStyle(fontSize: 24),
                             decoration: InputDecoration(
@@ -525,7 +572,7 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 5),
                     const Text(
                       "Coupons Applied",
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -663,14 +710,25 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                       children: [
                         if (state.coupons.isEmpty)
                           Container(
-                            height: MediaQuery.of(context).size.height * 0.3,
+                            height: MediaQuery.of(context).size.height * 0.2,
                             alignment: Alignment.center,
-                            padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                            padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                             child: const EmptyList(
                                 imagePath: "assets/images/empty-search.svg",
                                 sentence: "Tadaa.. There is nothing here!\nInput a coupon code to start."),
                           ),
-                        ..._buildCouponRows(state.coupons)
+                        ..._buildCouponRows(state.coupons),
+                        (_showKeyboard)
+                            ? Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                child: KeyboardWidget(
+                                  controller: _textEditorCouponController,
+                                  isNumericMode: false,
+                                  customLayoutKeys: true,
+                                  height: 225,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
                       ],
                     ),
                   ),
