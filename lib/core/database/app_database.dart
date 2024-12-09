@@ -3805,12 +3805,6 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       // alter table tostr timbangan
       await db.execute(
           '''ALTER TABLE $tableStoreMasters ADD COLUMN ${ItemMasterFields.scaleActive} tinyint NOT NULL DEFAULT '0' ''');
-      // alter table topos showKeyboard
-      await db.execute(
-          '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.defaultShowKeyboard} int NOT NULL DEFAULT '0' ''');
-      // alter table topos showKeyboard
-      await db.execute(
-          '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.customerDisplayActive} int NOT NULL DEFAULT null ''');
     },
     'from_version_5_to_version_6': (Database db) async {
       // create table banner
@@ -3821,8 +3815,6 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       // alter table topos showKeyboard
       await db.execute(
           '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.customerDisplayActive} int DEFAULT null ''');
-      // create table banner
-      await db.execute(createTobnr);
     },
   };
 
