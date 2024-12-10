@@ -1,8 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +19,7 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
+import 'package:pos_fe/features/dual_screen/services/send_data_window_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
@@ -652,6 +655,9 @@ class _SalesPageState extends State<SalesPage> {
   // =================================================
 
   Widget _receiptItemsList() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _sendToDisplay();
+    });
     return BlocBuilder<ReceiptCubit, ReceiptEntity>(
       builder: (context, state) {
         return Expanded(
@@ -4292,11 +4298,57 @@ class _SalesPageState extends State<SalesPage> {
 
       context.read<ReceiptCubit>().removeReceiptItem(receiptItemTarget, context);
     } catch (e) {
-      if (e is RangeError) {
-        SnackBarHelper.presentErrorSnackBar(context, "Please select Item to Remove");
-      } else {
-        SnackBarHelper.presentErrorSnackBar(context, e.toString());
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
+  }
+
+  void _sendToDisplay() async {
+    try {
+      final windows = await DesktopMultiWindow.getAllSubWindowIds();
+      if (windows.isEmpty) {
+        debugPrint('No display window found');
+        return;
       }
+      final windowId = windows[0];
+      final state = context.read<ReceiptCubit>().state;
+      final List<Map<String, dynamic>> items = state.receiptItems.map((item) {
+        final totalDiscount = item.promos.fold(
+            0.0,
+            (sum, promo) =>
+                sum +
+                ((item.itemEntity.includeTax == 1)
+                    ? (-1 * promo.discAmount!) * ((100 + item.itemEntity.taxRate) / 100)
+                    : (-1 * promo.discAmount!)));
+        return {
+          'name': item.itemEntity.itemName,
+          'quantity': item.quantity.toInt(),
+          'discount': Helpers.parseMoney(totalDiscount.round()),
+          'total': item.totalAmount,
+        };
+      }).toList();
+
+      final double calculatedTotalDiscount = items.fold(
+          0.0, (sum, item) => sum + double.parse(item['discount'].toString().replaceAll(RegExp(r'[^0-9.]'), '')));
+
+      final double calculatedGrandTotal = items.fold(0.0, (sum, item) => sum + item['total']);
+
+      final Map<String, dynamic> data = {
+        'docNum': state.docNum,
+        'customerName': state.customerEntity?.custName ?? 'NON MEMBER',
+        'items': items,
+        'totalDiscount': Helpers.parseMoney(calculatedTotalDiscount.round()),
+        'grandTotal': Helpers.parseMoney(calculatedGrandTotal.round()),
+        'totalPayment': state.totalPayment == null ? 0 : Helpers.parseMoney(state.totalPayment!.round()),
+        'changed': state.changed == null ? 0 : Helpers.parseMoney(state.changed!.round()),
+      };
+
+      final jsonData = jsonEncode(data);
+      debugPrint("Sending data to display: $jsonData");
+      final sendingData = await sendData(windowId, jsonData, 'updateSalesData', 'Sales');
+
+      debugPrint("Send result: $sendingData");
+    } catch (e, stackTrace) {
+      print('Error send data to client display from sales: $e');
     }
   }
 

@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
+import 'package:pos_fe/features/dual_screen/data/datasources/dual_screen_dao.dart';
+import 'package:pos_fe/features/dual_screen/data/models/dual_screen.dart';
 import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/approval_invoice_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/assign_price_member_per_store_dao.dart';
@@ -326,6 +328,7 @@ class AppDatabase {
   late BankIssuerDao bankIssuerDao;
   late CampaignDao campaignDao;
   late DownPaymentItemsDao downPaymentItemsDao;
+  late DualScreenDao dualScreenDao;
 
   static String createTinv7 = """
         CREATE TABLE $tableDownPaymentItem (
@@ -351,6 +354,19 @@ class AppDatabase {
           createdat TEXT DEFAULT CURRENT_TIMESTAMP
         )
         """;
+
+  static String createTobnr = """
+      CREATE TABLE $tableDualScreen (
+        ${DualScreenFields.id} INT PRIMARY KEY ,
+        ${DualScreenFields.createdAt} datetime DEFAULT CURRENT_TIMESTAMP,
+        ${DualScreenFields.updatedAt} datetime DEFAULT CURRENT_TIMESTAMP,
+        ${DualScreenFields.description} text DEFAULT NULL,
+        ${DualScreenFields.type} INT DEFAULT NULL,
+        `${DualScreenFields.order}` INT DEFAULT NULL,
+        ${DualScreenFields.path} TEXT DEFAULT NULL,
+        ${DualScreenFields.duration} INT DEFAULT NULL
+        )
+      """;
 
   AppDatabase._init();
 
@@ -478,6 +494,7 @@ PRAGMA foreign_keys = ON;
     bankIssuerDao = BankIssuerDao(_database!);
     campaignDao = CampaignDao(_database!);
     downPaymentItemsDao = DownPaymentItemsDao(_database!);
+    dualScreenDao = DualScreenDao(_database!);
 
     await receiptContentDao.deleteAll();
     await receiptContentDao.bulkCreate(
@@ -2990,10 +3007,11 @@ CREATE TABLE $tablePOSParameter (
   ${POSParameterFields.storeName} text DEFAULT NULL,
   ${POSParameterFields.tocsrId} text DEFAULT NULL,
   ${POSParameterFields.baseUrl} text DEFAULT NULL,
-  ${POSParameterFields.usernameAdmin} text DEFAULT NULL,
+  ${POSParameterFields.usernameAdmin} text DEFAULT NULL,  
   ${POSParameterFields.passwordAdmin} text DEFAULT NULL,
   ${POSParameterFields.lastSync} text DEFAULT NULL,
   ${POSParameterFields.defaultShowKeyboard} int DEFAULT '0',
+  ${POSParameterFields.customerDisplayActive} int DEFAULT NULL,
   $createdAtDefinition
 )
 """);
@@ -3632,6 +3650,7 @@ CREATE TABLE $tableDuitkuVAAssignStore (
 """);
 
         await txn.execute(createTinv7);
+        await txn.execute(createTobnr);
       });
     } catch (e) {
       log(e.toString());
@@ -3786,9 +3805,16 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       // alter table tostr timbangan
       await db.execute(
           '''ALTER TABLE $tableStoreMasters ADD COLUMN ${ItemMasterFields.scaleActive} tinyint NOT NULL DEFAULT '0' ''');
+    },
+    'from_version_5_to_version_6': (Database db) async {
+      // create table banner
+      await db.execute(createTobnr);
       // alter table topos showKeyboard
       await db.execute(
           '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.defaultShowKeyboard} int NOT NULL DEFAULT '0' ''');
+      // alter table topos showKeyboard
+      await db.execute(
+          '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.customerDisplayActive} int DEFAULT null ''');
     },
     'from_version_5_to_version_6': (Database db) async {
       // alter table topos showKeyboard

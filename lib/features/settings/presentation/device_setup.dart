@@ -14,6 +14,7 @@ import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/usecases/generate_device_number_usecase.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
+import 'package:pos_fe/features/dual_screen/data/models/dual_screen.dart';
 import 'package:pos_fe/features/login/presentation/pages/confirm_restore_db_dialog.dart';
 import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
@@ -483,12 +484,75 @@ class _SettingsFormState extends State<SettingsForm> {
                             passwordAdmin: hashedPassword,
                             lastSync: '2000-01-01 00:00:00',
                             defaultShowKeyboard: 0,
+                            customerDisplayActive: 1,
                           );
 
                           await GetIt.instance<AppDatabase>().posParameterDao.create(data: topos);
 
-                          final token = await GetIt.instance<TokenApi>()
-                              .getToken(urlController.text, emailController.text, passwordController.text);
+                          final dummyBanners = [
+                            DualScreenModel(
+                              id: 1,
+                              description: "Welcome Banner",
+                              type: 1,
+                              order: 1,
+                              path:
+                                  "https://www.uyilo.org.za/wp-content/uploads/2022/04/Sesalogo700x700-01-e1650832696130.png",
+                              duration: 5,
+                              createdAt: DateTime.now(),
+                              updatedAt: DateTime.now(),
+                            ),
+                            DualScreenModel(
+                              id: 2,
+                              description: "Special Promo",
+                              type: 2,
+                              order: 1,
+                              path: "https://statik.tempo.co/data/2023/11/11/id_1253477/1253477_720.jpg",
+                              duration: 4,
+                              createdAt: DateTime.now(),
+                              updatedAt: DateTime.now(),
+                            ),
+                            DualScreenModel(
+                              id: 3,
+                              description: "Holiday Sale",
+                              type: 1,
+                              order: 2,
+                              path:
+                                  "https://asset-a.grid.id/crop/0x0:0x0/x/photo/2022/08/13/kenali-apa-itu-sesaid-cara-bel-20220813112540.jpg",
+                              duration: 6,
+                              createdAt: DateTime.now(),
+                              updatedAt: DateTime.now(),
+                            ),
+                            DualScreenModel(
+                              id: 4,
+                              description: "Weekend Deals",
+                              type: 2,
+                              order: 2,
+                              path:
+                                  "https://sesa.id/cdn/shop/collections/sub_category_banner_produk_segar_1890x690_3c3e982f-ca8b-4be6-ab36-6f9b7085eda5_1200x1200.jpg?v=1693821566",
+                              duration: 5,
+                              createdAt: DateTime.now(),
+                              updatedAt: DateTime.now(),
+                            ),
+                            DualScreenModel(
+                              id: 5,
+                              description: "New Products",
+                              type: 1,
+                              order: 3,
+                              path:
+                                  "https://www.marketeers.com/_next/image/?url=https%3A%2F%2Fimagedelivery.net%2F2MtOYVTKaiU0CCt-BLmtWw%2F305c6ecf-5bd3-409e-931c-caa2d1945900%2Fw%3D1066&w=1920&q=75",
+                              duration: 4,
+                              createdAt: DateTime.now(),
+                              updatedAt: DateTime.now(),
+                            ),
+                          ];
+
+                          await GetIt.instance<AppDatabase>().dualScreenDao.bulkCreate(data: dummyBanners);
+
+                          final token = await GetIt.instance<TokenApi>().getToken(
+                            urlController.text,
+                            emailController.text,
+                            passwordController.text,
+                          );
                           final encryptPasswordUseCase = GetIt.instance<EncryptPasswordUseCase>();
                           final encryptToken = await encryptPasswordUseCase.call(params: token);
                           prefs.setString('adminToken', encryptToken);

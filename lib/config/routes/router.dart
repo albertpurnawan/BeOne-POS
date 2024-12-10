@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
+import 'package:pos_fe/features/dual_screen/presentation/pages/display.dart';
 import 'package:pos_fe/features/home/presentation/pages/home.dart';
 import 'package:pos_fe/features/login/presentation/pages/login.dart';
 import 'package:pos_fe/features/login/presentation/pages/welcome.dart';
@@ -116,6 +118,22 @@ class AppRouter {
         path: "/checkStocks",
         pageBuilder: (context, state) {
           return const MaterialPage(child: CheckStockScreen());
+        },
+      ),
+      //Dual screen route
+      GoRoute(
+        name: RouteConstants.dualScreen,
+        path: "/dualScreen",
+        pageBuilder: (context, state) {
+          final args = state.extra as Map<String, dynamic>;
+          final windowController = args['windowController'] as WindowController;
+
+          return MaterialPage(
+            child: DisplayPage(
+              windowController: windowController,
+              args: args,
+            ),
+          );
         },
       ),
     ],

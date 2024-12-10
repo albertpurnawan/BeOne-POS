@@ -510,10 +510,13 @@ class _OpenShiftFormState extends State<OpenShiftForm> {
                     ),
                     const SizedBox(height: 10),
                     (_showKeyboardAmount)
-                        ? KeyboardWidget(
-                            controller: _openValueController,
-                            isNumericMode: true,
-                            customLayoutKeys: true,
+                        ? Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                            child: KeyboardWidget(
+                              controller: _openValueController,
+                              isNumericMode: true,
+                              customLayoutKeys: true,
+                            ),
                           )
                         : const SizedBox.shrink(),
                     const SizedBox(height: 10),

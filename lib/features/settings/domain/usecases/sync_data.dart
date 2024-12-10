@@ -2467,19 +2467,19 @@ Future<void> syncData() async {
       final strName = store?.storeName;
 
       POSParameterModel toposData = POSParameterModel(
-        docId: toposId,
-        createDate: singleTopos.createDate,
-        updateDate: singleTopos.updateDate,
-        gtentId: singleTopos.gtentId,
-        tostrId: singleTopos.tostrId,
-        storeName: strName,
-        tocsrId: singleTopos.tocsrId,
-        baseUrl: singleTopos.baseUrl,
-        usernameAdmin: singleTopos.usernameAdmin,
-        passwordAdmin: singleTopos.passwordAdmin,
-        lastSync: (isComplete) ? nextSyncDate : singleTopos.lastSync,
-        defaultShowKeyboard: singleTopos.defaultShowKeyboard,
-      );
+          docId: toposId,
+          createDate: singleTopos.createDate,
+          updateDate: singleTopos.updateDate,
+          gtentId: singleTopos.gtentId,
+          tostrId: singleTopos.tostrId,
+          storeName: strName,
+          tocsrId: singleTopos.tocsrId,
+          baseUrl: singleTopos.baseUrl,
+          usernameAdmin: singleTopos.usernameAdmin,
+          passwordAdmin: singleTopos.passwordAdmin,
+          lastSync: (isComplete) ? nextSyncDate : singleTopos.lastSync,
+          defaultShowKeyboard: singleTopos.defaultShowKeyboard,
+          customerDisplayActive: singleTopos.customerDisplayActive);
 
       if (isComplete) await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
 

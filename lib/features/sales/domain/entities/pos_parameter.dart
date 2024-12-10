@@ -15,20 +15,23 @@ class POSParameterEntity {
   final String? passwordAdmin;
   final String? lastSync;
   final int? defaultShowKeyboard;
+  final int? customerDisplayActive;
 
-  POSParameterEntity(
-      {required this.docId,
-      this.createDate,
-      this.updateDate,
-      this.gtentId,
-      this.tostrId,
-      this.storeName,
-      this.tocsrId,
-      this.baseUrl,
-      this.usernameAdmin,
-      this.passwordAdmin,
-      this.lastSync,
-      this.defaultShowKeyboard});
+  POSParameterEntity({
+    required this.docId,
+    this.createDate,
+    this.updateDate,
+    this.gtentId,
+    this.tostrId,
+    this.storeName,
+    this.tocsrId,
+    this.baseUrl,
+    this.usernameAdmin,
+    this.passwordAdmin,
+    this.lastSync,
+    this.defaultShowKeyboard,
+    this.customerDisplayActive,
+  });
 
   POSParameterEntity copyWith({
     String? docId,
@@ -43,21 +46,22 @@ class POSParameterEntity {
     String? passwordAdmin,
     String? lastSync,
     int? defaultShowKeyboard,
+    int? customerDisplayActive,
   }) {
     return POSParameterEntity(
-      docId: docId ?? this.docId,
-      createDate: createDate ?? this.createDate,
-      updateDate: updateDate ?? this.updateDate,
-      gtentId: gtentId ?? this.gtentId,
-      tostrId: tostrId ?? this.tostrId,
-      storeName: storeName ?? this.storeName,
-      tocsrId: tocsrId ?? this.tocsrId,
-      baseUrl: baseUrl ?? this.baseUrl,
-      usernameAdmin: usernameAdmin ?? this.usernameAdmin,
-      passwordAdmin: passwordAdmin ?? this.passwordAdmin,
-      lastSync: lastSync ?? this.lastSync,
-      defaultShowKeyboard: defaultShowKeyboard ?? this.defaultShowKeyboard,
-    );
+        docId: docId ?? this.docId,
+        createDate: createDate ?? this.createDate,
+        updateDate: updateDate ?? this.updateDate,
+        gtentId: gtentId ?? this.gtentId,
+        tostrId: tostrId ?? this.tostrId,
+        storeName: storeName ?? this.storeName,
+        tocsrId: tocsrId ?? this.tocsrId,
+        baseUrl: baseUrl ?? this.baseUrl,
+        usernameAdmin: usernameAdmin ?? this.usernameAdmin,
+        passwordAdmin: passwordAdmin ?? this.passwordAdmin,
+        lastSync: lastSync ?? this.lastSync,
+        defaultShowKeyboard: defaultShowKeyboard ?? this.defaultShowKeyboard,
+        customerDisplayActive: customerDisplayActive ?? this.customerDisplayActive);
   }
 
   Map<String, dynamic> toMap() {
@@ -74,6 +78,7 @@ class POSParameterEntity {
       'passwordAdmin': passwordAdmin,
       'lastSync': lastSync,
       'defaultShowKeyboard': defaultShowKeyboard,
+      'customerDisplayActive': customerDisplayActive
     };
   }
 
@@ -91,6 +96,7 @@ class POSParameterEntity {
       passwordAdmin: map['passwordAdmin'] != null ? map['passwordAdmin'] as String : null,
       lastSync: map['lastSync'] != null ? map['lastSync'] as String : null,
       defaultShowKeyboard: map['defaultShowKeyboard'] != null ? map['defaultShowKeyboard'] as int : null,
+      customerDisplayActive: map['customerDisplayActive'] != null ? map['customerDisplayActive'] as int : null,
     );
   }
 
@@ -101,7 +107,7 @@ class POSParameterEntity {
 
   @override
   String toString() {
-    return 'POSParameterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, gtentId: $gtentId, tostrId: $tostrId, storeName: $storeName, tocsrId: $tocsrId, baseUrl: $baseUrl, usernameAdmin: $usernameAdmin, passwordAdmin: $passwordAdmin, lastSync: $lastSync, defaultShowKeyboard: $defaultShowKeyboard)';
+    return 'POSParameterEntity(docId: $docId, createDate: $createDate, updateDate: $updateDate, gtentId: $gtentId, tostrId: $tostrId, storeName: $storeName, tocsrId: $tocsrId, baseUrl: $baseUrl, usernameAdmin: $usernameAdmin, passwordAdmin: $passwordAdmin, lastSync: $lastSync, defaultShowKeyboard: $defaultShowKeyboard, customerDisplayActive: $customerDisplayActive)';
   }
 
   @override
@@ -119,7 +125,8 @@ class POSParameterEntity {
         other.usernameAdmin == usernameAdmin &&
         other.passwordAdmin == passwordAdmin &&
         other.lastSync == lastSync &&
-        other.defaultShowKeyboard == defaultShowKeyboard;
+        other.defaultShowKeyboard == defaultShowKeyboard &&
+        other.customerDisplayActive == customerDisplayActive;
   }
 
   @override
@@ -135,6 +142,7 @@ class POSParameterEntity {
         usernameAdmin.hashCode ^
         passwordAdmin.hashCode ^
         lastSync.hashCode ^
-        defaultShowKeyboard.hashCode;
+        defaultShowKeyboard.hashCode ^
+        customerDisplayActive.hashCode;
   }
 }

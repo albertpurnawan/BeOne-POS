@@ -70,19 +70,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   bool haveTopos = false;
   String appVersion = "";
   String buildNumber = "";
+  bool secondDisplay = true;
 
   @override
   void initState() {
+    super.initState();
     checkAppVersion();
     checkTopos();
     checkPermission();
-    super.initState();
     prefs.reload().then((value) {
       setState(() {
         isLoggedIn = prefs.getBool('logStatus') ?? false;
       });
     });
-    // _checkShiftStatus();
   }
 
   @override
@@ -288,7 +288,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           // const Padding(
           //   padding: EdgeInsets.only(bottom: 30),
           //   child: Text(
-          //       "Copyright © 2020 Beone Optima Solusi\nAll right reserved",
+          //       "Copyright 2020 Beone Optima Solusi\nAll right reserved",
           //       textAlign: TextAlign.center,
           //       style:
           //           TextStyle(color: ProjectColors.lightBlack, fontSize: 12)),

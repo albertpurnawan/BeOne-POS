@@ -17,6 +17,7 @@ class POSParameterFields {
     passwordAdmin,
     lastSync,
     defaultShowKeyboard,
+    customerDisplayActive,
   ];
 
   static const String docId = 'docid';
@@ -31,6 +32,7 @@ class POSParameterFields {
   static const String passwordAdmin = "passwordadmin";
   static const String lastSync = "lastsync";
   static const String defaultShowKeyboard = "defaultshowkeyboard";
+  static const String customerDisplayActive = "customerDisplayActive";
 }
 
 class POSParameterModel extends POSParameterEntity implements BaseModel {
@@ -47,6 +49,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
     required super.passwordAdmin,
     required super.lastSync,
     required super.defaultShowKeyboard,
+    required super.customerDisplayActive,
   });
 
   @override
@@ -62,7 +65,8 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       'baseurl': baseUrl,
       'usernameadmin': usernameAdmin,
       'passwordadmin': passwordAdmin,
-      'lastsync': lastSync, // toIsoString
+      'lastsync': lastSync,
+      'customerDisplayActive': customerDisplayActive,
       'defaultshowkeyboard': defaultShowKeyboard,
     };
   }
@@ -71,7 +75,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
     return POSParameterModel(
       docId: map['docid'] as String,
       createDate: map['createdate'] != null ? DateTime.parse(map['createdate']).toLocal() : null,
-      updateDate: map['updatedate'] != null ? DateTime.parse(map['createdate']).toLocal() : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate']).toLocal() : null,
       gtentId: map['gtentId'] != null ? map['gtentId'] as String : null,
       tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
       storeName: map['storename'] != null ? map['storename'] as String : null,
@@ -81,6 +85,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       passwordAdmin: map['passwordadmin'] != null ? map['passwordadmin'] as String : null,
       lastSync: map['lastsync'] != null ? map['lastsync'] as String : null,
       defaultShowKeyboard: map['defaultshowkeyboard'] != null ? map['defaultshowkeyboard'] as int : 0,
+      customerDisplayActive: map['customerDisplayActive'] != null ? map['customerDisplayActive'] as int : 0,
     );
   }
 
@@ -98,6 +103,7 @@ class POSParameterModel extends POSParameterEntity implements BaseModel {
       passwordAdmin: entity.passwordAdmin,
       lastSync: entity.lastSync,
       defaultShowKeyboard: entity.defaultShowKeyboard,
+      customerDisplayActive: entity.customerDisplayActive,
     );
   }
 }
