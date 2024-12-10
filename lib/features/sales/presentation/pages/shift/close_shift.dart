@@ -17,7 +17,9 @@ import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
+import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
 import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
+import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/user.dart';
@@ -207,6 +209,10 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   late final String shiftId = widget.shiftId;
   CashierBalanceTransactionModel? activeShift;
   late List<InvoiceHeaderModel?> transactions = [];
+  late List<InvoiceHeaderModel?> transactionsReturn = [];
+  late List<dynamic> transactionsMOP = [];
+  late List<PaymentTypeModel> transactionsTopmt = [];
+  late List<MeansOfPaymentModel> transactionsTpmt1 = [];
   final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String totalCashAmount = '0';
   String totalNonCash = '0';
@@ -225,16 +231,19 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   bool isPrinting = false;
   late TextEditingController _currentController;
 
+  final tableHeader = ["No", "Means of Payment", "Amount"];
+  List<dynamic> tableData = [];
+
   @override
   void initState() {
     super.initState();
+    _currentController = widget.currentController;
     fetchData();
   }
 
   @override
   void dispose() {
     _currentController.dispose();
-    _currentController = widget.currentController;
     super.dispose();
   }
 
@@ -245,6 +254,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     await fetchOpenShiftApprover();
     await fetchCloseShiftApprover();
     await checkLastShiftId();
+    await fetchMOPByInvoice();
   }
 
   Future<void> fetchCloseShiftApprover() async {
@@ -322,6 +332,20 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   Future<void> fetchInvoices() async {
     final transaction = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift(shiftId);
+
+    for (var i = 0; i < transaction.length; i++) {
+      final tinv1s =
+          await GetIt.instance<AppDatabase>().invoiceDetailDao.readByToinvId(transaction[i].docId ?? "", null);
+      if (tinv1s.isNotEmpty) {
+        for (var j = 0; j < tinv1s.length; j++) {
+          if (tinv1s[j].refpos3 != null && tinv1s[j].refpos3 != "") {
+            setState(() {
+              transactionsReturn.add(transaction[i]);
+            });
+          }
+        }
+      }
+    }
     setState(() {
       transactions = transaction;
     });
@@ -426,6 +450,87 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
         }
       }
     }
+  }
+
+  Future<void> fetchMOPByInvoice() async {
+    for (var i = 0; i < transactions.length; i++) {
+      final payMean =
+          await GetIt.instance<AppDatabase>().payMeansDao.readByToinvShowTopmt(transactions[i]!.docId.toString());
+      if (payMean != null && payMean.isNotEmpty) {
+        for (var j = 0; j < payMean.length; j++) {
+          transactionsMOP.add(payMean[j]);
+        }
+      }
+    }
+    for (var i = 0; i < transactionsMOP.length; i++) {
+      final tpmt3 = await GetIt.instance<AppDatabase>().mopByStoreDao.readByDocId(transactionsMOP[i]["tpmt3Id"], null);
+      if (tpmt3 == null) throw "Failed retrieve tpmt3";
+      final tpmt1 = await GetIt.instance<AppDatabase>().meansOfPaymentDao.readByDocId(tpmt3.tpmt1Id ?? "", null);
+      if (tpmt1 == null) throw "Failed retrieve tpmt1";
+      final topmt = await GetIt.instance<AppDatabase>().paymentTypeDao.readByDocId(tpmt1.topmtId ?? "", null);
+      if (topmt == null) throw "Failed retrieve topmt";
+      transactionsTopmt.add(topmt);
+      transactionsTpmt1.add(tpmt1);
+    }
+
+    setState(() {
+      transactionsTopmt = transactionsTopmt
+          .fold<Map<String, PaymentTypeModel>>({}, (map, transaction) {
+            map[transaction.docId] = transaction;
+            return map;
+          })
+          .values
+          .toList();
+
+      transactionsTpmt1 = transactionsTpmt1
+          .fold<Map<String, MeansOfPaymentModel>>({}, (map, transaction) {
+            map[transaction.docId] = transaction;
+            return map;
+          })
+          .values
+          .toList();
+
+      transactionsMOP = transactionsMOP
+          .fold<Map<String, dynamic>>({}, (map, transaction) {
+            String tpmt1Id = transaction['tpmt1Id'];
+
+            if (map.containsKey(tpmt1Id)) {
+              map[tpmt1Id]['amount'] += transaction['amount'];
+              map[tpmt1Id]['docids'].add(transaction['docid']);
+              map[tpmt1Id]['createdat'] = transaction['createdat'];
+              map[tpmt1Id]['description'] = transaction['description'];
+              map[tpmt1Id]['topmtId'] = transaction['topmtId'];
+            } else {
+              map[tpmt1Id] = {
+                'tpmt1Id': tpmt1Id,
+                'amount': transaction['amount'],
+                'docids': [transaction['docid']],
+                'createdat': transaction['createdat'],
+                'description': transaction['description'],
+                'paytypecode': transaction['paytypecode'],
+                'topmtId': transaction['topmtId'],
+              };
+            }
+            return map;
+          })
+          .values
+          .toList()
+        ..sort((a, b) => a['paytypecode'].compareTo(b['paytypecode']));
+
+      tableData = transactionsMOP
+          .asMap()
+          .map((index, transaction) {
+            return MapEntry(index, [
+              (index + 1).toString(),
+              transaction['description'] ?? '',
+              Helpers.parseMoney(transaction['amount']),
+            ]);
+          })
+          .values
+          .toList();
+    });
+    log("transactionsTopmt - $transactionsTopmt");
+    log("tableData - $tableData");
   }
 
   @override
@@ -755,7 +860,220 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           ],
         ),
         const SizedBox(
+          height: 10,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Number of Invoices (All)",
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                transactions.length.toString(),
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Number of Invoices (Return)",
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                transactionsReturn.length.toString(),
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
           height: 30,
+        ),
+        const Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Text(
+                "MOP Details",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+          ],
+        ),
+        const Divider(
+          height: 20,
+          color: Colors.grey,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: List.generate(transactionsTopmt.length, (index) {
+                    List<List<dynamic>> tableData = [];
+
+                    final filteredTransactions = transactionsMOP.where((transaction) {
+                      return transaction['topmtId'] == transactionsTopmt[index].docId;
+                    }).toList();
+
+                    if (filteredTransactions.isNotEmpty) {
+                      double totalAmount = filteredTransactions.fold(0, (sum, transaction) {
+                        return sum + (transaction['amount'] ?? 0);
+                      });
+
+                      tableData = filteredTransactions
+                          .asMap()
+                          .map((i, transaction) {
+                            return MapEntry(i, [
+                              (i + 1).toString(),
+                              transaction['description'] ?? '',
+                              Helpers.parseMoney(transaction['amount']),
+                            ]);
+                          })
+                          .values
+                          .toList();
+
+                      tableData.add([
+                        '',
+                        'Total',
+                        Helpers.parseMoney(totalAmount),
+                      ]);
+                    }
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            transactionsTopmt[index].description,
+                            style: const TextStyle(
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.start,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 5),
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.all(Radius.circular(8)),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: const Color.fromARGB(255, 222, 220, 220),
+                                    width: 1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      // Table Header
+                                      Container(
+                                        decoration: const BoxDecoration(
+                                          color: ProjectColors.primary,
+                                        ),
+                                        child: Row(
+                                          children: tableHeader.map((header) {
+                                            return Container(
+                                              width: 275,
+                                              height: 30,
+                                              alignment: Alignment.center,
+                                              child: Text(
+                                                header,
+                                                textAlign: TextAlign.center,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                                      // Table Data
+                                      Column(
+                                        children: tableData.map((row) {
+                                          bool isLastRow = row == tableData.last;
+                                          return Row(
+                                            children: row.map<Widget>((cell) {
+                                              return Container(
+                                                decoration: BoxDecoration(
+                                                  border: const Border.symmetric(
+                                                    horizontal: BorderSide(
+                                                      width: 0.5,
+                                                      color: Color.fromARGB(255, 222, 220, 220),
+                                                    ),
+                                                  ),
+                                                  color: isLastRow
+                                                      ? Color.fromARGB(255, 220, 220, 220)
+                                                      : Colors.transparent,
+                                                ),
+                                                width: 275,
+                                                height: 40,
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  cell.toString(),
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    fontWeight: isLastRow ? FontWeight.bold : FontWeight.w500,
+                                                  ),
+                                                ),
+                                              );
+                                            }).toList(),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 20,
         ),
         const Row(
           crossAxisAlignment: CrossAxisAlignment.start,
