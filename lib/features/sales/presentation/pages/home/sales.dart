@@ -4704,6 +4704,8 @@ class _SalesPageState extends State<SalesPage> {
         isUpdatingReceiptItemQty = false;
       });
 
+      await _showDialogReturn();
+
       try {
         final String cashierName =
             GetIt.instance<SharedPreferences>().getString("username") ?? "";
@@ -4958,5 +4960,13 @@ class _SalesPageState extends State<SalesPage> {
         item.itemEntity.itemCode == "08700000002");
 
     return hasPositiveQuantity && hasItemDP;
+  }
+
+  Future<void> _showDialogReturn() async {
+    final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
+    print('receiptItems: $receiptItems');
+    final hasItemReturn =
+        receiptItems.any((item) => item.refpos3 != null && item.refpos3 != "");
+    print('hasItemReturn: $hasItemReturn');
   }
 }
