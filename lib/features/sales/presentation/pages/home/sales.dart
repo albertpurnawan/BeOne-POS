@@ -4867,12 +4867,6 @@ class _SalesPageState extends State<SalesPage> {
         'items': items,
         'totalDiscount': Helpers.parseMoney(calculatedTotalDiscount.round()),
         'grandTotal': Helpers.parseMoney(calculatedGrandTotal.round()),
-        'totalPayment': state.totalPayment == null
-            ? 0
-            : Helpers.parseMoney(state.totalPayment!.round()),
-        'changed': state.changed == null
-            ? 0
-            : Helpers.parseMoney(state.changed!.round()),
       };
 
       final jsonData = jsonEncode(data);

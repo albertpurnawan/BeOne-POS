@@ -6,7 +6,6 @@ Future<bool> sendData(
   try {
     final result =
         await DesktopMultiWindow.invokeMethod(windowId, method, jsonData);
-    debugPrint(result);
     if (result != null && result is bool && result) {
       return true;
     }

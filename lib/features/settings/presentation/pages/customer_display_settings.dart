@@ -9,9 +9,12 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/dual_screen/data/models/dual_screen.dart';
+import 'package:pos_fe/features/dual_screen/data/models/send_data.dart';
+import 'package:pos_fe/features/dual_screen/services/create_window_service.dart';
 import 'package:pos_fe/features/dual_screen/services/send_data_window_service.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomerDisplay extends StatefulWidget {
   const CustomerDisplay({super.key});
@@ -60,7 +63,6 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
       // Get all banners from database
       final allBanners =
           await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
-      print('All banners: $allBanners');
 
       setState(() {
         // Split banners by type (1 for large, 2 for small)
@@ -204,7 +206,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
         }
       }
       await _updateCustomerDisplayActive();
-
+      await _updateCustomerDisplay();
       // Clear unsaved changes
       setState(() {
         unsavedBanners.clear();
@@ -213,8 +215,9 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
 
       // Refresh banners to get the updated list with proper IDs
       await refreshBanners();
-
-      await _sendToDisplay();
+      if (dropdownValue.toLowerCase() == 'yes') {
+        await _sendToDisplay();
+      }
       if (mounted) {
         SnackBarHelper.presentSuccessSnackBar(
             context, 'All changes saved successfully', 3);
@@ -232,16 +235,13 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
     try {
       final windows = await DesktopMultiWindow.getAllSubWindowIds();
       if (windows.isEmpty) {
-        debugPrint('No display window found');
         return;
       }
       final windowId = windows[0];
       final data = await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
       final jsonData = jsonEncode(data);
-      debugPrint("Sending data to display: $jsonData");
       final sendingData =
           await sendData(windowId, jsonData, 'updateBannerData', 'checkout');
-      debugPrint("Send result: $sendingData");
     } catch (e, stackTrace) {
       debugPrint('Error sending data to display: $e');
       debugPrint(stackTrace.toString());
@@ -302,6 +302,57 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
       if (mounted) {
         SnackBarHelper.presentErrorSnackBar(
             context, 'Failed to update customer display setting');
+      }
+    }
+  }
+
+  Future<void> _updateCustomerDisplay() async {
+    if (_posParameter == null) {
+      SnackBarHelper.presentErrorSnackBar(context, 'POS parameters not loaded');
+      return;
+    }
+    if (dropdownValue.toLowerCase() == 'yes') {
+      SharedPreferences? prefs = await SharedPreferences.getInstance();
+      try {
+        await DesktopMultiWindow.getAllSubWindowIds();
+        await prefs.setBool("isCustomerDisplayActive", true);
+      } catch (e) {
+        await prefs.setBool("isCustomerDisplayActive", false);
+      }
+      if (prefs.getBool("isCustomerDisplayActive") == false) {
+        final cashier =
+            await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(
+                  _posParameter!.tocsrId!,
+                  null,
+                );
+        final store =
+            await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(
+                  _posParameter!.tostrId!,
+                  null,
+                );
+        final allBanners =
+            await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
+        SendBaseData dataWindow = SendBaseData(
+            cashierName: prefs.getString('username').toString(),
+            cashRegisterId: cashier!.idKassa,
+            storeName: store!.storeName,
+            windowId: 1,
+            dualScreenModel: allBanners);
+        initWindow(mounted, dataWindow);
+      }
+    } else {
+      try {
+        final windows = await DesktopMultiWindow.getAllSubWindowIds();
+        SharedPreferences? prefs = await SharedPreferences.getInstance();
+
+        await Future.forEach(windows, (windowId) async {
+          final controller = WindowController.fromWindowId(windowId);
+
+          await controller.close();
+          await prefs.setBool("isCustomerDisplayActive", false);
+        });
+      } catch (e) {
+        debugPrint('Error Closing Window: $e');
       }
     }
   }
@@ -495,8 +546,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                                               createdAt: banner.createdAt,
                                               updatedAt: DateTime.now(),
                                             );
-                                            print(
-                                                '========================================== $updatedBanner');
+
                                             // Update the banner in the unsaved list if it exists
                                             final unsavedIndex =
                                                 unsavedBanners.indexWhere(
@@ -552,6 +602,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                                           .dualScreenDao
                                           .delete(banner.id);
                                       await refreshBanners();
+                                      await _sendToDisplay();
                                     }
                                   },
                                 ),

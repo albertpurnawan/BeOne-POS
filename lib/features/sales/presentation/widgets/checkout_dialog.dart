@@ -475,9 +475,78 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       setState(() {
         isCharging = false;
       });
+      await _sendToDisplay();
     } catch (e) {
       SnackBarHelper.presentFailSnackBar(context, e.toString());
       return;
+    }
+  }
+
+  Future<void> _sendToDisplay() async {
+    try {
+      final windows = await DesktopMultiWindow.getAllSubWindowIds();
+      if (windows.isEmpty) {
+        debugPrint('No display window found');
+        return;
+      }
+      final windowId = windows[0];
+      final state = context.read<ReceiptCubit>().state;
+
+      // Calculate total payment and change
+      final List<MopSelectionEntity> mopSelections = state.mopSelections;
+      final double totalPayment =
+          mopSelections.fold(0.0, (sum, mop) => sum + (mop.amount ?? 0));
+      final double grandTotal = state.grandTotal;
+      final double changed =
+          totalPayment > grandTotal ? totalPayment - grandTotal : 0.0;
+
+      final Map<String, dynamic> data = {
+        'docNum': state.docNum,
+        'grandTotal': grandTotal,
+        'transDateTime': state.transDateTime?.toIso8601String(),
+        'totalPayment': totalPayment,
+        'changed': changed,
+        'mopSelections': mopSelections
+            .map((mop) => {
+                  'mopAlias': mop.mopAlias,
+                  'amount': mop.amount,
+                  'payTypeCode': mop.payTypeCode,
+                  'cardName': mop.cardName,
+                  'tpmt2Id': mop.tpmt2Id,
+                  'tpmt3Id': mop.tpmt3Id,
+                  'tpmt1Id': mop.tpmt1Id,
+                  'description': mop.description,
+                  'subType': mop.subType,
+                })
+            .toList(),
+        'customerName': state.customerEntity?.custName ?? 'NON MEMBER',
+        'items': state.receiptItems.map((item) {
+          final totalDiscount = item.promos.fold(
+              0.0,
+              (sum, promo) =>
+                  sum +
+                  ((item.itemEntity.includeTax == 1)
+                      ? (-1 * promo.discAmount!) *
+                          ((100 + item.itemEntity.taxRate) / 100)
+                      : (-1 * promo.discAmount!)));
+          return {
+            'name': item.itemEntity.itemName,
+            'quantity': item.quantity.toInt(),
+            'discount': Helpers.parseMoney(totalDiscount.round()),
+            'total': item.totalAmount,
+          };
+        }).toList(),
+      };
+
+      final jsonData = jsonEncode(data);
+      debugPrint("Sending data to display from checkout2: $jsonData");
+      final sendingData = await sendData(
+          windowId, jsonData, 'updateTransactionSuccess', 'Checkout');
+
+      debugPrint("Send result: $sendingData");
+    } catch (e, stackTrace) {
+      print('Error send data to client display from sales: $e');
+      print('Stacktrace: $stackTrace');
     }
   }
 
@@ -1193,10 +1262,29 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                   (states) => ProjectColors.primary),
                               overlayColor: MaterialStateColor.resolveWith(
                                   (states) => Colors.white.withOpacity(.2))),
-                          onPressed: () {
+                          onPressed: () async {
                             isCharged = false;
                             Navigator.of(context).pop();
+                            final windows =
+                                await DesktopMultiWindow.getAllSubWindowIds();
+                            if (windows.isEmpty) {
+                              debugPrint('No display window found');
+                              return;
+                            }
+                            final windowId = windows[0];
                             context.read<ReceiptCubit>().resetReceipt();
+                            final Map<String, dynamic> data = {
+                              'done': true,
+                            };
+
+                            final jsonData = jsonEncode(data);
+                            debugPrint(
+                                "Sending data to display from sales: $jsonData");
+                            final sendingData = await sendData(
+                                windowId,
+                                jsonData,
+                                'updateTransactionSuccessDone',
+                                'Checkout');
                           },
                           child: Center(
                             child: RichText(
