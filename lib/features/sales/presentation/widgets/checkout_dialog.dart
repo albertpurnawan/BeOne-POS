@@ -484,6 +484,12 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
   Future<void> _sendToDisplay() async {
     try {
+      if (await GetIt.instance<GetPosParameterUseCase>().call() != null &&
+          (await GetIt.instance<GetPosParameterUseCase>().call())!
+                  .customerDisplayActive ==
+              0) {
+        return;
+      }
       final windows = await DesktopMultiWindow.getAllSubWindowIds();
       if (windows.isEmpty) {
         debugPrint('No display window found');
