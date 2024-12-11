@@ -93,16 +93,18 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
       backgroundColor: const Color.fromARGB(255, 234, 234, 234),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            const BeOneLogo(size: 300),
-            const SizedBox(height: 10),
-            LoginForm(showKeyboard: showVirtualKeyboard),
-            const SizedBox(height: 10),
-          ],
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+              const BeOneLogo(size: 300),
+              const SizedBox(height: 10),
+              LoginForm(showKeyboard: showVirtualKeyboard),
+              const SizedBox(height: 10),
+            ],
+          ),
         ),
       ),
     );
@@ -306,43 +308,6 @@ class _LoginFormState extends State<LoginForm> {
               : const SizedBox(),
         ]),
       ),
-    );
-  }
-}
-
-class LoginFormField extends StatelessWidget {
-  const LoginFormField({
-    Key? key,
-    this.validator,
-    this.prefix,
-    this.prefixIcon,
-    this.suffix,
-    this.suffixIcon,
-    required this.label,
-    this.obscureText = false,
-    this.controller,
-  }) : super(key: key);
-
-  final String? Function(String? val)? validator;
-  final Widget? prefix, prefixIcon, suffix, suffixIcon;
-  final String label;
-  final bool obscureText;
-  final TextEditingController? controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      validator: validator,
-      controller: controller,
-      obscureText: obscureText,
-      decoration: InputDecoration(
-          isDense: true,
-          contentPadding: const EdgeInsets.only(bottom: 10),
-          prefixIcon: prefixIcon,
-          prefix: prefix,
-          suffixIcon: suffixIcon,
-          suffix: suffix,
-          labelText: label),
     );
   }
 }
