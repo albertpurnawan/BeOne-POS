@@ -529,8 +529,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           .values
           .toList();
     });
-    log("transactionsTopmt - $transactionsTopmt");
-    log("tableData - $tableData");
   }
 
   @override
@@ -549,7 +547,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Expanded(
