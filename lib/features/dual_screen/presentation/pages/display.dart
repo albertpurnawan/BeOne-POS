@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -12,9 +12,12 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/dual_screen/data/models/dual_screen.dart';
+import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:window_manager/window_manager.dart';
 
 class DisplayPage extends StatefulWidget {
   const DisplayPage({
@@ -57,6 +60,9 @@ class _DisplayPageState extends State<DisplayPage> {
 
   // Add sales data state
   late Map<String, dynamic> currentSalesData;
+  late Map<String, dynamic> currentSalesCheckout;
+  late Map<String, dynamic> TransactionSuccessData;
+  late Map<String, dynamic> TransactionSuccessDone;
 
   VideoPlayerController? _videoController;
 
@@ -64,10 +70,43 @@ class _DisplayPageState extends State<DisplayPage> {
     try {
       setState(() => isLoading = true);
 
-      final allBanners = (dataMap['dualScreenModel'] as List<dynamic>)
-          .map((banner) =>
-              DualScreenModel.fromMap(banner as Map<String, dynamic>))
-          .toList();
+      final dualScreenModel = dataMap['dualScreenModel'];
+      List<DualScreenModel> allBanners = [];
+      if (dualScreenModel is String) {
+        // Handle the case where dualScreenModel is a JSON string
+        final parsedData = jsonDecode(dualScreenModel);
+        if (parsedData is List) {
+          allBanners = parsedData.map((banner) {
+            // Log the type of each banner
+            if (banner is Map<String, dynamic>) {
+              return DualScreenModel.fromMap(banner);
+            } else if (banner is String) {
+              // Attempt to decode if it's a string
+              return DualScreenModel.fromMap(jsonDecode(banner));
+            } else {
+              throw FormatException(
+                  'Expected a Map or a JSON string for each banner');
+            }
+          }).toList();
+        } else {
+          throw FormatException('Expected a List');
+        }
+      } else if (dualScreenModel is List) {
+        allBanners = dualScreenModel.map((banner) {
+          // Log the type of each banner
+          if (banner is Map<String, dynamic>) {
+            return DualScreenModel.fromMap(banner);
+          } else if (banner is String) {
+            // Attempt to decode if it's a string
+            return DualScreenModel.fromMap(jsonDecode(banner));
+          } else {
+            throw FormatException(
+                'Expected a Map or a JSON string for each banner');
+          }
+        }).toList();
+      } else if (dualScreenModel != null) {
+        throw FormatException('Expected a List or String');
+      }
 
       setState(() {
         largeBannersUrl = allBanners
@@ -110,16 +149,26 @@ class _DisplayPageState extends State<DisplayPage> {
   @override
   void initState() {
     super.initState();
-
     // Initialize currentSalesData with default values
+
     currentSalesData = {
       'customerName': '-',
       'items': [],
       'totalDiscount': '-',
       'grandTotal': '-',
-      'totalPayment': '-',
-      'changed': '-'
     };
+
+    currentSalesCheckout = {'totalPayment': '-', 'changed': '-'};
+
+    TransactionSuccessData = {
+      'docNum': '-',
+      'grandTotal': '-',
+      'transDateTime': '-',
+      'mopSelections': '-',
+      'totalPayment': '-',
+      'changed': '-',
+    };
+    TransactionSuccessDone = {'done': false};
 
     // Setup window listener before processing data
     _setupWindowListener();
@@ -132,6 +181,15 @@ class _DisplayPageState extends State<DisplayPage> {
       });
     }
     _loadBanners();
+  }
+
+  double _safeParseDouble(String value) {
+    try {
+      // Remove commas before parsing
+      return double.parse(value.replaceAll(',', ''));
+    } catch (e) {
+      return 0.0; // Default value if parsing fails
+    }
   }
 
   void _setupWindowListener() {
@@ -154,26 +212,189 @@ class _DisplayPageState extends State<DisplayPage> {
           try {
             final String jsonString = call.arguments as String;
             final data = jsonDecode(jsonString);
-
-            setState(() {
-              // Update the entire dualScreenModel
-              dataMap['dualScreenModel'] = data;
-
-              // Immediately update banner-specific fields
-              if (data is Map) {
-                // Update large banner if present
-                if (data.containsKey('largeBannersUrl') &&
-                    data['largeBannersUrl'] is List &&
-                    data['largeBannersUrl'].isNotEmpty) {}
-
-                // Update small banner if present
-                if (data.containsKey('smallBannersUrl') &&
-                    data['smallBannersUrl'] is List &&
-                    data['smallBannersUrl'].isNotEmpty) {}
-              }
-            });
+            if (data.isNotEmpty) {
+              setState(() {
+                dataMap['dualScreenModel'] = data;
+              });
+              await _loadBanners();
+            } else {
+              debugPrint('Expected a List, but got: ${data.runtimeType}');
+            }
           } catch (e, stackTrace) {
             debugPrint('Error processing banner data: $e');
+            debugPrint(stackTrace.toString());
+            return false;
+          }
+        case 'updateCheckoutData':
+          try {
+            final String jsonString = call.arguments as String;
+            final data = jsonDecode(jsonString);
+            setState(() {
+              currentSalesCheckout['totalPayment'] = data['totalPayment'];
+              currentSalesCheckout['changed'] = data['changed'];
+            });
+            return true;
+          } catch (e, stackTrace) {
+            debugPrint('Error processing banner data: $e');
+            debugPrint(stackTrace.toString());
+            return false;
+          }
+        case 'updateTransactionSuccess':
+          try {
+            final String jsonString = call.arguments as String;
+            final Map<String, dynamic> data = jsonDecode(jsonString);
+            final List<MopSelectionEntity> mopSelections =
+                (data['mopSelections'] as List?)?.map((mopData) {
+                      return MopSelectionEntity(
+                        mopAlias: mopData['mopAlias'] ?? '',
+                        amount: (mopData['amount'] as num?)?.toDouble() ?? 0.0,
+                        payTypeCode: mopData['payTypeCode'] ?? '',
+                        cardName: mopData['cardName'],
+                        tpmt2Id: mopData['tpmt2Id'],
+                        tpmt3Id: mopData['tpmt3Id'],
+                        tpmt1Id: mopData['tpmt1Id'],
+                        description: mopData['description'],
+                        subType: mopData['subType'],
+                      );
+                    }).toList() ??
+                    [];
+
+            setState(() {
+              TransactionSuccessData = {
+                'docNum': data['docNum'] ?? '',
+                'grandTotal': data['grandTotal'] ?? 0.0,
+                'transDateTime': data['transDateTime'] != null
+                    ? DateTime.parse(data['transDateTime'])
+                    : null,
+                'mopSelections': mopSelections,
+                'totalPayment': currentSalesCheckout['totalPayment'] ?? 0.0,
+                'changed': currentSalesCheckout['changed'] ?? 0.0,
+              };
+            });
+
+            // Show dialog when new data arrives
+            if (mounted &&
+                TransactionSuccessData['docNum'] != null &&
+                TransactionSuccessData['docNum'].isNotEmpty) {
+              final dialog = showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => Positioned.fill(
+                  child: Center(
+                    child: AlertDialog(
+                      backgroundColor: Colors.white,
+                      surfaceTintColor: Colors.transparent,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                      ),
+                      title: ExcludeFocusTraversal(
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: ProjectColors.primary,
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(5.0)),
+                          ),
+                          padding: const EdgeInsets.fromLTRB(25, 5, 10, 5),
+                          child: const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Checkout',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      contentPadding: const EdgeInsets.all(0),
+                      // ignore: unnecessary_null_comparison
+                      content: _DisplayCheckoutSuccessDialogContent(
+                        checkoutData: TransactionSuccessData,
+                        docNum: TransactionSuccessData['docNum'] ?? '',
+                        grandTotal: double.tryParse(
+                                TransactionSuccessData['grandTotal']
+                                        ?.toString() ??
+                                    '0') ??
+                            0.0,
+                        transDateTime: TransactionSuccessData['transDateTime'],
+                        mopSelections:
+                            TransactionSuccessData['mopSelections'] ?? [],
+                        totalPayment:
+                            TransactionSuccessData['totalPayment'] == null
+                                ? 0.0
+                                : _safeParseDouble(
+                                    TransactionSuccessData['totalPayment']
+                                        .toString()),
+                        changed: TransactionSuccessData['changed'] == null
+                            ? 0.0
+                            : _safeParseDouble(
+                                TransactionSuccessData['changed'].toString()),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              TransactionSuccessData['totalPayment'] = '-';
+                            });
+                          },
+                          child: const Text(
+                            'Close',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            // Close dialog if updateTransactionSuccessDone is called and done is true
+            if (TransactionSuccessDone['done'] == true) {
+              Navigator.of(context).pop(); // Close the dialog
+            }
+
+            return true;
+          } catch (e, stackTrace) {
+            debugPrint('Error processing transaction success data: $e');
+            debugPrint(stackTrace.toString());
+            return false;
+          }
+        case 'updateTransactionSuccessDone':
+          try {
+            final String jsonString = call.arguments as String;
+            final Map<String, dynamic> data = jsonDecode(jsonString);
+
+            setState(() {
+              TransactionSuccessDone = {
+                'done': data['done'] ?? '',
+              };
+            });
+
+            // Close dialog if updateTransactionSuccessDone is called and done is true
+            if (TransactionSuccessDone['done'] == true) {
+              Navigator.of(context).pop(); // Close the dialog
+              setState(() {
+                TransactionSuccessDone['done'] = false;
+                currentSalesCheckout['totalPayment'] = 0;
+                currentSalesCheckout['changed'] = 0;
+                currentSalesData = {
+                  'customerName': '-',
+                  'items': [],
+                  'totalDiscount': '-',
+                  'grandTotal': '-',
+                };
+              });
+            }
+
+            return true;
+          } catch (e, stackTrace) {
+            debugPrint('Error processing transaction success done data: $e');
             debugPrint(stackTrace.toString());
             return false;
           }
@@ -195,83 +416,251 @@ class _DisplayPageState extends State<DisplayPage> {
     }
   }
 
+  double _getResponsiveFontSize(BuildContext context, {bool isHeader = false}) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Calculate base size based on screen dimensions
+    final baseSize =
+        (screenWidth * screenHeight) / (1920 * 1080); // normalized to 1080p
+
+    // Scale font size proportionally
+    final scaleFactor = isHeader ? 1.2 : 1.0;
+    final fontSize = (baseSize * 16 * scaleFactor).clamp(
+        isHeader ? 14.0 : 12.0, // minimum size
+        isHeader ? 20.0 : 18.0 // maximum size
+        );
+
+    return fontSize;
+  }
+
+  double _getColumnWidth(BuildContext context, String columnType) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final totalWidth =
+        screenWidth * 0.4; // Since container width is 40% of screen
+
+    // Dynamic ratios based on available width
+    final Map<String, double> columnRatios = {
+      'no': 0.05,
+      'name': 0.30,
+      'qty': 0.07,
+      'discount': 0.17,
+      'total': 0.18,
+    };
+
+    return totalWidth * (columnRatios[columnType] ?? 0.1);
+  }
+
+  double _getHeaderHeight(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    // Make header height responsive but with min/max bounds
+    return (screenHeight * 0.06).clamp(40.0, 60.0);
+  }
+
+  double _getHeaderPadding(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    return (screenHeight * 0.01).clamp(4.0, 12.0);
+  }
+
+  Widget _buildTableCell({
+    required BuildContext context,
+    required String text,
+    required bool isHeader,
+  }) {
+    final fontSize = _getResponsiveFontSize(context, isHeader: isHeader);
+    final verticalPadding = isHeader ? _getHeaderPadding(context) : 8.0;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        vertical: verticalPadding,
+        horizontal: 4,
+      ),
+      child: Center(
+        child: Text(
+          text,
+          style: TextStyle(
+            color: isHeader ? Colors.white : Colors.black87,
+            fontSize: fontSize,
+            fontWeight: isHeader ? FontWeight.bold : FontWeight.normal,
+          ),
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.visible,
+          softWrap: true,
+        ),
+      ),
+    );
+  }
+
   Widget _buildSalesDisplay() {
+    // Ensure scroll to bottom whenever data changes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToBottom();
+    });
+
     return Expanded(
-      child: SingleChildScrollView(
-        controller: _scrollController,
-        scrollDirection: Axis.vertical,
-        child: DataTable(
-          headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
-          dataRowMaxHeight: double.infinity,
-          headingTextStyle: TextStyle(
-            fontSize: 14,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            width: 1,
+            color: Colors.black.withOpacity(0.5),
           ),
-          dataTextStyle: TextStyle(
-            fontSize: 10,
-          ),
-          border: TableBorder.symmetric(outside: BorderSide(width: 1)),
-          columns: const [
-            DataColumn(
-              label: Center(
-                child: Text(
-                  'No',
-                  style: TextStyle(color: Colors.white),
-                ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        width: double.infinity,
+        child: Column(
+          children: [
+            // Sticky Header
+            Container(
+              height: _getHeaderHeight(context),
+              decoration: BoxDecoration(
+                color: ProjectColors.primary,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: _buildTableCell(
+                      context: context,
+                      text: 'No',
+                      isHeader: true,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 30,
+                    child: _buildTableCell(
+                      context: context,
+                      text: 'Item Name',
+                      isHeader: true,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 7,
+                    child: _buildTableCell(
+                      context: context,
+                      text: 'Qty',
+                      isHeader: true,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 17,
+                    child: _buildTableCell(
+                      context: context,
+                      text: 'Discount',
+                      isHeader: true,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 18,
+                    child: _buildTableCell(
+                      context: context,
+                      text: 'Total',
+                      isHeader: true,
+                    ),
+                  ),
+                ],
               ),
             ),
-            DataColumn(
-              label: Center(
-                child: Text(
-                  'Item Name',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            DataColumn(
-              label: Center(
-                child: Text(
-                  'Qty.',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            DataColumn(
-              label: Center(
-                child: Text(
-                  'Discount',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            DataColumn(
-              label: Center(
-                child: Text(
-                  'Total',
-                  style: TextStyle(color: Colors.white),
+            // List items with auto-scroll
+            Expanded(
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (scrollInfo) {
+                  if (scrollInfo is ScrollEndNotification) {
+                    // Store the current scroll position
+                    final currentPosition = _scrollController.position.pixels;
+                    final maxScroll =
+                        _scrollController.position.maxScrollExtent;
+                    // If we're near the bottom, keep scrolling to bottom for new items
+                    if (currentPosition >= maxScroll - 50) {
+                      _scrollToBottom();
+                    }
+                  }
+                  return true;
+                },
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Column(
+                    children: [
+                      if (currentSalesData['items'] != null)
+                        ...List.generate(
+                          currentSalesData['items']!.length,
+                          (index) {
+                            final item = currentSalesData['items']![index];
+                            return Container(
+                              constraints: BoxConstraints(
+                                minHeight: 40,
+                              ),
+                              decoration: BoxDecoration(
+                                color: index % 2 == 0
+                                    ? Colors.white
+                                    : Colors.grey.shade50,
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey.shade300,
+                                    width: 1,
+                                  ),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 5,
+                                    child: _buildTableCell(
+                                      context: context,
+                                      text: '${index + 1}',
+                                      isHeader: false,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 30,
+                                    child: _buildTableCell(
+                                      context: context,
+                                      text: '${item['name']}',
+                                      isHeader: false,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 7,
+                                    child: _buildTableCell(
+                                      context: context,
+                                      text: '${item['quantity']}',
+                                      isHeader: false,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 17,
+                                    child: _buildTableCell(
+                                      context: context,
+                                      text: '${item['discount'] ?? '-'}',
+                                      isHeader: false,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 18,
+                                    child: _buildTableCell(
+                                      context: context,
+                                      text: Helpers.parseMoney(item['total']),
+                                      isHeader: false,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ],
-          rows: currentSalesData['items'] == null
-              ? []
-              : List<DataRow>.generate(
-                  currentSalesData['items']!.length,
-                  (index) {
-                    final item = currentSalesData['items']![index];
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      _scrollToBottom();
-                    });
-                    return DataRow(
-                      cells: [
-                        DataCell(Text('${index + 1}')),
-                        DataCell(Text('${item['name']}')),
-                        DataCell(Text('${item['quantity']}')),
-                        DataCell(Text('${item['discount'] ?? '-'}')),
-                        DataCell(Text(Helpers.parseMoney(item['total']))),
-                      ],
-                    );
-                  },
-                ),
         ),
       ),
     );
@@ -312,7 +701,7 @@ class _DisplayPageState extends State<DisplayPage> {
         final List<FileSystemEntity> files =
             await largeBannnerStorage.list().toList();
         for (var file in files) {
-          if (file is File) {
+          if (file is File && await file.exists()) {
             await file.delete();
           }
         }
@@ -324,7 +713,7 @@ class _DisplayPageState extends State<DisplayPage> {
         final List<FileSystemEntity> files =
             await smallBannnerStorage.list().toList();
         for (var file in files) {
-          if (file is File) {
+          if (file is File && await file.exists()) {
             await file.delete();
           }
         }
@@ -682,319 +1071,674 @@ class _DisplayPageState extends State<DisplayPage> {
     super.dispose();
   }
 
+  Widget _buildInfoRow(String label, String value, double fontSize) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: fontSize,
+              color: Colors.black87,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomerSection(BuildContext context, Map<String, dynamic> data,
+      Map<String, dynamic> data2) {
+    return Expanded(
+      flex: 2,
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: MediaQuery.of(context).size.height * 0.01,
+          right: MediaQuery.of(context).size.width * 0.01,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              width: 0.5,
+            ),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: LayoutBuilder(builder: (context, constraints) {
+            final baseSize =
+                (constraints.maxWidth * constraints.maxHeight) / (800 * 600);
+            final fontSize = (baseSize * 14).clamp(10.0, 12.0);
+            final headerFontSize = (fontSize * 1.2).clamp(12.0, 18.0);
+            final padding = (baseSize * 12).clamp(6.0, 10.0);
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: const BoxDecoration(
+                    color: ProjectColors.primary,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(8),
+                      topRight: Radius.circular(8),
+                    ),
+                  ),
+                  padding: EdgeInsets.all(padding),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          'Customer',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: headerFontSize,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          _getSafeStringValue(data, 'customerName'),
+                          textAlign: TextAlign.end,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: headerFontSize,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(padding),
+                  child: Column(
+                    children: [
+                      _buildInfoRow(
+                        'Total Discount',
+                        'Rp ${_getSafeStringValue(data, 'totalDiscount')}',
+                        fontSize,
+                      ),
+                      _buildInfoRow(
+                        'Grand Total',
+                        'Rp ${_getSafeStringValue(data, 'grandTotal')}',
+                        fontSize,
+                      ),
+                      SizedBox(height: padding),
+                      _buildInfoRow(
+                        'Total Payment',
+                        'Rp ${_getSafeStringValue(data2, 'totalPayment')}',
+                        fontSize,
+                      ),
+                      _buildInfoRow(
+                        'Changed',
+                        'Rp ${_getSafeStringValue(data2, 'changed')}',
+                        fontSize,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGrandTotalSection(
+      BuildContext context, Map<String, dynamic> data) {
+    final hasItems = data['items'] != null && data['items'].length > 0;
+
+    return Expanded(
+      flex: 2,
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: MediaQuery.of(context).size.height * 0.01,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: hasItems ? Colors.green.shade700 : Colors.green,
+          ),
+          child: LayoutBuilder(builder: (context, constraints) {
+            final baseSize =
+                (constraints.maxWidth * constraints.maxHeight) / (800 * 600);
+            final fontSize = (baseSize * 20).clamp(14.0, 24.0);
+            final padding = (baseSize * 16).clamp(8.0, 32.0);
+
+            return Padding(
+              padding: EdgeInsets.all(padding),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Grand Total',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: fontSize * 0.8,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: padding * 0.5),
+                  Text(
+                    'IDR ${_getSafeStringValue(data, 'grandTotal')}',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: fontSize * 0.8,
+                    ),
+                  ),
+                  SizedBox(height: padding * 0.5),
+                  Text(
+                    'Items: ${data['items'] != null ? data['items'].length : 0}',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: fontSize * 0.6,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cashier = _prefs?.getString('username');
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding:
-                      const EdgeInsets.only(left: 20, bottom: 40, right: 12),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Image.asset(
-                            "assets/logo/ruby_pos_sesa_icon.png",
-                            fit: BoxFit.contain,
-                            height: 110,
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                width: 1,
-                                color: Colors.grey,
-                              ),
-                              borderRadius: BorderRadius.circular(4),
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Stack(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(left: 20, bottom: 40, right: 12),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Image.asset(
+                              "assets/logo/ruby_pos_sesa_icon.png",
+                              fit: BoxFit.contain,
+                              height: 110,
                             ),
-                            child: Column(
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 1,
+                                  color: Colors.grey,
+                                ),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: const BoxDecoration(
+                                      color: ProjectColors.primary,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(4),
+                                        topRight: Radius.circular(4),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Cash Register',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 8,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    dataMap['cashRegisterId'] ??
+                                        'Unknown Register',
+                                    style: const TextStyle(
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: const BoxDecoration(
-                                    color: ProjectColors.primary,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(4),
-                                      topRight: Radius.circular(4),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    'Cash Register',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 8,
-                                    ),
-                                  ),
+                                Text(
+                                  DateFormat('EEEE, dd MMM yyyy')
+                                      .format(DateTime.now()),
+                                  style: const TextStyle(fontSize: 14),
                                 ),
                                 Text(
-                                  dataMap['cashRegisterId'] ??
-                                      'Unknown Register',
+                                  dataMap['storeName'] ?? '',
                                   style: const TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                )
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  dataMap['cashierName'] ?? '',
+                                  style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ],
                             ),
+                          ],
+                        ),
+                        _buildSalesDisplay(),
+                        Row(
+                          children: [
+                            _buildCustomerSection(context, currentSalesData,
+                                currentSalesCheckout),
+                            _buildGrandTotalSection(context, currentSalesData),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                // Right side: Images with fixed width
+                Container(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height * 0.5,
+                    minWidth: MediaQuery.of(context).size.width * 0.5,
+                    maxHeight: MediaQuery.of(context).size.height * 1,
+                    maxWidth: MediaQuery.of(context).size.width * 0.6,
+                  ),
+                  width: 1264, // Fixed width for the right side
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 7,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 1000),
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            );
+                          },
+                          child: FutureBuilder<Widget>(
+                            future: largeBanners.isNotEmpty
+                                ? _buildLargeBannerMedia(
+                                    largeBanners[_currentIndex],
+                                  )
+                                : Future.value(const Center(
+                                    child: CircularProgressIndicator(),
+                                  )),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return snapshot.data!;
+                              }
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                DateFormat('EEEE, dd MMM yyyy')
-                                    .format(DateTime.now()),
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                              Text(
-                                dataMap['storeName'] ?? '',
-                                style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                dataMap['cashierName'] ?? '',
-                                style: const TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold),
-                              ),
-                            ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        flex: 3,
+                        child: CarouselSlider(
+                          options: CarouselOptions(
+                            height: double.infinity,
+                            viewportFraction: 1.0,
+                            autoPlay: true,
+                            autoPlayInterval: const Duration(seconds: 3),
+                            autoPlayAnimationDuration:
+                                const Duration(milliseconds: 800),
+                            autoPlayCurve: Curves.fastOutSlowIn,
+                            pauseAutoPlayOnTouch: true,
                           ),
+                          items: smallBanners
+                              .map((banner) => _buildSmallBannerMedia(banner))
+                              .toList(),
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DisplayCheckoutSuccessDialogContent extends StatefulWidget {
+  final Map<String, dynamic> checkoutData;
+  final String docNum;
+  final double grandTotal;
+  final DateTime? transDateTime;
+  final List<MopSelectionEntity> mopSelections;
+  final double? totalPayment;
+  final double? changed;
+
+  const _DisplayCheckoutSuccessDialogContent({
+    required this.checkoutData,
+    required this.docNum,
+    required this.grandTotal,
+    required this.transDateTime,
+    required this.mopSelections,
+    this.totalPayment,
+    this.changed,
+  });
+
+  @override
+  State<_DisplayCheckoutSuccessDialogContent> createState() =>
+      _DisplayCheckoutSuccessDialogContentState();
+}
+
+class _DisplayCheckoutSuccessDialogContentState
+    extends State<_DisplayCheckoutSuccessDialogContent> {
+  String currencyName = "";
+  List<TableRow> voucherDetails = [];
+
+  Future<void> _refreshVouchersChips(int color) async {
+    setState(() {
+      voucherDetails = [];
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshVouchersChips(2);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+          fontFamily: 'Roboto',
+          useMaterial3: true,
+          chipTheme: const ChipThemeData(
+              showCheckmark: true,
+              checkmarkColor: Colors.white,
+              backgroundColor: Colors.transparent,
+              selectedColor: ProjectColors.primary,
+              labelStyle: TextStyle(color: ChipLabelColor(), fontSize: 18))),
+      child: SingleChildScrollView(
+        child: SizedBox(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 60),
+                // width: double.infinity,
+                color: const Color.fromARGB(255, 134, 1, 1),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 2),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(60),
+                          boxShadow: const [
+                            BoxShadow(
+                              spreadRadius: 0.5,
+                              blurRadius: 5,
+                              color: Color.fromRGBO(0, 0, 0, 0.097),
+                            ),
+                          ],
+                          color: const Color.fromARGB(255, 47, 143, 8),
+                        ),
+                        child: const Text(
+                          "Transaction Success",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            "assets/images/icon-success.svg",
+                            height: 42,
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text(
+                            "IDR ${Helpers.parseMoney(double.tryParse(widget.grandTotal.toString()) ?? 0.0)}",
+                            style: const TextStyle(
+                              fontSize: 42,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 52,
+                          )
                         ],
                       ),
-                      _buildSalesDisplay(),
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 8.0, right: 8.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                      width: 1,
-                                      color: Colors.grey,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8)),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      decoration: const BoxDecoration(
-                                          color: ProjectColors.primary,
-                                          borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(8),
-                                              topRight: Radius.circular(8))),
-                                      child: Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            const Text('Customer',
-                                                style: TextStyle(
-                                                    color: Colors.white)),
-                                            Text(
-                                                _getSafeStringValue(
-                                                    currentSalesData,
-                                                    'customerName'),
-                                                style: const TextStyle(
-                                                    color: Colors.white)),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text('Total Discount'),
-                                              Text(
-                                                  'Rp ${_getSafeStringValue(currentSalesData, 'totalDiscount')}'),
-                                            ],
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text('Grand Total'),
-                                              Text(
-                                                  'Rp ${_getSafeStringValue(currentSalesData, 'grandTotal')}'),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text('Total Payment'),
-                                              Text(
-                                                  'Rp ${_getSafeStringValue(currentSalesData, 'totalPayment')}'),
-                                            ],
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text('Changed'),
-                                              Text(
-                                                  'Rp ${_getSafeStringValue(currentSalesData, 'changed')}'),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          // Grand Total Section
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  color: currentSalesData['items'] != null &&
-                                          currentSalesData['items'].length > 0
-                                      ? Colors.green
-                                          .shade700 // Darker green when items added
-                                      : Colors.green,
-                                ),
-                                padding: const EdgeInsets.all(25.0),
-                                child: LayoutBuilder(
-                                  builder: (context, constraints) {
-                                    final fontSize = constraints.maxWidth > 800
-                                        ? 32.0
-                                        : 24.0;
-                                    return Column(
-                                      children: [
-                                        Text(
-                                          'Grand Total',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: fontSize),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'IDR ${_getSafeStringValue(currentSalesData, 'grandTotal')}',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: fontSize),
-                                        ),
-                                        if (currentSalesData['items'] != null &&
-                                            currentSalesData['items'].length >
-                                                0)
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 8.0),
-                                            child: Text(
-                                              'Items: ${currentSalesData['items'].length}',
-                                              style: TextStyle(
-                                                color: Colors.white70,
-                                                fontSize: fontSize * 0.5,
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        widget.transDateTime != null
+                            ? DateFormat("EEE, dd MMM yyyy hh:mm aaa")
+                                .format(widget.transDateTime!)
+                            : "",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 30,
                       ),
                     ],
                   ),
                 ),
               ),
-              // Right side: Images with fixed width
+              const SizedBox(height: 10),
               Container(
-                constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height * 0.5,
-                  minWidth: MediaQuery.of(context).size.width * 0.5,
-                  maxHeight: MediaQuery.of(context).size.height * 1,
-                  maxWidth: MediaQuery.of(context).size.width * 0.6,
-                ),
-                width: 1264, // Fixed width for the right side
-                child: Column(
-                  children: [
-                    Expanded(
-                      flex: 7,
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 1000),
-                        transitionBuilder:
-                            (Widget child, Animation<double> animation) {
-                          return FadeTransition(
-                            opacity: animation,
-                            child: child,
-                          );
-                        },
-                        child: FutureBuilder<Widget>(
-                          future: largeBanners.isNotEmpty
-                              ? _buildLargeBannerMedia(
-                                  largeBanners[_currentIndex],
-                                )
-                              : Future.value(const Center(
-                                  child: CircularProgressIndicator(),
-                                )),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              return snapshot.data!;
-                            }
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          },
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                  // width: double.infinity,
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Detail",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
+                      Divider()
+                    ],
+                  )),
+              Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  // width: double.infinity,
+                  child: Table(columnWidths: const {
+                    0: FlexColumnWidth(3),
+                    1: FlexColumnWidth(1),
+                    2: FlexColumnWidth(5),
+                  }, children: [
+                    TableRow(
+                      children: [
+                        const Text(
+                          "Invoice Number",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Text(
+                          widget.docNum,
+                          textAlign: TextAlign.right,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Expanded(
-                      flex: 3,
-                      child: CarouselSlider(
-                        options: CarouselOptions(
-                          height: double.infinity,
-                          viewportFraction: 1.0,
-                          autoPlay: true,
-                          autoPlayInterval: const Duration(seconds: 3),
-                          autoPlayAnimationDuration:
-                              const Duration(milliseconds: 800),
-                          autoPlayCurve: Curves.fastOutSlowIn,
-                          pauseAutoPlayOnTouch: true,
+                    TableRow(
+                      children: [
+                        const Text(
+                          "Total Bill",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                        items: smallBanners
-                            .map((banner) => _buildSmallBannerMedia(banner))
-                            .toList(),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        Text(
+                          textAlign: TextAlign.right,
+                          widget.changed != null
+                              ? Helpers.parseMoney(double.tryParse(
+                                      widget.grandTotal.toString()) ??
+                                  0.0)
+                              : "",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        )
+                      ],
+                    ),
+                    const TableRow(children: [
+                      SizedBox(
+                        height: 10,
                       ),
-                    )
-                  ],
-                ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      )
+                    ]),
+                    ...List.generate(widget.mopSelections.length, (index) {
+                      final MopSelectionEntity mop =
+                          widget.mopSelections[index];
+
+                      return TableRow(
+                        children: [
+                          Text(
+                            (mop.tpmt2Id != null)
+                                ? mop.cardName!
+                                : mop.mopAlias,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(),
+                          Text(
+                            Helpers.parseMoney(mop.payTypeCode == "1"
+                                ? mop.amount! + (widget.changed ?? 0)
+                                : mop.amount!),
+                            textAlign: TextAlign.right,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.black87,
+                            ),
+                          )
+                        ],
+                      );
+                    }),
+                    TableRow(
+                      children: [
+                        const Text(
+                          "Total Payment",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(),
+                        Text(
+                          Helpers.parseMoney(
+                              double.tryParse(widget.totalPayment.toString()) ??
+                                  0.0),
+                          textAlign: TextAlign.right,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        )
+                      ],
+                    ),
+                    TableRow(
+                      children: [
+                        const Text(
+                          "Change",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(),
+                        Text(
+                          widget.changed != null
+                              ? Helpers.parseMoney(
+                                  double.tryParse(widget.changed.toString()) ??
+                                      0.0)
+                              : "",
+                          textAlign: TextAlign.right,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        )
+                      ],
+                    ),
+                  ])),
+              const SizedBox(
+                height: 10,
               )
             ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

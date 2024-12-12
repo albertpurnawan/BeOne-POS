@@ -3855,7 +3855,7 @@ class _SalesPageState extends State<SalesPage> {
     bool isNumOnly,
     BuildContext context,
   ) async {
-    // log("Handle physical keyboard ${event.physicalKey}");
+    log("Handle physical keyboard ${event.physicalKey}");
     if (event.runtimeType == KeyUpEvent) return;
     if (textFieldFocusNode.hasPrimaryFocus) {
       if (event.character != null &&
@@ -4338,12 +4338,10 @@ class _SalesPageState extends State<SalesPage> {
         'items': items,
         'totalDiscount': Helpers.parseMoney(calculatedTotalDiscount.round()),
         'grandTotal': Helpers.parseMoney(calculatedGrandTotal.round()),
-        'totalPayment': state.totalPayment == null ? 0 : Helpers.parseMoney(state.totalPayment!.round()),
-        'changed': state.changed == null ? 0 : Helpers.parseMoney(state.changed!.round()),
       };
 
       final jsonData = jsonEncode(data);
-      debugPrint("Sending data to display: $jsonData");
+      debugPrint("Sending data to display from sales: $jsonData");
       final sendingData = await sendData(windowId, jsonData, 'updateSalesData', 'Sales');
 
       debugPrint("Send result: $sendingData");

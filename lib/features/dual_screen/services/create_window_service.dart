@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
@@ -14,12 +15,18 @@ Future<bool> initWindow(final mounted, SendBaseData data) async {
   try {
     // Create a new window
 
-    final window =
+    final physicalSize = window.physicalSize;
+
+    // Extract width and height
+    final maxWidth = physicalSize.width;
+    final maxHeight = physicalSize.height;
+
+    final newWindow =
         await DesktopMultiWindow.createWindow(jsonEncode(data.toMap()));
-    window
-      ..setFrame(const Offset(0, 0) & const Size(1280, 720))
+    newWindow
+      ..setFrame(
+          Rect.fromLTWH(2 * maxWidth, 2 * maxHeight, maxWidth, maxHeight))
       ..center()
-      ..setTitle('Customer window')
       ..show();
     return true;
   } on Exception catch (e) {

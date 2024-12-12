@@ -9,9 +9,12 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/dual_screen/data/models/dual_screen.dart';
+import 'package:pos_fe/features/dual_screen/data/models/send_data.dart';
+import 'package:pos_fe/features/dual_screen/services/create_window_service.dart';
 import 'package:pos_fe/features/dual_screen/services/send_data_window_service.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomerDisplay extends StatefulWidget {
   const CustomerDisplay({super.key});
@@ -57,7 +60,6 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
 
       // Get all banners from database
       final allBanners = await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
-      print('All banners: $allBanners');
 
       setState(() {
         // Split banners by type (1 for large, 2 for small)
@@ -187,7 +189,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
         }
       }
       await _updateCustomerDisplayActive();
-
+      await _updateCustomerDisplay();
       // Clear unsaved changes
       setState(() {
         unsavedBanners.clear();
@@ -196,8 +198,9 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
 
       // Refresh banners to get the updated list with proper IDs
       await refreshBanners();
-
-      await _sendToDisplay();
+      if (dropdownValue.toLowerCase() == 'yes') {
+        await _sendToDisplay();
+      }
       if (mounted) {
         SnackBarHelper.presentSuccessSnackBar(context, 'All changes saved successfully', 3);
       }
@@ -210,16 +213,20 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
   }
 
   Future<void> _sendToDisplay() async {
-    final data = await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
-    final windows = await DesktopMultiWindow.getAllSubWindowIds();
-    if (windows.isEmpty) {
-      debugPrint('No display window found');
+    try {
+      final windows = await DesktopMultiWindow.getAllSubWindowIds();
+      if (windows.isEmpty) {
+        return;
+      }
+      final windowId = windows[0];
+      final data = await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
+      final jsonData = jsonEncode(data);
+      final sendingData = await sendData(windowId, jsonData, 'updateBannerData', 'checkout');
+    } catch (e, stackTrace) {
+      debugPrint('Error sending data to display: $e');
+      debugPrint(stackTrace.toString());
       return;
     }
-    final windowId = windows[0];
-    final jsonData = jsonEncode(data);
-    debugPrint("Sending data to display: $jsonData");
-    final sendingData = await sendData(windowId, jsonData, 'updateSalesData', 'Sales');
   }
 
   void onDropdownChanged(String? newValue) {
@@ -275,6 +282,54 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
     }
   }
 
+  Future<void> _updateCustomerDisplay() async {
+    if (_posParameter == null) {
+      SnackBarHelper.presentErrorSnackBar(context, 'POS parameters not loaded');
+      return;
+    }
+    if (dropdownValue.toLowerCase() == 'yes') {
+      SharedPreferences? prefs = await SharedPreferences.getInstance();
+      try {
+        await DesktopMultiWindow.getAllSubWindowIds();
+        await prefs.setBool("isCustomerDisplayActive", true);
+      } catch (e) {
+        await prefs.setBool("isCustomerDisplayActive", false);
+      }
+      if (prefs.getBool("isCustomerDisplayActive") == false) {
+        final cashier = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(
+              _posParameter!.tocsrId!,
+              null,
+            );
+        final store = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(
+              _posParameter!.tostrId!,
+              null,
+            );
+        final allBanners = await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
+        SendBaseData dataWindow = SendBaseData(
+            cashierName: prefs.getString('username').toString(),
+            cashRegisterId: cashier!.idKassa,
+            storeName: store!.storeName,
+            windowId: 1,
+            dualScreenModel: allBanners);
+        initWindow(mounted, dataWindow);
+      }
+    } else {
+      try {
+        final windows = await DesktopMultiWindow.getAllSubWindowIds();
+        SharedPreferences? prefs = await SharedPreferences.getInstance();
+
+        await Future.forEach(windows, (windowId) async {
+          final controller = WindowController.fromWindowId(windowId);
+
+          await controller.close();
+          await prefs.setBool("isCustomerDisplayActive", false);
+        });
+      } catch (e) {
+        debugPrint('Error Closing Window: $e');
+      }
+    }
+  }
+
   Widget buildBannerTable(String title, List<DualScreenModel> banners) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,197 +376,216 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
         if (isLoading)
           const Center(child: CircularProgressIndicator())
         else
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                width: 1,
-                color: Colors.black,
+          ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: const Color.fromARGB(255, 222, 220, 220),
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(8),
               ),
-            ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
-                columns: [
-                  DataColumn(
-                    label: Center(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.03,
-                        child: const Text(
-                          'Order',
-                          style: TextStyle(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    dividerTheme: DividerThemeData(
+                      color: const Color.fromARGB(255, 222, 220, 220),
+                      thickness: 1.0,
                     ),
                   ),
-                  DataColumn(
-                    label: Center(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.15,
-                        child: const Text(
-                          'Description',
-                          style: TextStyle(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+                  child: DataTable(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                  DataColumn(
-                    label: Center(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.28,
-                        child: const Text(
-                          'Path',
-                          style: TextStyle(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Center(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.07,
-                        child: const Text(
-                          'Duration (s)',
-                          style: TextStyle(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Center(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.15,
-                        child: const Text(
-                          'Actions',
-                          style: TextStyle(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-                rows: banners.map((banner) {
-                  return DataRow(
-                    cells: [
-                      DataCell(SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.03,
-                          child: Center(child: Text(banner.order.toString())))),
-                      DataCell(SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.15,
-                          child: Center(child: Text(banner.description)))),
-                      DataCell(SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.28,
-                          child: Center(
-                            child: Text(
-                              banner.path.length > 40
-                                  ? '...${banner.path.substring(40, banner.path.length)}'
-                                  : banner.path,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ))),
-                      DataCell(SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.07,
-                          child: Center(child: Text(banner.duration.toString())))),
-                      DataCell(
-                        Center(
+                    headingRowHeight: 40,
+                    headingTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
+                    columns: [
+                      DataColumn(
+                        label: Center(
                           child: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.13,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => BannerPopup(
-                                        title: 'Edit Banner',
-                                        type: banner.type,
-                                        order: banner.order,
-                                        description: banner.description,
-                                        path: banner.path,
-                                        duration: banner.duration.toString(),
-                                        onSave: (updatedData) async {
-                                          // Find the index of the banner in the appropriate list
-                                          final List<DualScreenModel> targetList =
-                                              banner.type == 1 ? largeBanners : smallBanners;
-
-                                          final index = targetList.indexWhere((b) => b.id == banner.id);
-
-                                          if (index != -1) {
-                                            // Create an updated banner model
-                                            final updatedBanner = DualScreenModel(
-                                              id: banner.id,
-                                              description: updatedData['description'],
-                                              type: banner.type,
-                                              order: banner.order,
-                                              path: updatedData['path'],
-                                              duration: updatedData['duration'],
-                                              createdAt: banner.createdAt,
-                                              updatedAt: DateTime.now(),
-                                            );
-                                            print('========================================== $updatedBanner');
-                                            // Update the banner in the unsaved list if it exists
-                                            final unsavedIndex = unsavedBanners.indexWhere((b) => b.id == banner.id);
-                                            if (unsavedIndex != -1) {
-                                              setState(() {
-                                                unsavedBanners[unsavedIndex] = updatedBanner;
-                                              });
-                                            }
-
-                                            // Update the banner in the appropriate list
-                                            setState(() {
-                                              if (banner.type == 1) {
-                                                largeBanners[index] = updatedBanner;
-                                              } else {
-                                                smallBanners[index] = updatedBanner;
-                                              }
-                                              _hasUnsavedChanges = true;
-                                            });
-
-                                            // Show success message
-                                            if (mounted) {
-                                              SnackBarHelper.presentSuccessSnackBar(
-                                                  context, 'Banner updated. Click Save to persist changes.', 3);
-                                            }
-                                          }
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () async {
-                                    final confirm = await showDialog<bool>(
-                                      context: context,
-                                      builder: (context) => const ConfirmationDialog(
-                                        primaryMsg: "Are you sure you want to delete this banner?",
-                                        secondaryMsg: "",
-                                        isProceedOnly: false,
-                                      ),
-                                    );
-
-                                    if (confirm == true) {
-                                      await GetIt.instance<AppDatabase>().dualScreenDao.delete(banner.id);
-                                      await refreshBanners();
-                                    }
-                                  },
-                                ),
-                              ],
+                            width: MediaQuery.of(context).size.width * 0.03,
+                            child: const Text(
+                              'Order',
+                              style: TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Center(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.15,
+                            child: const Text(
+                              'Description',
+                              style: TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Center(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.28,
+                            child: const Text(
+                              'Path',
+                              style: TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Center(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.07,
+                            child: const Text(
+                              'Duration (s)',
+                              style: TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Center(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.15,
+                            child: const Text(
+                              'Actions',
+                              style: TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center,
                             ),
                           ),
                         ),
                       ),
                     ],
-                  );
-                }).toList(),
+                    rows: banners.map((banner) {
+                      return DataRow(
+                        cells: [
+                          DataCell(SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.03,
+                              child: Center(child: Text(banner.order.toString())))),
+                          DataCell(SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.15,
+                              child: Center(child: Text(banner.description)))),
+                          DataCell(SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.28,
+                              child: Center(
+                                child: Text(
+                                  banner.path.length > 40
+                                      ? '...${banner.path.substring(40, banner.path.length)}'
+                                      : banner.path,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ))),
+                          DataCell(SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.07,
+                              child: Center(child: Text(banner.duration.toString())))),
+                          DataCell(
+                            Center(
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.13,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => BannerPopup(
+                                            title: 'Edit Banner',
+                                            type: banner.type,
+                                            order: banner.order,
+                                            description: banner.description,
+                                            path: banner.path,
+                                            duration: banner.duration.toString(),
+                                            onSave: (updatedData) async {
+                                              // Find the index of the banner in the appropriate list
+                                              final List<DualScreenModel> targetList =
+                                                  banner.type == 1 ? largeBanners : smallBanners;
+
+                                              final index = targetList.indexWhere((b) => b.id == banner.id);
+
+                                              if (index != -1) {
+                                                // Create an updated banner model
+                                                final updatedBanner = DualScreenModel(
+                                                  id: banner.id,
+                                                  description: updatedData['description'],
+                                                  type: banner.type,
+                                                  order: banner.order,
+                                                  path: updatedData['path'],
+                                                  duration: updatedData['duration'],
+                                                  createdAt: banner.createdAt,
+                                                  updatedAt: DateTime.now(),
+                                                );
+
+                                                // Update the banner in the unsaved list if it exists
+                                                final unsavedIndex =
+                                                    unsavedBanners.indexWhere((b) => b.id == banner.id);
+                                                if (unsavedIndex != -1) {
+                                                  setState(() {
+                                                    unsavedBanners[unsavedIndex] = updatedBanner;
+                                                  });
+                                                }
+
+                                                // Update the banner in the appropriate list
+                                                setState(() {
+                                                  if (banner.type == 1) {
+                                                    largeBanners[index] = updatedBanner;
+                                                  } else {
+                                                    smallBanners[index] = updatedBanner;
+                                                  }
+                                                  _hasUnsavedChanges = true;
+                                                });
+
+                                                // Show success message
+                                                if (mounted) {
+                                                  SnackBarHelper.presentSuccessSnackBar(
+                                                      context, 'Banner updated. Click Save to persist changes.', 3);
+                                                }
+                                              }
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) => const ConfirmationDialog(
+                                            primaryMsg: "Are you sure you want to delete this banner?",
+                                            secondaryMsg: "",
+                                            isProceedOnly: false,
+                                          ),
+                                        );
+
+                                        if (confirm == true) {
+                                          await GetIt.instance<AppDatabase>().dualScreenDao.delete(banner.id);
+                                          await refreshBanners();
+                                          await _sendToDisplay();
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
             ),
           ),
@@ -522,21 +596,16 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 234, 234, 234),
       appBar: AppBar(
-        leading: const BackButton(
-          color: Colors.white,
-        ),
-        title: const Text(
-          "Customer Display",
-          style: TextStyle(color: Colors.white),
-        ),
         backgroundColor: ProjectColors.primary,
+        foregroundColor: Colors.white,
+        title: const Text("Customer Display"),
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton.icon(
               onPressed: () {
-                // Save action
                 saveChanges();
               },
               style: ElevatedButton.styleFrom(

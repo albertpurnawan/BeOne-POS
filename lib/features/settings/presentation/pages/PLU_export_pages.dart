@@ -113,18 +113,18 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
       final promo = await GetIt.instance<AppDatabase>().promosDao.readByToitmAndPromoType(items[i].toitmId, 202, null);
       if (promo == null) {
         typeDiscount.add(0);
-        disDate.add("");
-        endDate.add("");
-        limit1.add("");
+        disDate.add('');
+        endDate.add('');
+        limit1.add('');
         limit2.add(null);
       } else {
         typeDiscount.add(2);
         final promoHeader =
             await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readByToitmId(items[i].toitmId, null);
         if (promoHeader != null) {
-          disDate.add("${promoHeader.startDate}");
-          endDate.add("${promoHeader.endDate}");
-          limit1.add("0");
+          disDate.add('${promoHeader.startDate}');
+          endDate.add('${promoHeader.endDate}');
+          limit1.add('0');
           final promoHarga =
               await GetIt.instance<AppDatabase>().promoHargaSpesialBuyDao.readByToitmLastDate(items[i].toitmId, null);
           double limitPrice = 0;
@@ -138,9 +138,9 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
             limit2.add(limitPrice);
           }
         } else {
-          disDate.add("");
-          endDate.add("");
-          limit1.add("");
+          disDate.add('');
+          endDate.add('');
+          limit1.add('');
           limit2.add(null);
         }
       }
@@ -184,7 +184,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
           disDate[index] != '' ? Helpers.dateWithSlash(disDate[index]) : '',
           endDate[index] != '' ? Helpers.dateWithSlash(endDate[index]) : '',
           limit1[index],
-          (limit2[index] != null) ? limit2[index]!.round().toString() : "",
+          (limit2[index] != null) ? limit2[index]!.round().toString() : '',
         ];
       }).toList();
 
@@ -245,19 +245,22 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         final nama1 = name.length > 19 ? name.substring(0, 19) : name;
         final nama2 = name.length > 19 ? (name.length > 37 ? name.substring(19, 37) : name.substring(19)) : '';
         final nama3 = name.length > 37 ? name.substring(37) : '';
+        final updatedNama1 = nama1.replaceAll('"', "'");
+        final updatedNama2 = nama2.replaceAll('"', "'");
+        final updatedNama3 = nama3.replaceAll('"', "'");
         return [
           barcode[index],
           barcode[index],
-          nama1,
-          nama2,
-          nama3,
+          updatedNama1,
+          updatedNama2,
+          updatedNama3,
           Helpers.parseMoney(harga[index].round()),
           expired,
           typeDiscount[index].toString(),
           disDate[index] != '' ? Helpers.dateWithSlash(disDate[index]) : '',
           endDate[index] != '' ? Helpers.dateWithSlash(endDate[index]) : '',
           limit1[index],
-          (limit2[index] != null) ? limit2[index]!.round().toString() : "",
+          (limit2[index] != null) ? limit2[index]!.round().toString() : '',
         ];
       });
     });
@@ -288,7 +291,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         'limit1',
         'limit2',
       ],
-      ...tableData,
+      ...tableData.map((data) => data.map((value) => value.replaceAll('"', '').replaceAll(',', '')).toList()).toList(),
     ];
 
     // List<DataRow> dataRows = tableData.map((row) {
@@ -317,7 +320,7 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
 
       await file.writeAsString(csvData);
 
-      SnackBarHelper.presentSuccessSnackBar(context, "CSV file exported to $selectedFolderPath'", 3);
+      SnackBarHelper.presentSuccessSnackBar(context, "CSV file exported to $selectedFolderPath", 3);
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, "Failed to export CSV file!");
     }
@@ -507,11 +510,11 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                           setState(() {
                             searchedQuery = value;
                           });
-                          await searchByKeyword(searchedQuery ?? "");
+                          await searchByKeyword(searchedQuery ?? '');
                         },
                         onEditingComplete: () async {
                           searchedQuery = _searchController.text;
-                          await searchByKeyword(searchedQuery ?? "");
+                          await searchByKeyword(searchedQuery ?? '');
                           _searchFocusNode.unfocus();
                         },
                         keyboardType: TextInputType.none,

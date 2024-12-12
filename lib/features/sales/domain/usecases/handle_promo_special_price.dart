@@ -63,7 +63,8 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
               } else {
                 if (currentReceiptItem.quantity <= topsb.maxPurchaseTransaction) {
                   int fullSets = (currentReceiptItem.quantity ~/ tpsb1.qty);
-                  double remainderItems = (currentReceiptItem.quantity % tpsb1.qty);
+                  double remainderItems =
+                      (currentReceiptItem.quantity - ((currentReceiptItem.quantity / tpsb1.qty).floor() * tpsb1.qty));
                   double expectedSubtotal = (fullSets * tpsb1.price * tpsb1.qty) + (remainderItems * itemEntity.price);
                   double actualTotalPrice = itemEntity.price * currentReceiptItem.quantity;
                   discount = actualTotalPrice - expectedSubtotal;

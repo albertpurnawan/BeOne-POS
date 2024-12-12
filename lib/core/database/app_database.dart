@@ -3816,11 +3816,6 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       await db.execute(
           '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.customerDisplayActive} int DEFAULT null ''');
     },
-    'from_version_5_to_version_6': (Database db) async {
-      // alter table topos showKeyboard
-      await db.execute(
-          '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.defaultShowKeyboard} int NOT NULL DEFAULT '0' ''');
-    }
   };
 
   Future<void> close() async {
