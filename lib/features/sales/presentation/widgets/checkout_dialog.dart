@@ -1271,6 +1271,17 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                           onPressed: () async {
                             isCharged = false;
                             Navigator.of(context).pop();
+
+                            await context.read<ReceiptCubit>().resetReceipt();
+                            if (await GetIt.instance<GetPosParameterUseCase>()
+                                        .call() !=
+                                    null &&
+                                (await GetIt.instance<GetPosParameterUseCase>()
+                                            .call())!
+                                        .customerDisplayActive ==
+                                    0) {
+                              return;
+                            }
                             final windows =
                                 await DesktopMultiWindow.getAllSubWindowIds();
                             if (windows.isEmpty) {
@@ -1278,7 +1289,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                               return;
                             }
                             final windowId = windows[0];
-                            context.read<ReceiptCubit>().resetReceipt();
+
                             final Map<String, dynamic> data = {
                               'done': true,
                             };
@@ -2175,6 +2186,12 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
         mopSelectionEntities: _values.map((e) => e.copyWith()).toList());
 
     try {
+      if (await GetIt.instance<GetPosParameterUseCase>().call() != null &&
+          (await GetIt.instance<GetPosParameterUseCase>().call())!
+                  .customerDisplayActive ==
+              0) {
+        return;
+      }
       final windows = await DesktopMultiWindow.getAllSubWindowIds();
       if (windows.isEmpty) {
         debugPrint('No display window found');

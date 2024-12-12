@@ -453,9 +453,11 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
                                       await onSubmit(parentContext, childContext, _otpCode, widget.requester);
                                     }
                                   } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                    if (key.action == VirtualKeyboardKeyAction.Backspace && text.isNotEmpty) {
-                                      text = text.substring(0, text.length - 1);
-                                      _otpControllers[_focusedIndex].text = text;
+                                    if (key.action == VirtualKeyboardKeyAction.Backspace) {
+                                      if (text.isNotEmpty) {
+                                        text = text.substring(0, text.length - 1);
+                                        _otpControllers[_focusedIndex].text = text;
+                                      }
 
                                       if (text.isEmpty && _focusedIndex > 0) {
                                         _otpFocusNodes[_focusedIndex - 1].requestFocus();
@@ -463,7 +465,10 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
                                     }
                                   }
 
-                                  _focusedIndex = _otpFocusNodes.indexWhere((node) => node.hasFocus);
+                                  int newFocusedIndex = _otpFocusNodes.indexWhere((node) => node.hasFocus);
+                                  if (newFocusedIndex != -1) {
+                                    _focusedIndex = newFocusedIndex;
+                                  }
                                 },
                               )
                             : const SizedBox.shrink(),

@@ -349,19 +349,6 @@ class _SalesPageState extends State<SalesPage> {
     checkReceiptWithMember(context.read<ReceiptCubit>().state);
   }
 
-  @override
-  void dispose() {
-    _timer.cancel();
-    _scrollControllerMain.dispose();
-    _scrollControllerReceiptItems.dispose();
-    _scrollControllerReceiptSummary.dispose();
-    _newReceiptItemCodeFocusNode.dispose();
-    _newReceiptItemQuantityFocusNode.dispose();
-    _textEditingControllerNewReceiptItemCode.dispose();
-    _textEditingControllerNewReceiptItemQuantity.dispose();
-    super.dispose();
-  }
-
   Future<void> checkIsSyncing() async {
     _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
       await countTotalInvoice();
@@ -435,6 +422,19 @@ class _SalesPageState extends State<SalesPage> {
     setState(() {
       itemDPAvailable = (dp != null) ? true : false;
     });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    _scrollControllerMain.dispose();
+    _scrollControllerReceiptItems.dispose();
+    _scrollControllerReceiptSummary.dispose();
+    _newReceiptItemCodeFocusNode.dispose();
+    _newReceiptItemQuantityFocusNode.dispose();
+    _textEditingControllerNewReceiptItemCode.dispose();
+    _textEditingControllerNewReceiptItemQuantity.dispose();
+    super.dispose();
   }
 
   @override
@@ -4367,7 +4367,7 @@ class _SalesPageState extends State<SalesPage> {
     bool isNumOnly,
     BuildContext context,
   ) async {
-    // log("Handle physical keyboard ${event.physicalKey}");
+    log("Handle physical keyboard ${event.physicalKey}");
     if (event.runtimeType == KeyUpEvent) return;
     if (textFieldFocusNode.hasPrimaryFocus) {
       if (event.character != null &&
@@ -4982,10 +4982,10 @@ class _SalesPageState extends State<SalesPage> {
 
   Future<bool> _showDialogReturn() async {
     final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
-
+    final approvals = context.read<ReceiptCubit>().state.approvals;
     if (receiptItems
             .any((item) => item.refpos3 != null && item.refpos3 != "") &&
-        context.read<ReceiptCubit>().state.approvals!.isEmpty) {
+        approvals == null) {
       double totalQtyReturn = 0.0;
       double totalAmountReturn = 0;
       for (final item in receiptItems) {
