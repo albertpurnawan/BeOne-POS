@@ -73,18 +73,22 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
     String check = "";
     String category = "nonpositivetrx";
-
     final UserModel? user = await GetIt.instance<AppDatabase>()
         .userDao
         .readByUsername(username, null);
 
     if (user != null) {
+      if (widget.approvalType == ApprovalType.returnItem) {
+        category = "returnauthorization";
+      }
       final tastr = await GetIt.instance<AppDatabase>()
           .authStoreDao
           .readByTousrId(user.docId, category, null);
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
         if (tastr.statusActive != 1) {
+          check = "Unauthorized";
+        } else if (tastr.returnauthorization != 1) {
           check = "Unauthorized";
         } else if (user.password == hashedPassword) {
           check = "Success";

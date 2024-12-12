@@ -4994,17 +4994,24 @@ class _SalesPageState extends State<SalesPage> {
           totalAmountReturn += item.totalAmount.abs();
         }
       }
-
-      final bool? isAuthorized = await showDialog<bool>(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => ApprovalDialog(
-              approvalType: ApprovalType.returnItem,
-              returnQty: totalQtyReturn,
-              returnAmount: totalAmountReturn));
-      if (isAuthorized == true) {
-        return true;
+      final topos =
+          await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+      final tostr = await GetIt.instance<AppDatabase>()
+          .storeMasterDao
+          .readByDocId(topos[0].tostrId!, null);
+      if (tostr?.returnauthorization == 1) {
+        final bool? isAuthorized = await showDialog<bool>(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => ApprovalDialog(
+                approvalType: ApprovalType.returnItem,
+                returnQty: totalQtyReturn,
+                returnAmount: totalAmountReturn));
+        if (isAuthorized == true) {
+          return true;
+        }
       }
+
       return false;
     }
     return true; // Dialog was not shown
