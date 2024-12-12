@@ -104,14 +104,19 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
                         });
                         await GetIt.instance<PrintCloseShiftUsecase>().call(
                             params: PrintCloseShiftUsecaseParams(
-                                cashierBalanceTransactionEntity: widget.closedShift,
-                                totalCashSales: widget.printCloseShiftUsecaseParams.totalCashSales,
-                                expectedCash: widget.printCloseShiftUsecaseParams.expectedCash,
-                                totalNonCashSales: widget.printCloseShiftUsecaseParams.totalNonCashSales,
-                                totalSales: widget.printCloseShiftUsecaseParams.totalSales,
-                                cashReceived: widget.printCloseShiftUsecaseParams.cashReceived,
-                                difference: widget.printCloseShiftUsecaseParams.difference,
-                                approverName: widget.printCloseShiftUsecaseParams.approverName),
+                              cashierBalanceTransactionEntity: widget.closedShift,
+                              totalCashSales: widget.printCloseShiftUsecaseParams.totalCashSales,
+                              expectedCash: widget.printCloseShiftUsecaseParams.expectedCash,
+                              totalNonCashSales: widget.printCloseShiftUsecaseParams.totalNonCashSales,
+                              totalSales: widget.printCloseShiftUsecaseParams.totalSales,
+                              cashReceived: widget.printCloseShiftUsecaseParams.cashReceived,
+                              difference: widget.printCloseShiftUsecaseParams.difference,
+                              approverName: widget.printCloseShiftUsecaseParams.approverName,
+                              transactions: widget.printCloseShiftUsecaseParams.transactions,
+                              transactionsReturn: widget.printCloseShiftUsecaseParams.transactionsReturn,
+                              transactionsTopmt: widget.printCloseShiftUsecaseParams.transactionsTopmt,
+                              transactionsMOP: widget.printCloseShiftUsecaseParams.transactionsMOP,
+                            ),
                             printType: 2);
                         setState(() {
                           isPrinting = false;

@@ -277,7 +277,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                   color: ProjectColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
+                padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

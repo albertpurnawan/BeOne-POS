@@ -948,8 +948,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                                                     ),
                                                   ),
                                                   color: isLastRow
-                                                      ? Color.fromARGB(255, 220, 220, 220)
-                                                      : Colors.transparent,
+                                                      ? const Color.fromARGB(255, 220, 220, 220)
+                                                      : const Color.fromARGB(255, 240, 240, 240),
                                                 ),
                                                 width: 275,
                                                 height: 40,
@@ -1187,15 +1187,20 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     throw "Close shift failed, current shift not found";
                   }
                   final PrintCloseShiftUsecaseParams printCloseShiftUsecaseParams = PrintCloseShiftUsecaseParams(
-                      cashierBalanceTransactionEntity: cashierBalanceTransactionEntity,
-                      totalCashSales: Helpers.revertMoneyToDecimalFormat(totalCashAmount),
-                      expectedCash: Helpers.revertMoneyToDecimalFormat(expectedCash),
-                      totalNonCashSales: Helpers.revertMoneyToDecimalFormat(totalNonCash),
-                      totalSales: Helpers.revertMoneyToDecimalFormat(totalSales),
-                      cashReceived: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
-                      difference: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
-                          Helpers.revertMoneyToDecimalFormat(expectedCash),
-                      approverName: closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "");
+                    cashierBalanceTransactionEntity: cashierBalanceTransactionEntity,
+                    totalCashSales: Helpers.revertMoneyToDecimalFormat(totalCashAmount),
+                    expectedCash: Helpers.revertMoneyToDecimalFormat(expectedCash),
+                    totalNonCashSales: Helpers.revertMoneyToDecimalFormat(totalNonCash),
+                    totalSales: Helpers.revertMoneyToDecimalFormat(totalSales),
+                    cashReceived: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
+                    difference: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
+                        Helpers.revertMoneyToDecimalFormat(expectedCash),
+                    approverName: closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "",
+                    transactions: transactions.length,
+                    transactionsReturn: transactionsReturn.length,
+                    transactionsTopmt: transactionsTopmt,
+                    transactionsMOP: transactionsMOP,
+                  );
                   try {
                     GetIt.instance<PrintCloseShiftUsecase>().call(params: printCloseShiftUsecaseParams, printType: 1);
                   } catch (e) {

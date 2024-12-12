@@ -374,16 +374,22 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                                   await GetIt.instance<EmployeeRepository>().getEmployee(approverUser.tohemId!);
                             }
                             await GetIt.instance<PrintCloseShiftUsecase>().call(
-                                printType: 2,
-                                params: PrintCloseShiftUsecaseParams(
-                                    cashierBalanceTransactionEntity: tcsr1!,
-                                    totalCashSales: Helpers.revertMoneyToDecimalFormat(totalCash),
-                                    expectedCash: expectedCash,
-                                    totalNonCashSales: Helpers.revertMoneyToDecimalFormat(totalNonCash),
-                                    totalSales: Helpers.revertMoneyToDecimalFormat(totalSales),
-                                    cashReceived: tcsr1!.calcValue,
-                                    difference: tcsr1!.calcValue - expectedCash,
-                                    approverName: approverEmployee?.empName ?? approverUser.username));
+                              printType: 2,
+                              params: PrintCloseShiftUsecaseParams(
+                                cashierBalanceTransactionEntity: tcsr1!,
+                                totalCashSales: Helpers.revertMoneyToDecimalFormat(totalCash),
+                                expectedCash: expectedCash,
+                                totalNonCashSales: Helpers.revertMoneyToDecimalFormat(totalNonCash),
+                                totalSales: Helpers.revertMoneyToDecimalFormat(totalSales),
+                                cashReceived: tcsr1!.calcValue,
+                                difference: tcsr1!.calcValue - expectedCash,
+                                approverName: approverEmployee?.empName ?? approverUser.username,
+                                transactions: transactions.length,
+                                transactionsReturn: transactionsReturn.length,
+                                transactionsTopmt: transactionsTopmt,
+                                transactionsMOP: transactionsMOP,
+                              ),
+                            );
                             setState(() {
                               isPrintingCloseShift = false;
                             });
@@ -860,8 +866,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                                                     ),
                                                   ),
                                                   color: isLastRow
-                                                      ? Color.fromARGB(255, 220, 220, 220)
-                                                      : Colors.transparent,
+                                                      ? const Color.fromARGB(255, 220, 220, 220)
+                                                      : const Color.fromARGB(255, 240, 240, 240),
                                                 ),
                                                 width: 275,
                                                 height: 40,

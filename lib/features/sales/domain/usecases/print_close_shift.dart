@@ -1,5 +1,6 @@
 import 'package:pos_fe/core/resources/receipt_printer.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
+import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
 import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
@@ -41,7 +42,6 @@ class PrintCloseShiftUsecase implements UseCase<void, PrintCloseShiftUsecasePara
 
       final UserEntity? userEntityRes = await _userRepository.getUser(params.cashierBalanceTransactionEntity.tousrId!);
       if (userEntityRes == null) throw "User not found";
-
       await _receiptPrinter.printCloseShift(
           PrintCloseShiftDetail(
             storeMasterEntity: storeMasterEntityRes,
@@ -55,6 +55,10 @@ class PrintCloseShiftUsecase implements UseCase<void, PrintCloseShiftUsecasePara
             cashReceived: params.cashReceived.round(),
             difference: params.difference.round(),
             approverName: params.approverName,
+            transactions: params.transactions,
+            transactionsReturn: params.transactionsReturn,
+            transactionsTopmt: params.transactionsTopmt,
+            transactionsMOP: params.transactionsMOP,
           ),
           printType);
     } catch (e) {
@@ -72,6 +76,10 @@ class PrintCloseShiftUsecaseParams {
   final double cashReceived;
   final double difference;
   final String approverName;
+  final int transactions;
+  final int transactionsReturn;
+  final List<PaymentTypeModel> transactionsTopmt;
+  final List<dynamic> transactionsMOP;
 
   PrintCloseShiftUsecaseParams({
     required this.cashierBalanceTransactionEntity,
@@ -82,6 +90,10 @@ class PrintCloseShiftUsecaseParams {
     required this.cashReceived,
     required this.difference,
     required this.approverName,
+    required this.transactions,
+    required this.transactionsReturn,
+    required this.transactionsTopmt,
+    required this.transactionsMOP,
   });
 }
 
@@ -97,6 +109,10 @@ class PrintCloseShiftDetail {
   final int cashReceived;
   final int difference;
   final String approverName;
+  final int transactions;
+  final int transactionsReturn;
+  final List<PaymentTypeModel?> transactionsTopmt;
+  final List<dynamic> transactionsMOP;
 
   PrintCloseShiftDetail({
     required this.storeMasterEntity,
@@ -110,5 +126,9 @@ class PrintCloseShiftDetail {
     required this.cashReceived,
     required this.difference,
     required this.approverName,
+    required this.transactions,
+    required this.transactionsReturn,
+    required this.transactionsTopmt,
+    required this.transactionsMOP,
   });
 }

@@ -1399,6 +1399,16 @@ class ReceiptPrinter {
     final int width11Length = WidthNLength.getLength(maxLength, 11);
     final int width12Length = WidthNLength.getLength(maxLength, 12);
 
+    printCloseShiftDetail.transactionsTopmt.sort((a, b) {
+      return a!.payTypeCode.compareTo(b!.payTypeCode);
+    });
+
+    Map<String, List> groupedTransactions = {};
+    for (var transaction in printCloseShiftDetail.transactionsMOP) {
+      groupedTransactions.putIfAbsent(transaction['paytypecode'], () => []);
+      groupedTransactions[transaction['paytypecode']]!.add(transaction);
+    }
+
     bytes += generator.text('Close Shift Success',
         styles: const PosStyles(
           align: PosAlign.center,
@@ -1544,6 +1554,66 @@ class ReceiptPrinter {
     ]);
     bytes += generator.emptyLines(1);
 
+    bytes += generator.row([
+      PosColumn(
+          width: 5,
+          text: Helpers.alignLeftByAddingSpace('Invoice Count', width5Length),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 7,
+          text: Helpers.alignLeftByAddingSpace(":  ${printCloseShiftDetail.transactions}", width7Length),
+          styles: const PosStyles(align: PosAlign.left)),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 5,
+          text: Helpers.alignLeftByAddingSpace('Return Invoice Count', width5Length),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 7,
+          text: Helpers.alignLeftByAddingSpace(":  ${printCloseShiftDetail.transactionsReturn}", width7Length),
+          styles: const PosStyles(align: PosAlign.left)),
+    ]);
+    bytes += generator.text('MOP Details',
+        styles: const PosStyles(
+          align: PosAlign.center,
+          bold: true,
+        ));
+    for (var paymentType in printCloseShiftDetail.transactionsTopmt) {
+      if (paymentType == null) throw "Failed to retrieve Payment Type";
+
+      String payTypeCode = paymentType.payTypeCode;
+      String description = paymentType.description.trim();
+
+      dev.log(description);
+      bytes += generator.text(description,
+          styles: const PosStyles(
+            align: PosAlign.left,
+            bold: true,
+          ));
+
+      if (groupedTransactions.containsKey(payTypeCode)) {
+        for (var transaction in groupedTransactions[payTypeCode]!) {
+          String detailDescription = transaction['description']?.trim() ?? "Unknown";
+          String amount = Helpers.parseMoney(transaction['amount']);
+
+          bytes += generator.row([
+            PosColumn(
+                width: 5,
+                text: Helpers.alignLeftByAddingSpace(detailDescription, width5Length),
+                styles: const PosStyles(align: PosAlign.left)),
+            PosColumn(
+                width: 7,
+                text: Helpers.alignLeftByAddingSpace(":  $amount", width7Length),
+                styles: const PosStyles(align: PosAlign.left)),
+          ]);
+
+          dev.log("$detailDescription: $amount");
+        }
+      }
+    }
+
+    bytes += generator.emptyLines(1);
     bytes += generator.row([
       PosColumn(
           width: 5,
