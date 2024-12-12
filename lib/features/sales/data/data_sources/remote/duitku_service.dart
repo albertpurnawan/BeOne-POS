@@ -150,7 +150,7 @@ class DuitkuApi {
         url,
       );
 
-      log("response - ${response.data}");
+      // log("response - ${response.data}");
       return response.data;
     } catch (e) {
       handleError(e);

@@ -67,7 +67,7 @@ dependencies:
   flutter_launcher_icons: ^0.14.2
   synchronized: ^3.1.0+1
   device_info_plus: ^11.1.1
-  package_info_plus: ^8.0.2
+  package_info_plus: ^8.1.1
   toggle_switch: ^2.3.0
   connectivity_plus: ^6.0.5
   file_picker: ^8.0.5

@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class CalculateCash extends StatefulWidget {
   final Function(Map<String, String>) setTotal;
-  final Function(TextEditingController) onControllerProvided;
+  final bool? showKeyboard;
 
-  const CalculateCash({super.key, required this.setTotal, required this.onControllerProvided});
+  const CalculateCash({super.key, required this.setTotal, this.showKeyboard});
 
   @override
   State<CalculateCash> createState() => _CalculateCashState();
@@ -28,34 +30,38 @@ class _CalculateCashState extends State<CalculateCash> {
   final TextEditingController controller100 = TextEditingController();
   final TextEditingController controller50 = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
-  final FocusNode _100kFocusNode = FocusNode();
-  final FocusNode _50kFocusNode = FocusNode();
-  final FocusNode _20kFocusNode = FocusNode();
-  final FocusNode _10kFocusNode = FocusNode();
-  final FocusNode _5kFocusNode = FocusNode();
-  final FocusNode _2kFocusNode = FocusNode();
-  final FocusNode _1kFocusNode = FocusNode();
-  final FocusNode _500FocusNode = FocusNode();
-  final FocusNode _200FocusNode = FocusNode();
-  final FocusNode _100FocusNode = FocusNode();
-  final FocusNode _50FocusNode = FocusNode();
+  final FocusNode focusNode100k = FocusNode();
+  final FocusNode focusNode50k = FocusNode();
+  final FocusNode focusNode20k = FocusNode();
+  final FocusNode focusNode10k = FocusNode();
+  final FocusNode focusNode5k = FocusNode();
+  final FocusNode focusNode2k = FocusNode();
+  final FocusNode focusNode1k = FocusNode();
+  final FocusNode focusNode500 = FocusNode();
+  final FocusNode focusNode200 = FocusNode();
+  final FocusNode focusNode100 = FocusNode();
+  final FocusNode focusNode50 = FocusNode();
+
+  bool _showKeyboard = true;
+  TextEditingController _activeController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+
     _changeTotalCash([]);
 
-    _setupFocusListener(_100kFocusNode, controller100k);
-    _setupFocusListener(_50kFocusNode, controller50k);
-    _setupFocusListener(_20kFocusNode, controller20k);
-    _setupFocusListener(_10kFocusNode, controller10k);
-    _setupFocusListener(_5kFocusNode, controller5k);
-    _setupFocusListener(_2kFocusNode, controller2k);
-    _setupFocusListener(_1kFocusNode, controller1k);
-    _setupFocusListener(_500FocusNode, controller500);
-    _setupFocusListener(_200FocusNode, controller200);
-    _setupFocusListener(_100FocusNode, controller100);
-    _setupFocusListener(_50FocusNode, controller50);
+    _setupFocusListener(focusNode100k, controller100k);
+    _setupFocusListener(focusNode50k, controller50k);
+    _setupFocusListener(focusNode20k, controller20k);
+    _setupFocusListener(focusNode10k, controller10k);
+    _setupFocusListener(focusNode5k, controller5k);
+    _setupFocusListener(focusNode2k, controller2k);
+    _setupFocusListener(focusNode1k, controller1k);
+    _setupFocusListener(focusNode500, controller500);
+    _setupFocusListener(focusNode200, controller200);
+    _setupFocusListener(focusNode100, controller100);
+    _setupFocusListener(focusNode50, controller50);
   }
 
   @override
@@ -71,24 +77,34 @@ class _CalculateCashState extends State<CalculateCash> {
     controller200.dispose();
     controller100.dispose();
     controller50.dispose();
-    _100kFocusNode.dispose();
-    _50kFocusNode.dispose();
-    _20kFocusNode.dispose();
-    _10kFocusNode.dispose();
-    _5kFocusNode.dispose();
-    _2kFocusNode.dispose();
-    _1kFocusNode.dispose();
-    _500FocusNode.dispose();
-    _200FocusNode.dispose();
-    _100FocusNode.dispose();
-    _50FocusNode.dispose();
+    focusNode100k.dispose();
+    focusNode50k.dispose();
+    focusNode20k.dispose();
+    focusNode10k.dispose();
+    focusNode5k.dispose();
+    focusNode2k.dispose();
+    focusNode1k.dispose();
+    focusNode500.dispose();
+    focusNode200.dispose();
+    focusNode100.dispose();
+    focusNode50.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(CalculateCash oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.showKeyboard != oldWidget.showKeyboard) {
+      setState(() {
+        _showKeyboard = widget.showKeyboard ?? false;
+      });
+    }
   }
 
   void _setupFocusListener(FocusNode focusNode, TextEditingController controller) {
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
-        widget.onControllerProvided(controller);
+        _activeController = controller;
       }
     });
   }
@@ -144,7 +160,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
-                focusNode: _100kFocusNode,
+                focusNode: focusNode100k,
                 controller: controller100k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -215,7 +231,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
-                focusNode: _50kFocusNode,
+                focusNode: focusNode50k,
                 controller: controller50k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -284,7 +300,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
-                focusNode: _20kFocusNode,
+                focusNode: focusNode20k,
                 controller: controller20k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -353,7 +369,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
-                focusNode: _10kFocusNode,
+                focusNode: focusNode10k,
                 controller: controller10k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -422,7 +438,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
-                focusNode: _5kFocusNode,
+                focusNode: focusNode5k,
                 controller: controller5k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -491,7 +507,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
-                focusNode: _2kFocusNode,
+                focusNode: focusNode2k,
                 controller: controller2k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -560,7 +576,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
-                focusNode: _1kFocusNode,
+                focusNode: focusNode1k,
                 controller: controller1k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -629,7 +645,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
-                focusNode: _500FocusNode,
+                focusNode: focusNode500,
                 controller: controller500,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -698,7 +714,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
-                focusNode: _200FocusNode,
+                focusNode: focusNode200,
                 controller: controller200,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -767,7 +783,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
-                focusNode: _100FocusNode,
+                focusNode: focusNode100,
                 controller: controller100,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -836,7 +852,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
-                focusNode: _50FocusNode,
+                focusNode: focusNode50,
                 controller: controller50,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -888,7 +904,62 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
           ],
         ),
-        const SizedBox(height: 30),
+        const SizedBox(height: 20),
+        (_showKeyboard)
+            ? Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                child: KeyboardWidget(
+                    controller: _activeController,
+                    isNumericMode: true,
+                    customLayoutKeys: true,
+                    // isShiftEnabled: false,
+                    onKeyPress: (key) async {
+                      String text = _activeController.text;
+                      TextSelection currentSelection = _activeController.selection;
+                      int cursorPosition = currentSelection.start;
+
+                      if (key.keyType == VirtualKeyboardKeyType.String) {
+                        String inputText = key.text ?? '';
+                        text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                        cursorPosition += inputText.length;
+
+                        _activeController.text = text;
+                        _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+                      } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                        switch (key.action) {
+                          case VirtualKeyboardKeyAction.Backspace:
+                            if (text.isNotEmpty && cursorPosition > 0) {
+                              text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                              cursorPosition -= 1;
+                            }
+                            break;
+
+                          default:
+                            break;
+                        }
+                      }
+
+                      _activeController.text = text;
+                      _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                      setState(() {
+                        _changeTotalCash([
+                          total100k,
+                          total50k,
+                          total20k,
+                          total10k,
+                          total5k,
+                          total2k,
+                          total1k,
+                          total500,
+                          total200,
+                          total100,
+                          total50,
+                        ]);
+                      });
+                    }),
+              )
+            : const SizedBox.shrink(),
       ],
     );
   }

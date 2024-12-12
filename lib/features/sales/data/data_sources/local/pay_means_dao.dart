@@ -74,7 +74,7 @@ class PayMeansDao extends BaseDao<PayMeansModel> {
 
   Future<List<dynamic>?> readByToinvShowTopmt(String toinvId) async {
     final result = await db.rawQuery('''
-      SELECT x0.*, x3.paytypecode
+      SELECT x0.*, x3.paytypecode, x2.docid as tpmt1Id, x2.description as description, x3.docid as topmtId
       FROM tinv2 as x0 
       INNER JOIN tpmt3 as x1 ON x0.tpmt3Id = x1.docid
       INNER JOIN tpmt1 as x2 ON x1.tpmt1Id = x2.docid

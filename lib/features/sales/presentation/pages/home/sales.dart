@@ -77,17 +77,13 @@ class _SalesPageState extends State<SalesPage> {
 
   // States for handling current time
   late Timer _timer;
-  ValueNotifier<String> currentTime =
-      ValueNotifier<String>(DateFormat.Hms().format(DateTime.now()));
+  ValueNotifier<String> currentTime = ValueNotifier<String>(DateFormat.Hms().format(DateTime.now()));
 
   // Scroll Controllers
   final ItemScrollController itemScrollController = ItemScrollController();
-  final ScrollOffsetController scrollOffsetController =
-      ScrollOffsetController();
-  final ItemPositionsListener itemPositionsListener =
-      ItemPositionsListener.create();
-  final ScrollOffsetListener scrollOffsetListener =
-      ScrollOffsetListener.create();
+  final ScrollOffsetController scrollOffsetController = ScrollOffsetController();
+  final ItemPositionsListener itemPositionsListener = ItemPositionsListener.create();
+  final ScrollOffsetListener scrollOffsetListener = ScrollOffsetListener.create();
   final ScrollController _scrollControllerMain = ScrollController();
   final ScrollController _scrollControllerReceiptItems = ScrollController();
   final ScrollController _scrollControllerReceiptSummary = ScrollController();
@@ -105,19 +101,12 @@ class _SalesPageState extends State<SalesPage> {
       }
 
       if (event.physicalKey == PhysicalKeyboardKey.arrowUp &&
-          (indexIsSelect[0] > 0 ||
-              (indexIsSelect[1] == 0 && state.receiptItems.length - 1 > 0))) {
+          (indexIsSelect[0] > 0 || (indexIsSelect[1] == 0 && state.receiptItems.length - 1 > 0))) {
         setState(() {
-          indexIsSelect = [
-            indexIsSelect[1] == 1
-                ? indexIsSelect[0] - 1
-                : state.receiptItems.length - 1,
-            1
-          ];
+          indexIsSelect = [indexIsSelect[1] == 1 ? indexIsSelect[0] - 1 : state.receiptItems.length - 1, 1];
           _textEditingControllerNewReceiptItemQuantity.text = "";
           // Helpers.cleanDecimal(e.quantity, 3);
-          _textEditingControllerNewReceiptItemCode.text =
-              state.receiptItems[indexIsSelect[0]].itemEntity.barcode;
+          _textEditingControllerNewReceiptItemCode.text = state.receiptItems[indexIsSelect[0]].itemEntity.barcode;
           _newReceiptItemCodeFocusNode.unfocus();
           isUpdatingReceiptItemQty = true;
           isEditingNewReceiptItemCode = false;
@@ -133,8 +122,7 @@ class _SalesPageState extends State<SalesPage> {
           indexIsSelect = [indexIsSelect[0] + 1, 1];
           _textEditingControllerNewReceiptItemQuantity.text = "";
           // Helpers.cleanDecimal(e.quantity, 3);
-          _textEditingControllerNewReceiptItemCode.text =
-              state.receiptItems[indexIsSelect[0]].itemEntity.barcode;
+          _textEditingControllerNewReceiptItemCode.text = state.receiptItems[indexIsSelect[0]].itemEntity.barcode;
           _newReceiptItemCodeFocusNode.unfocus();
           isUpdatingReceiptItemQty = true;
           isEditingNewReceiptItemCode = false;
@@ -171,20 +159,14 @@ class _SalesPageState extends State<SalesPage> {
           });
         }
 
-        if (isEditingNewReceiptItemQty &&
-            event.physicalKey != PhysicalKeyboardKey.f6) {
+        if (isEditingNewReceiptItemQty && event.physicalKey != PhysicalKeyboardKey.f6) {
           setState(() {
             isEditingNewReceiptItemQty = false;
             isEditingNewReceiptItemCode = true;
-            final double? qtyToDouble = double.tryParse(
-                _textEditingControllerNewReceiptItemQuantity.text);
-            _textEditingControllerNewReceiptItemQuantity.text =
-                qtyToDouble == null || qtyToDouble == 0
-                    ? "1"
-                    : Helpers.cleanDecimal(
-                        double.parse(
-                            _textEditingControllerNewReceiptItemQuantity.text),
-                        3);
+            final double? qtyToDouble = double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
+            _textEditingControllerNewReceiptItemQuantity.text = qtyToDouble == null || qtyToDouble == 0
+                ? "1"
+                : Helpers.cleanDecimal(double.parse(_textEditingControllerNewReceiptItemQuantity.text), 3);
 
             _newReceiptItemCodeFocusNode.requestFocus();
           });
@@ -203,20 +185,14 @@ class _SalesPageState extends State<SalesPage> {
           });
         }
 
-        if (isEditingNewReceiptItemQty &&
-            event.physicalKey != PhysicalKeyboardKey.f6) {
+        if (isEditingNewReceiptItemQty && event.physicalKey != PhysicalKeyboardKey.f6) {
           setState(() {
             isEditingNewReceiptItemQty = false;
             isEditingNewReceiptItemCode = true;
-            final double? qtyToDouble = double.tryParse(
-                _textEditingControllerNewReceiptItemQuantity.text);
-            _textEditingControllerNewReceiptItemQuantity.text =
-                qtyToDouble == null || qtyToDouble == 0
-                    ? "1"
-                    : Helpers.cleanDecimal(
-                        double.parse(
-                            _textEditingControllerNewReceiptItemQuantity.text),
-                        3);
+            final double? qtyToDouble = double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
+            _textEditingControllerNewReceiptItemQuantity.text = qtyToDouble == null || qtyToDouble == 0
+                ? "1"
+                : Helpers.cleanDecimal(double.parse(_textEditingControllerNewReceiptItemQuantity.text), 3);
 
             _newReceiptItemCodeFocusNode.requestFocus();
           });
@@ -240,18 +216,11 @@ class _SalesPageState extends State<SalesPage> {
       }
 
       if (event.physicalKey == PhysicalKeyboardKey.arrowUp &&
-          (indexIsSelect[0] > 0 ||
-              (indexIsSelect[1] == 0 && state.receiptItems.isNotEmpty))) {
+          (indexIsSelect[0] > 0 || (indexIsSelect[1] == 0 && state.receiptItems.isNotEmpty))) {
         setState(() {
-          indexIsSelect = [
-            indexIsSelect[1] == 1
-                ? indexIsSelect[0] - 1
-                : state.receiptItems.length - 1,
-            1
-          ];
+          indexIsSelect = [indexIsSelect[1] == 1 ? indexIsSelect[0] - 1 : state.receiptItems.length - 1, 1];
           _textEditingControllerNewReceiptItemQuantity.text = "";
-          _textEditingControllerNewReceiptItemCode.text =
-              state.receiptItems[indexIsSelect[0]].itemEntity.barcode;
+          _textEditingControllerNewReceiptItemCode.text = state.receiptItems[indexIsSelect[0]].itemEntity.barcode;
           _newReceiptItemCodeFocusNode.unfocus();
           isUpdatingReceiptItemQty = true;
           isEditingNewReceiptItemCode = false;
@@ -261,15 +230,13 @@ class _SalesPageState extends State<SalesPage> {
         scrollToReceiptItemByIndex(indexIsSelect[0]);
 
         return KeyEventResult.skipRemainingHandlers;
-      } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
-          indexIsSelect[0] < state.receiptItems.length) {
+      } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && indexIsSelect[0] < state.receiptItems.length) {
         if (indexIsSelect[1] == 0) return KeyEventResult.skipRemainingHandlers;
         setState(() {
           indexIsSelect = [indexIsSelect[0] + 1, 1];
           _textEditingControllerNewReceiptItemQuantity.text = "";
           // Helpers.cleanDecimal(e.quantity, 3);
-          _textEditingControllerNewReceiptItemCode.text =
-              state.receiptItems[indexIsSelect[0]].itemEntity.barcode;
+          _textEditingControllerNewReceiptItemCode.text = state.receiptItems[indexIsSelect[0]].itemEntity.barcode;
           _newReceiptItemCodeFocusNode.unfocus();
           isUpdatingReceiptItemQty = true;
           isEditingNewReceiptItemCode = false;
@@ -283,8 +250,7 @@ class _SalesPageState extends State<SalesPage> {
           event.physicalKey == PhysicalKeyboardKey.arrowRight) {
         return KeyEventResult.skipRemainingHandlers;
       } else if (event.physicalKey == PhysicalKeyboardKey.f10) {
-        Future.delayed(Durations.medium1,
-            () => _newReceiptItemCodeFocusNode.requestFocus());
+        Future.delayed(Durations.medium1, () => _newReceiptItemCodeFocusNode.requestFocus());
         return KeyEventResult.handled;
       } else {
         return KeyEventResult.ignored;
@@ -293,11 +259,8 @@ class _SalesPageState extends State<SalesPage> {
   );
 
   // Text Editing Controllers
-  late final TextEditingController
-      _textEditingControllerNewReceiptItemQuantity = TextEditingController()
-        ..text = "1";
-  late final TextEditingController _textEditingControllerNewReceiptItemCode =
-      TextEditingController();
+  late final TextEditingController _textEditingControllerNewReceiptItemQuantity = TextEditingController()..text = "1";
+  late final TextEditingController _textEditingControllerNewReceiptItemCode = TextEditingController();
 
   // Check Synced
   int totalToinvs = 0;
@@ -330,8 +293,7 @@ class _SalesPageState extends State<SalesPage> {
 
     // Reset receipt if no items listed on state
     final ReceiptCubit receiptCubit = context.read<ReceiptCubit>();
-    if (receiptCubit.state.receiptItems.isEmpty)
-      context.read<ReceiptCubit>().resetReceipt();
+    if (receiptCubit.state.receiptItems.isEmpty) context.read<ReceiptCubit>().resetReceipt();
 
     // Run a function (if any) on first build
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -370,12 +332,8 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   Future<void> countTotalInvoice() async {
-    final invoices =
-        await GetIt.instance<AppDatabase>().invoiceHeaderDao.readAll();
-    final toinvSyncedCount = invoices
-        .where(
-            (invoice) => invoice.syncToBos != null && invoice.syncToBos != "")
-        .length;
+    final invoices = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readAll();
+    final toinvSyncedCount = invoices.where((invoice) => invoice.syncToBos != null && invoice.syncToBos != "").length;
     setState(() {
       totalToinvSynced = toinvSyncedCount;
       totalToinvs = invoices.length;
@@ -383,13 +341,9 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   Future<void> countTotalShifts() async {
-    final shifts = await GetIt.instance<AppDatabase>()
-        .cashierBalanceTransactionDao
-        .readAll();
-    final shiftsClosed =
-        shifts.where((shift) => shift.approvalStatus == 1).length;
-    final tcsr1SyncedCount =
-        shifts.where((shift) => shift.syncToBos != null).length;
+    final shifts = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readAll();
+    final shiftsClosed = shifts.where((shift) => shift.approvalStatus == 1).length;
+    final tcsr1SyncedCount = shifts.where((shift) => shift.syncToBos != null).length;
     setState(() {
       totalTcsr1Synced = tcsr1SyncedCount;
       totalTcsr1s = shiftsClosed;
@@ -397,8 +351,7 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   Future<void> getLastSync() async {
-    final POSParameterEntity? topos =
-        await GetIt.instance<GetPosParameterUseCase>().call();
+    final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
     if (topos == null) throw "Failed to retrieve POS Parameter";
     final dateTime = DateTime.parse(topos.lastSync!);
 
@@ -423,8 +376,7 @@ class _SalesPageState extends State<SalesPage> {
 
   Future<void> checkReceiptWithMember(ReceiptEntity receipt) async {
     setState(() {
-      isMember = ((receipt.customerEntity != null) &&
-          (receipt.customerEntity!.custCode != '99'));
+      isMember = ((receipt.customerEntity != null) && (receipt.customerEntity!.custCode != '99'));
       log("isMember = $isMember");
     });
   }
@@ -439,8 +391,7 @@ class _SalesPageState extends State<SalesPage> {
   @override
   Widget build(BuildContext context) {
     isUpdatingReceiptItemQty = indexIsSelect[1] == 1;
-    isEditingReceiptItemQty =
-        isEditingNewReceiptItemQty || isUpdatingReceiptItemQty;
+    isEditingReceiptItemQty = isEditingNewReceiptItemQty || isUpdatingReceiptItemQty;
 
     if (!Platform.isWindows) {
       SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -459,8 +410,7 @@ class _SalesPageState extends State<SalesPage> {
           child: ScrollWidget(
             controller: _scrollControllerMain,
             child: SizedBox(
-              height: MediaQuery.of(context).size.height *
-                  (Platform.isWindows ? 0.98 : 0.96),
+              height: MediaQuery.of(context).size.height * (Platform.isWindows ? 0.98 : 0.96),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -475,12 +425,9 @@ class _SalesPageState extends State<SalesPage> {
                           // border: Border.all(
                           //     color: Color.fromRGBO(195, 53, 53, 1),
                           //     width: 4.0),
-                          borderRadius: const BorderRadius.vertical(
-                              bottom: Radius.circular(10)),
+                          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
 
-                          color: changeColor
-                              ? const Color.fromRGBO(243, 0, 0, 1)
-                              : ProjectColors.green,
+                          color: changeColor ? const Color.fromRGBO(243, 0, 0, 1) : ProjectColors.green,
                           boxShadow: const [
                             BoxShadow(
                               spreadRadius: 0.5,
@@ -499,8 +446,7 @@ class _SalesPageState extends State<SalesPage> {
                                 )),
                             lastSync == null
                                 ? Container(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(0, 1, 0, 0),
+                                    padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
                                     width: 12,
                                     height: 12,
                                     child: const CircularProgressIndicator(
@@ -522,8 +468,7 @@ class _SalesPageState extends State<SalesPage> {
                           // border: Border.all(
                           //     color: Color.fromRGBO(195, 53, 53, 1),
                           //     width: 4.0),
-                          borderRadius: BorderRadius.vertical(
-                              bottom: Radius.circular(10)),
+                          borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
 
                           color: ProjectColors.green,
                           boxShadow: [
@@ -547,13 +492,9 @@ class _SalesPageState extends State<SalesPage> {
                             ),
                             // const Icon(Icons.upload, color: Colors.white, size: 14),
                             totalToinvSynced == totalToinvs
-                                ? const Icon(
-                                    Icons.check_circle_outline_outlined,
-                                    color: Colors.green,
-                                    size: 14)
+                                ? const Icon(Icons.check_circle_outline_outlined, color: Colors.green, size: 14)
                                 : Container(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(0, 1, 0, 0),
+                                    padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
                                     width: 12,
                                     height: 12,
                                     child: const CircularProgressIndicator(
@@ -567,8 +508,7 @@ class _SalesPageState extends State<SalesPage> {
                         padding: const EdgeInsets.fromLTRB(10, 1, 10, 5),
                         decoration: const BoxDecoration(
                           border: Border(),
-                          borderRadius: BorderRadius.vertical(
-                              bottom: Radius.circular(10)),
+                          borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
                           color: ProjectColors.green,
                           boxShadow: [
                             BoxShadow(
@@ -592,13 +532,9 @@ class _SalesPageState extends State<SalesPage> {
                             // const Icon(Icons.upload, color: Colors.white, size: 14),
 
                             totalTcsr1Synced == totalTcsr1s
-                                ? const Icon(
-                                    Icons.check_circle_outline_outlined,
-                                    color: Colors.green,
-                                    size: 14)
+                                ? const Icon(Icons.check_circle_outline_outlined, color: Colors.green, size: 14)
                                 : Container(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(0, 1, 0, 0),
+                                    padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
                                     width: 12,
                                     height: 12,
                                     child: const CircularProgressIndicator(
@@ -611,8 +547,7 @@ class _SalesPageState extends State<SalesPage> {
                   ),
                   Expanded(
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                          38, Platform.isWindows ? 8 : 10, 38, 10),
+                      padding: EdgeInsets.fromLTRB(38, Platform.isWindows ? 8 : 10, 38, 10),
                       child: Row(
                         children: [
                           // Start - Column 1
@@ -631,9 +566,7 @@ class _SalesPageState extends State<SalesPage> {
                                             const SizedBox(
                                               width: 15,
                                             ),
-                                            Expanded(
-                                                flex: 4,
-                                                child: _receiptItemForm())
+                                            Expanded(flex: 4, child: _receiptItemForm())
                                           ],
                                         ))
                                     : const SizedBox.shrink(),
@@ -675,9 +608,7 @@ class _SalesPageState extends State<SalesPage> {
                                             const SizedBox(
                                               height: 10,
                                             ),
-                                            Expanded(
-                                                flex: 2,
-                                                child: _receiptItemForm()),
+                                            Expanded(flex: 2, child: _receiptItemForm()),
                                             const SizedBox(
                                               height: 10,
                                             ),
@@ -759,8 +690,7 @@ class _SalesPageState extends State<SalesPage> {
                           // border: Border.all(
                           //     color: Color.fromRGBO(195, 53, 53, 1),
                           //     width: 4.0),
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(5)),
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
                           color: Color.fromRGBO(128, 0, 0, 1),
                         ),
                         child: Row(
@@ -772,8 +702,7 @@ class _SalesPageState extends State<SalesPage> {
                                 child: Container(
                                     height: 50,
                                     width: 120,
-                                    padding:
-                                        const EdgeInsets.fromLTRB(8, 4, 8, 6),
+                                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
                                     decoration: const BoxDecoration(
                                       color: Color.fromARGB(255, 234, 234, 234),
                                       borderRadius: BorderRadius.only(
@@ -784,8 +713,7 @@ class _SalesPageState extends State<SalesPage> {
                                         BoxShadow(
                                           spreadRadius: 0.5,
                                           blurRadius: 10,
-                                          color: Color.fromRGBO(
-                                              212, 212, 212, 0.211),
+                                          color: Color.fromRGBO(212, 212, 212, 0.211),
                                         ),
                                       ],
                                     ),
@@ -802,16 +730,12 @@ class _SalesPageState extends State<SalesPage> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Icon(Icons.receipt_outlined,
-                                          color: Colors.white),
+                                      const Icon(Icons.receipt_outlined, color: Colors.white),
                                       const SizedBox(
                                         width: 5,
                                       ),
                                       Text(
-                                        context
-                                            .read<ReceiptCubit>()
-                                            .state
-                                            .docNum,
+                                        context.read<ReceiptCubit>().state.docNum,
                                         style: const TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w500,
@@ -826,32 +750,21 @@ class _SalesPageState extends State<SalesPage> {
                             Expanded(
                               flex: 1,
                               child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 10),
+                                padding: const EdgeInsets.symmetric(vertical: 10),
                                 width: double.infinity,
                                 alignment: Alignment.centerRight,
                                 child: FittedBox(
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      const Icon(Icons.stars,
-                                          color: Colors.white),
+                                      const Icon(Icons.stars, color: Colors.white),
                                       const SizedBox(
                                         width: 5,
                                       ),
                                       Text(
-                                        context
-                                                    .read<ReceiptCubit>()
-                                                    .state
-                                                    .customerEntity !=
-                                                null
+                                        context.read<ReceiptCubit>().state.customerEntity != null
                                             ? Helpers.clipStringAndAddEllipsis(
-                                                context
-                                                    .read<ReceiptCubit>()
-                                                    .state
-                                                    .customerEntity!
-                                                    .custName,
-                                                25)
+                                                context.read<ReceiptCubit>().state.customerEntity!.custName, 25)
                                             : " - ",
                                         style: const TextStyle(
                                           fontSize: 18,
@@ -878,18 +791,15 @@ class _SalesPageState extends State<SalesPage> {
                               const Expanded(
                                 child: EmptyList(
                                   imagePath: "assets/images/empty-item.svg",
-                                  sentence:
-                                      "Tadaa.. There is nothing here!\nInput item barcode to start adding item.",
+                                  sentence: "Tadaa.. There is nothing here!\nInput item barcode to start adding item.",
                                 ),
                               )
                             else
                               Expanded(
                                 child: ScrollablePositionedList.builder(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 0),
+                                  padding: const EdgeInsets.symmetric(vertical: 0),
                                   itemScrollController: itemScrollController,
-                                  scrollOffsetController:
-                                      scrollOffsetController,
+                                  scrollOffsetController: scrollOffsetController,
                                   itemPositionsListener: itemPositionsListener,
                                   scrollOffsetListener: scrollOffsetListener,
                                   itemCount: state.receiptItems.length,
@@ -899,10 +809,8 @@ class _SalesPageState extends State<SalesPage> {
                                     // final hasPromos = e.promos.isNotEmpty;
                                     final test = e.promos.map(
                                       (promo) => Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Expanded(
                                               child: Text(
@@ -915,34 +823,21 @@ class _SalesPageState extends State<SalesPage> {
                                           )),
                                           Expanded(
                                               // DiscountUI
-                                              child: promo.discAmount == null ||
-                                                      promo.discAmount == 0
+                                              child: promo.discAmount == null || promo.discAmount == 0
                                                   ? const SizedBox.shrink()
                                                   : Text(
-                                                      (e.itemEntity
-                                                                  .includeTax ==
-                                                              1)
+                                                      (e.itemEntity.includeTax == 1)
                                                           ? Helpers.parseMoney(((-1 *
-                                                                  (promo
-                                                                      .discAmount!) *
-                                                                  ((100 +
-                                                                          e.itemEntity
-                                                                              .taxRate) /
-                                                                      100))
+                                                                  (promo.discAmount!) *
+                                                                  ((100 + e.itemEntity.taxRate) / 100))
                                                               .round()))
-                                                          : Helpers.parseMoney(
-                                                              ((promo.discAmount! *
-                                                                      -1)
-                                                                  .round())),
+                                                          : Helpers.parseMoney(((promo.discAmount! * -1).round())),
                                                       style: const TextStyle(
                                                         fontSize: 14,
-                                                        fontStyle:
-                                                            FontStyle.italic,
-                                                        fontWeight:
-                                                            FontWeight.w500,
+                                                        fontStyle: FontStyle.italic,
+                                                        fontWeight: FontWeight.w500,
                                                       ),
-                                                      textAlign:
-                                                          TextAlign.right,
+                                                      textAlign: TextAlign.right,
                                                     )),
                                           const SizedBox(
                                             width: 20,
@@ -958,29 +853,21 @@ class _SalesPageState extends State<SalesPage> {
                                         onTap: () => setState(() {
                                           if (indexIsSelect[0] == index) {
                                             indexIsSelect = [-1, 0];
-                                            _textEditingControllerNewReceiptItemQuantity
-                                                .text = "1";
-                                            _textEditingControllerNewReceiptItemCode
-                                                .text = "";
-                                            _newReceiptItemQuantityFocusNode
-                                                .unfocus();
+                                            _textEditingControllerNewReceiptItemQuantity.text = "1";
+                                            _textEditingControllerNewReceiptItemCode.text = "";
+                                            _newReceiptItemQuantityFocusNode.unfocus();
                                             isUpdatingReceiptItemQty = false;
                                             isEditingNewReceiptItemCode = true;
-                                            _newReceiptItemCodeFocusNode
-                                                .requestFocus();
+                                            _newReceiptItemCodeFocusNode.requestFocus();
                                           } else {
                                             indexIsSelect = [index, 1];
-                                            _textEditingControllerNewReceiptItemQuantity
-                                                .text = "";
+                                            _textEditingControllerNewReceiptItemQuantity.text = "";
                                             // Helpers.cleanDecimal(e.quantity, 3);
-                                            _textEditingControllerNewReceiptItemCode
-                                                .text = e.itemEntity.barcode;
-                                            _newReceiptItemCodeFocusNode
-                                                .unfocus();
+                                            _textEditingControllerNewReceiptItemCode.text = e.itemEntity.barcode;
+                                            _newReceiptItemCodeFocusNode.unfocus();
                                             isUpdatingReceiptItemQty = true;
                                             isEditingNewReceiptItemCode = false;
-                                            _newReceiptItemQuantityFocusNode
-                                                .requestFocus();
+                                            _newReceiptItemQuantityFocusNode.requestFocus();
                                           }
                                         }),
                                         child: Column(
@@ -994,54 +881,34 @@ class _SalesPageState extends State<SalesPage> {
                                                   Divider(
                                                     height: 1,
                                                     thickness: 0.5,
-                                                    color: Color.fromARGB(
-                                                        100, 118, 118, 117),
+                                                    color: Color.fromARGB(100, 118, 118, 117),
                                                   ),
                                                 ],
                                               ),
                                             AnimatedContainer(
-                                              duration:
-                                                  index == indexIsSelect[0] &&
-                                                          indexIsSelect[1] == 1
-                                                      ? Duration.zero
-                                                      : const Duration(
-                                                          milliseconds: 200),
+                                              duration: index == indexIsSelect[0] && indexIsSelect[1] == 1
+                                                  ? Duration.zero
+                                                  : const Duration(milliseconds: 200),
                                               padding: const EdgeInsets.all(0),
-                                              color: index ==
-                                                          indexIsSelect[0] &&
-                                                      indexIsSelect[1] == 1
-                                                  ? const Color.fromARGB(
-                                                      255, 255, 222, 222)
-                                                  : isNewItemAdded &&
-                                                          (index ==
-                                                              state.receiptItems
-                                                                      .length -
-                                                                  1)
-                                                      ? const Color.fromARGB(
-                                                          95, 100, 202, 122)
+                                              color: index == indexIsSelect[0] && indexIsSelect[1] == 1
+                                                  ? const Color.fromARGB(255, 255, 222, 222)
+                                                  : isNewItemAdded && (index == state.receiptItems.length - 1)
+                                                      ? const Color.fromARGB(95, 100, 202, 122)
                                                       : Colors.white,
                                               child: Padding(
-                                                padding: EdgeInsets.fromLTRB(
-                                                    20,
-                                                    10,
-                                                    0,
-                                                    e.quantity < 0 ? 0 : 10),
+                                                padding: EdgeInsets.fromLTRB(20, 10, 0, e.quantity < 0 ? 0 : 10),
                                                 child: Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
                                                   children: [
                                                     Container(
                                                       width: 40,
-                                                      alignment:
-                                                          Alignment.topLeft,
+                                                      alignment: Alignment.topLeft,
                                                       child: Text(
                                                         (index + 1).toString(),
                                                         style: const TextStyle(
                                                           fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w500,
+                                                          fontWeight: FontWeight.w500,
                                                         ),
                                                       ),
                                                     ),
@@ -1053,60 +920,44 @@ class _SalesPageState extends State<SalesPage> {
                                                             // mainAxisAlignment:
                                                             //     MainAxisAlignment
                                                             //         .spaceBetween,
-                                                            crossAxisAlignment:
-                                                                CrossAxisAlignment
-                                                                    .start,
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
                                                             children: [
                                                               Expanded(
                                                                 flex: 3,
                                                                 child: Column(
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
+                                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                                   children: [
                                                                     FittedBox(
-                                                                      alignment:
-                                                                          Alignment
-                                                                              .centerLeft,
-                                                                      child:
-                                                                          Row(
+                                                                      alignment: Alignment.centerLeft,
+                                                                      child: Row(
                                                                         children: [
-                                                                          SvgPicture
-                                                                              .asset(
+                                                                          SvgPicture.asset(
                                                                             "assets/images/inventory.svg",
-                                                                            height:
-                                                                                16,
+                                                                            height: 16,
                                                                           ),
                                                                           const SizedBox(
-                                                                            width:
-                                                                                5,
+                                                                            width: 5,
                                                                           ),
                                                                           Text(
                                                                             e.itemEntity.itemCode,
-                                                                            style:
-                                                                                const TextStyle(
+                                                                            style: const TextStyle(
                                                                               fontSize: 16,
                                                                               fontWeight: FontWeight.w500,
                                                                             ),
                                                                           ),
                                                                           const SizedBox(
-                                                                            width:
-                                                                                15,
+                                                                            width: 15,
                                                                           ),
-                                                                          SvgPicture
-                                                                              .asset(
+                                                                          SvgPicture.asset(
                                                                             "assets/images/barcode.svg",
-                                                                            height:
-                                                                                20,
+                                                                            height: 20,
                                                                           ),
                                                                           const SizedBox(
-                                                                            width:
-                                                                                5,
+                                                                            width: 5,
                                                                           ),
                                                                           Text(
                                                                             e.itemEntity.barcode,
-                                                                            style:
-                                                                                const TextStyle(
+                                                                            style: const TextStyle(
                                                                               fontSize: 16,
                                                                               fontWeight: FontWeight.w500,
                                                                             ),
@@ -1115,16 +966,12 @@ class _SalesPageState extends State<SalesPage> {
                                                                       ),
                                                                     ),
                                                                     Text(
-                                                                      ((e.itemEntity.shortName !=
-                                                                              "")
+                                                                      ((e.itemEntity.shortName != "")
                                                                           ? e.itemEntity.shortName ??
                                                                               e.itemEntity.itemName
                                                                           : e.itemEntity.itemName),
                                                                       style: const TextStyle(
-                                                                          fontSize:
-                                                                              16,
-                                                                          fontWeight:
-                                                                              FontWeight.w500),
+                                                                          fontSize: 16, fontWeight: FontWeight.w500),
                                                                     ),
                                                                   ],
                                                                 ),
@@ -1136,14 +983,9 @@ class _SalesPageState extends State<SalesPage> {
                                                                   children: [
                                                                     Text(
                                                                       "${Helpers.cleanDecimal(e.quantity, 3)} x",
-                                                                      textAlign:
-                                                                          TextAlign
-                                                                              .right,
+                                                                      textAlign: TextAlign.right,
                                                                       style: const TextStyle(
-                                                                          fontSize:
-                                                                              16,
-                                                                          fontWeight:
-                                                                              FontWeight.w500),
+                                                                          fontSize: 16, fontWeight: FontWeight.w500),
                                                                     ),
                                                                   ],
                                                                 ),
@@ -1155,14 +997,9 @@ class _SalesPageState extends State<SalesPage> {
                                                                   children: [
                                                                     Text(
                                                                       "@ ${Helpers.parseMoney((e.sellingPrice).round())}",
-                                                                      textAlign:
-                                                                          TextAlign
-                                                                              .right,
+                                                                      textAlign: TextAlign.right,
                                                                       style: const TextStyle(
-                                                                          fontSize:
-                                                                              16,
-                                                                          fontWeight:
-                                                                              FontWeight.w500),
+                                                                          fontSize: 16, fontWeight: FontWeight.w500),
                                                                     ),
                                                                   ],
                                                                 ),
@@ -1170,43 +1007,33 @@ class _SalesPageState extends State<SalesPage> {
                                                               Expanded(
                                                                 flex: 1,
                                                                 child: Column(
-                                                                  crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .end,
-                                                                  mainAxisSize:
-                                                                      MainAxisSize
-                                                                          .max,
-                                                                  mainAxisAlignment:
-                                                                      MainAxisAlignment
-                                                                          .spaceBetween,
+                                                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                                                  mainAxisSize: MainAxisSize.max,
+                                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                   // TotalPriceUI
                                                                   children: [
                                                                     Text(
-                                                                      Helpers.parseMoney((e.sellingPrice *
-                                                                              e.quantity)
-                                                                          .round()),
+                                                                      Helpers.parseMoney(
+                                                                          (e.sellingPrice * e.quantity).round()),
                                                                       style: const TextStyle(
-                                                                          fontSize:
-                                                                              16,
-                                                                          fontWeight:
-                                                                              FontWeight.w500),
+                                                                          fontSize: 16, fontWeight: FontWeight.w500),
                                                                     ),
                                                                     const SizedBox(
                                                                       height: 6,
                                                                     ),
-                                                                    e.tohemId !=
-                                                                                null ||
-                                                                            state.salesTohemId !=
-                                                                                null
+                                                                    e.tohemId != null || state.salesTohemId != null
                                                                         ? FutureBuilder(
-                                                                            future:
-                                                                                getSalesPerson(e.tohemId, state.salesTohemId),
+                                                                            future: getSalesPerson(
+                                                                                e.tohemId, state.salesTohemId),
                                                                             builder: (context, snapshot) {
                                                                               if (snapshot.hasData) {
                                                                                 return Text(
                                                                                   snapshot.data?.empName ?? "",
                                                                                   textAlign: TextAlign.right,
-                                                                                  style: const TextStyle(height: 1, fontSize: 12, fontWeight: FontWeight.w500),
+                                                                                  style: const TextStyle(
+                                                                                      height: 1,
+                                                                                      fontSize: 12,
+                                                                                      fontWeight: FontWeight.w500),
                                                                                 );
                                                                               } else {
                                                                                 return const SizedBox.shrink();
@@ -1224,44 +1051,25 @@ class _SalesPageState extends State<SalesPage> {
                                                           // SHOW PROMO HERE
                                                           ...test,
                                                           if (e.quantity < 0 &&
-                                                              (test.isNotEmpty ||
-                                                                  e.tohemId !=
-                                                                      null ||
-                                                                  e.tohemId !=
-                                                                      ""))
+                                                              (test.isNotEmpty || e.tohemId != null || e.tohemId != ""))
                                                             const SizedBox(
                                                               height: 5,
                                                             ),
-                                                          if (e.quantity < 0 &&
-                                                              e.refpos3 != null)
+                                                          if (e.quantity < 0 && e.refpos3 != null)
                                                             Row(
-                                                              mainAxisAlignment:
-                                                                  MainAxisAlignment
-                                                                      .end,
+                                                              mainAxisAlignment: MainAxisAlignment.end,
                                                               children: [
                                                                 Container(
-                                                                  alignment:
-                                                                      Alignment
-                                                                          .centerRight,
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .fromLTRB(
-                                                                          10,
-                                                                          2,
-                                                                          10,
-                                                                          2),
-                                                                  decoration:
-                                                                      const BoxDecoration(
+                                                                  alignment: Alignment.centerRight,
+                                                                  padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                                                                  decoration: const BoxDecoration(
                                                                     // border: Border.all(
                                                                     //     color: Color.fromRGBO(195, 53, 53, 1),
                                                                     //     width: 4.0),
                                                                     borderRadius:
-                                                                        BorderRadius.only(
-                                                                            topLeft:
-                                                                                Radius.circular(5)),
+                                                                        BorderRadius.only(topLeft: Radius.circular(5)),
 
-                                                                    color: Colors
-                                                                        .orange,
+                                                                    color: Colors.orange,
                                                                     // boxShadow: [
                                                                     //   BoxShadow(
                                                                     //     spreadRadius: 0.5,
@@ -1270,22 +1078,14 @@ class _SalesPageState extends State<SalesPage> {
                                                                     //   ),
                                                                     // ],
                                                                   ),
-                                                                  child:
-                                                                      const Row(
-                                                                    mainAxisSize:
-                                                                        MainAxisSize
-                                                                            .min,
+                                                                  child: const Row(
+                                                                    mainAxisSize: MainAxisSize.min,
                                                                     children: [
-                                                                      Text(
-                                                                          "Return",
-                                                                          style:
-                                                                              TextStyle(
-                                                                            color:
-                                                                                Colors.white,
-                                                                            fontSize:
-                                                                                12,
-                                                                            fontWeight:
-                                                                                FontWeight.w700,
+                                                                      Text("Return",
+                                                                          style: TextStyle(
+                                                                            color: Colors.white,
+                                                                            fontSize: 12,
+                                                                            fontWeight: FontWeight.w700,
                                                                           )),
                                                                     ],
                                                                   ),
@@ -1302,8 +1102,7 @@ class _SalesPageState extends State<SalesPage> {
                                             const Divider(
                                               height: 1,
                                               thickness: 0.5,
-                                              color: Color.fromARGB(
-                                                  100, 118, 118, 118),
+                                              color: Color.fromARGB(100, 118, 118, 118),
                                             ),
                                           ],
                                         ),
@@ -1341,8 +1140,7 @@ class _SalesPageState extends State<SalesPage> {
                                 // border: Border.all(
                                 //     color: Color.fromRGBO(195, 53, 53, 1),
                                 //     width: 4.0),
-                                borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(10)),
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
 
                                 color: ProjectColors.primary,
                                 boxShadow: [
@@ -1383,9 +1181,7 @@ class _SalesPageState extends State<SalesPage> {
       autofocus: true,
       child: Container(
           decoration: BoxDecoration(
-            color: indexIsSelect[1] == 1
-                ? const Color.fromARGB(20, 169, 0, 0)
-                : Colors.white,
+            color: indexIsSelect[1] == 1 ? const Color.fromARGB(20, 169, 0, 0) : Colors.white,
             borderRadius: BorderRadius.circular(5),
             boxShadow: const [
               BoxShadow(
@@ -1447,16 +1243,9 @@ class _SalesPageState extends State<SalesPage> {
                         flex: 2,
                         child: Container(
                           padding: EdgeInsets.fromLTRB(
-                              20,
-                              0,
-                              20,
-                              (isEditingNewReceiptItemQty ||
-                                      isUpdatingReceiptItemQty)
-                                  ? 10
-                                  : 0),
+                              20, 0, 20, (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty) ? 10 : 0),
                           child: Center(
-                            child: (isEditingNewReceiptItemQty ||
-                                    isUpdatingReceiptItemQty)
+                            child: (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty)
                                 ? SizedBox(
                                     height: 40,
                                     child: KeyboardListener(
@@ -1471,29 +1260,22 @@ class _SalesPageState extends State<SalesPage> {
                                       ),
                                       child: TextField(
                                         // readOnly: !isEditingReceiptItemQty,
-                                        focusNode:
-                                            _newReceiptItemQuantityFocusNode,
-                                        controller:
-                                            _textEditingControllerNewReceiptItemQuantity,
+                                        focusNode: _newReceiptItemQuantityFocusNode,
+                                        controller: _textEditingControllerNewReceiptItemQuantity,
                                         enableInteractiveSelection: false,
                                         // showCursor: false,
                                         textAlign: TextAlign.center,
                                         keyboardType: TextInputType.none,
-                                        style: const TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.w500),
+                                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
                                         decoration: const InputDecoration(
-                                            isCollapsed: true,
-                                            contentPadding: EdgeInsets.fromLTRB(
-                                                0, 0, 0, 10)),
+                                            isCollapsed: true, contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 10)),
                                       ),
                                     ),
                                   )
                                 : SingleChildScrollView(
                                     scrollDirection: Axis.horizontal,
                                     child: Text(
-                                      _textEditingControllerNewReceiptItemQuantity
-                                          .text,
+                                      _textEditingControllerNewReceiptItemQuantity.text,
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(fontSize: 24),
                                     ),
@@ -1529,43 +1311,31 @@ class _SalesPageState extends State<SalesPage> {
 
                                       autofocus: true,
                                       focusNode: _newReceiptItemCodeFocusNode,
-                                      controller:
-                                          _textEditingControllerNewReceiptItemCode,
+                                      controller: _textEditingControllerNewReceiptItemCode,
                                       enableInteractiveSelection: false,
                                       // showCursor: false,
                                       textAlign: TextAlign.center,
                                       keyboardType: TextInputType.none,
-                                      style: const TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w500),
+                                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w500),
                                       decoration: const InputDecoration(
-                                          hintText:
-                                              "Scan or Type an Item Barcode",
+                                          hintText: "Scan or Type an Item Barcode",
                                           hintStyle: TextStyle(
                                             fontSize: 18,
                                             fontStyle: FontStyle.italic,
                                           ),
                                           isCollapsed: true,
-                                          contentPadding:
-                                              EdgeInsets.fromLTRB(0, 0, 0, 10)),
+                                          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 10)),
                                     ),
                                   ),
                                 )
                               : SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
-                                  child: _textEditingControllerNewReceiptItemCode
-                                          .text.isEmpty
-                                      ? const Text(
-                                          "Scan or Type an Item Barcode",
+                                  child: _textEditingControllerNewReceiptItemCode.text.isEmpty
+                                      ? const Text("Scan or Type an Item Barcode",
                                           textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontStyle: FontStyle.italic))
-                                      : Text(
-                                          _textEditingControllerNewReceiptItemCode
-                                              .text,
-                                          textAlign: TextAlign.center,
-                                          style: const TextStyle(fontSize: 24)),
+                                          style: TextStyle(fontSize: 18, fontStyle: FontStyle.italic))
+                                      : Text(_textEditingControllerNewReceiptItemCode.text,
+                                          textAlign: TextAlign.center, style: const TextStyle(fontSize: 24)),
                                 ),
                         ),
                       ),
@@ -1662,24 +1432,19 @@ class _SalesPageState extends State<SalesPage> {
                                 if (mounted) {
                                   await showDialog(
                                     context: context,
-                                    builder: (BuildContext context) =>
-                                        InvoiceDetailsDialog(
-                                            receiveDP: receiveDP),
+                                    builder: (BuildContext context) => InvoiceDetailsDialog(receiveDP: receiveDP),
                                   );
                                 }
                                 setState(() {
                                   isEditingNewReceiptItemCode = true;
-                                  Future.delayed(
-                                      const Duration(milliseconds: 50),
-                                      () => _newReceiptItemCodeFocusNode
-                                          .requestFocus());
+                                  Future.delayed(const Duration(milliseconds: 50),
+                                      () => _newReceiptItemCodeFocusNode.requestFocus());
                                 });
                               },
                               style: OutlinedButton.styleFrom(
                                 elevation: 5,
                                 shadowColor: Colors.black87,
-                                padding:
-                                    const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                                padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
                                 foregroundColor: Colors.white,
                                 backgroundColor: ProjectColors.primary,
                                 shape: RoundedRectangleBorder(
@@ -1690,14 +1455,12 @@ class _SalesPageState extends State<SalesPage> {
                               child: const SizedBox(
                                 height: double.infinity,
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       "Header Attr.",
                                       softWrap: true,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w600),
+                                      style: TextStyle(fontWeight: FontWeight.w600),
                                     ),
                                     Row(
                                       children: [
@@ -1706,8 +1469,7 @@ class _SalesPageState extends State<SalesPage> {
                                         ),
                                         Text(
                                           "F2",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w300),
+                                          style: TextStyle(fontWeight: FontWeight.w300),
                                         ),
                                       ],
                                     ),
@@ -1731,43 +1493,32 @@ class _SalesPageState extends State<SalesPage> {
                                 onPressed: indexIsSelect[1] == 0
                                     ? null
                                     : () {
-                                        final ReceiptItemEntity
-                                            receiptItemTarget = context
-                                                .read<ReceiptCubit>()
-                                                .state
-                                                .receiptItems[indexIsSelect[0]];
+                                        final ReceiptItemEntity receiptItemTarget =
+                                            context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
                                         log("receiptTarget - $receiptItemTarget");
                                         showDialog(
                                           context: context,
                                           builder: (BuildContext context) =>
-                                              ItemDetailsDialog(
-                                                  indexSelected:
-                                                      indexIsSelect[0]),
+                                              ItemDetailsDialog(indexSelected: indexIsSelect[0]),
                                         ).then((value) {
                                           setState(() {
                                             indexIsSelect = [-1, 0];
-                                            _textEditingControllerNewReceiptItemQuantity
-                                                .text = "1";
-                                            _textEditingControllerNewReceiptItemCode
-                                                .text = "";
-                                            _newReceiptItemQuantityFocusNode
-                                                .unfocus();
+                                            _textEditingControllerNewReceiptItemQuantity.text = "1";
+                                            _textEditingControllerNewReceiptItemCode.text = "";
+                                            _newReceiptItemQuantityFocusNode.unfocus();
                                             isUpdatingReceiptItemQty = false;
                                             isEditingNewReceiptItemCode = true;
-                                            _newReceiptItemCodeFocusNode
-                                                .requestFocus();
+                                            _newReceiptItemCodeFocusNode.requestFocus();
                                           });
                                         });
                                       },
                                 style: OutlinedButton.styleFrom(
                                   elevation: 5,
                                   shadowColor: Colors.black87,
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                                  padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
                                   foregroundColor: Colors.white,
-                                  backgroundColor: indexIsSelect[0] == -1
-                                      ? ProjectColors.lightBlack
-                                      : ProjectColors.primary,
+                                  backgroundColor:
+                                      indexIsSelect[0] == -1 ? ProjectColors.lightBlack : ProjectColors.primary,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5),
                                   ),
@@ -1776,13 +1527,11 @@ class _SalesPageState extends State<SalesPage> {
                                 child: const SizedBox(
                                   height: double.infinity,
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         "Item Attr.",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600),
+                                        style: TextStyle(fontWeight: FontWeight.w600),
                                       ),
                                       Row(
                                         children: [
@@ -1791,8 +1540,7 @@ class _SalesPageState extends State<SalesPage> {
                                           ),
                                           Text(
                                             "F1",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w300),
+                                            style: TextStyle(fontWeight: FontWeight.w300),
                                           ),
                                         ],
                                       ),
@@ -1852,15 +1600,11 @@ class _SalesPageState extends State<SalesPage> {
                             children: [
                               Text(
                                 "Coupon",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.grey),
+                                style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey),
                               ),
                               Text(
                                 "F5",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w300,
-                                    color: Colors.grey),
+                                style: TextStyle(fontWeight: FontWeight.w300, color: Colors.grey),
                               ),
                             ],
                           )),
@@ -1882,8 +1626,7 @@ class _SalesPageState extends State<SalesPage> {
                             showDialog(
                                 context: context,
                                 barrierDismissible: false,
-                                builder: (context) =>
-                                    const QueueListDialog()).then((value) {
+                                builder: (context) => const QueueListDialog()).then((value) {
                               setState(() {
                                 context.read<ItemsCubit>().clearItems();
                                 isEditingNewReceiptItemCode = true;
@@ -2043,24 +1786,19 @@ class _SalesPageState extends State<SalesPage> {
                                 if (mounted) {
                                   await showDialog(
                                     context: context,
-                                    builder: (BuildContext context) =>
-                                        InvoiceDetailsDialog(
-                                            receiveDP: receiveDP),
+                                    builder: (BuildContext context) => InvoiceDetailsDialog(receiveDP: receiveDP),
                                   );
                                 }
                                 setState(() {
                                   isEditingNewReceiptItemCode = true;
-                                  Future.delayed(
-                                      const Duration(milliseconds: 50),
-                                      () => _newReceiptItemCodeFocusNode
-                                          .requestFocus());
+                                  Future.delayed(const Duration(milliseconds: 50),
+                                      () => _newReceiptItemCodeFocusNode.requestFocus());
                                 });
                               },
                               style: OutlinedButton.styleFrom(
                                 elevation: 5,
                                 shadowColor: Colors.black87,
-                                padding:
-                                    const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                                padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
                                 foregroundColor: Colors.white,
                                 backgroundColor: ProjectColors.primary,
                                 shape: RoundedRectangleBorder(
@@ -2071,14 +1809,12 @@ class _SalesPageState extends State<SalesPage> {
                               child: const SizedBox(
                                 height: double.infinity,
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       "Header Attr.",
                                       softWrap: true,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w600),
+                                      style: TextStyle(fontWeight: FontWeight.w600),
                                     ),
                                     Row(
                                       children: [
@@ -2087,8 +1823,7 @@ class _SalesPageState extends State<SalesPage> {
                                         ),
                                         Text(
                                           "F2",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w300),
+                                          style: TextStyle(fontWeight: FontWeight.w300),
                                         ),
                                       ],
                                     ),
@@ -2112,43 +1847,32 @@ class _SalesPageState extends State<SalesPage> {
                                 onPressed: indexIsSelect[1] == 0
                                     ? null
                                     : () {
-                                        final ReceiptItemEntity
-                                            receiptItemTarget = context
-                                                .read<ReceiptCubit>()
-                                                .state
-                                                .receiptItems[indexIsSelect[0]];
+                                        final ReceiptItemEntity receiptItemTarget =
+                                            context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
                                         log("receiptTarget - $receiptItemTarget");
                                         showDialog(
                                           context: context,
                                           builder: (BuildContext context) =>
-                                              ItemDetailsDialog(
-                                                  indexSelected:
-                                                      indexIsSelect[0]),
+                                              ItemDetailsDialog(indexSelected: indexIsSelect[0]),
                                         ).then((value) {
                                           setState(() {
                                             indexIsSelect = [-1, 0];
-                                            _textEditingControllerNewReceiptItemQuantity
-                                                .text = "1";
-                                            _textEditingControllerNewReceiptItemCode
-                                                .text = "";
-                                            _newReceiptItemQuantityFocusNode
-                                                .unfocus();
+                                            _textEditingControllerNewReceiptItemQuantity.text = "1";
+                                            _textEditingControllerNewReceiptItemCode.text = "";
+                                            _newReceiptItemQuantityFocusNode.unfocus();
                                             isUpdatingReceiptItemQty = false;
                                             isEditingNewReceiptItemCode = true;
-                                            _newReceiptItemCodeFocusNode
-                                                .requestFocus();
+                                            _newReceiptItemCodeFocusNode.requestFocus();
                                           });
                                         });
                                       },
                                 style: OutlinedButton.styleFrom(
                                   elevation: 5,
                                   shadowColor: Colors.black87,
-                                  padding:
-                                      const EdgeInsets.fromLTRB(10, 3, 10, 3),
+                                  padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
                                   foregroundColor: Colors.white,
-                                  backgroundColor: indexIsSelect[0] == -1
-                                      ? ProjectColors.lightBlack
-                                      : ProjectColors.primary,
+                                  backgroundColor:
+                                      indexIsSelect[0] == -1 ? ProjectColors.lightBlack : ProjectColors.primary,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5),
                                   ),
@@ -2157,13 +1881,11 @@ class _SalesPageState extends State<SalesPage> {
                                 child: const SizedBox(
                                   height: double.infinity,
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         "Item Attr.",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600),
+                                        style: TextStyle(fontWeight: FontWeight.w600),
                                       ),
                                       Row(
                                         children: [
@@ -2172,8 +1894,7 @@ class _SalesPageState extends State<SalesPage> {
                                           ),
                                           Text(
                                             "F1",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w300),
+                                            style: TextStyle(fontWeight: FontWeight.w300),
                                           ),
                                         ],
                                       ),
@@ -2234,15 +1955,11 @@ class _SalesPageState extends State<SalesPage> {
                             children: [
                               Text(
                                 "Coupon",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.grey),
+                                style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey),
                               ),
                               Text(
                                 "F5",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w300,
-                                    color: Colors.grey),
+                                style: TextStyle(fontWeight: FontWeight.w300, color: Colors.grey),
                               ),
                             ],
                           )),
@@ -2264,8 +1981,7 @@ class _SalesPageState extends State<SalesPage> {
                             showDialog(
                                 context: context,
                                 barrierDismissible: false,
-                                builder: (context) =>
-                                    const QueueListDialog()).then((value) {
+                                builder: (context) => const QueueListDialog()).then((value) {
                               setState(() {
                                 context.read<ItemsCubit>().clearItems();
                                 isEditingNewReceiptItemCode = true;
@@ -2327,16 +2043,13 @@ class _SalesPageState extends State<SalesPage> {
                             if (mounted) {
                               await showDialog(
                                 context: context,
-                                builder: (BuildContext context) =>
-                                    InvoiceDetailsDialog(receiveDP: receiveDP),
+                                builder: (BuildContext context) => InvoiceDetailsDialog(receiveDP: receiveDP),
                               );
                             }
                             setState(() {
                               isEditingNewReceiptItemCode = true;
                               Future.delayed(
-                                  const Duration(milliseconds: 50),
-                                  () => _newReceiptItemCodeFocusNode
-                                      .requestFocus());
+                                  const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
                             });
                           },
                           style: OutlinedButton.styleFrom(
@@ -2362,9 +2075,7 @@ class _SalesPageState extends State<SalesPage> {
                                       children: [
                                         Text(
                                           "F2",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w300,
-                                              fontSize: 14),
+                                          style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
                                         ),
                                       ],
                                     ),
@@ -2379,9 +2090,7 @@ class _SalesPageState extends State<SalesPage> {
                                         children: [
                                           TextSpan(
                                             text: "Header\nAttributes",
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 14),
+                                            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                                           ),
                                         ],
                                       ),
@@ -2407,24 +2116,21 @@ class _SalesPageState extends State<SalesPage> {
                               return;
                             }
                             if (!itemDPAvailable) {
-                              SnackBarHelper.presentErrorSnackBar(context,
-                                  "Item Down Payment not found for this store");
+                              SnackBarHelper.presentErrorSnackBar(
+                                  context, "Item Down Payment not found for this store");
                               return;
                             }
 
                             if (mounted) {
                               await showDialog(
                                 context: context,
-                                builder: (BuildContext context) =>
-                                    const DownPaymentDialog(),
+                                builder: (BuildContext context) => const DownPaymentDialog(),
                               );
                             }
                             setState(() {
                               isEditingNewReceiptItemCode = true;
                               Future.delayed(
-                                  const Duration(milliseconds: 50),
-                                  () => _newReceiptItemCodeFocusNode
-                                      .requestFocus());
+                                  const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
                             });
                           },
                           style: OutlinedButton.styleFrom(
@@ -2432,9 +2138,7 @@ class _SalesPageState extends State<SalesPage> {
                             shadowColor: Colors.black87,
                             padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
                             foregroundColor: Colors.white,
-                            backgroundColor: isMember
-                                ? ProjectColors.primary
-                                : ProjectColors.lightBlack,
+                            backgroundColor: isMember ? ProjectColors.primary : ProjectColors.lightBlack,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
                             ),
@@ -2452,9 +2156,7 @@ class _SalesPageState extends State<SalesPage> {
                                       children: [
                                         Text(
                                           "",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w300,
-                                              fontSize: 14),
+                                          style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
                                         ),
                                       ],
                                     ),
@@ -2472,9 +2174,7 @@ class _SalesPageState extends State<SalesPage> {
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 14,
-                                                color: isMember
-                                                    ? Colors.white
-                                                    : Colors.grey),
+                                                color: isMember ? Colors.white : Colors.grey),
                                           ),
                                         ],
                                       ),
@@ -2517,28 +2217,20 @@ class _SalesPageState extends State<SalesPage> {
                                         '08700000002')
                                 ? null
                                 : () {
-                                    context
-                                        .read<ReceiptCubit>()
-                                        .state
-                                        .receiptItems[indexIsSelect[0]];
+                                    context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
                                     showDialog(
                                       context: context,
                                       builder: (BuildContext context) =>
-                                          ItemDetailsDialog(
-                                              indexSelected: indexIsSelect[0]),
+                                          ItemDetailsDialog(indexSelected: indexIsSelect[0]),
                                     ).then((value) {
                                       setState(() {
                                         indexIsSelect = [-1, 0];
-                                        _textEditingControllerNewReceiptItemQuantity
-                                            .text = "1";
-                                        _textEditingControllerNewReceiptItemCode
-                                            .text = "";
-                                        _newReceiptItemQuantityFocusNode
-                                            .unfocus();
+                                        _textEditingControllerNewReceiptItemQuantity.text = "1";
+                                        _textEditingControllerNewReceiptItemCode.text = "";
+                                        _newReceiptItemQuantityFocusNode.unfocus();
                                         isUpdatingReceiptItemQty = false;
                                         isEditingNewReceiptItemCode = true;
-                                        _newReceiptItemCodeFocusNode
-                                            .requestFocus();
+                                        _newReceiptItemCodeFocusNode.requestFocus();
                                       });
                                     });
                                   },
@@ -2577,8 +2269,7 @@ class _SalesPageState extends State<SalesPage> {
                                     child: Align(
                                       alignment: Alignment.topRight,
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
+                                        mainAxisAlignment: MainAxisAlignment.end,
                                         children: [
                                           Text(
                                             "F1",
@@ -2587,22 +2278,16 @@ class _SalesPageState extends State<SalesPage> {
                                                 fontSize: 14,
                                                 color: (indexIsSelect[1] == 0 ||
                                                         context
-                                                                .read<
-                                                                    ReceiptCubit>()
+                                                                .read<ReceiptCubit>()
                                                                 .state
-                                                                .receiptItems[
-                                                                    indexIsSelect[
-                                                                        0]]
+                                                                .receiptItems[indexIsSelect[0]]
                                                                 .itemEntity
                                                                 .itemCode ==
                                                             '99' ||
                                                         context
-                                                                .read<
-                                                                    ReceiptCubit>()
+                                                                .read<ReceiptCubit>()
                                                                 .state
-                                                                .receiptItems[
-                                                                    indexIsSelect[
-                                                                        0]]
+                                                                .receiptItems[indexIsSelect[0]]
                                                                 .itemEntity
                                                                 .itemCode ==
                                                             '08700000002')
@@ -2625,25 +2310,18 @@ class _SalesPageState extends State<SalesPage> {
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 14,
-                                                  color: (indexIsSelect[1] ==
-                                                              0 ||
+                                                  color: (indexIsSelect[1] == 0 ||
                                                           context
-                                                                  .read<
-                                                                      ReceiptCubit>()
+                                                                  .read<ReceiptCubit>()
                                                                   .state
-                                                                  .receiptItems[
-                                                                      indexIsSelect[
-                                                                          0]]
+                                                                  .receiptItems[indexIsSelect[0]]
                                                                   .itemEntity
                                                                   .itemCode ==
                                                               '99' ||
                                                           context
-                                                                  .read<
-                                                                      ReceiptCubit>()
+                                                                  .read<ReceiptCubit>()
                                                                   .state
-                                                                  .receiptItems[
-                                                                      indexIsSelect[
-                                                                          0]]
+                                                                  .receiptItems[indexIsSelect[0]]
                                                                   .itemEntity
                                                                   .itemCode ==
                                                               '08700000002')
@@ -2676,27 +2354,21 @@ class _SalesPageState extends State<SalesPage> {
 
                             final bool? isSaved = await showDialog<bool>(
                               context: context,
-                              builder: (BuildContext context) =>
-                                  ScaffoldMessenger(
+                              builder: (BuildContext context) => ScaffoldMessenger(
                                 child: Builder(builder: (context) {
-                                  return const Scaffold(
-                                      backgroundColor: Colors.transparent,
-                                      body: ReturnDialog());
+                                  return const Scaffold(backgroundColor: Colors.transparent, body: ReturnDialog());
                                 }),
                               ),
                             );
 
                             if (isSaved != null && isSaved) {
-                              SnackBarHelper.presentSuccessSnackBar(
-                                  context, "Save return items success", null);
+                              SnackBarHelper.presentSuccessSnackBar(context, "Save return items success", null);
                             }
 
                             setState(() {
                               isEditingNewReceiptItemCode = true;
                               Future.delayed(
-                                  const Duration(milliseconds: 50),
-                                  () => _newReceiptItemCodeFocusNode
-                                      .requestFocus());
+                                  const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
                             });
                           },
                           style: OutlinedButton.styleFrom(
@@ -2722,10 +2394,8 @@ class _SalesPageState extends State<SalesPage> {
                                       children: [
                                         Text(
                                           "",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w300,
-                                              fontSize: 14,
-                                              color: Colors.white),
+                                          style:
+                                              TextStyle(fontWeight: FontWeight.w300, fontSize: 14, color: Colors.white),
                                         ),
                                       ],
                                     ),
@@ -2741,9 +2411,7 @@ class _SalesPageState extends State<SalesPage> {
                                           TextSpan(
                                             text: "Return",
                                             style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 14,
-                                                color: Colors.white),
+                                                fontWeight: FontWeight.w600, fontSize: 14, color: Colors.white),
                                           ),
                                         ],
                                       ),
@@ -2782,8 +2450,8 @@ class _SalesPageState extends State<SalesPage> {
 
                               if (checkDP) {
                                 if (context.mounted) {
-                                  SnackBarHelper.presentErrorSnackBar(context,
-                                      "Coupons are not applicable to Down Payment");
+                                  SnackBarHelper.presentErrorSnackBar(
+                                      context, "Coupons are not applicable to Down Payment");
                                 }
                                 return;
                               }
@@ -2797,15 +2465,12 @@ class _SalesPageState extends State<SalesPage> {
                               await showDialog(
                                   context: context,
                                   barrierDismissible: false,
-                                  builder: (context) =>
-                                      const InputCouponsDialog());
+                                  builder: (context) => const InputCouponsDialog());
 
                               setState(() {
                                 isEditingNewReceiptItemCode = true;
-                                Future.delayed(
-                                    const Duration(milliseconds: 50),
-                                    () => _newReceiptItemCodeFocusNode
-                                        .requestFocus());
+                                Future.delayed(const Duration(milliseconds: 50),
+                                    () => _newReceiptItemCodeFocusNode.requestFocus());
                               });
                             },
                             style: OutlinedButton.styleFrom(
@@ -2831,8 +2496,7 @@ class _SalesPageState extends State<SalesPage> {
                                     child: Align(
                                       alignment: Alignment.topRight,
                                       child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Container(
                                               width: 20.0,
@@ -2845,12 +2509,7 @@ class _SalesPageState extends State<SalesPage> {
                                                 shape: BoxShape.circle,
                                               ),
                                               child: Text(
-                                                context
-                                                    .read<ReceiptCubit>()
-                                                    .state
-                                                    .coupons
-                                                    .length
-                                                    .toString(),
+                                                context.read<ReceiptCubit>().state.coupons.length.toString(),
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.w700,
                                                   fontSize: 12,
@@ -2876,9 +2535,7 @@ class _SalesPageState extends State<SalesPage> {
                                           children: [
                                             TextSpan(
                                               text: "Coupon",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 14),
+                                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                                             ),
                                           ],
                                         ),
@@ -2907,18 +2564,16 @@ class _SalesPageState extends State<SalesPage> {
                             isUpdatingReceiptItemQty = false;
                           });
                           await showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (context) => const QueueListDialog())
-                              .then((value) {
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => const QueueListDialog()).then((value) {
                             setState(() {
                               context.read<ItemsCubit>().clearItems();
                               isEditingNewReceiptItemCode = true;
                               _newReceiptItemCodeFocusNode.requestFocus();
                             });
                           });
-                          await checkReceiptWithMember(
-                              context.read<ReceiptCubit>().state);
+                          await checkReceiptWithMember(context.read<ReceiptCubit>().state);
                         },
                         style: OutlinedButton.styleFrom(
                           elevation: 5,
@@ -2943,9 +2598,7 @@ class _SalesPageState extends State<SalesPage> {
                                     children: [
                                       Text(
                                         "F4",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w300,
-                                            fontSize: 14),
+                                        style: TextStyle(fontWeight: FontWeight.w300, fontSize: 14),
                                       ),
                                     ],
                                   ),
@@ -2960,9 +2613,7 @@ class _SalesPageState extends State<SalesPage> {
                                       children: [
                                         TextSpan(
                                           text: "Order\nList",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 14),
+                                          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                                         ),
                                       ],
                                     ),
@@ -3026,8 +2677,7 @@ class _SalesPageState extends State<SalesPage> {
                           // isMember = false;
                           _newReceiptItemCodeFocusNode.requestFocus();
                         });
-                        await checkReceiptWithMember(
-                            context.read<ReceiptCubit>().state);
+                        await checkReceiptWithMember(context.read<ReceiptCubit>().state);
                       },
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
@@ -3081,8 +2731,7 @@ class _SalesPageState extends State<SalesPage> {
                     ),
                     width: double.infinity,
                     decoration: const BoxDecoration(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(5)),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
                       color: ProjectColors.primary,
                     ),
                     child: Row(
@@ -3092,22 +2741,17 @@ class _SalesPageState extends State<SalesPage> {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20)),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 0),
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  const Icon(Icons.assignment_ind_outlined,
-                                      color: Colors.white),
+                                  const Icon(Icons.assignment_ind_outlined, color: Colors.white),
                                   const SizedBox(
                                     width: 5,
                                   ),
                                   Text(
-                                    GetIt.instance<SharedPreferences>()
-                                            .getString("username") ??
-                                        "-",
+                                    GetIt.instance<SharedPreferences>().getString("username") ?? "-",
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w500,
@@ -3128,13 +2772,11 @@ class _SalesPageState extends State<SalesPage> {
                                   // color: Color.fromRGBO(
                                   //     71, 168, 0, 1),
                                   borderRadius: BorderRadius.circular(20)),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 0),
+                              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  const Icon(Icons.schedule,
-                                      color: Colors.white),
+                                  const Icon(Icons.schedule, color: Colors.white),
                                   const SizedBox(
                                     width: 5,
                                   ),
@@ -3177,15 +2819,11 @@ class _SalesPageState extends State<SalesPage> {
                             children: [
                               const Text(
                                 "Subtotal",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                Helpers.parseMoney(
-                                    (state.subtotal - (state.discAmount ?? 0))
-                                        .round()),
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
+                                Helpers.parseMoney((state.subtotal - (state.discAmount ?? 0)).round()),
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
@@ -3196,13 +2834,11 @@ class _SalesPageState extends State<SalesPage> {
                             children: [
                               const Text(
                                 "Header Discount",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
                                 "(${Helpers.parseMoney((state.discHeaderManual ?? 0).round())})",
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
@@ -3213,13 +2849,11 @@ class _SalesPageState extends State<SalesPage> {
                             children: [
                               const Text(
                                 "Total Tax",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
                                 Helpers.parseMoney(state.taxAmount.round()),
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
@@ -3230,13 +2864,11 @@ class _SalesPageState extends State<SalesPage> {
                             children: [
                               const Text(
                                 "Rounding",
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                               Text(
                                 Helpers.parseMoney(state.rounding.round()),
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.w500),
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
@@ -3263,13 +2895,11 @@ class _SalesPageState extends State<SalesPage> {
                       children: [
                         const Text(
                           "Grand Total",
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.w600),
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
                         ),
                         Text(
                           Helpers.parseMoney(state.grandTotal.round()),
-                          style: const TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.w600),
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -3312,8 +2942,7 @@ class _SalesPageState extends State<SalesPage> {
                     ),
                     width: double.infinity,
                     decoration: const BoxDecoration(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(5)),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
                       color: ProjectColors.primary,
                     ),
                     child: Row(
@@ -3323,22 +2952,17 @@ class _SalesPageState extends State<SalesPage> {
                           child: Align(
                             alignment: Alignment.centerLeft,
                             child: Container(
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20)),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 0),
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
-                                  const Icon(Icons.assignment_ind_outlined,
-                                      color: Colors.white),
+                                  const Icon(Icons.assignment_ind_outlined, color: Colors.white),
                                   const SizedBox(
                                     width: 5,
                                   ),
                                   Text(
-                                    GetIt.instance<SharedPreferences>()
-                                            .getString("username") ??
-                                        "-",
+                                    GetIt.instance<SharedPreferences>().getString("username") ?? "-",
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w500,
@@ -3359,13 +2983,11 @@ class _SalesPageState extends State<SalesPage> {
                                   // color: Color.fromRGBO(
                                   //     71, 168, 0, 1),
                                   borderRadius: BorderRadius.circular(20)),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 5, horizontal: 0),
+                              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  const Icon(Icons.schedule,
-                                      color: Colors.white),
+                                  const Icon(Icons.schedule, color: Colors.white),
                                   const SizedBox(
                                     width: 5,
                                   ),
@@ -3399,13 +3021,11 @@ class _SalesPageState extends State<SalesPage> {
                       children: [
                         const Text(
                           "Grand Total",
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.w600),
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
                         ),
                         Text(
                           Helpers.parseMoney(state.grandTotal.round()),
-                          style: const TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.w600),
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -3420,38 +3040,26 @@ class _SalesPageState extends State<SalesPage> {
                             : const SizedBox.shrink(),
                         (state.downPayments != null &&
                                 state.downPayments!.isNotEmpty &&
-                                state.downPayments!.any((dp) =>
-                                    dp.isReceive == false &&
-                                    dp.isSelected == true))
+                                state.downPayments!.any((dp) => dp.isReceive == false && dp.isSelected == true))
                             ? _noteChip(
                                 (state.downPayments ?? []).fold(
                                   0.0,
-                                  (total, dp) =>
-                                      (dp.isSelected == true && dp.amount != 0)
-                                          ? total + dp.amount
-                                          : total,
+                                  (total, dp) => (dp.isSelected == true && dp.amount != 0) ? total + dp.amount : total,
                                 ),
                                 2)
                             : const SizedBox.shrink(),
                         (state.discHeaderManual ?? 0) != 0
                             ? _noteChip((state.discHeaderManual ?? 0), 3)
                             : const SizedBox.shrink(),
-                        state.receiptItems.any((e1) =>
-                                e1.promos.any((e2) => e2.promoType == 998))
+                        state.receiptItems.any((e1) => e1.promos.any((e2) => e2.promoType == 998))
                             ? _noteChip(
                                 state.receiptItems.fold(
                                     0.0,
                                     (previousValue, e1) =>
                                         previousValue +
                                         (((100 + e1.itemEntity.taxRate) / 100) *
-                                            e1.promos
-                                                .where(
-                                                    (e2) => e2.promoType == 998)
-                                                .fold(
-                                                    0.0,
-                                                    (previousValue, e3) =>
-                                                        previousValue +
-                                                        (e3.discAmount ?? 0)))),
+                                            e1.promos.where((e2) => e2.promoType == 998).fold(
+                                                0.0, (previousValue, e3) => previousValue + (e3.discAmount ?? 0)))),
                                 4)
                             : const SizedBox.shrink(),
                       ],
@@ -3478,17 +3086,11 @@ class _SalesPageState extends State<SalesPage> {
                 child: SizedBox.expand(
                   child: OutlinedButton(
                     onPressed: () {
-                      if (context
-                          .read<ReceiptCubit>()
-                          .state
-                          .receiptItems
-                          .isEmpty) {
-                        return SnackBarHelper.presentErrorSnackBar(
-                            context, "Receipt cannot be empty");
+                      if (context.read<ReceiptCubit>().state.receiptItems.isEmpty) {
+                        return SnackBarHelper.presentErrorSnackBar(context, "Receipt cannot be empty");
                       }
                       context.read<ReceiptCubit>().queueReceipt();
-                      SnackBarHelper.presentSuccessSnackBar(
-                          context, "Pending order added", 3);
+                      SnackBarHelper.presentSuccessSnackBar(context, "Pending order added", 3);
 
                       setState(() {
                         isEditingNewReceiptItemQty = false;
@@ -3532,8 +3134,7 @@ class _SalesPageState extends State<SalesPage> {
                         ),
                         Text(
                           "F11",
-                          style: TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w300),
+                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w300),
                         ),
                       ],
                     ),
@@ -3576,15 +3177,13 @@ class _SalesPageState extends State<SalesPage> {
                             ),
                             Text(
                               "Checkout",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 16),
+                              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                             ),
                           ],
                         ),
                         Text(
                           "F12",
-                          style: TextStyle(
-                              fontSize: 17, fontWeight: FontWeight.w300),
+                          style: TextStyle(fontSize: 17, fontWeight: FontWeight.w300),
                         ),
                       ],
                     ),
@@ -3612,19 +3211,14 @@ class _SalesPageState extends State<SalesPage> {
                       isUpdatingReceiptItemQty = false;
                     });
 
-                    final ItemEntity? itemEntitySearch =
-                        await showDialog<ItemEntity>(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (context) => const ItemSearchDialog());
+                    final ItemEntity? itemEntitySearch = await showDialog<ItemEntity>(
+                        context: context, barrierDismissible: false, builder: (context) => const ItemSearchDialog());
 
                     if (itemEntitySearch != null) {
                       await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
                           barcode: null,
                           itemEntity: itemEntitySearch,
-                          quantity: double.parse(
-                              _textEditingControllerNewReceiptItemQuantity
-                                  .text),
+                          quantity: double.parse(_textEditingControllerNewReceiptItemQuantity.text),
                           context: context,
                           onOpenPriceInputted: () => setState(() {
                                 isEditingNewReceiptItemCode = true;
@@ -3642,9 +3236,7 @@ class _SalesPageState extends State<SalesPage> {
                     padding: const EdgeInsets.all(0),
                     elevation: 5,
                     shadowColor: Colors.black87,
-                    backgroundColor: salesViewType == 1
-                        ? ProjectColors.primary
-                        : ProjectColors.primary,
+                    backgroundColor: salesViewType == 1 ? ProjectColors.primary : ProjectColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
@@ -3663,9 +3255,7 @@ class _SalesPageState extends State<SalesPage> {
                               children: [
                                 Text(
                                   "F9",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: 12),
+                                  style: TextStyle(fontWeight: FontWeight.w300, fontSize: 12),
                                 ),
                               ],
                             ),
@@ -3680,9 +3270,7 @@ class _SalesPageState extends State<SalesPage> {
                                 children: [
                                   TextSpan(
                                     text: "Item\nSearch",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12),
+                                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -3718,17 +3306,14 @@ class _SalesPageState extends State<SalesPage> {
                           context.read<CustomersCubit>().clearCustomers();
                           isEditingNewReceiptItemCode = true;
                           _newReceiptItemCodeFocusNode.requestFocus();
-                          checkReceiptWithMember(
-                              context.read<ReceiptCubit>().state);
+                          checkReceiptWithMember(context.read<ReceiptCubit>().state);
                         }));
                   },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.all(0),
                     elevation: 5,
                     shadowColor: Colors.black87,
-                    backgroundColor: salesViewType == 1
-                        ? ProjectColors.primary
-                        : ProjectColors.primary,
+                    backgroundColor: salesViewType == 1 ? ProjectColors.primary : ProjectColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5),
@@ -3747,9 +3332,7 @@ class _SalesPageState extends State<SalesPage> {
                               children: [
                                 Text(
                                   "F8",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: 12),
+                                  style: TextStyle(fontWeight: FontWeight.w300, fontSize: 12),
                                 ),
                               ],
                             ),
@@ -3764,9 +3347,7 @@ class _SalesPageState extends State<SalesPage> {
                                 children: [
                                   TextSpan(
                                     text: "Select\nCust.",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12),
+                                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -3793,9 +3374,7 @@ class _SalesPageState extends State<SalesPage> {
                       padding: const EdgeInsets.all(0),
                       elevation: 5,
                       shadowColor: Colors.black87,
-                      backgroundColor: salesViewType == 1
-                          ? ProjectColors.primary
-                          : ProjectColors.primary,
+                      backgroundColor: salesViewType == 1 ? ProjectColors.primary : ProjectColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
@@ -3814,9 +3393,7 @@ class _SalesPageState extends State<SalesPage> {
                                 children: [
                                   Text(
                                     "F7",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w300,
-                                        fontSize: 12),
+                                    style: TextStyle(fontWeight: FontWeight.w300, fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -3831,9 +3408,7 @@ class _SalesPageState extends State<SalesPage> {
                                   children: [
                                     TextSpan(
                                       text: "Remove\nItem",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 12),
+                                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
                                     ),
                                   ],
                                 ),
@@ -3864,17 +3439,10 @@ class _SalesPageState extends State<SalesPage> {
                     } else {
                       isEditingNewReceiptItemQty = false;
                       isEditingNewReceiptItemCode = true;
-                      final double? qtyToDouble = double.tryParse(
-                          _textEditingControllerNewReceiptItemQuantity.text);
-                      _textEditingControllerNewReceiptItemQuantity
-                          .text = qtyToDouble ==
-                              null
+                      final double? qtyToDouble = double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
+                      _textEditingControllerNewReceiptItemQuantity.text = qtyToDouble == null
                           ? "1"
-                          : Helpers.cleanDecimal(
-                              double.parse(
-                                  _textEditingControllerNewReceiptItemQuantity
-                                      .text),
-                              3);
+                          : Helpers.cleanDecimal(double.parse(_textEditingControllerNewReceiptItemQuantity.text), 3);
 
                       _newReceiptItemCodeFocusNode.requestFocus();
                     }
@@ -3906,9 +3474,7 @@ class _SalesPageState extends State<SalesPage> {
                               children: [
                                 Text(
                                   "F6",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: 12),
+                                  style: TextStyle(fontWeight: FontWeight.w300, fontSize: 12),
                                 ),
                               ],
                             ),
@@ -3923,9 +3489,7 @@ class _SalesPageState extends State<SalesPage> {
                                 children: [
                                   TextSpan(
                                     text: "Order\nQuantity",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12),
+                                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -3971,16 +3535,10 @@ class _SalesPageState extends State<SalesPage> {
               setState(() {
                 isEditingNewReceiptItemQty = false;
                 isEditingNewReceiptItemCode = true;
-                final double? qtyToDouble = double.tryParse(
-                    _textEditingControllerNewReceiptItemQuantity.text);
-                _textEditingControllerNewReceiptItemQuantity
-                    .text = qtyToDouble == null ||
-                        qtyToDouble == 0
+                final double? qtyToDouble = double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
+                _textEditingControllerNewReceiptItemQuantity.text = qtyToDouble == null || qtyToDouble == 0
                     ? "1"
-                    : Helpers.cleanDecimal(
-                        double.parse(
-                            _textEditingControllerNewReceiptItemQuantity.text),
-                        3);
+                    : Helpers.cleanDecimal(double.parse(_textEditingControllerNewReceiptItemQuantity.text), 3);
 
                 _newReceiptItemCodeFocusNode.requestFocus();
               });
@@ -3993,8 +3551,7 @@ class _SalesPageState extends State<SalesPage> {
                 isUpdatingReceiptItemQty = false;
                 isEditingNewReceiptItemCode = true;
 
-                Future.delayed(const Duration(milliseconds: 20),
-                    () => _newReceiptItemCodeFocusNode.requestFocus());
+                Future.delayed(const Duration(milliseconds: 20), () => _newReceiptItemCodeFocusNode.requestFocus());
               });
             }
           },
@@ -4071,31 +3628,21 @@ class _SalesPageState extends State<SalesPage> {
                               child: FilledButton(
                                 onPressed: () {
                                   setState(() {
-                                    if (!_newReceiptItemCodeFocusNode
-                                        .hasPrimaryFocus) {
-                                      _newReceiptItemCodeFocusNode
-                                          .requestFocus();
-                                      _textEditingControllerNewReceiptItemCode
-                                          .text = "00";
-                                    } else if (_newReceiptItemCodeFocusNode
-                                        .hasPrimaryFocus) {
-                                      _textEditingControllerNewReceiptItemCode
-                                          .text += "00";
+                                    if (!_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
+                                      _newReceiptItemCodeFocusNode.requestFocus();
+                                      _textEditingControllerNewReceiptItemCode.text = "00";
+                                    } else if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
+                                      _textEditingControllerNewReceiptItemCode.text += "00";
                                     }
                                   });
                                 },
                                 style: FilledButton.styleFrom(
                                     elevation: 5,
-                                    backgroundColor:
-                                        const Color.fromRGBO(48, 48, 48, 1),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
+                                    backgroundColor: const Color.fromRGBO(48, 48, 48, 1),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                                 child: const Text(
                                   "00",
-                                  style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w700),
+                                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
                                 ),
                               ),
                             ),
@@ -4120,39 +3667,24 @@ class _SalesPageState extends State<SalesPage> {
                             child: SizedBox.expand(
                               child: FilledButton(
                                 onPressed: () {
-                                  if (_newReceiptItemCodeFocusNode
-                                      .hasPrimaryFocus) {
-                                    final currentLength =
-                                        _textEditingControllerNewReceiptItemCode
-                                            .text.length;
+                                  if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
+                                    final currentLength = _textEditingControllerNewReceiptItemCode.text.length;
                                     if (currentLength == 0) return;
-                                    _textEditingControllerNewReceiptItemCode
-                                            .text =
-                                        _textEditingControllerNewReceiptItemCode
-                                            .text
-                                            .substring(0, currentLength - 1);
-                                  } else if (_newReceiptItemQuantityFocusNode
-                                      .hasPrimaryFocus) {
-                                    final currentLength =
-                                        _textEditingControllerNewReceiptItemQuantity
-                                            .text.length;
+                                    _textEditingControllerNewReceiptItemCode.text =
+                                        _textEditingControllerNewReceiptItemCode.text.substring(0, currentLength - 1);
+                                  } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
+                                    final currentLength = _textEditingControllerNewReceiptItemQuantity.text.length;
                                     if (currentLength == 0) return;
-                                    _textEditingControllerNewReceiptItemQuantity
-                                            .text =
-                                        _textEditingControllerNewReceiptItemQuantity
-                                            .text
+                                    _textEditingControllerNewReceiptItemQuantity.text =
+                                        _textEditingControllerNewReceiptItemQuantity.text
                                             .substring(0, currentLength - 1);
                                   }
                                 },
                                 style: FilledButton.styleFrom(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(3, 3, 6, 3),
+                                    padding: const EdgeInsets.fromLTRB(3, 3, 6, 3),
                                     elevation: 5,
-                                    backgroundColor:
-                                        const Color.fromRGBO(243, 0, 0, 1),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
+                                    backgroundColor: const Color.fromRGBO(243, 0, 0, 1),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                                 child: const Icon(
                                   Icons.backspace_outlined,
                                   size: 36,
@@ -4168,28 +3700,19 @@ class _SalesPageState extends State<SalesPage> {
                             child: SizedBox.expand(
                               child: FilledButton(
                                 onPressed: () {
-                                  if (_newReceiptItemCodeFocusNode
-                                      .hasPrimaryFocus) {
-                                    _textEditingControllerNewReceiptItemCode
-                                        .text = "";
-                                  } else if (_newReceiptItemQuantityFocusNode
-                                      .hasPrimaryFocus) {
-                                    _textEditingControllerNewReceiptItemQuantity
-                                        .text = "";
+                                  if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
+                                    _textEditingControllerNewReceiptItemCode.text = "";
+                                  } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
+                                    _textEditingControllerNewReceiptItemQuantity.text = "";
                                   }
                                 },
                                 style: FilledButton.styleFrom(
                                     elevation: 5,
-                                    backgroundColor:
-                                        const Color.fromRGBO(255, 113, 5, 1),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10))),
+                                    backgroundColor: const Color.fromRGBO(255, 113, 5, 1),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                                 child: const Text(
                                   "C",
-                                  style: TextStyle(
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w600),
+                                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.w600),
                                 ),
                               ),
                             ),
@@ -4206,88 +3729,62 @@ class _SalesPageState extends State<SalesPage> {
                         child: FilledButton(
                           onPressed: () async {
                             if (isEditingNewReceiptItemCode) {
-                              final double? qtyToDouble = double.tryParse(
-                                  _textEditingControllerNewReceiptItemQuantity
-                                      .text);
+                              final double? qtyToDouble =
+                                  double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
                               if (qtyToDouble == null) {
-                                _textEditingControllerNewReceiptItemQuantity
-                                    .text = "0";
+                                _textEditingControllerNewReceiptItemQuantity.text = "0";
                               }
 
-                              await addUpdateReceiptItems(
-                                  AddUpdateReceiptItemsParams(
-                                      barcode:
-                                          _textEditingControllerNewReceiptItemCode
-                                              .text,
-                                      itemEntity: null,
-                                      quantity: double.parse(
-                                          _textEditingControllerNewReceiptItemQuantity
-                                              .text),
-                                      context: context,
-                                      onOpenPriceInputted: () => setState(() {
-                                            isEditingNewReceiptItemCode = true;
-                                            _newReceiptItemCodeFocusNode
-                                                .requestFocus();
-                                          })));
+                              await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+                                  barcode: _textEditingControllerNewReceiptItemCode.text,
+                                  itemEntity: null,
+                                  quantity: double.parse(_textEditingControllerNewReceiptItemQuantity.text),
+                                  context: context,
+                                  onOpenPriceInputted: () => setState(() {
+                                        isEditingNewReceiptItemCode = true;
+                                        _newReceiptItemCodeFocusNode.requestFocus();
+                                      })));
                             } else if (isUpdatingReceiptItemQty) {
-                              final double? qtyToDouble = double.tryParse(
-                                  _textEditingControllerNewReceiptItemQuantity
-                                      .text);
+                              final double? qtyToDouble =
+                                  double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
                               if (qtyToDouble == null) {
-                                _textEditingControllerNewReceiptItemQuantity
-                                    .text = "0";
+                                _textEditingControllerNewReceiptItemQuantity.text = "0";
                               }
-                              await addUpdateReceiptItems(
-                                  AddUpdateReceiptItemsParams(
-                                      barcode:
-                                          _textEditingControllerNewReceiptItemCode
-                                              .text,
-                                      itemEntity: null,
-                                      quantity: double.parse(
-                                          _textEditingControllerNewReceiptItemQuantity
-                                              .text),
-                                      context: context,
-                                      onOpenPriceInputted: () => setState(() {
-                                            isEditingNewReceiptItemCode = true;
-                                            _newReceiptItemCodeFocusNode
-                                                .requestFocus();
-                                          })));
+                              await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
+                                  barcode: _textEditingControllerNewReceiptItemCode.text,
+                                  itemEntity: null,
+                                  quantity: double.parse(_textEditingControllerNewReceiptItemQuantity.text),
+                                  context: context,
+                                  onOpenPriceInputted: () => setState(() {
+                                        isEditingNewReceiptItemCode = true;
+                                        _newReceiptItemCodeFocusNode.requestFocus();
+                                      })));
                             } else if (isEditingNewReceiptItemQty) {
                               setState(() {
-                                final double? qtyToDouble = double.tryParse(
-                                    _textEditingControllerNewReceiptItemQuantity
-                                        .text);
-                                _textEditingControllerNewReceiptItemQuantity
-                                    .text = qtyToDouble == null ||
-                                        qtyToDouble == 0
-                                    ? "1"
-                                    : Helpers.cleanDecimal(
-                                        double.parse(
-                                            _textEditingControllerNewReceiptItemQuantity
-                                                .text),
-                                        3);
+                                final double? qtyToDouble =
+                                    double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
+                                _textEditingControllerNewReceiptItemQuantity.text =
+                                    qtyToDouble == null || qtyToDouble == 0
+                                        ? "1"
+                                        : Helpers.cleanDecimal(
+                                            double.parse(_textEditingControllerNewReceiptItemQuantity.text), 3);
 
                                 _newReceiptItemQuantityFocusNode.unfocus();
                                 isEditingNewReceiptItemQty = false;
                                 isEditingNewReceiptItemCode = true;
-                                Future.delayed(
-                                    const Duration(milliseconds: 20),
-                                    () => _newReceiptItemCodeFocusNode
-                                        .requestFocus());
+                                Future.delayed(const Duration(milliseconds: 20),
+                                    () => _newReceiptItemCodeFocusNode.requestFocus());
                               });
                             }
                           },
                           style: FilledButton.styleFrom(
                               padding: const EdgeInsets.all(3),
                               elevation: 5,
-                              backgroundColor:
-                                  const Color.fromRGBO(14, 68, 193, 1),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10))),
+                              backgroundColor: const Color.fromRGBO(14, 68, 193, 1),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                           child: const Text(
                             "OK",
-                            style: TextStyle(
-                                fontSize: 32, fontWeight: FontWeight.w600),
+                            style: TextStyle(fontSize: 32, fontWeight: FontWeight.w600),
                           ),
                         ),
                       ),
@@ -4309,28 +3806,21 @@ class _SalesPageState extends State<SalesPage> {
         child: FilledButton(
           onPressed: () {
             setState(() {
-              if (!isEditingNewReceiptItemCode &&
-                  !isEditingNewReceiptItemQty &&
-                  !isUpdatingReceiptItemQty) {
+              if (!isEditingNewReceiptItemCode && !isEditingNewReceiptItemQty && !isUpdatingReceiptItemQty) {
                 // log("numpadnumbutton 1");
 
                 _textEditingControllerNewReceiptItemCode.text = buttonNumber;
-                Future.delayed(const Duration(milliseconds: 20),
-                    () => _newReceiptItemCodeFocusNode.requestFocus());
+                Future.delayed(const Duration(milliseconds: 20), () => _newReceiptItemCodeFocusNode.requestFocus());
               } else if (isEditingNewReceiptItemCode) {
                 // log("numpadnumbutton 2");
 
                 _textEditingControllerNewReceiptItemCode.text += buttonNumber;
-                Future.delayed(const Duration(milliseconds: 20),
-                    () => _newReceiptItemCodeFocusNode.requestFocus());
-              } else if (isEditingNewReceiptItemQty ||
-                  isUpdatingReceiptItemQty) {
+                Future.delayed(const Duration(milliseconds: 20), () => _newReceiptItemCodeFocusNode.requestFocus());
+              } else if (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty) {
                 // log("numpadnumbutton 3");
 
-                _textEditingControllerNewReceiptItemQuantity.text +=
-                    buttonNumber;
-                Future.delayed(const Duration(milliseconds: 20),
-                    () => _newReceiptItemQuantityFocusNode.requestFocus());
+                _textEditingControllerNewReceiptItemQuantity.text += buttonNumber;
+                Future.delayed(const Duration(milliseconds: 20), () => _newReceiptItemQuantityFocusNode.requestFocus());
               }
             });
           },
@@ -4338,8 +3828,7 @@ class _SalesPageState extends State<SalesPage> {
               backgroundColor: const Color.fromRGBO(48, 48, 48, 1),
               elevation: 5,
               shadowColor: Colors.black87,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10))),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
           child: FittedBox(
             child: Text(
               buttonNumber,
@@ -4366,43 +3855,38 @@ class _SalesPageState extends State<SalesPage> {
     bool isNumOnly,
     BuildContext context,
   ) async {
-    // log("Handle physical keyboard ${event.physicalKey}");
+    log("Handle physical keyboard ${event.physicalKey}");
     if (event.runtimeType == KeyUpEvent) return;
     if (textFieldFocusNode.hasPrimaryFocus) {
       if (event.character != null &&
-          RegExp(isNumOnly ? r'^[0-9.]+$' : r'^[A-Za-z0-9_.]+$')
-              .hasMatch(event.character!)) {
+          RegExp(isNumOnly ? r'^[0-9.]+$' : r'^[A-Za-z0-9_.]+$').hasMatch(event.character!)) {
         if (Platform.isWindows) return;
         textEditingController.text += event.character!;
       } else if (event.physicalKey == PhysicalKeyboardKey.enter ||
           event.physicalKey == (PhysicalKeyboardKey.numpadEnter)) {
         if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
-          final double? qtyToDouble = double.tryParse(
-              _textEditingControllerNewReceiptItemQuantity.text);
+          final double? qtyToDouble = double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
           if (qtyToDouble == null) {
             _textEditingControllerNewReceiptItemQuantity.text = "0";
           }
           await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
               barcode: _textEditingControllerNewReceiptItemCode.text,
               itemEntity: null,
-              quantity: double.parse(
-                  _textEditingControllerNewReceiptItemQuantity.text),
+              quantity: double.parse(_textEditingControllerNewReceiptItemQuantity.text),
               context: context,
               onOpenPriceInputted: () => setState(() {
                     isEditingNewReceiptItemCode = true;
                     _newReceiptItemCodeFocusNode.requestFocus();
                   })));
         } else if (isUpdatingReceiptItemQty) {
-          final double? qtyToDouble = double.tryParse(
-              _textEditingControllerNewReceiptItemQuantity.text);
+          final double? qtyToDouble = double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
           if (qtyToDouble == null) {
             _textEditingControllerNewReceiptItemQuantity.text = "0";
           }
           await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
               barcode: _textEditingControllerNewReceiptItemCode.text,
               itemEntity: null,
-              quantity: double.parse(
-                  _textEditingControllerNewReceiptItemQuantity.text),
+              quantity: double.parse(_textEditingControllerNewReceiptItemQuantity.text),
               context: context,
               onOpenPriceInputted: () => setState(() {
                     isEditingNewReceiptItemCode = true;
@@ -4410,15 +3894,10 @@ class _SalesPageState extends State<SalesPage> {
                   })));
         } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
           setState(() {
-            final double? qtyToDouble = double.tryParse(
-                _textEditingControllerNewReceiptItemQuantity.text);
-            _textEditingControllerNewReceiptItemQuantity.text =
-                qtyToDouble == null || qtyToDouble == 0
-                    ? "1"
-                    : Helpers.cleanDecimal(
-                        double.parse(
-                            _textEditingControllerNewReceiptItemQuantity.text),
-                        3);
+            final double? qtyToDouble = double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
+            _textEditingControllerNewReceiptItemQuantity.text = qtyToDouble == null || qtyToDouble == 0
+                ? "1"
+                : Helpers.cleanDecimal(double.parse(_textEditingControllerNewReceiptItemQuantity.text), 3);
             // _newReceiptItemQuantityFocusNode.unfocus();
             isEditingNewReceiptItemQty = false;
             isEditingNewReceiptItemCode = true;
@@ -4430,12 +3909,10 @@ class _SalesPageState extends State<SalesPage> {
         await checkout();
       } else if (event.physicalKey == (PhysicalKeyboardKey.f11)) {
         if (context.read<ReceiptCubit>().state.receiptItems.isEmpty) {
-          return SnackBarHelper.presentErrorSnackBar(
-              context, "Receipt cannot be empty");
+          return SnackBarHelper.presentErrorSnackBar(context, "Receipt cannot be empty");
         }
         context.read<ReceiptCubit>().queueReceipt();
-        SnackBarHelper.presentSuccessSnackBar(
-            context, "Pending order added", 3);
+        SnackBarHelper.presentSuccessSnackBar(context, "Pending order added", 3);
       } else if (event.physicalKey == (PhysicalKeyboardKey.f9)) {
         setState(() {
           isEditingNewReceiptItemCode = false;
@@ -4444,16 +3921,13 @@ class _SalesPageState extends State<SalesPage> {
         });
 
         final ItemEntity? itemEntitySearch = await showDialog<ItemEntity>(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => const ItemSearchDialog());
+            context: context, barrierDismissible: false, builder: (context) => const ItemSearchDialog());
 
         if (itemEntitySearch != null) {
           await addUpdateReceiptItems(AddUpdateReceiptItemsParams(
               barcode: null,
               itemEntity: itemEntitySearch,
-              quantity: double.parse(
-                  _textEditingControllerNewReceiptItemQuantity.text),
+              quantity: double.parse(_textEditingControllerNewReceiptItemQuantity.text),
               context: context,
               onOpenPriceInputted: () => setState(() {
                     isEditingNewReceiptItemCode = true;
@@ -4496,15 +3970,10 @@ class _SalesPageState extends State<SalesPage> {
         } else {
           isEditingNewReceiptItemQty = false;
           isEditingNewReceiptItemCode = true;
-          final double? qtyToDouble = double.tryParse(
-              _textEditingControllerNewReceiptItemQuantity.text);
-          _textEditingControllerNewReceiptItemQuantity.text =
-              qtyToDouble == null || qtyToDouble == 0
-                  ? "1"
-                  : Helpers.cleanDecimal(
-                      double.parse(
-                          _textEditingControllerNewReceiptItemQuantity.text),
-                      3);
+          final double? qtyToDouble = double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
+          _textEditingControllerNewReceiptItemQuantity.text = qtyToDouble == null || qtyToDouble == 0
+              ? "1"
+              : Helpers.cleanDecimal(double.parse(_textEditingControllerNewReceiptItemQuantity.text), 3);
 
           // _newReceiptItemQuantityFocusNode.unfocus();
           _newReceiptItemCodeFocusNode.requestFocus();
@@ -4516,10 +3985,7 @@ class _SalesPageState extends State<SalesPage> {
           isEditingNewReceiptItemQty = false;
           isUpdatingReceiptItemQty = false;
         });
-        await showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => const InputCouponsDialog());
+        await showDialog(context: context, barrierDismissible: false, builder: (context) => const InputCouponsDialog());
 
         setState(() {
           isEditingNewReceiptItemCode = true;
@@ -4532,10 +3998,8 @@ class _SalesPageState extends State<SalesPage> {
           isUpdatingReceiptItemQty = false;
         });
 
-        await showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => const QueueListDialog()).then((value) {
+        await showDialog(context: context, barrierDismissible: false, builder: (context) => const QueueListDialog())
+            .then((value) {
           setState(() {
             context.read<ItemsCubit>().clearItems();
             isEditingNewReceiptItemCode = true;
@@ -4550,22 +4014,19 @@ class _SalesPageState extends State<SalesPage> {
         if (context.mounted) {
           await showDialog(
             context: context,
-            builder: (BuildContext context) =>
-                InvoiceDetailsDialog(receiveDP: receiveDP),
+            builder: (BuildContext context) => InvoiceDetailsDialog(receiveDP: receiveDP),
           );
         }
         setState(() {
           isEditingNewReceiptItemCode = true;
-          Future.delayed(const Duration(milliseconds: 50),
-              () => _newReceiptItemCodeFocusNode.requestFocus());
+          Future.delayed(const Duration(milliseconds: 50), () => _newReceiptItemCodeFocusNode.requestFocus());
         });
       } else if (event.physicalKey == (PhysicalKeyboardKey.f1)) {
         if (indexIsSelect[1] != 0) {
           // final ReceiptItemEntity receiptItemTarget = context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
           await showDialog(
             context: context,
-            builder: (BuildContext context) =>
-                ItemDetailsDialog(indexSelected: indexIsSelect[0]),
+            builder: (BuildContext context) => ItemDetailsDialog(indexSelected: indexIsSelect[0]),
           );
           setState(() {
             indexIsSelect = [-1, 0];
@@ -4584,8 +4045,7 @@ class _SalesPageState extends State<SalesPage> {
     } else {
       textFieldFocusNode.requestFocus();
       if (event.character != null &&
-          RegExp(isNumOnly ? r'^[0-9.]+$' : r'^[A-Za-z0-9_.]+$')
-              .hasMatch(event.character!)) {
+          RegExp(isNumOnly ? r'^[0-9.]+$' : r'^[A-Za-z0-9_.]+$').hasMatch(event.character!)) {
         textEditingController.text += event.character!;
       }
     }
@@ -4594,9 +4054,7 @@ class _SalesPageState extends State<SalesPage> {
   Future<void> scrollToReceiptItemByIndex(int index) async {
     if (itemScrollController.isAttached) {
       await itemScrollController.scrollTo(
-          index: index,
-          duration: const Duration(milliseconds: 10),
-          curve: Curves.easeInOutCubic);
+          index: index, duration: const Duration(milliseconds: 10), curve: Curves.easeInOutCubic);
     }
   }
 
@@ -4605,35 +4063,85 @@ class _SalesPageState extends State<SalesPage> {
       setState(() {
         isEditingNewReceiptItemQty = false;
         isEditingNewReceiptItemCode = true;
-        final double? qtyToDouble =
-            double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
-        _textEditingControllerNewReceiptItemQuantity.text = qtyToDouble ==
-                    null ||
-                qtyToDouble == 0
+        final double? qtyToDouble = double.tryParse(_textEditingControllerNewReceiptItemQuantity.text);
+        _textEditingControllerNewReceiptItemQuantity.text = qtyToDouble == null || qtyToDouble == 0
             ? "1"
-            : Helpers.cleanDecimal(
-                double.parse(_textEditingControllerNewReceiptItemQuantity.text),
-                3);
+            : Helpers.cleanDecimal(double.parse(_textEditingControllerNewReceiptItemQuantity.text), 3);
 
         _newReceiptItemCodeFocusNode.requestFocus();
       });
     }
   }
 
+  Future<AddUpdateReceiptItemsParams?> checkScallableItem(String barcode) async {
+    final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+    if (topos == null) throw "Failed to retrieve POS Parameter";
+    final store = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos.tostrId ?? "", null);
+    if (store == null) throw "Failed to retrieve Store Parameter";
+
+    final storeScaleActive = store.scaleActive;
+    final storeScaleFlag = store.scaleFlag ?? "";
+    final storeScaleFlagLength = storeScaleFlag.length;
+    final storeItemCodeLength = store.scaleItemCodeLength ?? 0;
+    final storeQuantityLength = store.scaleQuantityLength ?? 0;
+    final storeQtyDivider = store.scaleQtyDivider ?? 1000;
+    if (storeScaleActive == 1) {
+      final itemScaleFlag = barcode.substring(0, storeScaleFlagLength);
+
+      if (itemScaleFlag == storeScaleFlag) {
+        final itemCode = barcode.substring(storeScaleFlagLength, storeScaleFlagLength + storeItemCodeLength);
+
+        final itemQty = double.parse(barcode.substring(storeScaleFlagLength + storeItemCodeLength,
+                storeScaleFlagLength + storeItemCodeLength + storeQuantityLength)) /
+            storeQtyDivider;
+
+        final item = await GetIt.instance<AppDatabase>().itemsDao.readItemByBarcode(itemCode);
+        if (item == null) throw "Failed to retrieve Item Parameter";
+
+        if (item.scaleActive == 1) {
+          final updatedParams = AddUpdateReceiptItemsParams(
+              barcode: itemCode,
+              itemEntity: null,
+              quantity: itemQty,
+              context: context,
+              onOpenPriceInputted: () => setState(() {
+                    isEditingNewReceiptItemCode = true;
+                    _newReceiptItemCodeFocusNode.requestFocus();
+                  }));
+          return updatedParams;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
   Future<void> addUpdateReceiptItems(AddUpdateReceiptItemsParams params) async {
     try {
-      if (params.barcode == "99")
-        throw "Warning: Modifying the Down Payment quantity is not allowed";
+      if (params.barcode == "99") throw "Warning: Modifying the Down Payment quantity is not allowed";
 
       bool checkDP = await checkItemDP();
       if (checkDP && mounted) {
-        SnackBarHelper.presentErrorSnackBar(
-            context, "Down payment has to be excluded from other transactions");
+        SnackBarHelper.presentErrorSnackBar(context, "Down payment has to be excluded from other transactions");
         return;
       }
 
       if (mounted) {
-        await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+        if (params.barcode != null && isUpdatingReceiptItemQty == false) {
+          final updatedParams = await checkScallableItem(params.barcode ?? "");
+
+          if (updatedParams != null) {
+            await context.read<ReceiptCubit>().addUpdateReceiptItems(updatedParams);
+          } else {
+            await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+          }
+        } else {
+          await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+        }
       }
 
       indexIsSelect = [-1, 0];
@@ -4655,8 +4163,7 @@ class _SalesPageState extends State<SalesPage> {
               }));
 
       if (itemScrollController.isAttached && mounted) {
-        await scrollToReceiptItemByIndex(
-            context.read<ReceiptCubit>().state.receiptItems.length - 1);
+        await scrollToReceiptItemByIndex(context.read<ReceiptCubit>().state.receiptItems.length - 1);
       }
     } catch (e) {
       SnackBarHelper.presentFailSnackBar(params.context, e.toString());
@@ -4677,25 +4184,17 @@ class _SalesPageState extends State<SalesPage> {
   Future<void> checkout() async {
     try {
       if (context.read<ReceiptCubit>().state.receiptItems.isEmpty) {
-        return SnackBarHelper.presentErrorSnackBar(
-            context, "Receipt cannot be empty");
+        return SnackBarHelper.presentErrorSnackBar(context, "Receipt cannot be empty");
       }
 
       // if (context.read<ReceiptCubit>().state.grandTotal < 0) {
       //   return SnackBarHelper.presentErrorSnackBar(context, "Grand total cannot be negative");
       // }
 
-      final ReceiptItemEntity? dpItem = context
-          .read<ReceiptCubit>()
-          .state
-          .receiptItems
-          .where((e) => e.itemEntity.barcode == "99")
-          .firstOrNull;
-      if (dpItem != null &&
-          dpItem.quantity > 0 &&
-          context.read<ReceiptCubit>().state.receiptItems.length > 1) {
-        return SnackBarHelper.presentErrorSnackBar(
-            context, "Down payment has to be excluded from other transactions");
+      final ReceiptItemEntity? dpItem =
+          context.read<ReceiptCubit>().state.receiptItems.where((e) => e.itemEntity.barcode == "99").firstOrNull;
+      if (dpItem != null && dpItem.quantity > 0 && context.read<ReceiptCubit>().state.receiptItems.length > 1) {
+        return SnackBarHelper.presentErrorSnackBar(context, "Down payment has to be excluded from other transactions");
       }
 
       setState(() {
@@ -4705,13 +4204,9 @@ class _SalesPageState extends State<SalesPage> {
       });
 
       try {
-        final String cashierName =
-            GetIt.instance<SharedPreferences>().getString("username") ?? "";
-        final UserModel? user = await GetIt.instance<AppDatabase>()
-            .userDao
-            .readByUsername(cashierName, null);
-        List<DownPaymentEntity> dpList =
-            context.read<ReceiptCubit>().state.downPayments ?? [];
+        final String cashierName = GetIt.instance<SharedPreferences>().getString("username") ?? "";
+        final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(cashierName, null);
+        List<DownPaymentEntity> dpList = context.read<ReceiptCubit>().state.downPayments ?? [];
         List<String> docnumList = [];
         if (dpList.isNotEmpty) {
           for (DownPaymentEntity dp in dpList) {
@@ -4721,16 +4216,14 @@ class _SalesPageState extends State<SalesPage> {
           }
 
           if (user != null) {
-            String checkLock = await GetIt.instance<InvoiceApi>()
-                .lockInvoice(user.docId, docnumList);
-            if (checkLock.contains("Connection failed") ||
-                checkLock.contains("The connection errored")) {
-              SnackBarHelper.presentErrorSnackBar(context,
-                  "Failed to process DP Transaction. Please check your connection and try again");
+            String checkLock = await GetIt.instance<InvoiceApi>().lockInvoice(user.docId, docnumList);
+            if (checkLock.contains("Connection failed") || checkLock.contains("The connection errored")) {
+              SnackBarHelper.presentErrorSnackBar(
+                  context, "Failed to process DP Transaction. Please check your connection and try again");
               return;
             } else if (checkLock.contains("Can't init lock")) {
-              SnackBarHelper.presentErrorSnackBar(context,
-                  "Can't process transaction because one of the down payments is locked");
+              SnackBarHelper.presentErrorSnackBar(
+                  context, "Can't process transaction because one of the down payments is locked");
               return;
             }
           }
@@ -4740,9 +4233,7 @@ class _SalesPageState extends State<SalesPage> {
       }
 
       if (context.read<ReceiptCubit>().state.previousReceiptEntity == null) {
-        await context
-            .read<ReceiptCubit>()
-            .processReceiptBeforeCheckout(context);
+        await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
       }
 
       await Future.delayed(const Duration(milliseconds: 300), null);
@@ -4751,9 +4242,7 @@ class _SalesPageState extends State<SalesPage> {
 
       log("currentLength ${receiptEntity.promos.length} previousLength ${receiptEntity.previousReceiptEntity?.promos.length}");
 
-      if (receiptEntity.promos !=
-          (receiptEntity.previousReceiptEntity?.promos ??
-              <PromotionsEntity>[])) {
+      if (receiptEntity.promos != (receiptEntity.previousReceiptEntity?.promos ?? <PromotionsEntity>[])) {
         await showDialog(
             context: context,
             barrierDismissible: false,
@@ -4762,10 +4251,8 @@ class _SalesPageState extends State<SalesPage> {
                 ));
       }
 
-      await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => const CheckoutDialog()).then((value) {
+      await showDialog(context: context, barrierDismissible: false, builder: (context) => const CheckoutDialog())
+          .then((value) {
         setState(() {
           isEditingNewReceiptItemCode = true;
           _newReceiptItemCodeFocusNode.requestFocus();
@@ -4779,19 +4266,14 @@ class _SalesPageState extends State<SalesPage> {
     }
   }
 
-  Future<EmployeeEntity?> getSalesPerson(
-      String? itemSalesTohemId, String? headerSalesTohemId) async {
+  Future<EmployeeEntity?> getSalesPerson(String? itemSalesTohemId, String? headerSalesTohemId) async {
     try {
       EmployeeEntity? employeeEntity;
       if (headerSalesTohemId != null && headerSalesTohemId != "") {
-        employeeEntity = await GetIt.instance<AppDatabase>()
-            .employeeDao
-            .readByDocId(headerSalesTohemId, null);
+        employeeEntity = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(headerSalesTohemId, null);
       }
       if (itemSalesTohemId != null && itemSalesTohemId != "") {
-        employeeEntity = await GetIt.instance<AppDatabase>()
-            .employeeDao
-            .readByDocId(itemSalesTohemId, null);
+        employeeEntity = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(itemSalesTohemId, null);
       }
       return employeeEntity;
     } catch (e) {
@@ -4801,10 +4283,8 @@ class _SalesPageState extends State<SalesPage> {
 
   Future<void> removeItem() async {
     try {
-      final ReceiptItemEntity receiptItemTarget =
-          context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
-      if (receiptItemTarget.refpos3 != null)
-        throw "Please modify returned items on Return feature";
+      final ReceiptItemEntity receiptItemTarget = context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
+      if (receiptItemTarget.refpos3 != null) throw "Please modify returned items on Return feature";
 
       setState(() {
         indexIsSelect = [-1, 0];
@@ -4816,9 +4296,7 @@ class _SalesPageState extends State<SalesPage> {
         _newReceiptItemCodeFocusNode.requestFocus();
       });
 
-      context
-          .read<ReceiptCubit>()
-          .removeReceiptItem(receiptItemTarget, context);
+      context.read<ReceiptCubit>().removeReceiptItem(receiptItemTarget, context);
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
     }
@@ -4839,8 +4317,7 @@ class _SalesPageState extends State<SalesPage> {
             (sum, promo) =>
                 sum +
                 ((item.itemEntity.includeTax == 1)
-                    ? (-1 * promo.discAmount!) *
-                        ((100 + item.itemEntity.taxRate) / 100)
+                    ? (-1 * promo.discAmount!) * ((100 + item.itemEntity.taxRate) / 100)
                     : (-1 * promo.discAmount!)));
         return {
           'name': item.itemEntity.itemName,
@@ -4851,15 +4328,9 @@ class _SalesPageState extends State<SalesPage> {
       }).toList();
 
       final double calculatedTotalDiscount = items.fold(
-          0.0,
-          (sum, item) =>
-              sum +
-              double.parse(item['discount']
-                  .toString()
-                  .replaceAll(RegExp(r'[^0-9.]'), '')));
+          0.0, (sum, item) => sum + double.parse(item['discount'].toString().replaceAll(RegExp(r'[^0-9.]'), '')));
 
-      final double calculatedGrandTotal =
-          items.fold(0.0, (sum, item) => sum + item['total']);
+      final double calculatedGrandTotal = items.fold(0.0, (sum, item) => sum + item['total']);
 
       final Map<String, dynamic> data = {
         'docNum': state.docNum,
@@ -4871,8 +4342,7 @@ class _SalesPageState extends State<SalesPage> {
 
       final jsonData = jsonEncode(data);
       debugPrint("Sending data to display from sales: $jsonData");
-      final sendingData =
-          await sendData(windowId, jsonData, 'updateSalesData', 'Sales');
+      final sendingData = await sendData(windowId, jsonData, 'updateSalesData', 'Sales');
 
       debugPrint("Send result: $sendingData");
     } catch (e, stackTrace) {
@@ -4953,9 +4423,8 @@ class _SalesPageState extends State<SalesPage> {
 
     final hasPositiveQuantity = receiptItems.any((item) => item.quantity > 0);
 
-    final hasItemDP = receiptItems.any((item) =>
-        item.itemEntity.itemCode == "99" ||
-        item.itemEntity.itemCode == "08700000002");
+    final hasItemDP =
+        receiptItems.any((item) => item.itemEntity.itemCode == "99" || item.itemEntity.itemCode == "08700000002");
 
     return hasPositiveQuantity && hasItemDP;
   }

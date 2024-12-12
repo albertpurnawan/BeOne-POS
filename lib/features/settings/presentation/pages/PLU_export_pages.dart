@@ -245,7 +245,6 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
         final nama1 = name.length > 19 ? name.substring(0, 19) : name;
         final nama2 = name.length > 19 ? (name.length > 37 ? name.substring(19, 37) : name.substring(19)) : '';
         final nama3 = name.length > 37 ? name.substring(37) : '';
-
         final updatedNama1 = nama1.replaceAll('"', "'");
         final updatedNama2 = nama2.replaceAll('"', "'");
         final updatedNama3 = nama3.replaceAll('"', "'");
@@ -511,11 +510,11 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                           setState(() {
                             searchedQuery = value;
                           });
-                          await searchByKeyword(searchedQuery ?? "");
+                          await searchByKeyword(searchedQuery ?? '');
                         },
                         onEditingComplete: () async {
                           searchedQuery = _searchController.text;
-                          await searchByKeyword(searchedQuery ?? "");
+                          await searchByKeyword(searchedQuery ?? '');
                           _searchFocusNode.unfocus();
                         },
                         keyboardType: TextInputType.none,
