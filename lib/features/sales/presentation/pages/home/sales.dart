@@ -4985,14 +4985,24 @@ class _SalesPageState extends State<SalesPage> {
 
     if (receiptItems
             .any((item) => item.refpos3 != null && item.refpos3 != "") &&
-        !context.read<ReceiptCubit>().state.approvedReturn) {
+        context.read<ReceiptCubit>().state.approvals!.isEmpty) {
+      double totalQtyReturn = 0.0;
+      double totalAmountReturn = 0;
+      for (final item in receiptItems) {
+        if (item.refpos3 != null && item.refpos3 != "") {
+          totalQtyReturn += item.quantity.abs();
+          totalAmountReturn += item.totalAmount.abs();
+        }
+      }
+
       final bool? isAuthorized = await showDialog<bool>(
           context: context,
           barrierDismissible: false,
-          builder: (context) =>
-              const ApprovalDialog(approvalType: ApprovalType.returnItem));
+          builder: (context) => ApprovalDialog(
+              approvalType: ApprovalType.returnItem,
+              returnQty: totalQtyReturn,
+              returnAmount: totalAmountReturn));
       if (isAuthorized == true) {
-        setState(() {});
         return true;
       }
       return false;

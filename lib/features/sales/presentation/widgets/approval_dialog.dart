@@ -20,15 +20,30 @@ import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/otp_submission_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class ApprovalDialog extends StatefulWidget {
   final ApprovalType? approvalType;
-  final double? discount;
-  const ApprovalDialog({Key? key, this.approvalType})
-      : super(key: key);
+  final double? initialGrandTotal;
+  final double? finalGrandTotal;
+  final double? discountValue;
+  final String? docnum;
+  final double? returnQty;
+  final double? returnAmount;
+  final List<LineDiscountParameter>? lineDiscountParameters;
+  const ApprovalDialog(
+      {super.key,
+      this.approvalType,
+      this.initialGrandTotal,
+      this.finalGrandTotal,
+      this.discountValue,
+      this.docnum,
+      this.lineDiscountParameters,
+      this.returnQty,
+      this.returnAmount});
 
   @override
   State<ApprovalDialog> createState() => _ApprovalDialogState();
@@ -45,10 +60,12 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   bool _isSendingOTP = false;
   late String remarks;
   late String category;
-
+  late String subject;
+  late String body;
 
   @override
   void initState() {
+    modularApprovalandOTP(widget.approvalType);
     super.initState();
   }
 
@@ -90,8 +107,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
     String passwordCorrect =
         await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
-      await updateReceiptApprovals(
-          childContext, "Approval Transaction 0", "002 - Transaction 0");
+      await updateReceiptApprovals(childContext);
       parentContext.pop(true);
     } else {
       final message = passwordCorrect == "Wrong Password"
@@ -102,24 +118,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
     }
   }
 
-  Future<void> modularApprovalandOTP(type) async{
-    if (type == ApprovalType.discount) [
-      setState(() {
-        remarks = "Approval Discount";
-        category = "001 - Discount";
-              remarks:
-          "Header Discount: ${Helpers.parseMoney(widget.discount)}; Line Discounts: ${Helpers.parseMoney(lineDiscountsTotal)} ($appliedLineDiscountsCount item(s))",
-      category: "001 - Discount & Rounding",
-      });
-    ] else if(){
-
-    } else{
-
-    }
-  }
-
-  Future<void> updateReceiptApprovals(
-      BuildContext context, remarks, category) async {
+  Future<void> updateReceiptApprovals(BuildContext context) async {
     final user = await GetIt.instance<AppDatabase>()
         .userDao
         .readByUsername(usernameController.text, null);
@@ -139,46 +138,6 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
 
   Future<String> createOTP() async {
     try {
-      final POSParameterEntity? topos =
-          await GetIt.instance<GetPosParameterUseCase>().call();
-      if (topos == null) throw "Failed to retrieve POS Parameter";
-
-      final StoreMasterEntity? store =
-          await GetIt.instance<GetStoreMasterUseCase>()
-              .call(params: topos.tostrId);
-      if (store == null) throw "Failed to retrieve Store Master";
-
-      final cashierMachine = await GetIt.instance<AppDatabase>()
-          .cashRegisterDao
-          .readByDocId(topos.tocsrId!, null);
-      if (cashierMachine == null) throw "Failed to retrieve Cash Register";
-
-      final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-      final userId = prefs.getString('tousrId') ?? "";
-      final employeeId = prefs.getString('tohemId') ?? "";
-      final user =
-          await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
-      if (user == null) throw "User Not Found";
-      final employee = await GetIt.instance<AppDatabase>()
-          .employeeDao
-          .readByDocId(employeeId, null);
-
-      // final Map<String, String> payload = {
-      //   "Store Name": store.storeName,
-      //   "Cash Register Id": (cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description,
-      //   "Cashier Name": employee?.empName ?? user.username,
-      // };
-
-      final String body = '''
-    Approval For: Zero or Negative Transaction,
-    Store Name: ${store.storeName},
-    Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
-    Cashier Name: ${employee?.empName ?? user.username},
-''';
-
-      final String subject =
-          "OTP RUBY POS Zero or Negative Transaction - [${store.storeCode}]";
-
       final response = await GetIt.instance<OTPServiceAPi>()
           .createSendOTP(context, null, subject, body);
       return response['Requester'];
@@ -214,6 +173,99 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
         _isSendingOTP = false;
       });
       SnackBarHelper.presentFailSnackBar(childContext, e.toString());
+    }
+  }
+
+  Future<void> modularApprovalandOTP(type) async {
+    final POSParameterEntity? topos =
+        await GetIt.instance<GetPosParameterUseCase>().call();
+    if (topos == null) throw "Failed to retrieve POS Parameter";
+
+    final StoreMasterEntity? store =
+        await GetIt.instance<GetStoreMasterUseCase>()
+            .call(params: topos.tostrId);
+    if (store == null) throw "Failed to retrieve Store Master";
+
+    final cashierMachine = await GetIt.instance<AppDatabase>()
+        .cashRegisterDao
+        .readByDocId(topos.tocsrId!, null);
+    if (cashierMachine == null) throw "Failed to retrieve Cash Register";
+
+    final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+    final userId = prefs.getString('tousrId') ?? "";
+    final employeeId = prefs.getString('tohemId') ?? "";
+    final user =
+        await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
+    if (user == null) throw "User Not Found";
+
+    final employee = await GetIt.instance<AppDatabase>()
+        .employeeDao
+        .readByDocId(employeeId, null);
+
+    if (type == ApprovalType.discount) {
+      final double lineDiscountsTotal = widget.lineDiscountParameters!.fold(
+          0,
+          (previousValue, element) =>
+              previousValue + element.lineDiscountAmount);
+      final int appliedLineDiscountsCount = widget.lineDiscountParameters!
+          .where((element) => element.lineDiscountAmount != 0)
+          .length;
+      final String lineDiscountsString = widget.lineDiscountParameters!
+          .where((element) => element.lineDiscountAmount != 0)
+          .map((e) =>
+              "${e.receiptItemEntity.itemEntity.barcode} - ${e.receiptItemEntity.itemEntity.itemName}\n      Qty. ${Helpers.cleanDecimal(e.receiptItemEntity.quantity, 5)}\n      Total Amount: ${Helpers.parseMoney(e.receiptItemEntity.totalAmount)}\n      Discount: ${Helpers.parseMoney(e.lineDiscountAmount)}\n      Final Total Amount: ${Helpers.parseMoney(e.receiptItemEntity.totalAmount - e.lineDiscountAmount)}")
+          .join(",\n\n      ");
+
+      setState(() {
+        remarks =
+            "Header Discount: ${Helpers.parseMoney(widget.discountValue as num)}; Line Discounts: ${Helpers.parseMoney(lineDiscountsTotal)} ($appliedLineDiscountsCount item(s))";
+        category = "001 - Discount & Rounding";
+        subject = "OTP RUBY POS Discount or Rounding - [${store.storeCode}]";
+
+        body = '''
+          Approval For: Discount or Rounding,
+          Store Name: ${store.storeName},
+          Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
+          Cashier Name: ${employee?.empName ?? user.username},
+          Header Discount: ${Helpers.parseMoney(widget.discountValue as num)},
+          Line Discounts:
+            $lineDiscountsString
+          ,
+          Total Line Discounts: ${Helpers.parseMoney(lineDiscountsTotal)},
+          Final Grand Total: ${Helpers.parseMoney(widget.finalGrandTotal as num)},
+        ''';
+      });
+    } else if (type == ApprovalType.returnItem) {
+      setState(() {
+        remarks =
+            "Return Qty.: ${widget.returnQty.toString()} Return Amount: ${widget.returnAmount.toString()}";
+        category = "003 - Return Transaction";
+        subject = "OTP RUBY POS Return Transaction - [${store.storeCode}]";
+
+        body = '''
+          Approval For: Return Transaction,
+          Store Name: ${store.storeName},
+          Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
+          Cashier Name: ${employee?.empName ?? user.username},
+          Return Qty: ${widget.returnQty.toString()},
+          Return Amount:
+            ${widget.returnAmount.toString()}
+        ''';
+      });
+    } else {
+      setState(() {
+        remarks = "Approval Transaction 0";
+        category = "002 - Transaction 0";
+        body = '''
+          Approval For: Zero or Negative Transaction,
+          Store Name: ${store.storeName},
+          Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
+          Cashier Name: ${employee?.empName ?? user.username},
+        ''';
+
+        subject =
+            "OTP RUBY POS Zero or Negative Transaction - [${store.storeCode}]";
+      });
     }
   }
 
