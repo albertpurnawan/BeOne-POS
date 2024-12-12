@@ -948,8 +948,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                                                     ),
                                                   ),
                                                   color: isLastRow
-                                                      ? const Color.fromARGB(255, 220, 220, 220)
-                                                      : const Color.fromARGB(255, 240, 240, 240),
+                                                      ? Color.fromARGB(255, 220, 220, 220)
+                                                      : Colors.transparent,
                                                 ),
                                                 width: 275,
                                                 height: 40,

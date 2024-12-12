@@ -85,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
     SharedPreferences? prefs = await SharedPreferences.getInstance();
     try {
-      final monitor = await DesktopMultiWindow.getAllSubWindowIds();
+      await DesktopMultiWindow.getAllSubWindowIds();
       await prefs.setBool("isCustomerDisplayActive", true);
     } catch (e) {
       await prefs.setBool("isCustomerDisplayActive", false);

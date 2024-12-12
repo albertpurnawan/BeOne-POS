@@ -52,9 +52,11 @@ import 'package:pos_fe/features/settings/domain/usecases/scheduler.dart';
 import 'package:pos_fe/injection_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:window_manager/window_manager.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+
   if (Platform.isWindows || Platform.isLinux) {
     // Initialize FFI
     sqfliteFfiInit();
@@ -62,6 +64,8 @@ void main(List<String> args) async {
     // await hotKeyManager.unregister(
     //     HotKey(key: LogicalKeyboardKey.f10, scope: HotKeyScope.system));
   }
+
+  // Set options for the main window
 
   if (args.isNotEmpty) {
     try {
@@ -86,6 +90,7 @@ void main(List<String> args) async {
             ),
           ],
         );
+
         runApp(
           MaterialApp.router(
             debugShowCheckedModeBanner: false,
@@ -124,17 +129,56 @@ void main(List<String> args) async {
     // if (kReleaseMode) exit(1);
   };
   runApp(const MyApp());
+
+  _configureMainWindow();
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      _showCloseConfirmationDialog();
+    }
+  }
+
+  Future<void> _showCloseConfirmationDialog() async {
+    try {
+      final windows = await DesktopMultiWindow.getAllSubWindowIds();
+      SharedPreferences? prefs = await SharedPreferences.getInstance();
+
+      await Future.forEach(windows, (windowId) async {
+        final controller = WindowController.fromWindowId(windowId);
+        await controller.close();
+        await prefs.setBool("isCustomerDisplayActive", false);
+      });
+    } catch (e) {
+      debugPrint('Error Closing Window: $e');
+    } finally {
+      exit(0);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // print((GetIt.instance<AppDatabase>().currencyDao.readAll()).toString());
-    // GetIt.instance<AppDatabase>()
-    //     .itemCategoryDao
-    //     .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
-
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: Color.fromARGB(255, 169, 0, 0),
         statusBarBrightness: Brightness.light,
@@ -175,17 +219,31 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<ApplyRoundingUseCase>(),
                       GetIt.instance<GetItemWithAndConditionUseCase>(),
                       GetIt.instance<ApplyPromoToprnUseCase>(),
-                      GetIt.instance<ApplyManualRoundingUseCase>(instanceName: 'roundingDown'),
-                      GetIt.instance<ApplyManualRoundingUseCase>(instanceName: 'roundingUp'),
+                      GetIt.instance<ApplyManualRoundingUseCase>(
+                          instanceName: 'roundingDown'),
+                      GetIt.instance<ApplyManualRoundingUseCase>(
+                          instanceName: 'roundingUp'),
                     )),
-            BlocProvider<CustomersCubit>(create: (context) => CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
+            BlocProvider<CustomersCubit>(
+                create: (context) =>
+                    CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
             BlocProvider<MopSelectionsCubit>(
-                create: (context) => MopSelectionsCubit(GetIt.instance<GetMopSelectionsUseCase>())),
-            BlocProvider<ItemsCubit>(create: (context) => ItemsCubit(GetIt.instance<GetItemsByPricelistUseCase>())),
-            BlocProvider<EmployeesCubit>(create: (context) => EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
-            BlocProvider<CreditCardCubit>(create: (context) => CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
-            BlocProvider<CampaignCubit>(create: (context) => CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
-            BlocProvider<ReturnReceiptCubit>(create: (context) => ReturnReceiptCubit()),
+                create: (context) => MopSelectionsCubit(
+                    GetIt.instance<GetMopSelectionsUseCase>())),
+            BlocProvider<ItemsCubit>(
+                create: (context) =>
+                    ItemsCubit(GetIt.instance<GetItemsByPricelistUseCase>())),
+            BlocProvider<EmployeesCubit>(
+                create: (context) =>
+                    EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
+            BlocProvider<CreditCardCubit>(
+                create: (context) =>
+                    CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
+            BlocProvider<CampaignCubit>(
+                create: (context) =>
+                    CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
+            BlocProvider<ReturnReceiptCubit>(
+                create: (context) => ReturnReceiptCubit()),
           ],
           child: FutureBuilder<String>(
               future: Future.delayed(const Duration(seconds: 5), () {
@@ -199,7 +257,6 @@ class MyApp extends StatelessWidget {
                       child: Image.asset(
                         "assets/images/ruby_pos.png",
                         width: MediaQuery.of(context).size.width * 0.4,
-                        // color: const Color(0xFFD42627),
                       ),
                     ),
                   );
@@ -209,7 +266,8 @@ class MyApp extends StatelessWidget {
                   title: 'RubyPOS',
                   debugShowCheckedModeBanner: false,
                   theme: ThemeData(
-                    colorScheme: ColorScheme.fromSeed(seedColor: ProjectColors.primary),
+                    colorScheme:
+                        ColorScheme.fromSeed(seedColor: ProjectColors.primary),
                     fontFamily: 'Roboto',
                     useMaterial3: true,
                   ),
@@ -218,4 +276,18 @@ class MyApp extends StatelessWidget {
               }),
         ));
   }
+}
+
+Future<void> _configureMainWindow() async {
+  await windowManager.ensureInitialized();
+  WindowOptions windowOptions = WindowOptions(
+    size: Size(800, 600),
+    center: true,
+    backgroundColor: Colors.transparent,
+    skipTaskbar: false,
+    fullScreen: true,
+  );
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.setFullScreen(true);
+  });
 }

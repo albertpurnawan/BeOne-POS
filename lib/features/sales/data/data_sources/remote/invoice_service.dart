@@ -325,7 +325,7 @@ class InvoiceApi {
             "tohem_id": (item['tohemId'] == "") ? invHead[0].salesTohemId : item['tohemId'],
             "refpos2": item['refpos2'],
             "refpos3": item['refpos3'],
-            "promotion": filteredPromotions
+            "promotion": filteredPromotions,
           };
         }).toList(),
         "invoice_payment": invoicePayments,
