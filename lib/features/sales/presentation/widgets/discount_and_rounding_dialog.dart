@@ -21,6 +21,7 @@ import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/auth_input_discount_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_line_discount_dialog.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -343,7 +344,8 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
         await showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) => AuthInputDiscountDialog(
+            builder: (context) => ApprovalDialog(
+                  approvalType: ApprovalType.discount,
                   initialGrandTotal: initialGrandTotal,
                   finalGrandTotal: getSimulatedGrandTotal(),
                   discountValue: input,

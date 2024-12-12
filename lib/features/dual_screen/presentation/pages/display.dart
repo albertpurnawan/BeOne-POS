@@ -17,7 +17,6 @@ import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart'
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:window_manager/window_manager.dart';
 
 class DisplayPage extends StatefulWidget {
   const DisplayPage({

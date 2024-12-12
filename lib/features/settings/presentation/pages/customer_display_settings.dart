@@ -13,6 +13,7 @@ import 'package:pos_fe/features/dual_screen/data/models/send_data.dart';
 import 'package:pos_fe/features/dual_screen/services/create_window_service.dart';
 import 'package:pos_fe/features/dual_screen/services/send_data_window_service.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -214,6 +215,12 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
 
   Future<void> _sendToDisplay() async {
     try {
+      if (await GetIt.instance<GetPosParameterUseCase>().call() != null &&
+          (await GetIt.instance<GetPosParameterUseCase>().call())!
+                  .customerDisplayActive ==
+              0) {
+        return;
+      }
       final windows = await DesktopMultiWindow.getAllSubWindowIds();
       if (windows.isEmpty) {
         return;

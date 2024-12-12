@@ -15,6 +15,7 @@ class AuthStoreEntity {
   final int closeShift;
   final int resetLocalDb;
   final String form;
+  final int returnauthorization;
 
   AuthStoreEntity({
     required this.docId,
@@ -29,6 +30,7 @@ class AuthStoreEntity {
     required this.closeShift,
     required this.resetLocalDb,
     required this.form,
+    required this.returnauthorization,
   });
 
   AuthStoreEntity copyWith({
@@ -44,6 +46,7 @@ class AuthStoreEntity {
     int? closeShift,
     int? resetLocalDb,
     String? form,
+    int? returnauthorization,
   }) {
     return AuthStoreEntity(
       docId: docId ?? this.docId,
@@ -58,6 +61,7 @@ class AuthStoreEntity {
       closeShift: closeShift ?? this.closeShift,
       resetLocalDb: resetLocalDb ?? this.resetLocalDb,
       form: form ?? this.form,
+      returnauthorization: returnauthorization ?? this.returnauthorization,
     );
   }
 
@@ -75,6 +79,7 @@ class AuthStoreEntity {
       'closeShift': closeShift,
       'resetLocalDb': resetLocalDb,
       'form': form,
+      'returnauthorization': returnauthorization,
     };
   }
 
@@ -82,7 +87,9 @@ class AuthStoreEntity {
     return AuthStoreEntity(
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
+      updateDate: map['updateDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
+          : null,
       tostrdocid: map['tostrdocid'] as String,
       tousrdocid: map['tousrdocid'] as String,
       statusActive: map['statusActive'] as int,
@@ -92,6 +99,7 @@ class AuthStoreEntity {
       closeShift: map['closeShift'] as int,
       resetLocalDb: map['resetLocalDb'] as int,
       form: map['form'] as String,
+      returnauthorization: map['returnauthorization'] as int,
     );
   }
 
@@ -120,7 +128,8 @@ class AuthStoreEntity {
         other.nonPositiveTrx == nonPositiveTrx &&
         other.closeShift == closeShift &&
         other.resetLocalDb == resetLocalDb &&
-        other.form == form;
+        other.form == form &&
+        other.returnauthorization == returnauthorization;
   }
 
   @override
@@ -136,6 +145,7 @@ class AuthStoreEntity {
         nonPositiveTrx.hashCode ^
         closeShift.hashCode ^
         resetLocalDb.hashCode ^
-        form.hashCode;
+        form.hashCode ^
+        returnauthorization.hashCode;
   }
 }
