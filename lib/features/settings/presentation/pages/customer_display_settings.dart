@@ -12,9 +12,13 @@ import 'package:pos_fe/features/dual_screen/data/models/dual_screen.dart';
 import 'package:pos_fe/features/dual_screen/data/models/send_data.dart';
 import 'package:pos_fe/features/dual_screen/services/create_window_service.dart';
 import 'package:pos_fe/features/dual_screen/services/send_data_window_service.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class CustomerDisplay extends StatefulWidget {
   const CustomerDisplay({super.key});
@@ -345,30 +349,26 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => BannerPopup(
-                        title: 'Add $title',
-                        type: title.toLowerCase().contains('large') ? 1 : 2,
-                        order: banners.isEmpty ? 1 : banners.last.order + 1,
-                        onSave: addUnsavedBanner,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.add, color: Colors.white),
-                  label: const Text('Add', style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ProjectColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
+            ElevatedButton.icon(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => BannerPopup(
+                    title: 'Add $title',
+                    type: title.toLowerCase().contains('large') ? 1 : 2,
+                    order: banners.isEmpty ? 1 : banners.last.order + 1,
+                    onSave: addUnsavedBanner,
                   ),
+                );
+              },
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: const Text('Add', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ProjectColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
                 ),
-              ],
+              ),
             ),
           ],
         ),
@@ -402,6 +402,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                     headingRowHeight: 40,
                     headingTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                     headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
+                    dataRowColor: MaterialStateProperty.all(const Color.fromARGB(255, 240, 240, 240)),
                     columns: [
                       DataColumn(
                         label: Center(
@@ -603,7 +604,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
         title: const Text("Customer Display"),
         actions: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
             child: ElevatedButton.icon(
               onPressed: () {
                 saveChanges();
@@ -637,7 +638,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(8),
-                    color: Colors.white,
+                    color: const Color.fromARGB(255, 240, 240, 240),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
@@ -653,7 +654,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                     ),
                   ),
                 ),
-                Container(
+                SizedBox(
                   width: MediaQuery.of(context).size.width * 0.8,
                   child: Column(
                     children: [
@@ -682,7 +683,7 @@ class BannerPopup extends StatefulWidget {
   final Future<void> Function(Map<String, dynamic>) onSave;
 
   const BannerPopup({
-    Key? key,
+    super.key,
     required this.title,
     this.type,
     this.order,
@@ -690,7 +691,7 @@ class BannerPopup extends StatefulWidget {
     this.path,
     this.duration,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   State<BannerPopup> createState() => _BannerPopupState();
@@ -702,12 +703,47 @@ class _BannerPopupState extends State<BannerPopup> {
   late TextEditingController durationController;
   final _formKey = GlobalKey<FormState>();
 
+  final FocusNode descriptionFocusNode = FocusNode();
+  final FocusNode pathFocusNode = FocusNode();
+  final FocusNode durationFocusNode = FocusNode();
+  bool _shiftEnabled = false;
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool currentNumericMode = false;
+  TextEditingController _activeController = TextEditingController();
+
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     descriptionController = TextEditingController(text: widget.description ?? '');
     pathController = TextEditingController(text: widget.path ?? '');
     durationController = TextEditingController(text: widget.duration ?? '');
+
+    descriptionFocusNode.addListener(() {
+      if (descriptionFocusNode.hasFocus) {
+        setState(() {
+          _activeController = descriptionController;
+          currentNumericMode = false;
+        });
+      }
+    });
+    pathFocusNode.addListener(() {
+      if (pathFocusNode.hasFocus) {
+        setState(() {
+          _activeController = pathController;
+          currentNumericMode = false;
+        });
+      }
+    });
+    durationFocusNode.addListener(() {
+      if (durationFocusNode.hasFocus) {
+        setState(() {
+          _activeController = durationController;
+          currentNumericMode = true;
+        });
+      }
+    });
   }
 
   @override
@@ -715,7 +751,25 @@ class _BannerPopupState extends State<BannerPopup> {
     descriptionController.dispose();
     pathController.dispose();
     durationController.dispose();
+    descriptionFocusNode.dispose();
+    pathFocusNode.dispose();
+    durationFocusNode.dispose();
+    // _activeController.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   bool validateForm() {
@@ -785,146 +839,236 @@ class _BannerPopupState extends State<BannerPopup> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.5,
-        color: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Title
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: ProjectColors.primary,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    widget.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+    return ScaffoldMessenger(
+      child: Builder(
+        builder: (childContext) {
+          return Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.6,
+                child: AlertDialog(
+                  backgroundColor: Colors.white,
+                  surfaceTintColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  title: Container(
+                    decoration: const BoxDecoration(
+                      color: ProjectColors.primary,
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Description Field
-                TextFormField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Description is required';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
-
-                // Path Field with File Picker Icon
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: pathController,
-                        decoration: const InputDecoration(
-                          labelText: 'Path',
-                          border: OutlineInputBorder(),
+                    padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          widget.title,
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please select an image file';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: pickFile,
-                      icon: const Icon(Icons.folder, color: Colors.grey),
-                      tooltip: 'Pick Image File',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // Duration Field
-                TextFormField(
-                  controller: durationController,
-                  decoration: const InputDecoration(
-                    labelText: 'Duration',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Duration is required';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Action Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        side: BorderSide(width: 2, color: ProjectColors.primary),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.19,
-                        child: const Center(
-                          child: Text('Cancel', style: TextStyle(color: ProjectColors.primary)),
-                        ),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: handleSave,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ProjectColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.19,
-                        child: Center(
-                          child: Text(
-                            widget.title.startsWith('Edit') ? 'Save Changes' : 'Add Banner',
-                            style: const TextStyle(color: Colors.white),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                            borderRadius: const BorderRadius.all(Radius.circular(360)),
+                          ),
+                          child: IconButton(
+                            focusColor: const Color.fromARGB(255, 110, 0, 0),
+                            focusNode: _keyboardFocusNode,
+                            icon: Icon(
+                              _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _showKeyboard = !_showKeyboard;
+                              });
+                            },
+                            tooltip: 'Toggle Keyboard',
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                  titlePadding: const EdgeInsets.all(0),
+                  contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                  content: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Description Field
+                          TextFormField(
+                            controller: descriptionController,
+                            focusNode: descriptionFocusNode,
+                            decoration: const InputDecoration(
+                              labelText: 'Description',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.none,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Description is required';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Path Field with File Picker Icon
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  controller: pathController,
+                                  focusNode: pathFocusNode,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Path',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  keyboardType: TextInputType.none,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please select an image file';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                onPressed: pickFile,
+                                icon: const Icon(Icons.folder, color: Colors.grey),
+                                tooltip: 'Pick Image File',
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Duration Field
+                          TextFormField(
+                            controller: durationController,
+                            focusNode: durationFocusNode,
+                            decoration: const InputDecoration(
+                              labelText: 'Duration',
+                              border: OutlineInputBorder(),
+                              suffix: Text(
+                                "seconds",
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                            ),
+                            keyboardType: TextInputType.none,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Duration is required';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+
+                          (_showKeyboard)
+                              ? SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.3,
+                                  child: KeyboardWidget(
+                                    controller: _activeController,
+                                    isNumericMode: currentNumericMode,
+                                    customLayoutKeys: true,
+                                    isShiftEnabled: _shiftEnabled,
+                                    onKeyPress: (key) async {
+                                      String text = _activeController.text;
+                                      TextSelection currentSelection = _activeController.selection;
+                                      int cursorPosition = currentSelection.start;
+
+                                      if (key.keyType == VirtualKeyboardKeyType.String) {
+                                        String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                        text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                        cursorPosition += inputText.length;
+                                      } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                        switch (key.action) {
+                                          case VirtualKeyboardKeyAction.Backspace:
+                                            if (text.isNotEmpty) {
+                                              text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                              cursorPosition -= 1;
+                                            }
+                                            break;
+                                          case VirtualKeyboardKeyAction.Return:
+                                            _activeController.text = _activeController.text.trimRight();
+
+                                            break;
+                                          case VirtualKeyboardKeyAction.Space:
+                                            text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                            cursorPosition += 1;
+                                            break;
+                                          case VirtualKeyboardKeyAction.Shift:
+                                            _shiftEnabled = !_shiftEnabled;
+                                            break;
+                                          default:
+                                            break;
+                                        }
+                                      }
+                                      _activeController.text = text;
+                                      _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                                      setState(() {});
+                                    },
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                          const SizedBox(height: 10),
+
+                          // Action Buttons
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  side: BorderSide(width: 1, color: ProjectColors.primary),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.19,
+                                  child: const Center(
+                                    child: Text('Cancel', style: TextStyle(color: ProjectColors.primary)),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              ElevatedButton(
+                                onPressed: handleSave,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: ProjectColors.primary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.19,
+                                  child: Center(
+                                    child: Text(
+                                      widget.title.startsWith('Edit') ? 'Save Changes' : 'Add Banner',
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
