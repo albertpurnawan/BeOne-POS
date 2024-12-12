@@ -43,10 +43,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> getDefaultKeyboardPOSParameter() async {
     try {
-      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      final POSParameterEntity? posParameterEntity =
+          await GetIt.instance<GetPosParameterUseCase>().call();
       if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
       setState(() {
-        showVirtualKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+        showVirtualKeyboard =
+            (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
       });
     } catch (e) {
       if (mounted) {
@@ -71,14 +73,18 @@ class _LoginScreenState extends State<LoginScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
             child: Container(
               decoration: BoxDecoration(
-                color: showVirtualKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                color: showVirtualKeyboard
+                    ? const Color.fromARGB(255, 110, 0, 0)
+                    : ProjectColors.primary,
                 borderRadius: const BorderRadius.all(Radius.circular(360)),
               ),
               child: IconButton(
                 focusColor: const Color.fromARGB(130, 20, 20, 0),
                 focusNode: _keyboardFocusNode,
                 icon: Icon(
-                  showVirtualKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                  showVirtualKeyboard
+                      ? Icons.keyboard_hide_outlined
+                      : Icons.keyboard_outlined,
                   color: Colors.white,
                 ),
                 onPressed: () {
@@ -93,16 +99,18 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
       backgroundColor: const Color.fromARGB(255, 234, 234, 234),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            const BeOneLogo(size: 300),
-            const SizedBox(height: 10),
-            LoginForm(showKeyboard: showVirtualKeyboard),
-            const SizedBox(height: 10),
-          ],
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+              const BeOneLogo(size: 300),
+              const SizedBox(height: 10),
+              LoginForm(showKeyboard: showVirtualKeyboard),
+              const SizedBox(height: 10),
+            ],
+          ),
         ),
       ),
     );
@@ -136,13 +144,15 @@ class _LoginFormState extends State<LoginForm> {
     _usernameFocusNode.requestFocus();
     _usernameFocusNode.addListener(() {
       setState(() {
-        currentFocusedField = _usernameFocusNode.hasFocus ? 'username' : currentFocusedField;
+        currentFocusedField =
+            _usernameFocusNode.hasFocus ? 'username' : currentFocusedField;
       });
     });
 
     _passwordFocusNode.addListener(() {
       setState(() {
-        currentFocusedField = _passwordFocusNode.hasFocus ? 'password' : currentFocusedField;
+        currentFocusedField =
+            _passwordFocusNode.hasFocus ? 'password' : currentFocusedField;
       });
     });
   }
@@ -189,7 +199,8 @@ class _LoginFormState extends State<LoginForm> {
             child: TextFormField(
               controller: usernameController,
               focusNode: _usernameFocusNode,
-              validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
+              validator: (val) =>
+                  val == null || val.isEmpty ? "Username is required" : null,
               decoration: const InputDecoration(
                 labelText: "Username / Email",
                 hintText: "Insert username or email",
@@ -208,7 +219,8 @@ class _LoginFormState extends State<LoginForm> {
             child: TextFormField(
               controller: passwordController,
               focusNode: _passwordFocusNode,
-              validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
+              validator: (val) =>
+                  val == null || val.isEmpty ? "Password is required" : null,
               decoration: InputDecoration(
                 labelText: "Password",
                 hintText: "Insert password",
@@ -243,22 +255,25 @@ class _LoginFormState extends State<LoginForm> {
                 child: const Text("Login"),
                 onTap: () async {
                   if (!formKey.currentState!.validate()) return;
-                  final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+                  final SharedPreferences prefs =
+                      GetIt.instance<SharedPreferences>();
                   final bool isOpen = prefs.getBool('isOpen') ?? false;
-                  final loginSuccess = await GetIt.instance<LoginUseCase>().call(
-                      params: UserAuthEntity(
-                          docId: null,
-                          email: usernameController.text,
-                          username: usernameController.text,
-                          password: passwordController.text,
-                          tohemId: null,
-                          torolId: null));
+                  final loginSuccess = await GetIt.instance<LoginUseCase>()
+                      .call(
+                          params: UserAuthEntity(
+                              docId: null,
+                              email: usernameController.text,
+                              username: usernameController.text,
+                              password: passwordController.text,
+                              tohemId: null,
+                              torolId: null));
 
                   if (loginSuccess != null && loginSuccess) {
                     if (isOpen) {
                       if (context.mounted) context.goNamed(RouteConstants.home);
                     } else {
-                      final CashierBalanceTransactionModel? openedShift = await showDialog(
+                      final CashierBalanceTransactionModel? openedShift =
+                          await showDialog(
                         context: context,
                         barrierDismissible: false,
                         builder: (context) => const OpenShiftDialog(),
@@ -286,7 +301,8 @@ class _LoginFormState extends State<LoginForm> {
                     }
                   } else {
                     if (context.mounted) {
-                      SnackBarHelper.presentErrorSnackBar(context, "Invalid username or password");
+                      SnackBarHelper.presentErrorSnackBar(
+                          context, "Invalid username or password");
                     }
                   }
                 },
