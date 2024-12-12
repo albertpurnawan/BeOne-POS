@@ -280,14 +280,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
 Future<void> _configureMainWindow() async {
   await windowManager.ensureInitialized();
-  WindowOptions windowOptions = WindowOptions(
-    size: Size(800, 600),
-    center: true,
-    backgroundColor: Colors.transparent,
-    skipTaskbar: false,
-    fullScreen: true,
-  );
+  WindowOptions windowOptions = const WindowOptions(
+      center: true,
+      backgroundColor: Colors.transparent,
+      fullScreen: true,
+      skipTaskbar: false);
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.setFullScreen(true);
+    await windowManager.show();
   });
 }
