@@ -1557,7 +1557,7 @@ class ReceiptPrinter {
     bytes += generator.row([
       PosColumn(
           width: 5,
-          text: Helpers.alignLeftByAddingSpace('Invoice Count', width5Length),
+          text: Helpers.alignLeftByAddingSpace('Inv. Count-All', width5Length),
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 7,
@@ -1567,13 +1567,14 @@ class ReceiptPrinter {
     bytes += generator.row([
       PosColumn(
           width: 5,
-          text: Helpers.alignLeftByAddingSpace('Return Invoice Count', width5Length),
+          text: Helpers.alignLeftByAddingSpace('Inv. Count-Return', width5Length),
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 7,
           text: Helpers.alignLeftByAddingSpace(":  ${printCloseShiftDetail.transactionsReturn}", width7Length),
           styles: const PosStyles(align: PosAlign.left)),
     ]);
+    bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
     bytes += generator.text('MOP Details',
         styles: const PosStyles(
           align: PosAlign.center,
@@ -1585,7 +1586,6 @@ class ReceiptPrinter {
       String payTypeCode = paymentType.payTypeCode;
       String description = paymentType.description.trim();
 
-      dev.log(description);
       bytes += generator.text(description,
           styles: const PosStyles(
             align: PosAlign.left,
@@ -1593,27 +1593,33 @@ class ReceiptPrinter {
           ));
 
       if (groupedTransactions.containsKey(payTypeCode)) {
-        for (var transaction in groupedTransactions[payTypeCode]!) {
+        for (var i = 0; i < groupedTransactions[payTypeCode]!.length; i++) {
+          var transaction = groupedTransactions[payTypeCode]![i];
           String detailDescription = transaction['description']?.trim() ?? "Unknown";
           String amount = Helpers.parseMoney(transaction['amount']);
 
           bytes += generator.row([
             PosColumn(
-                width: 5,
-                text: Helpers.alignLeftByAddingSpace(detailDescription, width5Length),
-                styles: const PosStyles(align: PosAlign.left)),
+              width: 5,
+              text: Helpers.alignLeftByAddingSpace(detailDescription, width5Length),
+              styles: const PosStyles(align: PosAlign.left),
+            ),
             PosColumn(
-                width: 7,
-                text: Helpers.alignLeftByAddingSpace(":  $amount", width7Length),
-                styles: const PosStyles(align: PosAlign.left)),
+              width: 7,
+              text: Helpers.alignLeftByAddingSpace(":  $amount", width7Length),
+              styles: const PosStyles(align: PosAlign.left),
+            ),
           ]);
 
-          dev.log("$detailDescription: $amount");
+          if (i == groupedTransactions[payTypeCode]!.length - 1) {
+            bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
+          } else {
+            bytes += generator.emptyLines(1);
+          }
         }
       }
     }
-
-    bytes += generator.emptyLines(1);
+    bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
     bytes += generator.row([
       PosColumn(
           width: 5,
