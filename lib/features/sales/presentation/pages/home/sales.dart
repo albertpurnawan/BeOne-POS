@@ -345,6 +345,7 @@ class _SalesPageState extends State<SalesPage> {
     countTotalShifts();
     getLastSync();
     checkIsSyncing();
+    _validateReturnableStore();
 
     // Start Check Member
     checkReceiptWithMember(context.read<ReceiptCubit>().state);
@@ -2681,42 +2682,42 @@ class _SalesPageState extends State<SalesPage> {
                       ),
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () async {
-                            await _validateReturnableStore();
-                            if (!isReturnableStore) {
-                              return;
-                            }
-                            setState(() {
-                              isEditingNewReceiptItemCode = false;
-                              isEditingNewReceiptItemQty = false;
-                              isUpdatingReceiptItemQty = false;
-                            });
+                          onPressed: isReturnableStore
+                              ? () async {
+                                  setState(() {
+                                    isEditingNewReceiptItemCode = false;
+                                    isEditingNewReceiptItemQty = false;
+                                    isUpdatingReceiptItemQty = false;
+                                  });
 
-                            final bool? isSaved = await showDialog<bool>(
-                              context: context,
-                              builder: (BuildContext context) =>
-                                  ScaffoldMessenger(
-                                child: Builder(builder: (context) {
-                                  return const Scaffold(
-                                      backgroundColor: Colors.transparent,
-                                      body: ReturnDialog());
-                                }),
-                              ),
-                            );
+                                  final bool? isSaved = await showDialog<bool>(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        ScaffoldMessenger(
+                                      child: Builder(builder: (context) {
+                                        return const Scaffold(
+                                            backgroundColor: Colors.transparent,
+                                            body: ReturnDialog());
+                                      }),
+                                    ),
+                                  );
 
-                            if (isSaved != null && isSaved) {
-                              SnackBarHelper.presentSuccessSnackBar(
-                                  context, "Save return items success", null);
-                            }
+                                  if (isSaved != null && isSaved) {
+                                    SnackBarHelper.presentSuccessSnackBar(
+                                        context,
+                                        "Save return items success",
+                                        null);
+                                  }
 
-                            setState(() {
-                              isEditingNewReceiptItemCode = true;
-                              Future.delayed(
-                                  const Duration(milliseconds: 50),
-                                  () => _newReceiptItemCodeFocusNode
-                                      .requestFocus());
-                            });
-                          },
+                                  setState(() {
+                                    isEditingNewReceiptItemCode = true;
+                                    Future.delayed(
+                                        const Duration(milliseconds: 50),
+                                        () => _newReceiptItemCodeFocusNode
+                                            .requestFocus());
+                                  });
+                                }
+                              : null,
                           style: OutlinedButton.styleFrom(
                             elevation: 5,
                             shadowColor: Colors.black87,
@@ -2734,7 +2735,7 @@ class _SalesPageState extends State<SalesPage> {
                             padding: const EdgeInsets.fromLTRB(2, 8, 2, 8),
                             child: Stack(
                               children: [
-                                Positioned.fill(
+                                const Positioned.fill(
                                   child: Align(
                                     alignment: Alignment.topRight,
                                     child: Row(
@@ -2745,9 +2746,7 @@ class _SalesPageState extends State<SalesPage> {
                                           style: TextStyle(
                                               fontWeight: FontWeight.w300,
                                               fontSize: 14,
-                                              color: isReturnableStore
-                                                  ? Colors.white
-                                                  : Colors.grey),
+                                              color: Colors.white),
                                         ),
                                       ],
                                     ),
@@ -2758,14 +2757,16 @@ class _SalesPageState extends State<SalesPage> {
                                     alignment: Alignment.bottomLeft,
                                     child: RichText(
                                       textAlign: TextAlign.left,
-                                      text: const TextSpan(
+                                      text: TextSpan(
                                         children: [
                                           TextSpan(
                                             text: "Return",
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: 14,
-                                                color: Colors.white),
+                                                color: isReturnableStore
+                                                    ? Colors.white
+                                                    : Colors.grey),
                                           ),
                                         ],
                                       ),
