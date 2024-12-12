@@ -37,6 +37,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/down_payment_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/invoice_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/item_details_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_coupons_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
@@ -4703,78 +4704,89 @@ class _SalesPageState extends State<SalesPage> {
         isEditingNewReceiptItemQty = false;
         isUpdatingReceiptItemQty = false;
       });
+      final isAuthorized = await _showDialogReturn();
+      if (isAuthorized) {
+        try {
+          final String cashierName =
+              GetIt.instance<SharedPreferences>().getString("username") ?? "";
+          final UserModel? user = await GetIt.instance<AppDatabase>()
+              .userDao
+              .readByUsername(cashierName, null);
+          List<DownPaymentEntity> dpList =
+              context.read<ReceiptCubit>().state.downPayments ?? [];
+          List<String> docnumList = [];
+          if (dpList.isNotEmpty) {
+            for (DownPaymentEntity dp in dpList) {
+              if (dp.isSelected == true && dp.isReceive == false) {
+                docnumList.add(dp.refpos2 ?? "");
+              }
+            }
 
-      await _showDialogReturn();
-
-      try {
-        final String cashierName =
-            GetIt.instance<SharedPreferences>().getString("username") ?? "";
-        final UserModel? user = await GetIt.instance<AppDatabase>()
-            .userDao
-            .readByUsername(cashierName, null);
-        List<DownPaymentEntity> dpList =
-            context.read<ReceiptCubit>().state.downPayments ?? [];
-        List<String> docnumList = [];
-        if (dpList.isNotEmpty) {
-          for (DownPaymentEntity dp in dpList) {
-            if (dp.isSelected == true && dp.isReceive == false) {
-              docnumList.add(dp.refpos2 ?? "");
+            if (user != null) {
+              String checkLock = await GetIt.instance<InvoiceApi>()
+                  .lockInvoice(user.docId, docnumList);
+              if (checkLock.contains("Connection failed") ||
+                  checkLock.contains("The connection errored")) {
+                SnackBarHelper.presentErrorSnackBar(context,
+                    "Failed to process DP Transaction. Please check your connection and try again");
+                return;
+              } else if (checkLock.contains("Can't init lock")) {
+                SnackBarHelper.presentErrorSnackBar(context,
+                    "Can't process transaction because one of the down payments is locked");
+                return;
+              }
             }
           }
-
-          if (user != null) {
-            String checkLock = await GetIt.instance<InvoiceApi>()
-                .lockInvoice(user.docId, docnumList);
-            if (checkLock.contains("Connection failed") ||
-                checkLock.contains("The connection errored")) {
-              SnackBarHelper.presentErrorSnackBar(context,
-                  "Failed to process DP Transaction. Please check your connection and try again");
-              return;
-            } else if (checkLock.contains("Can't init lock")) {
-              SnackBarHelper.presentErrorSnackBar(context,
-                  "Can't process transaction because one of the down payments is locked");
-              return;
-            }
-          }
+        } catch (e) {
+          return;
         }
-      } catch (e) {
-        return;
-      }
 
-      if (context.read<ReceiptCubit>().state.previousReceiptEntity == null) {
-        await context
-            .read<ReceiptCubit>()
-            .processReceiptBeforeCheckout(context);
-      }
+        if (context.read<ReceiptCubit>().state.previousReceiptEntity == null) {
+          await context
+              .read<ReceiptCubit>()
+              .processReceiptBeforeCheckout(context);
+        }
 
-      await Future.delayed(const Duration(milliseconds: 300), null);
+        await Future.delayed(const Duration(milliseconds: 300), null);
 
-      final ReceiptEntity receiptEntity = context.read<ReceiptCubit>().state;
+        final ReceiptEntity receiptEntity = context.read<ReceiptCubit>().state;
 
-      log("currentLength ${receiptEntity.promos.length} previousLength ${receiptEntity.previousReceiptEntity?.promos.length}");
+        log("currentLength ${receiptEntity.promos.length} previousLength ${receiptEntity.previousReceiptEntity?.promos.length}");
 
-      if (receiptEntity.promos !=
-          (receiptEntity.previousReceiptEntity?.promos ??
-              <PromotionsEntity>[])) {
+        if (receiptEntity.promos !=
+            (receiptEntity.previousReceiptEntity?.promos ??
+                <PromotionsEntity>[])) {
+          await showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => PromotionSummaryDialog(
+                    receiptEntity: context.read<ReceiptCubit>().state,
+                  ));
+        }
+
+        // Show CheckoutDialog and wait for it to complete
         await showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) => PromotionSummaryDialog(
-                  receiptEntity: context.read<ReceiptCubit>().state,
-                ));
+            builder: (context) => const CheckoutDialog()).then((value) {
+          if (mounted) {
+            // Check if the widget is still mounted
+            setState(() {
+              isEditingNewReceiptItemCode = true;
+              _newReceiptItemCodeFocusNode.requestFocus();
+            });
+          }
+        });
+      } else {
+        return;
       }
 
-      await showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => const CheckoutDialog()).then((value) {
-        setState(() {
-          isEditingNewReceiptItemCode = true;
-          _newReceiptItemCodeFocusNode.requestFocus();
-        });
-      });
+      // Delay for additional processing if needed
       Future.delayed(const Duration(milliseconds: 100)).then((_) {
-        checkReceiptWithMember(context.read<ReceiptCubit>().state);
+        if (mounted) {
+          // Check if the widget is still mounted
+          checkReceiptWithMember(context.read<ReceiptCubit>().state);
+        }
       });
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
@@ -4968,11 +4980,23 @@ class _SalesPageState extends State<SalesPage> {
     return hasPositiveQuantity && hasItemDP;
   }
 
-  Future<void> _showDialogReturn() async {
+  Future<bool> _showDialogReturn() async {
     final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
-    print('receiptItems: $receiptItems');
-    final hasItemReturn =
-        receiptItems.any((item) => item.refpos3 != null && item.refpos3 != "");
-    print('hasItemReturn: $hasItemReturn');
+
+    if (receiptItems
+            .any((item) => item.refpos3 != null && item.refpos3 != "") &&
+        !context.read<ReceiptCubit>().state.approvedReturn) {
+      final bool? isAuthorized = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) =>
+              const ApprovalDialog(approvalType: ApprovalType.returnItem));
+      if (isAuthorized == true) {
+        setState(() {});
+        return true;
+      }
+      return false;
+    }
+    return true; // Dialog was not shown
   }
 }
