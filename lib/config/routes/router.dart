@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/core/constants/route_constants.dart';
 import 'package:pos_fe/features/dual_screen/presentation/pages/display.dart';
 import 'package:pos_fe/features/home/presentation/pages/home.dart';
-import 'package:pos_fe/features/login/presentation/pages/login.dart';
+import 'package:pos_fe/features/login/presentation/pages/login_dialog.dart';
 import 'package:pos_fe/features/login/presentation/pages/welcome.dart';
 import 'package:pos_fe/features/mop_adjustment/presentation/pages/mop_adjustment_screen.dart';
 import 'package:pos_fe/features/reports/presentation/pages/check_stocks_screen.dart';
@@ -43,9 +43,7 @@ class AppRouter {
         path: "/login",
         pageBuilder: (context, state) {
           return const MaterialPage(
-            child: Scaffold(
-              body: LoginScreen(),
-            ),
+            child: LoginDialog(),
           );
         },
       ),

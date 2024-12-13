@@ -5,8 +5,8 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   desktop_lifecycle
   desktop_multi_window
+  desktop_window
   screen_retriever_linux
-  sentry_flutter
   sqlite3_flutter_libs
   window_manager
 )
