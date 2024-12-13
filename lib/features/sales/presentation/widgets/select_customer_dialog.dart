@@ -12,7 +12,6 @@ import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class SelectCustomerDialog extends StatefulWidget {
   const SelectCustomerDialog({super.key});
@@ -28,7 +27,7 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
   CustomerEntity? selectedCustomer;
 
   bool _showKeyboard = true;
-  bool _shiftEnabled = false;
+
   final FocusNode _keyboardFocusNode = FocusNode();
 
   @override
@@ -158,13 +157,21 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                       autofocus: true,
                       focusNode: _customerInputFocusNode,
                       controller: _textEditingControllerCustomer,
-                      decoration: const InputDecoration(
-                        suffixIcon: Icon(
-                          Icons.search,
-                          size: 16,
+                      decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          icon: const Icon(
+                            Icons.search,
+                            size: 16,
+                          ),
+                          onPressed: () {
+                            context
+                                .read<CustomersCubit>()
+                                .getActiveCustomers(searchKeyword: _textEditingControllerCustomer.text);
+                            _customerInputFocusNode.requestFocus();
+                          },
                         ),
                         hintText: "Enter customer's name",
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           fontSize: 16,
                           fontStyle: FontStyle.italic,
                         ),
@@ -271,48 +278,16 @@ class _SelectCustomerDialogState extends State<SelectCustomerDialog> {
                             controller: _textEditingControllerCustomer,
                             isNumericMode: false,
                             customLayoutKeys: true,
-                            isShiftEnabled: _shiftEnabled,
-                            onKeyPress: (key) async {
-                              String text = _textEditingControllerCustomer.text;
-                              TextSelection currentSelection = _textEditingControllerCustomer.selection;
-                              int cursorPosition = currentSelection.start;
-
-                              if (key.keyType == VirtualKeyboardKeyType.String) {
-                                String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                cursorPosition += inputText.length;
-                              } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                switch (key.action) {
-                                  case VirtualKeyboardKeyAction.Backspace:
-                                    if (text.isNotEmpty) {
-                                      text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                      cursorPosition -= 1;
-                                    }
-                                    break;
-                                  case VirtualKeyboardKeyAction.Return:
-                                    _textEditingControllerCustomer.text =
-                                        _textEditingControllerCustomer.text.trimRight();
-                                    context
-                                        .read<CustomersCubit>()
-                                        .getActiveCustomers(searchKeyword: _textEditingControllerCustomer.text);
-                                    _customerInputFocusNode.requestFocus();
-                                    break;
-                                  case VirtualKeyboardKeyAction.Space:
-                                    text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                    cursorPosition += 1;
-                                    break;
-                                  case VirtualKeyboardKeyAction.Shift:
-                                    _shiftEnabled = !_shiftEnabled;
-                                    break;
-                                  default:
-                                    break;
-                                }
-                              }
-                              _textEditingControllerCustomer.text = text;
-                              _textEditingControllerCustomer.selection =
-                                  TextSelection.collapsed(offset: cursorPosition);
-
-                              setState(() {});
+                            focusNodeAndTextController: FocusNodeAndTextController(
+                              focusNode: _customerInputFocusNode,
+                              textEditingController: _textEditingControllerCustomer,
+                            ),
+                            onSubmit: () {
+                              _textEditingControllerCustomer.text = _textEditingControllerCustomer.text.trimRight();
+                              context
+                                  .read<CustomersCubit>()
+                                  .getActiveCustomers(searchKeyword: _textEditingControllerCustomer.text);
+                              _customerInputFocusNode.requestFocus();
                             },
                           ),
                         )

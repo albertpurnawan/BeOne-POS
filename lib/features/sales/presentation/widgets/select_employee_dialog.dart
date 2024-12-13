@@ -12,7 +12,6 @@ import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/employees_cubit.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class SelectEmployee extends StatefulWidget {
   const SelectEmployee({super.key});
@@ -28,12 +27,11 @@ class _SelectEmployeeState extends State<SelectEmployee> {
   final FocusNode _keyboardFocusNode = FocusNode();
   final TextEditingController _employeeTextController = TextEditingController();
   bool _showKeyboard = true;
-  bool _shiftEnabled = false;
 
   @override
   void initState() {
-    super.initState();
     getDefaultKeyboardPOSParameter();
+    super.initState();
   }
 
   @override
@@ -161,13 +159,19 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                       },
                       autofocus: true,
                       focusNode: _employeeInputFocusNode,
-                      decoration: const InputDecoration(
-                        suffixIcon: Icon(
-                          Icons.search,
-                          size: 16,
+                      decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          icon: const Icon(
+                            Icons.search,
+                            size: 16,
+                          ),
+                          onPressed: () {
+                            context.read<EmployeesCubit>().getEmployees(searchKeyword: _employeeTextController.text);
+                            _employeeInputFocusNode.requestFocus();
+                          },
                         ),
                         hintText: "Enter employee's name",
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           fontSize: 16,
                           fontStyle: FontStyle.italic,
                         ),
@@ -222,46 +226,15 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                             controller: _employeeTextController,
                             isNumericMode: false,
                             customLayoutKeys: true,
-                            onKeyPress: (key) async {
-                              String text = _employeeTextController.text;
-                              TextSelection currentSelection = _employeeTextController.selection;
-                              int cursorPosition = currentSelection.start;
-
-                              if (key.keyType == VirtualKeyboardKeyType.String) {
-                                String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                cursorPosition += inputText.length;
-                              } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                switch (key.action) {
-                                  case VirtualKeyboardKeyAction.Backspace:
-                                    if (text.isNotEmpty) {
-                                      text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                      cursorPosition -= 1;
-                                    }
-                                    break;
-                                  case VirtualKeyboardKeyAction.Return:
-                                    _employeeTextController.text = _employeeTextController.text.trimRight();
-                                    context
-                                        .read<EmployeesCubit>()
-                                        .getEmployees(searchKeyword: _employeeTextController.text);
-                                    _employeeInputFocusNode.requestFocus();
-                                    break;
-                                  case VirtualKeyboardKeyAction.Space:
-                                    text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                    cursorPosition += 1;
-                                    break;
-                                  case VirtualKeyboardKeyAction.Shift:
-                                    _shiftEnabled = !_shiftEnabled;
-                                    break;
-                                  default:
-                                    break;
-                                }
-                              }
-                              _employeeTextController.text = text;
-                              _employeeTextController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                              setState(() {});
+                            onSubmit: () {
+                              _employeeTextController.text = _employeeTextController.text.trimRight();
+                              context.read<EmployeesCubit>().getEmployees(searchKeyword: _employeeTextController.text);
+                              _employeeInputFocusNode.requestFocus();
                             },
+                            focusNodeAndTextController: FocusNodeAndTextController(
+                              focusNode: _employeeInputFocusNode,
+                              textEditingController: _employeeTextController,
+                            ),
                           ),
                         )
                       : const SizedBox.shrink(),

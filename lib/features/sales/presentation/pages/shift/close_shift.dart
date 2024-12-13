@@ -35,7 +35,7 @@ import 'package:uuid/uuid.dart';
 class CloseShiftScreen extends StatefulWidget {
   final String shiftId;
   final String? username;
-  const CloseShiftScreen({Key? key, required this.shiftId, this.username}) : super(key: key);
+  const CloseShiftScreen({super.key, required this.shiftId, this.username});
 
   @override
   State<CloseShiftScreen> createState() => CloseShiftScreenState();
@@ -44,7 +44,6 @@ class CloseShiftScreen extends StatefulWidget {
 class CloseShiftScreenState extends State<CloseShiftScreen> {
   bool _showKeyboard = false;
   final FocusNode _keyboardFocusNode = FocusNode();
-  TextEditingController _activeController = TextEditingController();
 
   @override
   void initState() {
@@ -54,7 +53,6 @@ class CloseShiftScreenState extends State<CloseShiftScreen> {
   @override
   void dispose() {
     _keyboardFocusNode.dispose();
-    _activeController.dispose();
     super.dispose();
   }
 
@@ -116,7 +114,7 @@ class CloseShiftForm extends StatefulWidget {
   final String shiftId;
   final String? username;
   final bool? showKeyboard;
-  const CloseShiftForm({Key? key, required this.shiftId, this.username, this.showKeyboard}) : super(key: key);
+  const CloseShiftForm({super.key, required this.shiftId, this.username, this.showKeyboard});
 
   @override
   State<CloseShiftForm> createState() => _CloseShiftFormState();
@@ -948,7 +946,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                                                     ),
                                                   ),
                                                   color: isLastRow
-                                                      ? Color.fromARGB(255, 220, 220, 220)
+                                                      ? const Color.fromARGB(255, 220, 220, 220)
                                                       : Colors.transparent,
                                                 ),
                                                 width: 275,

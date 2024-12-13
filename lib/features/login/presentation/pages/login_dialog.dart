@@ -28,6 +28,7 @@ class _LoginDialogState extends State<LoginDialog> {
   bool _hidePassword = true;
   bool showKeyboard = true;
   TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
   final TextEditingController _usernameController = TextEditingController();
   final FocusNode _usernameFocusNode = FocusNode();
   final TextEditingController _passwordController = TextEditingController();
@@ -42,6 +43,7 @@ class _LoginDialogState extends State<LoginDialog> {
       setState(() {
         if (_usernameFocusNode.hasFocus) {
           _activeController = _usernameController;
+          _activeFocusNode = _usernameFocusNode;
         }
       });
     });
@@ -49,6 +51,7 @@ class _LoginDialogState extends State<LoginDialog> {
       setState(() {
         if (_passwordFocusNode.hasFocus) {
           _activeController = _passwordController;
+          _activeFocusNode = _passwordFocusNode;
         }
       });
     });
@@ -232,6 +235,10 @@ class _LoginDialogState extends State<LoginDialog> {
                                 controller: _activeController,
                                 isNumericMode: false,
                                 customLayoutKeys: true,
+                                focusNodeAndTextController: FocusNodeAndTextController(
+                                  focusNode: _activeFocusNode,
+                                  textEditingController: _activeController,
+                                ),
                               ),
                             )
                           : const SizedBox(),

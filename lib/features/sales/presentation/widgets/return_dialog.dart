@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/field_label.dart';
@@ -17,7 +18,6 @@ import 'package:pos_fe/features/sales/domain/usecases/get_return_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/return_receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class ReturnDialog extends StatefulWidget {
   const ReturnDialog({super.key});
@@ -47,9 +47,9 @@ class _ReturnDialogState extends State<ReturnDialog> {
 
   bool isFetching = false;
   bool _showKeyboard = true;
-  bool _shiftEnabled = false;
 
   TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -61,6 +61,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
       if (_invoiceNumberFocusNode.hasFocus) {
         setState(() {
           _activeController = _invoiceNumberController;
+          _activeFocusNode = _invoiceNumberFocusNode;
         });
       }
     });
@@ -68,6 +69,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
       if (_searchAvailableItemsInputFocusNode.hasFocus) {
         setState(() {
           _activeController = _searchAvailableItemsInputTextController;
+          _activeFocusNode = _searchAvailableItemsInputFocusNode;
         });
       }
     });
@@ -75,6 +77,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
       if (_searchReturnedItemsInputFocusNode.hasFocus) {
         setState(() {
           _activeController = _searchReturnedItemsInputTextController;
+          _activeFocusNode = _searchReturnedItemsInputFocusNode;
         });
       }
     });
@@ -358,52 +361,21 @@ class _ReturnDialogState extends State<ReturnDialog> {
                         controller: _activeController,
                         isNumericMode: false,
                         customLayoutKeys: true,
-                        isShiftEnabled: _shiftEnabled,
-                        onKeyPress: (key) async {
-                          String text = _activeController.text;
-                          TextSelection currentSelection = _activeController.selection;
-                          int cursorPosition = currentSelection.start;
-
-                          if (key.keyType == VirtualKeyboardKeyType.String) {
-                            String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                            text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                            cursorPosition += inputText.length;
-                          } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                            switch (key.action) {
-                              case VirtualKeyboardKeyAction.Backspace:
-                                if (text.isNotEmpty) {
-                                  text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                  cursorPosition -= 1;
-                                }
-                                break;
-                              case VirtualKeyboardKeyAction.Return:
-                                if (_shiftEnabled) {
-                                  FocusScope.of(context).nextFocus();
-                                } else if (_activeController == _invoiceNumberController) {
-                                  _activeController.text = _activeController.text.trimRight();
-                                  await _fetchInvoiceByDocNum();
-                                } else if (_activeController == _searchAvailableItemsInputTextController) {
-                                  _searchAvailableItemsInputFocusNode.requestFocus();
-                                } else if (_activeController == _searchReturnedItemsInputTextController) {
-                                  _searchReturnedItemsInputFocusNode.requestFocus();
-                                } else {
-                                  null;
-                                }
-                                break;
-                              case VirtualKeyboardKeyAction.Space:
-                                text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                cursorPosition += 1;
-                                break;
-                              case VirtualKeyboardKeyAction.Shift:
-                                _shiftEnabled = !_shiftEnabled;
-                                break;
-                              default:
-                                break;
-                            }
+                        focusNodeAndTextController: FocusNodeAndTextController(
+                          focusNode: _activeFocusNode,
+                          textEditingController: _activeController,
+                        ),
+                        onSubmit: () async {
+                          if (_activeController == _invoiceNumberController) {
+                            _activeController.text = _activeController.text.trimRight();
+                            await _fetchInvoiceByDocNum();
+                          } else if (_activeController == _searchAvailableItemsInputTextController) {
+                            _searchAvailableItemsInputFocusNode.requestFocus();
+                          } else if (_activeController == _searchReturnedItemsInputTextController) {
+                            _searchReturnedItemsInputFocusNode.requestFocus();
                           }
-                          _activeController.text = text;
-                          _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
-
+                        },
+                        onChanged: () {
                           setState(() {});
                         },
                       ),
@@ -1123,8 +1095,56 @@ class InputReturnQuantityDialog extends StatelessWidget {
   final FocusNode _keyboardFocusNode = FocusNode();
 
   final ValueNotifier<bool> _showReturnKeyboardNotifier = ValueNotifier<bool>(true);
+  final ValueNotifier<bool> _currentNumericModeNotifier = ValueNotifier<bool>(true);
 
   InputReturnQuantityDialog({super.key, required this.receiptItemEntity, required this.min});
+
+  void _showDropdown(BuildContext context) async {
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+
+    await showMenu(
+      context: context,
+      surfaceTintColor: Colors.transparent,
+      color: const Color.fromARGB(255, 245, 245, 245),
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy + renderBox.size.height,
+        offset.dx + renderBox.size.width,
+        offset.dy,
+      ),
+      items: [
+        const PopupMenuItem(
+          value: "Alphanumeric",
+          child: Text("Alphanumeric"),
+        ),
+        const PopupMenuItem(
+          value: "Numeric",
+          child: Text("Numeric"),
+        ),
+        const PopupMenuItem(
+          value: "Off",
+          child: Text("Off"),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        switch (value) {
+          case 'Off':
+            _showReturnKeyboardNotifier.value = false;
+            break;
+          case 'Alphanumeric':
+            _showReturnKeyboardNotifier.value = true;
+            _currentNumericModeNotifier.value = false;
+            break;
+          case 'Numeric':
+            _showReturnKeyboardNotifier.value = true;
+            _currentNumericModeNotifier.value = true;
+            break;
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1180,7 +1200,7 @@ class InputReturnQuantityDialog extends StatelessWidget {
                         color: Colors.white,
                       ),
                       onPressed: () {
-                        _showReturnKeyboardNotifier.value = !showReturnKeyboard;
+                        _showDropdown(context);
                       },
                       tooltip: 'Toggle Keyboard',
                     ),
@@ -1195,7 +1215,7 @@ class InputReturnQuantityDialog extends StatelessWidget {
         content: Padding(
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: SizedBox(
-            width: 400,
+            width: MediaQuery.of(context).size.height * 0.7,
             // constraints: BoxConstraints(
             //   maxHeight: MediaQuery.of(context).size.height * 0.6,
             // ),
@@ -1335,11 +1355,20 @@ class InputReturnQuantityDialog extends StatelessWidget {
                     valueListenable: _showReturnKeyboardNotifier,
                     builder: (context, showReturnKeyboard, child) {
                       return showReturnKeyboard
-                          ? KeyboardWidget(
-                              controller: _inputReturnedQtyEditingController,
-                              isNumericMode: true,
-                              customLayoutKeys: true,
-                            )
+                          ? ValueListenableBuilder<bool>(
+                              valueListenable: _currentNumericModeNotifier,
+                              builder: (context, isNumericMode, child) {
+                                return KeyboardWidget(
+                                  controller: _inputReturnedQtyEditingController,
+                                  isNumericMode: isNumericMode,
+                                  customLayoutKeys: true,
+                                  focusNodeAndTextController: FocusNodeAndTextController(
+                                    focusNode: _inputReturnedQtyFocusNode,
+                                    textEditingController: _inputReturnedQtyEditingController,
+                                  ),
+                                  textFormatter: isNumericMode ? MoneyInputFormatter() : NegativeMoneyInputFormatter(),
+                                );
+                              })
                           : const SizedBox.shrink();
                     },
                   ),

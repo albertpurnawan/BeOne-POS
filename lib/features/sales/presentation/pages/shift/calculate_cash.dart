@@ -4,7 +4,6 @@ import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class CalculateCash extends StatefulWidget {
   final Function(Map<String, String>) setTotal;
@@ -44,6 +43,7 @@ class _CalculateCashState extends State<CalculateCash> {
 
   bool _showKeyboard = true;
   TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -104,7 +104,10 @@ class _CalculateCashState extends State<CalculateCash> {
   void _setupFocusListener(FocusNode focusNode, TextEditingController controller) {
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
-        _activeController = controller;
+        setState(() {
+          _activeController = controller;
+          _activeFocusNode = focusNode;
+        });
       }
     });
   }
@@ -909,55 +912,81 @@ class _CalculateCashState extends State<CalculateCash> {
             ? Padding(
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                 child: KeyboardWidget(
-                    controller: _activeController,
-                    isNumericMode: true,
-                    customLayoutKeys: true,
-                    // isShiftEnabled: false,
-                    onKeyPress: (key) async {
-                      String text = _activeController.text;
-                      TextSelection currentSelection = _activeController.selection;
-                      int cursorPosition = currentSelection.start;
+                  controller: _activeController,
+                  isNumericMode: true,
+                  customLayoutKeys: true,
+                  focusNodeAndTextController: FocusNodeAndTextController(
+                    focusNode: _activeFocusNode,
+                    textEditingController: _activeController,
+                  ),
+                  onChanged: () {
+                    // String text = _activeController.text;
+                    // TextSelection currentSelection = _activeController.selection;
+                    // int cursorPosition = currentSelection.start;
+                    // _activeController.text = text;
+                    // _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+                    setState(() {
+                      _changeTotalCash([
+                        total100k,
+                        total50k,
+                        total20k,
+                        total10k,
+                        total5k,
+                        total2k,
+                        total1k,
+                        total500,
+                        total200,
+                        total100,
+                        total50,
+                      ]);
+                    });
+                  },
+                  // onKeyPress: (key) async {
+                  //   String text = _activeController.text;
+                  //   TextSelection currentSelection = _activeController.selection;
+                  //   int cursorPosition = currentSelection.start;
 
-                      if (key.keyType == VirtualKeyboardKeyType.String) {
-                        String inputText = key.text ?? '';
-                        text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                        cursorPosition += inputText.length;
+                  //   if (key.keyType == VirtualKeyboardKeyType.String) {
+                  //     String inputText = key.text ?? '';
+                  //     text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                  //     cursorPosition += inputText.length;
 
-                        _activeController.text = text;
-                        _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
-                      } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                        switch (key.action) {
-                          case VirtualKeyboardKeyAction.Backspace:
-                            if (text.isNotEmpty && cursorPosition > 0) {
-                              text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                              cursorPosition -= 1;
-                            }
-                            break;
+                  //     _activeController.text = text;
+                  //     _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+                  //   } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                  //     switch (key.action) {
+                  //       case VirtualKeyboardKeyAction.Backspace:
+                  //         if (text.isNotEmpty && cursorPosition > 0) {
+                  //           text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                  //           cursorPosition -= 1;
+                  //         }
+                  //         break;
 
-                          default:
-                            break;
-                        }
-                      }
+                  //       default:
+                  //         break;
+                  //     }
+                  //   }
 
-                      _activeController.text = text;
-                      _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+                  //   _activeController.text = text;
+                  //   _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
 
-                      setState(() {
-                        _changeTotalCash([
-                          total100k,
-                          total50k,
-                          total20k,
-                          total10k,
-                          total5k,
-                          total2k,
-                          total1k,
-                          total500,
-                          total200,
-                          total100,
-                          total50,
-                        ]);
-                      });
-                    }),
+                  //   setState(() {
+                  //     _changeTotalCash([
+                  //       total100k,
+                  //       total50k,
+                  //       total20k,
+                  //       total10k,
+                  //       total5k,
+                  //       total2k,
+                  //       total1k,
+                  //       total500,
+                  //       total200,
+                  //       total100,
+                  //       total50,
+                  //     ]);
+                  //   });
+                  // },
+                ),
               )
             : const SizedBox.shrink(),
       ],

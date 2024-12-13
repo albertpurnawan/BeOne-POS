@@ -27,7 +27,6 @@ import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding
 import 'package:pos_fe/features/sales/presentation/widgets/otp_input_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class AuthInputDiscountDialog extends StatefulWidget {
   final double initialGrandTotal;
@@ -37,13 +36,13 @@ class AuthInputDiscountDialog extends StatefulWidget {
   final List<LineDiscountParameter> lineDiscountParameters;
 
   const AuthInputDiscountDialog({
-    Key? key,
+    super.key,
     required this.initialGrandTotal,
     required this.finalGrandTotal,
     required this.discountValue,
     required this.docnum,
     required this.lineDiscountParameters,
-  }) : super(key: key);
+  });
 
   @override
   State<AuthInputDiscountDialog> createState() => _AuthInputDiscountDialogState();
@@ -60,10 +59,10 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
   bool _isOTPClicked = false;
   bool _isSendingOTP = false;
 
-  bool _shiftEnabled = false;
   bool _showKeyboard = true;
   final FocusNode _keyboardFocusNode = FocusNode();
   TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -73,6 +72,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
       if (_usernameFocusNode.hasFocus) {
         setState(() {
           _activeController = _usernameController;
+          _activeFocusNode = _usernameFocusNode;
         });
       }
     });
@@ -80,6 +80,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
       if (_passwordFocusNode.hasFocus) {
         setState(() {
           _activeController = _passwordController;
+          _activeFocusNode = _passwordFocusNode;
         });
       }
     });
@@ -460,43 +461,10 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                     controller: _activeController,
                                     isNumericMode: false,
                                     customLayoutKeys: true,
-                                    isShiftEnabled: _shiftEnabled,
-                                    onKeyPress: (key) async {
-                                      String text = _activeController.text;
-                                      TextSelection currentSelection = _activeController.selection;
-                                      int cursorPosition = currentSelection.start;
-
-                                      if (key.keyType == VirtualKeyboardKeyType.String) {
-                                        String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                        text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                        cursorPosition += inputText.length;
-                                      } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                        switch (key.action) {
-                                          case VirtualKeyboardKeyAction.Backspace:
-                                            if (text.isNotEmpty) {
-                                              text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                              cursorPosition -= 1;
-                                            }
-                                            break;
-                                          case VirtualKeyboardKeyAction.Return:
-                                            _activeController.text = _activeController.text.trimRight();
-                                            break;
-                                          case VirtualKeyboardKeyAction.Space:
-                                            text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                            cursorPosition += 1;
-                                            break;
-                                          case VirtualKeyboardKeyAction.Shift:
-                                            _shiftEnabled = !_shiftEnabled;
-                                            break;
-                                          default:
-                                            break;
-                                        }
-                                      }
-                                      _activeController.text = text;
-                                      _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                                      setState(() {});
-                                    },
+                                    focusNodeAndTextController: FocusNodeAndTextController(
+                                      focusNode: _activeFocusNode,
+                                      textEditingController: _activeController,
+                                    ),
                                   ),
                                 )
                               : const SizedBox.shrink(),

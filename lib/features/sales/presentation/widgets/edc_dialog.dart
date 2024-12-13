@@ -16,7 +16,6 @@ import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_campaign_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_card_type.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class EDCDialog extends StatefulWidget {
   const EDCDialog({
@@ -70,38 +69,11 @@ class _EDCDialogState extends State<EDCDialog> {
   String errMsg = "Invalid amount";
   String edcMachine = "";
 
-  bool _shiftEnabled = false;
   bool _showKeyboard = true;
   final FocusNode _keyboardFocusNode = FocusNode();
   bool _currentNumericMode = false;
   TextEditingController _activeController = TextEditingController();
-
-  // late final _focusNodeAmount = FocusNode(
-  //   onKeyEvent: (node, event) {
-  //     if (event.runtimeType == KeyUpEvent) {
-  //       return KeyEventResult.handled;
-  //     }
-
-  //     if (event.physicalKey == PhysicalKeyboardKey.f12) {
-  //       final double mopAmount = Helpers.revertMoneyToDecimalFormat(_amountController.text);
-  //       if (mopAmount > widget.max) {
-  //         setState(() {
-  //           isErr = true;
-  //           errMsg = "Invalid amount";
-  //         });
-
-  //         return KeyEventResult.handled;
-  //       }
-  //       context.pop(mopAmount);
-  //       return KeyEventResult.handled;
-  //     } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
-  //       Navigator.of(context).pop();
-  //       return KeyEventResult.handled;
-  //     }
-
-  //     return KeyEventResult.ignored;
-  //   },
-  // );
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -116,6 +88,7 @@ class _EDCDialogState extends State<EDCDialog> {
       if (_cardNumber1FocusNode.hasFocus) {
         setState(() {
           _activeController = _cardNumber1Controller;
+          _activeFocusNode = _cardNumber1FocusNode;
           _currentNumericMode = true;
         });
       }
@@ -124,6 +97,7 @@ class _EDCDialogState extends State<EDCDialog> {
       if (_cardNumber2FocusNode.hasFocus) {
         setState(() {
           _activeController = _cardNumber2Controller;
+          _activeFocusNode = _cardNumber2FocusNode;
           _currentNumericMode = true;
         });
       }
@@ -132,6 +106,7 @@ class _EDCDialogState extends State<EDCDialog> {
       if (_cardHolderFocusNode.hasFocus) {
         setState(() {
           _activeController = _cardHolderController;
+          _activeFocusNode = _cardHolderFocusNode;
           _currentNumericMode = false;
         });
       }
@@ -140,6 +115,7 @@ class _EDCDialogState extends State<EDCDialog> {
       if (_refNumberFocusNode.hasFocus) {
         setState(() {
           _activeController = _refNumberController;
+          _activeFocusNode = _refNumberFocusNode;
           _currentNumericMode = false;
         });
       }
@@ -148,6 +124,7 @@ class _EDCDialogState extends State<EDCDialog> {
       if (_amountFocusNode.hasFocus) {
         setState(() {
           _activeController = _amountController;
+          _activeFocusNode = _amountFocusNode;
           _currentNumericMode = true;
         });
       }
@@ -194,8 +171,6 @@ class _EDCDialogState extends State<EDCDialog> {
       mopList.addAll(tpmt1List);
     });
   }
-
-  // Future<void> removeMOP() async {}
 
   @override
   Widget build(BuildContext parentContext) {
@@ -760,60 +735,11 @@ class _EDCDialogState extends State<EDCDialog> {
                                   controller: _activeController,
                                   isNumericMode: _currentNumericMode,
                                   customLayoutKeys: true,
-                                  isShiftEnabled: _shiftEnabled,
-                                  onKeyPress: (key) async {
-                                    String text = _activeController.text;
-                                    TextSelection currentSelection = _activeController.selection;
-                                    int cursorPosition = currentSelection.start;
-
-                                    if (key.keyType == VirtualKeyboardKeyType.String) {
-                                      String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                      text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                      cursorPosition += inputText.length;
-                                    } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                      switch (key.action) {
-                                        case VirtualKeyboardKeyAction.Backspace:
-                                          if (text.isNotEmpty && cursorPosition > 0) {
-                                            text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                            cursorPosition -= 1;
-                                          }
-                                          break;
-                                        case VirtualKeyboardKeyAction.Return:
-                                          _activeController.text = _activeController.text.trimRight();
-
-                                          break;
-                                        case VirtualKeyboardKeyAction.Space:
-                                          text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                          cursorPosition += 1;
-
-                                          break;
-                                        case VirtualKeyboardKeyAction.Shift:
-                                          _shiftEnabled = !_shiftEnabled;
-                                          break;
-                                        default:
-                                          break;
-                                      }
-                                    }
-                                    if (_activeController == _amountController) {
-                                      TextEditingValue formattedValue = MoneyInputFormatter().formatEditUpdate(
-                                        TextEditingValue(
-                                          text: text,
-                                          selection: TextSelection.collapsed(offset: text.length),
-                                        ),
-                                        TextEditingValue(
-                                          text: text,
-                                          selection: TextSelection.collapsed(offset: text.length),
-                                        ),
-                                      );
-                                      _activeController.text = formattedValue.text;
-                                      _activeController.selection = formattedValue.selection;
-                                      setState(() {});
-                                    } else {
-                                      _activeController.text = text;
-                                      _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
-                                      setState(() {});
-                                    }
-                                  },
+                                  focusNodeAndTextController: FocusNodeAndTextController(
+                                    focusNode: _activeFocusNode,
+                                    textEditingController: _activeController,
+                                  ),
+                                  textFormatter: (_amountFocusNode.hasFocus) ? MoneyInputFormatter() : null,
                                 ),
                               )
                             : const SizedBox.shrink(),

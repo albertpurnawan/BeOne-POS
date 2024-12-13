@@ -726,6 +726,19 @@ class _InputCouponsDialogState extends State<InputCouponsDialog> {
                                   isNumericMode: false,
                                   customLayoutKeys: true,
                                   height: 225,
+                                  focusNodeAndTextController: FocusNodeAndTextController(
+                                    focusNode: _couponFocusNode,
+                                    textEditingController: _textEditorCouponController,
+                                  ),
+                                  onSubmit: isClaiming
+                                      ? null
+                                      : () async {
+                                          _textEditorCouponController.text =
+                                              _textEditorCouponController.text.trimRight();
+                                          await _checkCoupons(context, _textEditorCouponController.text);
+                                          _textEditorCouponController.text = "";
+                                          _couponFocusNode.requestFocus();
+                                        },
                                 ),
                               )
                             : const SizedBox.shrink(),

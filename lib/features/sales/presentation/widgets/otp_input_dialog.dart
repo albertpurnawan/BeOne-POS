@@ -22,7 +22,6 @@ import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class OTPInputDialog extends StatefulWidget {
   final double initialGrandTotal;
@@ -33,14 +32,14 @@ class OTPInputDialog extends StatefulWidget {
   final List<LineDiscountParameter> lineDiscountParameters;
 
   const OTPInputDialog({
-    Key? key,
+    super.key,
     required this.initialGrandTotal,
     required this.finalGrandTotal,
     required this.discountValue,
     required this.requester,
     required this.docnum,
     required this.lineDiscountParameters,
-  }) : super(key: key);
+  });
 
   @override
   State<OTPInputDialog> createState() => _OTPInputDialogState();
@@ -478,36 +477,29 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                                 controller: _otpControllers[_focusedIndex],
                                 isNumericMode: true,
                                 customLayoutKeys: true,
-                                onKeyPress: (key) async {
+                                focusNodeAndTextController: FocusNodeAndTextController(
+                                  focusNode: _otpFocusNodes[_focusedIndex],
+                                  textEditingController: _otpControllers[_focusedIndex],
+                                ),
+                                onChanged: () async {
                                   String text = _otpControllers[_focusedIndex].text;
 
-                                  if (key.keyType == VirtualKeyboardKeyType.String) {
-                                    text = key.text ?? '';
+                                  if (text.isNotEmpty && _focusedIndex < 5) {
+                                    _otpFocusNodes[_focusedIndex + 1].requestFocus();
+                                  } else if (text.isNotEmpty && _focusedIndex == 5) {
+                                    _updateOtpCode();
+                                    await onSubmit(parentContext, childContext, _otpCode, widget.requester);
+                                  }
+                                },
+                                onChangedBackspace: () {
+                                  String text = _otpControllers[_focusedIndex].text;
+                                  if (text.isNotEmpty) {
+                                    text = text.substring(0, text.length - 1);
                                     _otpControllers[_focusedIndex].text = text;
-
-                                    if (text.isNotEmpty && _focusedIndex < 5) {
-                                      _otpFocusNodes[_focusedIndex + 1].requestFocus();
-                                    } else if (text.isNotEmpty && _focusedIndex == 5) {
-                                      _updateOtpCode();
-                                      await onSubmit(parentContext, childContext, _otpCode, widget.requester);
-                                    }
-                                  } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                    if (key.action == VirtualKeyboardKeyAction.Backspace) {
-                                      if (text.isNotEmpty) {
-                                        text = text.substring(0, text.length - 1);
-                                        _otpControllers[_focusedIndex].text = text;
-                                      }
-
-                                      if (text.isEmpty && _focusedIndex > 0) {
-                                        _otpFocusNodes[_focusedIndex - 1].requestFocus();
-                                      }
-                                    }
                                   }
 
-                                  _focusedIndex = _otpFocusNodes.indexWhere((node) => node.hasFocus);
-                                  int newFocusedIndex = _otpFocusNodes.indexWhere((node) => node.hasFocus);
-                                  if (newFocusedIndex != -1) {
-                                    _focusedIndex = newFocusedIndex;
+                                  if (text.isEmpty && _focusedIndex > 0) {
+                                    _otpFocusNodes[_focusedIndex - 1].requestFocus();
                                   }
                                 },
                               )

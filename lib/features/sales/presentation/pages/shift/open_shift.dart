@@ -354,7 +354,7 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
                                             border: OutlineInputBorder(),
                                           ),
                                           inputFormatters: [MoneyInputFormatter()],
-                                          keyboardType: TextInputType.number,
+                                          keyboardType: TextInputType.none,
                                         ),
                                       ),
                                       const SizedBox(height: 10),
@@ -365,6 +365,11 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
                                                 controller: _openValueController,
                                                 isNumericMode: true,
                                                 customLayoutKeys: true,
+                                                textFormatter: MoneyInputFormatter(),
+                                                focusNodeAndTextController: FocusNodeAndTextController(
+                                                  focusNode: _amountFocusNode,
+                                                  textEditingController: _openValueController,
+                                                ),
                                               ),
                                             )
                                           : const SizedBox.shrink(),

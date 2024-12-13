@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
-import 'package:pos_fe/core/widgets/field_label.dart';
 import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class InputLineDiscountDialog extends StatefulWidget {
   final ReceiptItemEntity receiptItemEntity;
@@ -27,8 +24,7 @@ class InputLineDiscountDialog extends StatefulWidget {
       required this.lineDiscount});
 
   @override
-  State<InputLineDiscountDialog> createState() =>
-      _InputLineDiscountDialogState();
+  State<InputLineDiscountDialog> createState() => _InputLineDiscountDialogState();
 }
 
 class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
@@ -40,11 +36,12 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
 
   final FocusNode _keyboardFocusNode = FocusNode();
   bool _showKeyboard = true;
-  bool _shiftEnabled = false;
+
   bool _currentNumericMode = true;
   bool _isDropdownShown = false;
   final GlobalKey _iconButtonKey = GlobalKey();
   TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -53,12 +50,25 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
     _inputPercentFocusNode.requestFocus();
     _inputAmountController.text = Helpers.parseMoney(widget.lineDiscount);
     if (widget.lineDiscount != 0) {
-      final percentage =
-          (widget.lineDiscount / widget.receiptItemEntity.totalAmount * 100)
-              .abs();
+      final percentage = (widget.lineDiscount / widget.receiptItemEntity.totalAmount * 100).abs();
       _inputPercentController.text = '${percentage.toStringAsFixed(2)}%';
     }
-    _activeController = _inputAmountController;
+    _inputPercentFocusNode.addListener(() {
+      if (_inputPercentFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _inputPercentController;
+          _activeFocusNode = _inputPercentFocusNode;
+        });
+      }
+    });
+    _inputAmountFocusNode.addListener(() {
+      if (_inputAmountFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _inputAmountController;
+          _activeFocusNode = _inputAmountFocusNode;
+        });
+      }
+    });
   }
 
   @override
@@ -73,12 +83,10 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
 
   Future<void> getDefaultKeyboardPOSParameter() async {
     try {
-      final POSParameterEntity? posParameterEntity =
-          await GetIt.instance<GetPosParameterUseCase>().call();
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
       if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
       setState(() {
-        _showKeyboard =
-            (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
       });
     } catch (e) {
       if (mounted) {
@@ -98,8 +106,7 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
   }
 
   void _showDropdown() async {
-    final RenderBox renderBox =
-        _iconButtonKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox renderBox = _iconButtonKey.currentContext!.findRenderObject() as RenderBox;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
 
     await showMenu(
@@ -177,8 +184,7 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -189,30 +195,22 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
             children: [
               const Text(
                 'Line Discount',
-                style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
               ),
               const Spacer(),
               Row(
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: _showKeyboard
-                          ? const Color.fromARGB(255, 110, 0, 0)
-                          : ProjectColors.primary,
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(360)),
+                      color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(360)),
                     ),
                     child: IconButton(
                       focusColor: const Color.fromARGB(255, 110, 0, 0),
                       focusNode: _keyboardFocusNode,
                       key: _iconButtonKey,
                       icon: Icon(
-                        _showKeyboard
-                            ? Icons.keyboard_hide_outlined
-                            : Icons.keyboard_outlined,
+                        _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
                         color: Colors.white,
                       ),
                       onPressed: () {
@@ -248,38 +246,32 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                             focusNode: _inputPercentFocusNode,
                             controller: _inputPercentController,
                             keyboardType: TextInputType.none,
-                            onTap: () {
-                              setState(() {
-                                _activeController = _inputPercentController;
-                              });
-                            },
+                            // onTap: () {
+                            //   setState(() {
+                            //     _activeController = _inputPercentController;
+                            //     _activeFocusNode = _inputPercentFocusNode;
+                            //   });
+                            // },
                             onChanged: (value) {
                               final cleanValue = value.replaceAll('%', '');
                               if (cleanValue.isNotEmpty) {
-                                final percentage =
-                                    double.tryParse(cleanValue) ?? 0;
-                                final amount =
-                                    (widget.receiptItemEntity.totalAmount *
-                                        percentage /
-                                        100);
-                                _inputAmountController.text =
-                                    Helpers.parseMoney(amount);
+                                final percentage = double.tryParse(cleanValue) ?? 0;
+                                final amount = (widget.receiptItemEntity.totalAmount * percentage / 100);
+                                _inputAmountController.text = Helpers.parseMoney(amount);
                               } else {
                                 _inputAmountController.text = '';
                               }
                               setState(() {});
                             },
                             inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                  RegExp(r'^\d*\.?\d{0,3}%?$')),
+                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}%?$')),
                             ],
                             textAlign: TextAlign.center,
                             style: const TextStyle(fontSize: 24),
                             decoration: const InputDecoration(
                                 contentPadding: EdgeInsets.all(10),
                                 hintText: "ex. 10%",
-                                hintStyle: TextStyle(
-                                    fontStyle: FontStyle.italic, fontSize: 24),
+                                hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
                                 border: OutlineInputBorder(),
                                 suffixText: '%'),
                           ),
@@ -297,22 +289,17 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                             focusNode: _inputAmountFocusNode,
                             controller: _inputAmountController,
                             keyboardType: TextInputType.none,
-                            onTap: () {
-                              setState(() {
-                                _activeController = _inputAmountController;
-                              });
-                            },
+                            // onTap: () {
+                            //   setState(() {
+                            //     _activeController = _inputAmountController;
+                            //     _activeFocusNode = _inputAmountFocusNode;
+                            //   });
+                            // },
                             onChanged: (value) {
                               if (value.isNotEmpty) {
-                                final amount = double.tryParse(
-                                        value.replaceAll(',', '')) ??
-                                    0;
-                                final percentage = (amount /
-                                        widget.receiptItemEntity.totalAmount *
-                                        100)
-                                    .abs();
-                                _inputPercentController.text =
-                                    '${percentage.toStringAsFixed(2)}%';
+                                final amount = double.tryParse(value.replaceAll(',', '')) ?? 0;
+                                final percentage = (amount / widget.receiptItemEntity.totalAmount * 100).abs();
+                                _inputPercentController.text = '${percentage.toStringAsFixed(2)}%';
                               } else {
                                 _inputPercentController.text = '';
                               }
@@ -325,8 +312,7 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                             decoration: const InputDecoration(
                               contentPadding: EdgeInsets.all(10),
                               hintText: "ex. 100,000",
-                              hintStyle: TextStyle(
-                                  fontStyle: FontStyle.italic, fontSize: 24),
+                              hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
                               border: OutlineInputBorder(),
                             ),
                           ),
@@ -369,8 +355,7 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                             style: TextStyle(fontSize: 14),
                           ),
                           Text(
-                            Helpers.parseMoney(
-                                widget.receiptItemEntity.totalAmount),
+                            Helpers.parseMoney(widget.receiptItemEntity.totalAmount),
                             style: const TextStyle(fontSize: 14),
                           ),
                         ],
@@ -387,63 +372,23 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                     isNumericMode: _currentNumericMode,
                     customLayoutKeys: true,
                     height: 175,
-                    isShiftEnabled: _shiftEnabled,
-                    onKeyPress: (key) async {
+                    focusNodeAndTextController: FocusNodeAndTextController(
+                      focusNode: _activeFocusNode,
+                      textEditingController: _activeController,
+                    ),
+                    onChanged: () {
                       String text = _activeController.text;
-                      TextSelection currentSelection =
-                          _activeController.selection;
+                      TextSelection currentSelection = _activeController.selection;
                       int cursorPosition = currentSelection.start;
-
-                      if (key.keyType == VirtualKeyboardKeyType.String) {
-                        String inputText = key.text ?? '';
-                        text = text.replaceRange(
-                          (_activeController == _inputAmountController &&
-                                  text == '0')
-                              ? cursorPosition - 1
-                              : cursorPosition,
-                          cursorPosition,
-                          inputText,
-                        );
-                        cursorPosition += inputText.length;
-                      } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                        switch (key.action) {
-                          case VirtualKeyboardKeyAction.Backspace:
-                            if (text.isNotEmpty && cursorPosition > 0) {
-                              text = text.replaceRange(
-                                  cursorPosition - 1, cursorPosition, '');
-                              cursorPosition -= 1;
-                            }
-                            break;
-                          case VirtualKeyboardKeyAction.Return:
-                            if (_shiftEnabled) {
-                              FocusScope.of(context).nextFocus();
-                            }
-                            break;
-                          case VirtualKeyboardKeyAction.Space:
-                            text = text.replaceRange(
-                                cursorPosition, cursorPosition, ' ');
-                            cursorPosition += 1;
-                            break;
-                          case VirtualKeyboardKeyAction.Shift:
-                            _shiftEnabled = !_shiftEnabled;
-                            break;
-                          default:
-                            break;
-                        }
-                      }
-
                       if (_activeController == _inputAmountController) {
-                        TextEditingValue formattedValue =
-                            NegativeMoneyInputFormatter().formatEditUpdate(
+                        TextEditingValue formattedValue = NegativeMoneyInputFormatter().formatEditUpdate(
                           TextEditingValue(
                             text: text,
-                            selection:
-                                TextSelection.collapsed(offset: cursorPosition),
+                            selection: TextSelection.collapsed(offset: cursorPosition),
                           ),
                           TextEditingValue(
                             text: text,
-                            selection:
-                                TextSelection.collapsed(offset: cursorPosition),
+                            selection: TextSelection.collapsed(offset: cursorPosition),
                           ),
                         );
 
@@ -452,53 +397,34 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
 
                         // Update percentage
                         if (formattedValue.text.isNotEmpty) {
-                          final amount = double.tryParse(
-                                  formattedValue.text.replaceAll(',', '')) ??
-                              0;
-                          final percentage = (amount /
-                                  widget.receiptItemEntity.totalAmount *
-                                  100)
-                              .abs();
-                          _inputPercentController.text =
-                              '${percentage.toStringAsFixed(2)}%';
+                          final amount = double.tryParse(formattedValue.text.replaceAll(',', '')) ?? 0;
+                          final percentage = (amount / widget.receiptItemEntity.totalAmount * 100).abs();
+                          _inputPercentController.text = percentage.toStringAsFixed(2);
                         } else {
                           _inputPercentController.text = '';
                         }
                       } else if (_activeController == _inputPercentController) {
                         // Handle percentage input with decimal formatting
-                        if (text.isEmpty ||
-                            RegExp(r'^\d*\.?\d{0,3}$')
-                                .hasMatch(text.replaceAll('%', ''))) {
+                        if (text.isEmpty || RegExp(r'^\d*\.?\d{0,3}$').hasMatch(text.replaceAll('%', ''))) {
                           // Remove % if present for processing
                           final cleanText = text.replaceAll('%', '');
 
                           // Add % back when setting the text
-                          _activeController.text =
-                              cleanText.isEmpty ? '' : '$cleanText%';
-                          _activeController.selection =
-                              TextSelection.collapsed(offset: cleanText.length);
+                          _activeController.text = cleanText.isEmpty ? '' : '$cleanText%';
+                          _activeController.selection = TextSelection.collapsed(offset: cleanText.length);
 
                           // Update amount
                           if (cleanText.isNotEmpty) {
                             final percentage = double.tryParse(cleanText) ?? 0;
-                            final amount =
-                                (widget.receiptItemEntity.totalAmount *
-                                    percentage /
-                                    100);
-                            _inputAmountController.text =
-                                Helpers.parseMoney(amount);
+                            final amount = (widget.receiptItemEntity.totalAmount * percentage / 100);
+                            _inputAmountController.text = Helpers.parseMoney(amount);
                           } else {
                             _inputAmountController.text = '';
                           }
                         }
-                      } else {
-                        _activeController.text = text;
-                        _activeController.selection =
-                            TextSelection.collapsed(offset: cursorPosition);
                       }
-
-                      setState(() {});
                     },
+                    textFormatter: (_activeFocusNode == _inputAmountFocusNode) ? NegativeMoneyInputFormatter() : null,
                   ),
                 ),
             ],
@@ -516,8 +442,7 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                         side: const BorderSide(color: ProjectColors.primary),
                       ),
                     ),
-                    backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.white),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
                     overlayColor: MaterialStateColor.resolveWith(
                       (states) => ProjectColors.primary.withOpacity(.2),
                     ),
@@ -555,8 +480,7 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                         side: const BorderSide(color: ProjectColors.primary),
                       ),
                     ),
-                    backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => ProjectColors.primary),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                     overlayColor: MaterialStateColor.resolveWith(
                       (states) => Colors.white.withOpacity(.2),
                     ),
@@ -566,16 +490,14 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                       if (_inputAmountController.text == "-") {
                         throw "Invalid discount amount";
                       }
-                      double input = Helpers.revertMoneyToDecimalFormat(
-                          _inputAmountController.text);
+                      double input = Helpers.revertMoneyToDecimalFormat(_inputAmountController.text);
                       if (input > widget.max || input < widget.min) {
                         throw "Invalid discount amount";
                       }
 
                       Navigator.of(context).pop(input);
                     } catch (e) {
-                      SnackBarHelper.presentErrorSnackBar(
-                          context, e.toString());
+                      SnackBarHelper.presentErrorSnackBar(context, e.toString());
                     }
                   },
                   child: Center(

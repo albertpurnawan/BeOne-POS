@@ -11,7 +11,6 @@ import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class QuantityReceiveDPDialog extends StatefulWidget {
   const QuantityReceiveDPDialog({super.key, required this.quantity});
@@ -49,13 +48,16 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
   );
 
   final FocusNode _keyboardFocusNode = FocusNode();
+  bool _isDropdownShown = false;
   bool _showKeyboard = true;
+  bool _currentNumericMode = true;
+  final GlobalKey _iconButtonKey = GlobalKey();
 
   @override
   initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     _textEditingControllerQuantity.text = Helpers.cleanDecimal(widget.quantity, 1);
-    getDefaultKeyboardPOSParameter();
   }
 
   @override
@@ -63,6 +65,74 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
     _textEditingControllerQuantity.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  void _toggleKeyboard() {
+    if (_isDropdownShown) {
+      setState(() {
+        _showKeyboard = !_showKeyboard;
+      });
+    } else {
+      _showDropdown();
+    }
+  }
+
+  void _showDropdown() async {
+    final RenderBox renderBox = _iconButtonKey.currentContext!.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+
+    await showMenu(
+      context: context,
+      surfaceTintColor: Colors.transparent,
+      color: const Color.fromARGB(255, 245, 245, 245),
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy + renderBox.size.height,
+        offset.dx + renderBox.size.width,
+        offset.dy,
+      ),
+      items: [
+        const PopupMenuItem(
+          value: "Alphanumeric",
+          child: Text("Alphanumeric"),
+        ),
+        const PopupMenuItem(
+          value: "Numeric",
+          child: Text("Numeric"),
+        ),
+        const PopupMenuItem(
+          value: "Off",
+          child: Text("Off"),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        switch (value) {
+          case 'Off':
+            setState(() {
+              _showKeyboard = false;
+            });
+            break;
+          case 'Alphanumeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = false;
+            });
+            break;
+          case 'Numeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = true;
+            });
+            break;
+          default:
+            setState(() {
+              _showKeyboard = true;
+            });
+            break;
+        }
+      }
+    });
   }
 
   Future<void> getDefaultKeyboardPOSParameter() async {
@@ -104,6 +174,7 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
                 borderRadius: const BorderRadius.all(Radius.circular(360)),
               ),
               child: IconButton(
+                key: _iconButtonKey,
                 focusColor: const Color.fromARGB(255, 110, 0, 0),
                 focusNode: _keyboardFocusNode,
                 icon: Icon(
@@ -111,9 +182,7 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  setState(() {
-                    _showKeyboard = !_showKeyboard;
-                  });
+                  _toggleKeyboard();
                 },
                 tooltip: 'Toggle Keyboard',
               ),
@@ -184,34 +253,13 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
                     padding: const EdgeInsets.fromLTRB(40, 10, 40, 5),
                     child: KeyboardWidget(
                       controller: _textEditingControllerQuantity,
-                      isNumericMode: true,
+                      isNumericMode: _currentNumericMode,
                       customLayoutKeys: true,
-                      onKeyPress: (key) async {
-                        String text = _textEditingControllerQuantity.text;
-                        TextSelection currentSelection = _textEditingControllerQuantity.selection;
-                        int cursorPosition = currentSelection.end;
-
-                        if (key.keyType == VirtualKeyboardKeyType.String) {
-                          String inputText = key.text ?? '';
-                          text = text.replaceRange(
-                              (text == '0') ? cursorPosition - 1 : cursorPosition, cursorPosition, inputText);
-                          cursorPosition += inputText.length;
-                        } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                          switch (key.action) {
-                            case VirtualKeyboardKeyAction.Backspace:
-                              if (text.isNotEmpty && cursorPosition > 0) {
-                                text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                cursorPosition -= 1;
-                              }
-                              break;
-                            default:
-                              break;
-                          }
-                        }
-                        _textEditingControllerQuantity.text = text;
-                        _textEditingControllerQuantity.selection = TextSelection.collapsed(offset: cursorPosition);
-                        setState(() {});
-                      },
+                      focusNodeAndTextController: FocusNodeAndTextController(
+                        focusNode: _focusNodeQuantity,
+                        textEditingController: _textEditingControllerQuantity,
+                      ),
+                      textFormatter: _currentNumericMode ? MoneyInputFormatter() : NegativeMoneyInputFormatter(),
                     ),
                   )
                 : const SizedBox.shrink(),

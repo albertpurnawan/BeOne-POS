@@ -18,7 +18,6 @@ import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class CustomerDisplay extends StatefulWidget {
   const CustomerDisplay({super.key});
@@ -706,11 +705,12 @@ class _BannerPopupState extends State<BannerPopup> {
   final FocusNode descriptionFocusNode = FocusNode();
   final FocusNode pathFocusNode = FocusNode();
   final FocusNode durationFocusNode = FocusNode();
-  bool _shiftEnabled = false;
+
   bool _showKeyboard = true;
   final FocusNode _keyboardFocusNode = FocusNode();
   bool currentNumericMode = false;
   TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -725,6 +725,7 @@ class _BannerPopupState extends State<BannerPopup> {
         setState(() {
           _activeController = descriptionController;
           currentNumericMode = false;
+          _activeFocusNode = descriptionFocusNode;
         });
       }
     });
@@ -733,6 +734,7 @@ class _BannerPopupState extends State<BannerPopup> {
         setState(() {
           _activeController = pathController;
           currentNumericMode = false;
+          _activeFocusNode = pathFocusNode;
         });
       }
     });
@@ -741,6 +743,7 @@ class _BannerPopupState extends State<BannerPopup> {
         setState(() {
           _activeController = durationController;
           currentNumericMode = true;
+          _activeFocusNode = durationFocusNode;
         });
       }
     });
@@ -974,44 +977,10 @@ class _BannerPopupState extends State<BannerPopup> {
                                     controller: _activeController,
                                     isNumericMode: currentNumericMode,
                                     customLayoutKeys: true,
-                                    isShiftEnabled: _shiftEnabled,
-                                    onKeyPress: (key) async {
-                                      String text = _activeController.text;
-                                      TextSelection currentSelection = _activeController.selection;
-                                      int cursorPosition = currentSelection.start;
-
-                                      if (key.keyType == VirtualKeyboardKeyType.String) {
-                                        String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                        text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                        cursorPosition += inputText.length;
-                                      } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                        switch (key.action) {
-                                          case VirtualKeyboardKeyAction.Backspace:
-                                            if (text.isNotEmpty) {
-                                              text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                              cursorPosition -= 1;
-                                            }
-                                            break;
-                                          case VirtualKeyboardKeyAction.Return:
-                                            _activeController.text = _activeController.text.trimRight();
-
-                                            break;
-                                          case VirtualKeyboardKeyAction.Space:
-                                            text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                            cursorPosition += 1;
-                                            break;
-                                          case VirtualKeyboardKeyAction.Shift:
-                                            _shiftEnabled = !_shiftEnabled;
-                                            break;
-                                          default:
-                                            break;
-                                        }
-                                      }
-                                      _activeController.text = text;
-                                      _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                                      setState(() {});
-                                    },
+                                    focusNodeAndTextController: FocusNodeAndTextController(
+                                      focusNode: _activeFocusNode,
+                                      textEditingController: _activeController,
+                                    ),
                                   ),
                                 )
                               : const SizedBox.shrink(),
@@ -1027,7 +996,7 @@ class _BannerPopupState extends State<BannerPopup> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
-                                  side: BorderSide(width: 1, color: ProjectColors.primary),
+                                  side: const BorderSide(width: 1, color: ProjectColors.primary),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),

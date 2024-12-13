@@ -138,6 +138,7 @@ class _SettingsFormState extends State<SettingsForm> {
 
   bool _hidePassword = true;
   TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
   String device = "";
 
   @override
@@ -151,6 +152,7 @@ class _SettingsFormState extends State<SettingsForm> {
       if (_gtentFocusNode.hasFocus) {
         setState(() {
           _activeController = gtentController;
+          _activeFocusNode = _gtentFocusNode;
         });
       }
     });
@@ -158,6 +160,7 @@ class _SettingsFormState extends State<SettingsForm> {
       if (_tostrFocusNode.hasFocus) {
         setState(() {
           _activeController = tostrController;
+          _activeFocusNode = _tostrFocusNode;
         });
       }
     });
@@ -165,6 +168,7 @@ class _SettingsFormState extends State<SettingsForm> {
       if (_tocsrFocusNode.hasFocus) {
         setState(() {
           _activeController = tocsrController;
+          _activeFocusNode = _tocsrFocusNode;
         });
       }
     });
@@ -172,6 +176,7 @@ class _SettingsFormState extends State<SettingsForm> {
       if (_urlFocusNode.hasFocus) {
         setState(() {
           _activeController = urlController;
+          _activeFocusNode = _urlFocusNode;
         });
       }
     });
@@ -179,6 +184,7 @@ class _SettingsFormState extends State<SettingsForm> {
       if (_emailFocusNode.hasFocus) {
         setState(() {
           _activeController = emailController;
+          _activeFocusNode = _emailFocusNode;
         });
       }
     });
@@ -186,6 +192,7 @@ class _SettingsFormState extends State<SettingsForm> {
       if (_passwordFocusNode.hasFocus) {
         setState(() {
           _activeController = passwordController;
+          _activeFocusNode = _passwordFocusNode;
         });
       }
     });
@@ -454,6 +461,10 @@ class _SettingsFormState extends State<SettingsForm> {
                     controller: _activeController,
                     isNumericMode: false,
                     customLayoutKeys: true,
+                    focusNodeAndTextController: FocusNodeAndTextController(
+                      focusNode: _activeFocusNode,
+                      textEditingController: _activeController,
+                    ),
                   )
                 : const SizedBox.shrink(),
             const SizedBox(height: 30),

@@ -344,6 +344,11 @@ class _InvoiceDetailsDialogState extends State<InvoiceDetailsDialog> {
                                   controller: _noteController,
                                   isNumericMode: false,
                                   customLayoutKeys: true,
+                                  focusNodeAndTextController: FocusNodeAndTextController(
+                                    focusNode: _noteFocusNode,
+                                    textEditingController: _noteController,
+                                  ),
+                                  enableNewLine: true,
                                 )
                               : const SizedBox.shrink(),
                           const SizedBox(height: 20),

@@ -19,7 +19,6 @@ import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class OTPUnlockDialog extends StatefulWidget {
   final String requester;
@@ -439,35 +438,29 @@ class _OTPUnlockDialogState extends State<OTPUnlockDialog> {
                                 controller: _otpControllers[_focusedIndex],
                                 isNumericMode: true,
                                 customLayoutKeys: true,
-                                onKeyPress: (key) async {
+                                focusNodeAndTextController: FocusNodeAndTextController(
+                                  focusNode: _otpFocusNodes[_focusedIndex],
+                                  textEditingController: _otpControllers[_focusedIndex],
+                                ),
+                                onChanged: () async {
                                   String text = _otpControllers[_focusedIndex].text;
 
-                                  if (key.keyType == VirtualKeyboardKeyType.String) {
-                                    text = key.text ?? '';
+                                  if (text.isNotEmpty && _focusedIndex < 5) {
+                                    _otpFocusNodes[_focusedIndex + 1].requestFocus();
+                                  } else if (text.isNotEmpty && _focusedIndex == 5) {
+                                    _updateOtpCode();
+                                    await onSubmit(parentContext, childContext, _otpCode, widget.requester);
+                                  }
+                                },
+                                onChangedBackspace: () {
+                                  String text = _otpControllers[_focusedIndex].text;
+                                  if (text.isNotEmpty) {
+                                    text = text.substring(0, text.length - 1);
                                     _otpControllers[_focusedIndex].text = text;
-
-                                    if (text.isNotEmpty && _focusedIndex < 5) {
-                                      _otpFocusNodes[_focusedIndex + 1].requestFocus();
-                                    } else if (text.isNotEmpty && _focusedIndex == 5) {
-                                      _updateOtpCode();
-                                      await onSubmit(parentContext, childContext, _otpCode, widget.requester);
-                                    }
-                                  } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                    if (key.action == VirtualKeyboardKeyAction.Backspace) {
-                                      if (text.isNotEmpty) {
-                                        text = text.substring(0, text.length - 1);
-                                        _otpControllers[_focusedIndex].text = text;
-                                      }
-
-                                      if (text.isEmpty && _focusedIndex > 0) {
-                                        _otpFocusNodes[_focusedIndex - 1].requestFocus();
-                                      }
-                                    }
                                   }
 
-                                  int newFocusedIndex = _otpFocusNodes.indexWhere((node) => node.hasFocus);
-                                  if (newFocusedIndex != -1) {
-                                    _focusedIndex = newFocusedIndex;
+                                  if (text.isEmpty && _focusedIndex > 0) {
+                                    _otpFocusNodes[_focusedIndex - 1].requestFocus();
                                   }
                                 },
                               )

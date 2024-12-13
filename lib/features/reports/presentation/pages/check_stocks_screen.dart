@@ -11,7 +11,6 @@ import 'package:pos_fe/features/sales/data/models/check_stock.dart';
 import 'package:pos_fe/features/sales/domain/entities/check_stock.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class CheckStockScreen extends StatefulWidget {
   const CheckStockScreen({super.key});
@@ -29,7 +28,6 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
   bool showTable = false;
   bool isLoading = false;
 
-  bool _shiftEnabled = false;
   bool _showKeyboard = true;
   final FocusNode _keyboardFocusNode = FocusNode();
 
@@ -167,48 +165,18 @@ class _CheckStockScreenState extends State<CheckStockScreen> {
                               controller: _itemInputController,
                               isNumericMode: false,
                               customLayoutKeys: true,
-                              isShiftEnabled: _shiftEnabled,
-                              onKeyPress: (key) async {
-                                String text = _itemInputController.text;
-                                TextSelection currentSelection = _itemInputController.selection;
-                                int cursorPosition = currentSelection.start;
+                              focusNodeAndTextController: FocusNodeAndTextController(
+                                focusNode: _focusNode,
+                                textEditingController: _itemInputController,
+                              ),
+                              onSubmit: () async {
+                                _itemInputController.text = _itemInputController.text.trimRight();
+                                final itemsSearched = await _searchItem(_itemInputController.text);
 
-                                if (key.keyType == VirtualKeyboardKeyType.String) {
-                                  String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                  text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                  cursorPosition += inputText.length;
-                                } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                  switch (key.action) {
-                                    case VirtualKeyboardKeyAction.Backspace:
-                                      if (text.isNotEmpty) {
-                                        text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                        cursorPosition -= 1;
-                                      }
-                                      break;
-                                    case VirtualKeyboardKeyAction.Return:
-                                      _itemInputController.text = _itemInputController.text.trimRight();
-                                      final itemsSearched = await _searchItem(_itemInputController.text);
-
-                                      setState(() {
-                                        itemsFound = itemsSearched;
-                                        showTable = false;
-                                      });
-                                      break;
-                                    case VirtualKeyboardKeyAction.Space:
-                                      text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                      cursorPosition += 1;
-                                      break;
-                                    case VirtualKeyboardKeyAction.Shift:
-                                      _shiftEnabled = !_shiftEnabled;
-                                      break;
-                                    default:
-                                      break;
-                                  }
-                                }
-                                _itemInputController.text = text;
-                                _itemInputController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                                setState(() {});
+                                setState(() {
+                                  itemsFound = itemsSearched;
+                                  showTable = false;
+                                });
                               },
                             ),
                           ),

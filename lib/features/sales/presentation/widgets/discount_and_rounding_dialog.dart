@@ -26,26 +26,20 @@ import 'package:pos_fe/features/sales/presentation/widgets/input_line_discount_d
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class DiscountAndRoundingDialog extends StatefulWidget {
   final String docnum;
   final bool manualRounded;
-  const DiscountAndRoundingDialog(
-      {super.key, required this.docnum, required this.manualRounded});
+  const DiscountAndRoundingDialog({super.key, required this.docnum, required this.manualRounded});
 
   @override
-  State<DiscountAndRoundingDialog> createState() =>
-      _DiscountAndRoundingDialogState();
+  State<DiscountAndRoundingDialog> createState() => _DiscountAndRoundingDialogState();
 }
 
 class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
-  final TextEditingController _textEditorHeaderDiscountAmountController =
-      TextEditingController();
-  final TextEditingController _textEditorHeaderDiscountPercentController =
-      TextEditingController();
-  final TextEditingController _textEditorLineDiscountController =
-      TextEditingController();
+  final TextEditingController _textEditorHeaderDiscountAmountController = TextEditingController();
+  final TextEditingController _textEditorHeaderDiscountPercentController = TextEditingController();
+  final TextEditingController _textEditorLineDiscountController = TextEditingController();
 
   final FocusNode _discountFocusNode = FocusNode();
   final FocusNode _discountPercentFocusNode = FocusNode();
@@ -65,16 +59,17 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
 
   final FocusNode _keyboardFocusNode = FocusNode();
   bool _showKeyboard = true;
-  bool _shiftEnabled = false;
+
   bool _currentNumericMode = true;
   bool _isDropdownShown = false;
   final GlobalKey _iconButtonKey = GlobalKey();
   TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
-    super.initState();
     getDefaultKeyboardPOSParameter();
+    super.initState();
     _discountPercentFocusNode.requestFocus();
     final ReceiptEntity state = context.read<ReceiptCubit>().state;
 
@@ -86,46 +81,30 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                 (previousValue, e1) =>
                     previousValue +
                     (((100 + e1.itemEntity.taxRate) / 100) *
-                        e1.promos.where((e2) => e2.promoType == 998).fold(
-                            0.0,
-                            (previousValue, e3) =>
-                                previousValue + (e3.discAmount ?? 0)))))
+                        e1.promos
+                            .where((e2) => e2.promoType == 998)
+                            .fold(0.0, (previousValue, e3) => previousValue + (e3.discAmount ?? 0)))))
         .roundToDouble();
     lineDiscountInputs = context
         .read<ReceiptCubit>()
         .state
         .receiptItems
         .map((e) => LineDiscountParameter(
-            receiptItemEntity: ReceiptHelper.updateReceiptItemAggregateFields(
-                e.copyWith(
-                    promos: e.promos
-                        .where((element) => element.promoType != 998)
-                        .map((e) => e.copyWith())
-                        .toList(),
-                    discAmount: e.promos
-                        .where((element) => element.promoType != 998)
-                        .fold(
-                            0.0,
-                            (previousValue, element) =>
-                                (previousValue ?? 0) +
-                                (element.discAmount ?? 0)))),
-            lineDiscountAmount: (e.promos
-                        .where((element) => element.promoType == 998)
-                        .firstOrNull
-                        ?.discAmount ??
-                    0) *
+            receiptItemEntity: ReceiptHelper.updateReceiptItemAggregateFields(e.copyWith(
+                promos: e.promos.where((element) => element.promoType != 998).map((e) => e.copyWith()).toList(),
+                discAmount: e.promos
+                    .where((element) => element.promoType != 998)
+                    .fold(0.0, (previousValue, element) => (previousValue ?? 0) + (element.discAmount ?? 0)))),
+            lineDiscountAmount: (e.promos.where((element) => element.promoType == 998).firstOrNull?.discAmount ?? 0) *
                 ((100 + e.itemEntity.taxRate) / 100)))
         .toList();
     searchedLineDiscountInputs = lineDiscountInputs;
-    _textEditorHeaderDiscountAmountController.text =
-        Helpers.parseMoney(state.discHeaderManual ?? 0);
+    _textEditorHeaderDiscountAmountController.text = Helpers.parseMoney(state.discHeaderManual ?? 0);
 
     // Calculate and set the discount percentage
     if ((state.discHeaderManual ?? 0) != 0) {
-      final percentage =
-          ((state.discHeaderManual ?? 0) / initialGrandTotal * 100).abs();
-      _textEditorHeaderDiscountPercentController.text =
-          '${percentage.toStringAsFixed(2)}%';
+      final percentage = ((state.discHeaderManual ?? 0) / initialGrandTotal * 100).abs();
+      _textEditorHeaderDiscountPercentController.text = '${percentage.toStringAsFixed(2)}%';
     }
 
     isManualRounded = widget.manualRounded;
@@ -135,6 +114,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
       if (_discountPercentFocusNode.hasFocus) {
         setState(() {
           _activeController = _textEditorHeaderDiscountPercentController;
+          _activeFocusNode = _discountPercentFocusNode;
         });
       }
     });
@@ -142,6 +122,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
       if (_discountFocusNode.hasFocus) {
         setState(() {
           _activeController = _textEditorHeaderDiscountAmountController;
+          _activeFocusNode = _discountFocusNode;
         });
       }
     });
@@ -150,11 +131,11 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
       if (_searchLineDiscountFocusNode.hasFocus) {
         setState(() {
           _activeController = _textEditorLineDiscountController;
+          _activeFocusNode = _searchLineDiscountFocusNode;
         });
       }
     });
 
-    // Set initial active controller to percentage
     _activeController = _textEditorHeaderDiscountPercentController;
     _discountPercentFocusNode.requestFocus();
   }
@@ -184,8 +165,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   }
 
   void _showDropdown() async {
-    final RenderBox renderBox =
-        _iconButtonKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox renderBox = _iconButtonKey.currentContext!.findRenderObject() as RenderBox;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
 
     await showMenu(
@@ -244,12 +224,10 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
 
   Future<void> getDefaultKeyboardPOSParameter() async {
     try {
-      final POSParameterEntity? posParameterEntity =
-          await GetIt.instance<GetPosParameterUseCase>().call();
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
       if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
       setState(() {
-        _showKeyboard =
-            (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
       });
     } catch (e) {
       if (mounted) {
@@ -260,10 +238,8 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
 
   double getLineDiscountsTotal() {
     try {
-      final double lineDiscountsTotal = lineDiscountInputs.fold(
-          0,
-          (previousValue, element) =>
-              previousValue + element.lineDiscountAmount);
+      final double lineDiscountsTotal =
+          lineDiscountInputs.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
 
       return lineDiscountsTotal;
     } catch (e) {
@@ -276,12 +252,8 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   double getSimulatedGrandTotal() {
     try {
       final double simulatedGrandTotal = initialGrandTotal -
-          Helpers.revertMoneyToDecimalFormatDouble(
-              _textEditorHeaderDiscountAmountController.text) -
-          lineDiscountInputs.fold(
-              0,
-              (previousValue, element) =>
-                  previousValue + element.lineDiscountAmount) +
+          Helpers.revertMoneyToDecimalFormatDouble(_textEditorHeaderDiscountAmountController.text) -
+          lineDiscountInputs.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount) +
           context.read<ReceiptCubit>().state.rounding;
 
       return simulatedGrandTotal.roundToDouble();
@@ -298,36 +270,30 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
         context.pop();
         throw "Invalid discount amount";
       }
-      double input = Helpers.revertMoneyToDecimalFormat(
-          _textEditorHeaderDiscountAmountController.text);
+      double input = Helpers.revertMoneyToDecimalFormat(_textEditorHeaderDiscountAmountController.text);
       final ReceiptEntity state = context.read<ReceiptCubit>().state;
       if (state.grandTotal < 0 && input != 0) {
         context.pop();
         throw "Header discount is inapplicable on negative grand total";
       }
-      if (state.grandTotal > 0 &&
-          (input > state.grandTotal + (state.discHeaderManual ?? 0))) {
+      if (state.grandTotal > 0 && (input > state.grandTotal + (state.discHeaderManual ?? 0))) {
         context.pop();
         throw "Invalid discount amount";
       }
 
-      final POSParameterEntity? posParameterEntity =
-          await GetIt.instance<GetPosParameterUseCase>().call();
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
       if (posParameterEntity == null) throw "POS Parameter not found";
       final StoreMasterEntity? storeMasterEntity =
-          await GetIt.instance<GetStoreMasterUseCase>()
-              .call(params: posParameterEntity.tostrId);
+          await GetIt.instance<GetStoreMasterUseCase>().call(params: posParameterEntity.tostrId);
       if (storeMasterEntity == null) throw "Store master not found";
       if (isManualRounded) {
         await showDialog(
             context: context,
             builder: (BuildContext context) {
-              return _warningResetRounding(isManualRounded,
-                  onComplete: () async {
+              return _warningResetRounding(isManualRounded, onComplete: () async {
                 context.read<ReceiptCubit>().resetRounding(initialGrandTotal);
                 context.read<ReceiptCubit>().replaceState(
-                    await GetIt.instance<ApplyRoundingUseCase>()
-                        .call(params: context.read<ReceiptCubit>().state));
+                    await GetIt.instance<ApplyRoundingUseCase>().call(params: context.read<ReceiptCubit>().state));
                 setState(() {
                   initialRounding = context.read<ReceiptCubit>().state.rounding;
                 });
@@ -338,8 +304,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
 
       if (input < (storeMasterEntity.minDiscount ?? 0) ||
           input > (storeMasterEntity.maxDiscount ?? 0) ||
-          lineDiscountInputs
-              .any((element) => element.lineDiscountAmount != 0)) {
+          lineDiscountInputs.any((element) => element.lineDiscountAmount != 0)) {
         await showDialog(
             context: context,
             barrierDismissible: false,
@@ -351,9 +316,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                   lineDiscountParameters: lineDiscountInputs,
                 ));
       } else {
-        await context
-            .read<ReceiptCubit>()
-            .updateTotalAmountFromDiscount(input, lineDiscountInputs);
+        await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
         context.pop(input);
       }
     } catch (e) {
@@ -366,15 +329,12 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     setState(() {
       searchedLineDiscountInputs = lineDiscountInputs
           .where((element) =>
-              element.receiptItemEntity.itemEntity.itemName.contains(RegExp(
-                  _textEditorLineDiscountController.text,
-                  caseSensitive: false)) ||
-              element.receiptItemEntity.itemEntity.itemCode.contains(RegExp(
-                  _textEditorLineDiscountController.text,
-                  caseSensitive: false)) ||
-              element.receiptItemEntity.itemEntity.barcode.contains(RegExp(
-                  _textEditorLineDiscountController.text,
-                  caseSensitive: false)))
+              element.receiptItemEntity.itemEntity.itemName
+                  .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)) ||
+              element.receiptItemEntity.itemEntity.itemCode
+                  .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)) ||
+              element.receiptItemEntity.itemEntity.barcode
+                  .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)))
           .toList();
       // log(lineDiscountInputs
       //     .where((element) =>
@@ -393,11 +353,9 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   void _resetLineDiscounts() {
     try {
       setState(() {
-        lineDiscountInputs =
-            lineDiscountInputs.map((e) => e..lineDiscountAmount = 0).toList();
+        lineDiscountInputs = lineDiscountInputs.map((e) => e..lineDiscountAmount = 0).toList();
       });
-      SnackBarHelper.presentSuccessSnackBar(
-          context, "Reset line discounts success", null);
+      SnackBarHelper.presentSuccessSnackBar(context, "Reset line discounts success", null);
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
     }
@@ -410,8 +368,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
         _textEditorHeaderDiscountPercentController.text = "0";
         _discountPercentFocusNode.requestFocus();
       });
-      SnackBarHelper.presentSuccessSnackBar(
-          context, "Reset header discount success", null);
+      SnackBarHelper.presentSuccessSnackBar(context, "Reset header discount success", null);
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
     }
@@ -428,8 +385,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
             skipTraversal: true,
             node: _focusScopeNode,
             onKeyEvent: (node, event) {
-              if (event.runtimeType == KeyUpEvent)
-                return KeyEventResult.handled;
+              if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
               if (event.physicalKey == PhysicalKeyboardKey.f12) {
                 onSubmit();
                 return KeyEventResult.handled;
@@ -443,23 +399,18 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
             child: AlertDialog(
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
               title: Container(
                 decoration: const BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(5.0)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 5, 10, 5),
                 child: Row(
                   children: [
                     const Text(
                       'Discount',
-                      style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white),
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                     ),
                     const Spacer(),
                     Row(
@@ -476,15 +427,13 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                             [ProjectColors.green]
                           ],
                           activeFgColor: Colors.white,
-                          inactiveBgColor:
-                              const Color.fromARGB(255, 211, 211, 211),
+                          inactiveBgColor: const Color.fromARGB(255, 211, 211, 211),
                           inactiveFgColor: ProjectColors.lightBlack,
                           initialLabelIndex: isHeaderDiscount ? 0 : 1,
                           totalSwitches: 2,
                           labels: const ['Header', 'Line'],
                           customTextStyles: const [
-                            TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.w700),
+                            TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
                             TextStyle(fontSize: 12, fontWeight: FontWeight.w700)
                           ],
                           radiusStyle: true,
@@ -504,20 +453,15 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                         const SizedBox(width: 5),
                         Container(
                           decoration: BoxDecoration(
-                            color: _showKeyboard
-                                ? const Color.fromARGB(255, 110, 0, 0)
-                                : ProjectColors.primary,
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(360)),
+                            color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                            borderRadius: const BorderRadius.all(Radius.circular(360)),
                           ),
                           child: IconButton(
                             key: _iconButtonKey,
                             focusColor: const Color.fromARGB(255, 110, 0, 0),
                             focusNode: _keyboardFocusNode,
                             icon: Icon(
-                              _showKeyboard
-                                  ? Icons.keyboard_hide_outlined
-                                  : Icons.keyboard_outlined,
+                              _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
                               color: Colors.white,
                             ),
                             onPressed: () {
@@ -542,9 +486,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ...(isHeaderDiscount
-                        ? _buildHeaderDiscount(context)
-                        : _buildLineDiscounts(context)),
+                    ...(isHeaderDiscount ? _buildHeaderDiscount(context) : _buildLineDiscounts(context)),
                     const SizedBox(
                       height: 15,
                     ),
@@ -552,9 +494,8 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Container(
                         padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                            color: ProjectColors.background,
-                            borderRadius: BorderRadius.circular(5)),
+                        decoration:
+                            BoxDecoration(color: ProjectColors.background, borderRadius: BorderRadius.circular(5)),
                         child: Table(
                           // defaultColumnWidth: IntrinsicColumnWidth(),
                           // columnWidths: const {0: FixedColumnWidth(100), 1: FlexColumnWidth()},
@@ -591,18 +532,11 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          _textEditorHeaderDiscountAmountController
-                                                          .text ==
-                                                      "" ||
-                                                  _textEditorHeaderDiscountAmountController
-                                                          .text ==
-                                                      "0" ||
-                                                  _textEditorHeaderDiscountAmountController
-                                                          .text ==
-                                                      "-"
+                                          _textEditorHeaderDiscountAmountController.text == "" ||
+                                                  _textEditorHeaderDiscountAmountController.text == "0" ||
+                                                  _textEditorHeaderDiscountAmountController.text == "-"
                                               ? "0"
-                                              : _textEditorHeaderDiscountAmountController
-                                                  .text,
+                                              : _textEditorHeaderDiscountAmountController.text,
                                           textAlign: TextAlign.right,
                                           style: const TextStyle(fontSize: 14),
                                         ),
@@ -611,8 +545,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                         ),
                                         ExcludeFocus(
                                           child: InkWell(
-                                              onTap: () =>
-                                                  _resetHeaderDiscount(),
+                                              onTap: () => _resetHeaderDiscount(),
                                               child: const Icon(
                                                 Icons.delete_outline_rounded,
                                                 color: ProjectColors.swatch,
@@ -640,8 +573,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          Helpers.parseMoney(
-                                              getLineDiscountsTotal()),
+                                          Helpers.parseMoney(getLineDiscountsTotal()),
                                           textAlign: TextAlign.right,
                                           style: const TextStyle(fontSize: 14),
                                         ),
@@ -650,8 +582,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                         ),
                                         ExcludeFocus(
                                           child: InkWell(
-                                              onTap: () =>
-                                                  _resetLineDiscounts(),
+                                              onTap: () => _resetLineDiscounts(),
                                               child: const Icon(
                                                 Icons.delete_outline_rounded,
                                                 color: ProjectColors.swatch,
@@ -705,19 +636,14 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                 const TableCell(
                                   child: Text(
                                     "Grand Total",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 18),
+                                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
                                   ),
                                 ),
                                 TableCell(
                                   child: Text(
-                                    Helpers.parseMoney(
-                                        getSimulatedGrandTotal()),
+                                    Helpers.parseMoney(getSimulatedGrandTotal()),
                                     textAlign: TextAlign.right,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 18),
+                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
                                   ),
                                 ),
                               ],
@@ -742,16 +668,12 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                         flex: 1,
                         child: TextButton(
                           style: ButtonStyle(
-                              shape: MaterialStatePropertyAll(
-                                  RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      side: const BorderSide(
-                                          color: ProjectColors.primary))),
-                              backgroundColor: MaterialStateColor.resolveWith(
-                                  (states) => Colors.white),
-                              overlayColor: MaterialStateColor.resolveWith(
-                                  (states) =>
-                                      ProjectColors.primary.withOpacity(.2))),
+                              shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                  side: const BorderSide(color: ProjectColors.primary))),
+                              backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                              overlayColor:
+                                  MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
@@ -761,13 +683,11 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                 children: [
                                   TextSpan(
                                     text: "Cancel",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w600),
+                                    style: TextStyle(fontWeight: FontWeight.w600),
                                   ),
                                   TextSpan(
                                     text: "  (Esc)",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w300),
+                                    style: TextStyle(fontWeight: FontWeight.w300),
                                   ),
                                 ],
                                 style: TextStyle(color: ProjectColors.primary),
@@ -781,16 +701,12 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                         flex: 2,
                         child: TextButton(
                           style: ButtonStyle(
-                              shape: MaterialStatePropertyAll(
-                                  RoundedRectangleBorder(
+                              shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
-                                side: const BorderSide(
-                                    color: ProjectColors.primary),
+                                side: const BorderSide(color: ProjectColors.primary),
                               )),
-                              backgroundColor: MaterialStateColor.resolveWith(
-                                  (states) => ProjectColors.primary),
-                              overlayColor: MaterialStateColor.resolveWith(
-                                  (states) => Colors.white.withOpacity(.2))),
+                              backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                              overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                           onPressed: () async {
                             await onSubmit();
                           },
@@ -800,13 +716,11 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                 children: [
                                   TextSpan(
                                     text: "Save",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w600),
+                                    style: TextStyle(fontWeight: FontWeight.w600),
                                   ),
                                   TextSpan(
                                     text: "  (F12)",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.w300),
+                                    style: TextStyle(fontWeight: FontWeight.w300),
                                   ),
                                 ],
                               ),
@@ -827,124 +741,74 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
 
   Widget _buildKeyboard() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(15, 5, 15, 0),
+      padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
       child: KeyboardWidget(
         controller: _activeController,
         isNumericMode: _currentNumericMode,
         customLayoutKeys: true,
         height: 175,
-        isShiftEnabled: _shiftEnabled,
-        onKeyPress: (key) async {
-          String text = _activeController.text;
-          TextSelection currentSelection = _activeController.selection;
-          int cursorPosition = currentSelection.start;
-
-          if (key.keyType == VirtualKeyboardKeyType.String) {
-            String inputText = key.text ?? '';
-            text = text.replaceRange(
-              (_activeController == _textEditorHeaderDiscountAmountController &&
-                      text == '0')
-                  ? cursorPosition - 1
-                  : cursorPosition,
-              cursorPosition,
-              inputText,
-            );
-            cursorPosition += inputText.length;
-          } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-            switch (key.action) {
-              case VirtualKeyboardKeyAction.Backspace:
-                if (text.isNotEmpty && cursorPosition > 0) {
-                  text =
-                      text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                  cursorPosition -= 1;
+        focusNodeAndTextController: FocusNodeAndTextController(
+          focusNode: _activeFocusNode,
+          textEditingController: _activeController,
+        ),
+        onChanged: (_activeFocusNode == _searchLineDiscountFocusNode)
+            ? () {
+                try {
+                  _searchItemLineDiscount();
+                  _searchLineDiscountFocusNode.requestFocus();
+                } catch (e) {
+                  SnackBarHelper.presentErrorSnackBar(context, e.toString());
                 }
-                break;
-              case VirtualKeyboardKeyAction.Return:
-                if (_shiftEnabled) {
-                  FocusScope.of(context).nextFocus();
-                }
-                break;
-
-              case VirtualKeyboardKeyAction.Space:
-                text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                cursorPosition += 1;
-                break;
-
-              case VirtualKeyboardKeyAction.Shift:
-                _shiftEnabled = !_shiftEnabled;
-                break;
-
-              default:
-                break;
-            }
-          }
-
-          if (_activeController == _textEditorHeaderDiscountAmountController) {
-            TextEditingValue formattedValue =
-                NegativeMoneyInputFormatter().formatEditUpdate(
-              TextEditingValue(
-                text: text,
-                selection: TextSelection.collapsed(offset: cursorPosition),
-              ),
-              TextEditingValue(
-                text: text,
-                selection: TextSelection.collapsed(offset: cursorPosition),
-              ),
-            );
-
-            _activeController.text = formattedValue.text;
-            _activeController.selection = formattedValue.selection;
-
-            // Update percentage
-            if (formattedValue.text.isNotEmpty) {
-              final amount =
-                  double.tryParse(formattedValue.text.replaceAll(',', '')) ?? 0;
-              final percentage = (amount / initialGrandTotal * 100).abs();
-              _textEditorHeaderDiscountPercentController.text =
-                  percentage.toStringAsFixed(2);
-            } else {
-              _textEditorHeaderDiscountPercentController.text = '';
-            }
-          } else if (_activeController ==
-              _textEditorHeaderDiscountPercentController) {
-            // Handle percentage input with decimal formatting
-            if (text.isEmpty ||
-                RegExp(r'^\d*\.?\d{0,3}$').hasMatch(text.replaceAll('%', ''))) {
-              // Remove % if present for processing
-              final cleanText = text.replaceAll('%', '');
-
-              // Add % back when setting the text
-              _activeController.text = cleanText.isEmpty ? '' : '$cleanText%';
-              _activeController.selection =
-                  TextSelection.collapsed(offset: cleanText.length);
-
-              // Update amount
-              if (cleanText.isNotEmpty) {
-                final percentage = double.tryParse(cleanText) ?? 0;
-                final amount = (initialGrandTotal * percentage / 100);
-                _textEditorHeaderDiscountAmountController.text =
-                    Helpers.parseMoney(amount);
-              } else {
-                _textEditorHeaderDiscountAmountController.text = '';
               }
-            }
-          } else {
-            _activeController.text = text;
-            _activeController.selection =
-                TextSelection.collapsed(offset: cursorPosition);
-          }
+            : () {
+                String text = _activeController.text;
+                TextSelection currentSelection = _activeController.selection;
+                int cursorPosition = currentSelection.start;
+                if (_activeController == _textEditorHeaderDiscountAmountController) {
+                  TextEditingValue formattedValue = NegativeMoneyInputFormatter().formatEditUpdate(
+                    TextEditingValue(
+                      text: text,
+                      selection: TextSelection.collapsed(offset: cursorPosition),
+                    ),
+                    TextEditingValue(
+                      text: text,
+                      selection: TextSelection.collapsed(offset: cursorPosition),
+                    ),
+                  );
 
-          setState(() {});
+                  _activeController.text = formattedValue.text;
+                  _activeController.selection = formattedValue.selection;
 
-          if (_activeController == _textEditorLineDiscountController) {
-            try {
-              _searchItemLineDiscount();
-              _searchLineDiscountFocusNode.requestFocus();
-            } catch (e) {
-              SnackBarHelper.presentErrorSnackBar(context, e.toString());
-            }
-          }
-        },
+                  // Update percentage
+                  if (formattedValue.text.isNotEmpty) {
+                    final amount = double.tryParse(formattedValue.text.replaceAll(',', '')) ?? 0;
+                    final percentage = (amount / initialGrandTotal * 100).abs();
+                    _textEditorHeaderDiscountPercentController.text = percentage.toStringAsFixed(2);
+                  } else {
+                    _textEditorHeaderDiscountPercentController.text = '';
+                  }
+                } else if (_activeController == _textEditorHeaderDiscountPercentController) {
+                  // Handle percentage input with decimal formatting
+                  if (text.isEmpty || RegExp(r'^\d*\.?\d{0,3}$').hasMatch(text.replaceAll('%', ''))) {
+                    // Remove % if present for processing
+                    final cleanText = text.replaceAll('%', '');
+
+                    // Add % back when setting the text
+                    _activeController.text = cleanText.isEmpty ? '' : '$cleanText%';
+                    _activeController.selection = TextSelection.collapsed(offset: cleanText.length);
+
+                    // Update amount
+                    if (cleanText.isNotEmpty) {
+                      final percentage = double.tryParse(cleanText) ?? 0;
+                      final amount = (initialGrandTotal * percentage / 100);
+                      _textEditorHeaderDiscountAmountController.text = Helpers.parseMoney(amount);
+                    } else {
+                      _textEditorHeaderDiscountAmountController.text = '';
+                    }
+                  }
+                }
+              },
+        textFormatter: (_activeFocusNode == _discountFocusNode) ? MoneyInputFormatter() : null,
       ),
     );
   }
@@ -971,24 +835,21 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                       if (cleanValue.isNotEmpty) {
                         final percentage = double.tryParse(cleanValue) ?? 0;
                         final amount = (initialGrandTotal * percentage / 100);
-                        _textEditorHeaderDiscountAmountController.text =
-                            Helpers.parseMoney(amount);
+                        _textEditorHeaderDiscountAmountController.text = Helpers.parseMoney(amount);
                       } else {
                         _textEditorHeaderDiscountAmountController.text = '';
                       }
                       setState(() {});
                     },
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'^\d*\.?\d{0,3}%?$')),
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}%?$')),
                     ],
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 24),
                     decoration: const InputDecoration(
                         contentPadding: EdgeInsets.all(10),
                         hintText: "ex. 10%",
-                        hintStyle: TextStyle(
-                            fontStyle: FontStyle.italic, fontSize: 24),
+                        hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
                         border: OutlineInputBorder(),
                         suffixText: '%'),
                   ),
@@ -1009,12 +870,9 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                     onFieldSubmitted: (value) async => await onSubmit(),
                     onChanged: (value) {
                       if (value.isNotEmpty) {
-                        final amount =
-                            double.tryParse(value.replaceAll(',', '')) ?? 0;
-                        final percentage =
-                            (amount / initialGrandTotal * 100).abs();
-                        _textEditorHeaderDiscountPercentController.text =
-                            percentage.toStringAsFixed(2);
+                        final amount = double.tryParse(value.replaceAll(',', '')) ?? 0;
+                        final percentage = (amount / initialGrandTotal * 100).abs();
+                        _textEditorHeaderDiscountPercentController.text = percentage.toStringAsFixed(2);
                       } else {
                         _textEditorHeaderDiscountPercentController.text = '';
                       }
@@ -1027,8 +885,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                     decoration: const InputDecoration(
                       contentPadding: EdgeInsets.all(10),
                       hintText: "ex. 100,000",
-                      hintStyle:
-                          TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+                      hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -1092,8 +949,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
           child: EmptyList(
             imagePath: "assets/images/empty-item.svg",
             height: 80,
-            sentence:
-                "Tadaa.. There is nothing here!\nInput item barcode to start adding item.",
+            sentence: "Tadaa.. There is nothing here!\nInput item barcode to start adding item.",
           ),
         )
       else
@@ -1126,10 +982,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                               backgroundColor: Colors.transparent,
                               body: InputLineDiscountDialog(
                                   receiptItemEntity: e.receiptItemEntity
-                                      .copyWith(
-                                          promos: e.receiptItemEntity.promos
-                                              .map((e) => e.copyWith())
-                                              .toList()),
+                                      .copyWith(promos: e.receiptItemEntity.promos.map((e) => e.copyWith()).toList()),
                                   lineDiscount: e.lineDiscountAmount,
                                   max: e.receiptItemEntity.quantity >= 0
                                       ? e.receiptItemEntity.totalAmount + 0.49
@@ -1148,8 +1001,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                         e.lineDiscountAmount = lineDiscount;
                       });
                     } catch (e) {
-                      SnackBarHelper.presentErrorSnackBar(
-                          context, e.toString());
+                      SnackBarHelper.presentErrorSnackBar(context, e.toString());
                     }
                   },
                   child: Column(
@@ -1166,13 +1018,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                         ),
                       Padding(
                         padding: EdgeInsets.fromLTRB(
-                            5,
-                            10,
-                            0,
-                            e.receiptItemEntity.quantity < 0 ||
-                                    e.lineDiscountAmount != 0
-                                ? 0
-                                : 10),
+                            5, 10, 0, e.receiptItemEntity.quantity < 0 || e.lineDiscountAmount != 0 ? 0 : 10),
                         child: Stack(
                           children: [
                             Row(
@@ -1198,18 +1044,15 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                         // mainAxisAlignment:
                                         //     MainAxisAlignment
                                         //         .spaceBetween,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Expanded(
                                             flex: 3,
                                             child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 FittedBox(
-                                                  alignment:
-                                                      Alignment.centerLeft,
+                                                  alignment: Alignment.centerLeft,
                                                   child: Row(
                                                     children: [
                                                       SvgPicture.asset(
@@ -1220,14 +1063,10 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                                         width: 5,
                                                       ),
                                                       Text(
-                                                        e
-                                                            .receiptItemEntity
-                                                            .itemEntity
-                                                            .itemCode,
+                                                        e.receiptItemEntity.itemEntity.itemCode,
                                                         style: const TextStyle(
                                                           fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w500,
+                                                          fontWeight: FontWeight.w500,
                                                         ),
                                                       ),
                                                       const SizedBox(
@@ -1241,26 +1080,19 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                                         width: 5,
                                                       ),
                                                       Text(
-                                                        e.receiptItemEntity
-                                                            .itemEntity.barcode,
+                                                        e.receiptItemEntity.itemEntity.barcode,
                                                         style: const TextStyle(
                                                           fontSize: 16,
-                                                          fontWeight:
-                                                              FontWeight.w500,
+                                                          fontWeight: FontWeight.w500,
                                                         ),
                                                       ),
                                                     ],
                                                   ),
                                                 ),
                                                 Text(
-                                                  e.receiptItemEntity.itemEntity
-                                                          .shortName ??
-                                                      e.receiptItemEntity
-                                                          .itemEntity.itemName,
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500),
+                                                  e.receiptItemEntity.itemEntity.shortName ??
+                                                      e.receiptItemEntity.itemEntity.itemName,
+                                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                                                 ),
                                               ],
                                             ),
@@ -1273,10 +1105,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                                 Text(
                                                   "${Helpers.cleanDecimal(e.receiptItemEntity.quantity, 3)} x",
                                                   textAlign: TextAlign.right,
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500),
+                                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                                                 ),
                                               ],
                                             ),
@@ -1289,10 +1118,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                                 Text(
                                                   "@ ${Helpers.parseMoney((e.receiptItemEntity.sellingPrice).round())}",
                                                   textAlign: TextAlign.right,
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500),
+                                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                                                 ),
                                               ],
                                             ),
@@ -1300,28 +1126,19 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                           Expanded(
                                             flex: 1,
                                             child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
+                                              crossAxisAlignment: CrossAxisAlignment.end,
                                               mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               // TotalPriceUI
                                               children: [
                                                 Text(
-                                                  Helpers.parseMoney((e
-                                                              .receiptItemEntity
-                                                              .totalAmount -
-                                                          e.lineDiscountAmount)
-                                                      .round()),
+                                                  Helpers.parseMoney(
+                                                      (e.receiptItemEntity.totalAmount - e.lineDiscountAmount).round()),
                                                   style: TextStyle(
                                                       fontSize: 12,
-                                                      fontWeight:
-                                                          e.lineDiscountAmount !=
-                                                                  0
-                                                              ? FontWeight.w700
-                                                              : FontWeight
-                                                                  .w500),
+                                                      fontWeight: e.lineDiscountAmount != 0
+                                                          ? FontWeight.w700
+                                                          : FontWeight.w500),
                                                 ),
                                                 const SizedBox(
                                                   height: 6,
@@ -1350,9 +1167,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                           ),
                                         ],
                                       ),
-                                      if ((e.receiptItemEntity.quantity < 0 &&
-                                              e.receiptItemEntity.refpos3 !=
-                                                  null) ||
+                                      if ((e.receiptItemEntity.quantity < 0 && e.receiptItemEntity.refpos3 != null) ||
                                           e.lineDiscountAmount != 0)
                                         const SizedBox(
                                           height: 24,
@@ -1372,9 +1187,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                     0,
                                     0,
                                     5,
-                                    (e.receiptItemEntity.quantity < 0 &&
-                                                e.receiptItemEntity.refpos3 !=
-                                                    null) ||
+                                    (e.receiptItemEntity.quantity < 0 && e.receiptItemEntity.refpos3 != null) ||
                                             e.lineDiscountAmount != 0
                                         ? 10
                                         : 0),
@@ -1384,8 +1197,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                 ),
                               ),
                             ),
-                            if ((e.receiptItemEntity.quantity < 0 &&
-                                    e.receiptItemEntity.refpos3 != null) ||
+                            if ((e.receiptItemEntity.quantity < 0 && e.receiptItemEntity.refpos3 != null) ||
                                 e.lineDiscountAmount != 0)
                               Positioned.fill(
                                 child: Column(
@@ -1397,18 +1209,14 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                         if (e.lineDiscountAmount != 0)
                                           Container(
                                             alignment: Alignment.centerRight,
-                                            padding: const EdgeInsets.fromLTRB(
-                                                10, 2, 10, 2),
+                                            padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
                                             decoration: const BoxDecoration(
                                               // border: Border.all(
                                               //     color: Color.fromRGBO(195, 53, 53, 1),
                                               //     width: 4.0),
-                                              borderRadius:
-                                                  BorderRadius.vertical(
-                                                      top: Radius.circular(5)),
+                                              borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
 
-                                              color: Color.fromARGB(
-                                                  255, 11, 57, 84),
+                                              color: Color.fromARGB(255, 11, 57, 84),
                                               // boxShadow: [
                                               //   BoxShadow(
                                               //     spreadRadius: 0.5,
@@ -1420,34 +1228,28 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                Text(
-                                                    "LD ${Helpers.parseMoney(e.lineDiscountAmount)}",
+                                                Text("LD ${Helpers.parseMoney(e.lineDiscountAmount)}",
                                                     style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w700,
+                                                      fontWeight: FontWeight.w700,
                                                     )),
                                               ],
                                             ),
                                           ),
-                                        if (e.receiptItemEntity.quantity < 0 &&
-                                            e.receiptItemEntity.refpos3 != null)
+                                        if (e.receiptItemEntity.quantity < 0 && e.receiptItemEntity.refpos3 != null)
                                           const SizedBox(
                                             width: 8,
                                           ),
-                                        if (e.receiptItemEntity.quantity < 0 &&
-                                            e.receiptItemEntity.refpos3 != null)
+                                        if (e.receiptItemEntity.quantity < 0 && e.receiptItemEntity.refpos3 != null)
                                           Container(
                                             alignment: Alignment.centerRight,
-                                            padding: const EdgeInsets.fromLTRB(
-                                                10, 2, 10, 2),
+                                            padding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
                                             decoration: const BoxDecoration(
                                               // border: Border.all(
                                               //     color: Color.fromRGBO(195, 53, 53, 1),
                                               //     width: 4.0),
-                                              borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(5)),
+                                              borderRadius: BorderRadius.only(topLeft: Radius.circular(5)),
 
                                               color: Colors.orange,
                                               // boxShadow: [
@@ -1465,8 +1267,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                                     style: TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w700,
+                                                      fontWeight: FontWeight.w700,
                                                     )),
                                               ],
                                             ),
@@ -1494,8 +1295,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     ];
   }
 
-  Widget _warningResetRounding(bool manualRounded,
-      {required Function onComplete}) {
+  Widget _warningResetRounding(bool manualRounded, {required Function onComplete}) {
     return FocusScope(
       autofocus: false,
       skipTraversal: true,
@@ -1526,8 +1326,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
       child: AlertDialog(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0))),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
         title: Container(
           decoration: const BoxDecoration(
             color: ProjectColors.primary,
@@ -1536,8 +1335,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
           padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
           child: const Text(
             'Caution',
-            style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -1580,12 +1378,9 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                   child: TextButton(
                 style: ButtonStyle(
                     shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        side: const BorderSide(color: ProjectColors.primary))),
-                    backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.white),
-                    overlayColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.black.withOpacity(.2))),
+                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
                 onPressed: () {
                   context.pop(false);
                 },
@@ -1614,12 +1409,9 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
               Expanded(
                   child: TextButton(
                 style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5))),
-                    backgroundColor: MaterialStateColor.resolveWith(
-                        (states) => ProjectColors.primary),
-                    overlayColor: MaterialStateColor.resolveWith(
-                        (states) => Colors.white.withOpacity(.2))),
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(5))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                 onPressed: () async {
                   if (mounted && manualRounded == false) {
                     context.pop(true);
@@ -1665,6 +1457,5 @@ class LineDiscountParameter {
   final ReceiptItemEntity receiptItemEntity;
   double lineDiscountAmount = 0;
 
-  LineDiscountParameter(
-      {required this.receiptItemEntity, required this.lineDiscountAmount});
+  LineDiscountParameter({required this.receiptItemEntity, required this.lineDiscountAmount});
 }

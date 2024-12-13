@@ -13,7 +13,6 @@ import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class PLUExportScreen extends StatefulWidget {
   const PLUExportScreen({super.key});
@@ -54,7 +53,6 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   ];
   bool isLoading = false;
 
-  bool _shiftEnabled = false;
   bool _showKeyboard = true;
   final FocusNode _keyboardFocusNode = FocusNode();
   bool currentNumericMode = false;
@@ -651,60 +649,22 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                             controller: _searchController,
                             isNumericMode: currentNumericMode,
                             customLayoutKeys: true,
-                            isShiftEnabled: _shiftEnabled,
-                            onKeyPress: (key) async {
-                              String text = _searchController.text;
-                              TextSelection currentSelection = _searchController.selection;
-                              int cursorPosition = currentSelection.start;
-
-                              if (key.keyType == VirtualKeyboardKeyType.String) {
-                                String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                cursorPosition += inputText.length;
-
-                                setState(() {
-                                  searchedQuery = text;
-                                });
-                                await searchByKeyword(searchedQuery ?? "");
-                              } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                switch (key.action) {
-                                  case VirtualKeyboardKeyAction.Backspace:
-                                    if (text.isNotEmpty && cursorPosition > 0) {
-                                      text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                      cursorPosition -= 1;
-
-                                      setState(() {
-                                        searchedQuery = text;
-                                      });
-                                      await searchByKeyword(searchedQuery ?? "");
-                                    }
-                                    break;
-                                  case VirtualKeyboardKeyAction.Return:
-                                    setState(() {
-                                      searchedQuery = text;
-                                    });
-                                    await searchByKeyword(searchedQuery ?? "");
-
-                                    break;
-                                  case VirtualKeyboardKeyAction.Space:
-                                    text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                    cursorPosition += 1;
-                                    setState(() {
-                                      searchedQuery = text;
-                                    });
-                                    await searchByKeyword(searchedQuery ?? "");
-                                    break;
-                                  case VirtualKeyboardKeyAction.Shift:
-                                    _shiftEnabled = !_shiftEnabled;
-                                    break;
-                                  default:
-                                    break;
-                                }
-                              }
-                              _searchController.text = text;
-                              _searchController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                              setState(() {});
+                            focusNodeAndTextController: FocusNodeAndTextController(
+                              focusNode: _searchFocusNode,
+                              textEditingController: _searchController,
+                            ),
+                            onChanged: () async {
+                              setState(() {
+                                searchedQuery = _searchController.text;
+                              });
+                              await searchByKeyword(searchedQuery ?? "");
+                            },
+                            onSubmit: () async {
+                              _searchController.text = _searchController.text.trimRight();
+                              setState(() {
+                                searchedQuery = _searchController.text;
+                              });
+                              await searchByKeyword(searchedQuery ?? "");
                             },
                           ),
                         ),
