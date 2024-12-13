@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:desktop_multi_window/desktop_multi_window.dart';
+import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -97,7 +98,6 @@ void main(List<String> args) async {
             routerConfig: secondWindowRouter,
           ),
         );
-
         return;
       }
     } catch (e) {
@@ -219,31 +219,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                       GetIt.instance<ApplyRoundingUseCase>(),
                       GetIt.instance<GetItemWithAndConditionUseCase>(),
                       GetIt.instance<ApplyPromoToprnUseCase>(),
-                      GetIt.instance<ApplyManualRoundingUseCase>(
-                          instanceName: 'roundingDown'),
-                      GetIt.instance<ApplyManualRoundingUseCase>(
-                          instanceName: 'roundingUp'),
+                      GetIt.instance<ApplyManualRoundingUseCase>(instanceName: 'roundingDown'),
+                      GetIt.instance<ApplyManualRoundingUseCase>(instanceName: 'roundingUp'),
                     )),
-            BlocProvider<CustomersCubit>(
-                create: (context) =>
-                    CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
+            BlocProvider<CustomersCubit>(create: (context) => CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
             BlocProvider<MopSelectionsCubit>(
-                create: (context) => MopSelectionsCubit(
-                    GetIt.instance<GetMopSelectionsUseCase>())),
-            BlocProvider<ItemsCubit>(
-                create: (context) =>
-                    ItemsCubit(GetIt.instance<GetItemsByPricelistUseCase>())),
-            BlocProvider<EmployeesCubit>(
-                create: (context) =>
-                    EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
-            BlocProvider<CreditCardCubit>(
-                create: (context) =>
-                    CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
-            BlocProvider<CampaignCubit>(
-                create: (context) =>
-                    CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
-            BlocProvider<ReturnReceiptCubit>(
-                create: (context) => ReturnReceiptCubit()),
+                create: (context) => MopSelectionsCubit(GetIt.instance<GetMopSelectionsUseCase>())),
+            BlocProvider<ItemsCubit>(create: (context) => ItemsCubit(GetIt.instance<GetItemsByPricelistUseCase>())),
+            BlocProvider<EmployeesCubit>(create: (context) => EmployeesCubit(GetIt.instance<GetEmployeesUseCase>())),
+            BlocProvider<CreditCardCubit>(create: (context) => CreditCardCubit(GetIt.instance<GetCreditCardUseCase>())),
+            BlocProvider<CampaignCubit>(create: (context) => CampaignCubit(GetIt.instance<GetCampaignUseCase>())),
+            BlocProvider<ReturnReceiptCubit>(create: (context) => ReturnReceiptCubit()),
           ],
           child: FutureBuilder<String>(
               future: Future.delayed(const Duration(seconds: 5), () {
@@ -266,8 +252,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   title: 'RubyPOS',
                   debugShowCheckedModeBanner: false,
                   theme: ThemeData(
-                    colorScheme:
-                        ColorScheme.fromSeed(seedColor: ProjectColors.primary),
+                    colorScheme: ColorScheme.fromSeed(seedColor: ProjectColors.primary),
                     fontFamily: 'Roboto',
                     useMaterial3: true,
                   ),
@@ -281,12 +266,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 Future<void> _configureMainWindow() async {
   await windowManager.ensureInitialized();
   WindowOptions windowOptions = const WindowOptions(
-      center: true,
-      backgroundColor: Colors.transparent,
-      fullScreen: true,
-      skipTaskbar: false);
+    center: true,
+    backgroundColor: Colors.transparent,
+    fullScreen: false,
+    skipTaskbar: false,
+  );
   windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.setFullScreen(true);
     await windowManager.show();
+    await windowManager.maximize();
   });
 }

@@ -6,6 +6,7 @@ import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:pos_fe/features/dual_screen/data/models/send_data.dart';
+import 'package:window_manager/window_manager.dart';
 
 Future<bool> initWindow(final mounted, SendBaseData data) async {
   // Initialize the window
@@ -16,21 +17,21 @@ Future<bool> initWindow(final mounted, SendBaseData data) async {
   try {
     // Create a new window
 
-    final physicalSize = window.physicalSize;
+    windowManager.maximize().then((value) async {
+      // Extract width and height
+      final physicalSize = window.physicalSize;
+      final maxWidth = physicalSize.width;
+      final maxHeight = physicalSize.height;
 
-    // Extract width and height
-    final maxWidth = physicalSize.width;
-    final maxHeight = physicalSize.height;
+      final newWindow = await DesktopMultiWindow.createWindow(jsonEncode(data.toMap()));
+      newWindow
+        ..setFrame(Rect.fromLTWH(100 * maxWidth, 0, maxWidth, maxHeight))
+        ..center()
+        ..show();
+      await DesktopWindow.setFullScreen(true);
+      await DesktopWindow.focus();
+    });
 
-    final newWindow =
-        await DesktopMultiWindow.createWindow(jsonEncode(data.toMap()));
-    newWindow
-      ..setFrame(
-          Rect.fromLTWH(2 * maxWidth, 2 * maxHeight, maxWidth, maxHeight))
-      ..center()
-      ..show();
-    await DesktopWindow.toggleFullScreen();
-    await DesktopWindow.focus();
     return true;
   } on Exception catch (e) {
     debugPrint('Error Create Window: $e');
