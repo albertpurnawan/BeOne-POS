@@ -216,9 +216,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
   Future<void> _sendToDisplay() async {
     try {
       if (await GetIt.instance<GetPosParameterUseCase>().call() != null &&
-          (await GetIt.instance<GetPosParameterUseCase>().call())!
-                  .customerDisplayActive ==
-              0) {
+          (await GetIt.instance<GetPosParameterUseCase>().call())!.customerDisplayActive == 0) {
         return;
       }
       final windows = await DesktopMultiWindow.getAllSubWindowIds();

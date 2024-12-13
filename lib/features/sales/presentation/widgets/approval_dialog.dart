@@ -73,17 +73,13 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
     String check = "";
     String category = "nonpositivetrx";
-    final UserModel? user = await GetIt.instance<AppDatabase>()
-        .userDao
-        .readByUsername(username, null);
+    final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(username, null);
 
     if (user != null) {
       if (widget.approvalType == ApprovalType.returnItem) {
         category = "returnauthorization";
       }
-      final tastr = await GetIt.instance<AppDatabase>()
-          .authStoreDao
-          .readByTousrId(user.docId, category, null);
+      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, category, null);
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
         if (tastr.statusActive != 1) {
@@ -104,28 +100,22 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
     return check;
   }
 
-  Future<void> onSubmit(
-      BuildContext childContext, BuildContext parentContext) async {
+  Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
-    String passwordCorrect =
-        await checkPassword(usernameController.text, passwordController.text);
+    String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
     if (passwordCorrect == "Success") {
       await updateReceiptApprovals(childContext);
       parentContext.pop(true);
     } else {
-      final message = passwordCorrect == "Wrong Password"
-          ? "Invalid username or password"
-          : "Unauthorized";
+      final message = passwordCorrect == "Wrong Password" ? "Invalid username or password" : "Unauthorized";
       SnackBarHelper.presentErrorSnackBar(childContext, message);
       if (Platform.isWindows) _usernameFocusNode.requestFocus();
     }
   }
 
   Future<void> updateReceiptApprovals(BuildContext context) async {
-    final user = await GetIt.instance<AppDatabase>()
-        .userDao
-        .readByUsername(usernameController.text, null);
+    final user = await GetIt.instance<AppDatabase>().userDao.readByUsername(usernameController.text, null);
     final receiptCubit = context.read<ReceiptCubit>();
 
     final approval = ApprovalInvoiceModel(
@@ -142,8 +132,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
 
   Future<String> createOTP() async {
     try {
-      final response = await GetIt.instance<OTPServiceAPi>()
-          .createSendOTP(context, null, subject, body);
+      final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
       return response['Requester'];
     } catch (e) {
       rethrow;
@@ -181,39 +170,28 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   }
 
   Future<void> modularApprovalandOTP(type) async {
-    final POSParameterEntity? topos =
-        await GetIt.instance<GetPosParameterUseCase>().call();
+    final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
     if (topos == null) throw "Failed to retrieve POS Parameter";
 
-    final StoreMasterEntity? store =
-        await GetIt.instance<GetStoreMasterUseCase>()
-            .call(params: topos.tostrId);
+    final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
     if (store == null) throw "Failed to retrieve Store Master";
 
-    final cashierMachine = await GetIt.instance<AppDatabase>()
-        .cashRegisterDao
-        .readByDocId(topos.tocsrId!, null);
+    final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
     if (cashierMachine == null) throw "Failed to retrieve Cash Register";
 
     final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
     final userId = prefs.getString('tousrId') ?? "";
     final employeeId = prefs.getString('tohemId') ?? "";
-    final user =
-        await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
+    final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
     if (user == null) throw "User Not Found";
 
-    final employee = await GetIt.instance<AppDatabase>()
-        .employeeDao
-        .readByDocId(employeeId, null);
+    final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
 
     if (type == ApprovalType.discount) {
-      final double lineDiscountsTotal = widget.lineDiscountParameters!.fold(
-          0,
-          (previousValue, element) =>
-              previousValue + element.lineDiscountAmount);
-      final int appliedLineDiscountsCount = widget.lineDiscountParameters!
-          .where((element) => element.lineDiscountAmount != 0)
-          .length;
+      final double lineDiscountsTotal = widget.lineDiscountParameters!
+          .fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
+      final int appliedLineDiscountsCount =
+          widget.lineDiscountParameters!.where((element) => element.lineDiscountAmount != 0).length;
       final String lineDiscountsString = widget.lineDiscountParameters!
           .where((element) => element.lineDiscountAmount != 0)
           .map((e) =>
@@ -241,8 +219,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
       });
     } else if (type == ApprovalType.returnItem) {
       setState(() {
-        remarks =
-            "Return Qty.: ${widget.returnQty.toString()} Return Amount: ${widget.returnAmount.toString()}";
+        remarks = "Return Qty.: ${widget.returnQty.toString()} Return Amount: ${widget.returnAmount.toString()}";
         category = "003 - Return Transaction";
         subject = "OTP RUBY POS Return Transaction - [${store.storeCode}]";
 
@@ -267,8 +244,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
           Cashier Name: ${employee?.empName ?? user.username},
         ''';
 
-        subject =
-            "OTP RUBY POS Zero or Negative Transaction - [${store.storeCode}]";
+        subject = "OTP RUBY POS Zero or Negative Transaction - [${store.storeCode}]";
       });
     }
   }
@@ -305,21 +281,16 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
             child: AlertDialog(
               backgroundColor: Colors.white,
               surfaceTintColor: Colors.transparent,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0))),
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0))),
               title: Container(
                 decoration: const BoxDecoration(
                   color: ProjectColors.primary,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(5.0)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
                 child: const Text(
                   'Approval',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -341,19 +312,14 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                               controller: usernameController,
                               autofocus: true,
                               keyboardType: TextInputType.text,
-                              onFieldSubmitted: (value) async =>
-                                  await onSubmit(childContext, parentContext),
-                              validator: (val) => val == null || val.isEmpty
-                                  ? "Username is required"
-                                  : null,
+                              onFieldSubmitted: (value) async => await onSubmit(childContext, parentContext),
+                              validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
                               textAlign: TextAlign.left,
                               style: const TextStyle(fontSize: 20),
                               decoration: const InputDecoration(
                                   contentPadding: EdgeInsets.all(10),
                                   hintText: "Username",
-                                  hintStyle: TextStyle(
-                                      fontStyle: FontStyle.italic,
-                                      fontSize: 20),
+                                  hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(
                                     Icons.person_4,
@@ -372,16 +338,13 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                               onFieldSubmitted: (value) async {
                                 await onSubmit(childContext, parentContext);
                               },
-                              validator: (val) => val == null || val.isEmpty
-                                  ? "Password is required"
-                                  : null,
+                              validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
                               textAlign: TextAlign.left,
                               style: const TextStyle(fontSize: 20),
                               decoration: InputDecoration(
                                 contentPadding: const EdgeInsets.all(10),
                                 hintText: "Password",
-                                hintStyle: const TextStyle(
-                                    fontStyle: FontStyle.italic, fontSize: 20),
+                                hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
                                 border: const OutlineInputBorder(),
                                 prefixIcon: const Icon(
                                   Icons.lock,
@@ -389,9 +352,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureText
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
+                                    _obscureText ? Icons.visibility : Icons.visibility_off,
                                     size: 20,
                                   ),
                                   onPressed: () {
@@ -413,9 +374,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                                     TextSpan(
                                       text: 'Use OTP Instead',
                                       style: TextStyle(
-                                        color: _isOTPClicked
-                                            ? Colors.grey
-                                            : ProjectColors.lightBlack,
+                                        color: _isOTPClicked ? Colors.grey : ProjectColors.lightBlack,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 16,
                                       ),
@@ -428,9 +387,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                                     TextSpan(
                                       text: " (F11)",
                                       style: TextStyle(
-                                          color: _isOTPClicked
-                                              ? Colors.grey
-                                              : ProjectColors.lightBlack,
+                                          color: _isOTPClicked ? Colors.grey : ProjectColors.lightBlack,
                                           fontSize: 16,
                                           fontWeight: FontWeight.w300),
                                     ),
@@ -454,19 +411,12 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                               Expanded(
                                   child: TextButton(
                                 style: ButtonStyle(
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            side: const BorderSide(
-                                                color: ProjectColors.primary))),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => Colors.white),
-                                    overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => ProjectColors.primary
-                                                .withOpacity(.2))),
+                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5),
+                                        side: const BorderSide(color: ProjectColors.primary))),
+                                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                                    overlayColor: MaterialStateColor.resolveWith(
+                                        (states) => ProjectColors.primary.withOpacity(.2))),
                                 onPressed: () {
                                   Navigator.of(childContext).pop();
                                 },
@@ -476,17 +426,14 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                                       children: [
                                         TextSpan(
                                           text: "Cancel",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600),
+                                          style: TextStyle(fontWeight: FontWeight.w600),
                                         ),
                                         TextSpan(
                                           text: "  (Esc)",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w300),
+                                          style: TextStyle(fontWeight: FontWeight.w300),
                                         ),
                                       ],
-                                      style: TextStyle(
-                                          color: ProjectColors.primary),
+                                      style: TextStyle(color: ProjectColors.primary),
                                     ),
                                     overflow: TextOverflow.clip,
                                   ),
@@ -496,34 +443,24 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                               Expanded(
                                   child: TextButton(
                                 style: ButtonStyle(
-                                    shape: MaterialStatePropertyAll(
-                                        RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            side: const BorderSide(
-                                                color: ProjectColors.primary))),
-                                    backgroundColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) => ProjectColors.primary),
+                                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5),
+                                        side: const BorderSide(color: ProjectColors.primary))),
+                                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                                     overlayColor:
-                                        MaterialStateColor.resolveWith(
-                                            (states) =>
-                                                Colors.white.withOpacity(.2))),
-                                onPressed: () async =>
-                                    await onSubmit(childContext, parentContext),
+                                        MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                                onPressed: () async => await onSubmit(childContext, parentContext),
                                 child: Center(
                                   child: RichText(
                                     text: const TextSpan(
                                       children: [
                                         TextSpan(
                                           text: "Confirm",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w600),
+                                          style: TextStyle(fontWeight: FontWeight.w600),
                                         ),
                                         TextSpan(
                                           text: "  (Enter)",
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w300),
+                                          style: TextStyle(fontWeight: FontWeight.w300),
                                         ),
                                       ],
                                     ),
