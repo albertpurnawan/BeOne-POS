@@ -2487,11 +2487,11 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                                                   //         }
                                                                   //         break;
 
-                                                                        case VirtualKeyboardKeyAction
-                                                                              .Return:
-                                                                          text =
-                                                                              text.trimRight();
-                                                                          break;
+                                                                  // case VirtualKeyboardKeyAction
+                                                                  //       .Return:
+                                                                  //   text =
+                                                                  //       text.trimRight();
+                                                                  //   break;
 
                                                                   //       case VirtualKeyboardKeyAction.Space:
                                                                   //         text = text.replaceRange(
