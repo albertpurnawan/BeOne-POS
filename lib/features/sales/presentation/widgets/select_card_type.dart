@@ -10,7 +10,6 @@ import 'package:pos_fe/features/sales/domain/entities/credit_card.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/credit_card_cubit.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class SelectCardType extends StatefulWidget {
   const SelectCardType({super.key});
@@ -26,7 +25,6 @@ class _SelectCardTypeState extends State<SelectCardType> {
   final FocusNode _keyboardFocusNode = FocusNode();
   final TextEditingController _creditCardTextController = TextEditingController();
   bool _showKeyboard = true;
-  bool _shiftEnabled = false;
 
   @override
   void initState() {
@@ -159,13 +157,21 @@ class _SelectCardTypeState extends State<SelectCardType> {
                       autofocus: true,
                       focusNode: _creditCardInputFocusNode,
                       controller: _creditCardTextController,
-                      decoration: const InputDecoration(
-                        suffixIcon: Icon(
-                          Icons.search,
-                          size: 16,
+                      decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          icon: const Icon(
+                            Icons.search,
+                            size: 16,
+                          ),
+                          onPressed: () {
+                            context
+                                .read<CreditCardCubit>()
+                                .getCreditCards(searchKeyword: _creditCardTextController.text);
+                            _creditCardInputFocusNode.requestFocus();
+                          },
                         ),
                         hintText: "Search Card",
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           fontSize: 16,
                           fontStyle: FontStyle.italic,
                         ),
@@ -220,44 +226,16 @@ class _SelectCardTypeState extends State<SelectCardType> {
                             controller: _creditCardTextController,
                             isNumericMode: false,
                             customLayoutKeys: true,
-                            isShiftEnabled: _shiftEnabled,
-                            onKeyPress: (key) async {
-                              String text = _creditCardTextController.text;
-                              TextSelection currentSelection = _creditCardTextController.selection;
-                              int cursorPosition = currentSelection.start;
-
-                              if (key.keyType == VirtualKeyboardKeyType.String) {
-                                String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                cursorPosition += inputText.length;
-                              } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                switch (key.action) {
-                                  case VirtualKeyboardKeyAction.Backspace:
-                                    if (text.isNotEmpty) {
-                                      text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                      cursorPosition -= 1;
-                                    }
-                                    break;
-                                  case VirtualKeyboardKeyAction.Return:
-                                    _creditCardTextController.text = _creditCardTextController.text.trimRight();
-                                    context.read<CreditCardCubit>().getCreditCards(searchKeyword: text);
-                                    _creditCardInputFocusNode.requestFocus();
-                                    break;
-                                  case VirtualKeyboardKeyAction.Space:
-                                    text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                    cursorPosition += 1;
-                                    break;
-                                  case VirtualKeyboardKeyAction.Shift:
-                                    _shiftEnabled = !_shiftEnabled;
-                                    break;
-                                  default:
-                                    break;
-                                }
-                              }
-                              _creditCardTextController.text = text;
-                              _creditCardTextController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                              setState(() {});
+                            focusNodeAndTextController: FocusNodeAndTextController(
+                              focusNode: _creditCardInputFocusNode,
+                              textEditingController: _creditCardTextController,
+                            ),
+                            onSubmit: () {
+                              _creditCardTextController.text = _creditCardTextController.text.trimRight();
+                              context
+                                  .read<CreditCardCubit>()
+                                  .getCreditCards(searchKeyword: _creditCardTextController.text);
+                              _creditCardInputFocusNode.requestFocus();
                             },
                           ),
                         )

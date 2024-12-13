@@ -43,13 +43,13 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
   bool _isOTPClicked = false;
   bool _isSendingOTP = false;
 
-  bool _shiftEnabled = false;
   bool _showKeyboard = true;
   final _usernameFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   final FocusNode _keyboardFocusNode = FocusNode();
   String currentFocusedField = '';
   TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -61,6 +61,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
         setState(() {
           currentFocusedField = 'username';
           _activeController = _usernameController;
+          _activeFocusNode = _usernameFocusNode;
         });
       }
     });
@@ -69,6 +70,7 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
         setState(() {
           currentFocusedField = 'password';
           _activeController = _passwordController;
+          _activeFocusNode = _passwordFocusNode;
         });
       }
     });
@@ -429,7 +431,10 @@ class _ConfirmToEndShiftState extends State<ConfirmToEndShift> {
                                     controller: _activeController,
                                     isNumericMode: false,
                                     customLayoutKeys: true,
-                                    isShiftEnabled: _shiftEnabled,
+                                    focusNodeAndTextController: FocusNodeAndTextController(
+                                      focusNode: _activeFocusNode,
+                                      textEditingController: _activeController,
+                                    ),
                                   ),
                                 )
                               : const SizedBox.shrink(),

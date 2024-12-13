@@ -13,7 +13,6 @@ import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class PLUExportScreen extends StatefulWidget {
   const PLUExportScreen({super.key});
@@ -54,7 +53,6 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
   ];
   bool isLoading = false;
 
-  bool _shiftEnabled = false;
   bool _showKeyboard = true;
   final FocusNode _keyboardFocusNode = FocusNode();
   bool currentNumericMode = false;
@@ -593,184 +591,145 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
                                                 ),
                                               ),
 
-                                              // Table data
-                                              Container(
-                                                color: const Color.fromARGB(255, 241, 241, 241),
-                                                height: _showKeyboard ? 235 : 400,
-                                                child: SingleChildScrollView(
-                                                  child: Column(
-                                                    children: tableData.map((row) {
-                                                      return Row(
-                                                        children: row.map((cell) {
-                                                          return Container(
-                                                            width: 120,
-                                                            height: 50,
-                                                            decoration: const BoxDecoration(
-                                                              border: Border.symmetric(
-                                                                horizontal: BorderSide(
-                                                                  width: 0.5,
-                                                                  color: Color.fromARGB(255, 222, 220, 220),
-                                                                ),
+                                            // Table data
+                                            Container(
+                                              color: const Color.fromARGB(255, 241, 241, 241),
+                                              height: _showKeyboard ? 235 : 400,
+                                              child: SingleChildScrollView(
+                                                child: Column(
+                                                  children: tableData.map((row) {
+                                                    return Row(
+                                                      children: row.map((cell) {
+                                                        return Container(
+                                                          width: 120,
+                                                          height: 50,
+                                                          decoration: const BoxDecoration(
+                                                            border: Border.symmetric(
+                                                              horizontal: BorderSide(
+                                                                width: 0.5,
+                                                                color: Color.fromARGB(255, 222, 220, 220),
                                                               ),
                                                             ),
-                                                            alignment: Alignment.center,
-                                                            child: Padding(
-                                                              padding: const EdgeInsets.all(5.0),
-                                                              child: Text(
-                                                                cell.isEmpty ? '' : cell,
-                                                                textAlign: TextAlign.center,
-                                                              ),
+                                                          ),
+                                                          alignment: Alignment.center,
+                                                          child: Padding(
+                                                            padding: const EdgeInsets.all(5.0),
+                                                            child: Text(
+                                                              cell.isEmpty ? '' : cell,
+                                                              textAlign: TextAlign.center,
                                                             ),
-                                                          );
-                                                        }).toList(),
-                                                      );
-                                                    }).toList(),
-                                                  ),
+                                                          ),
+                                                        );
+                                                      }).toList(),
+                                                    );
+                                                  }).toList(),
                                                 ),
                                               ),
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  (_showKeyboard)
-                      ? Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 9),
-                            child: KeyboardWidget(
-                              controller: _searchController,
-                              isNumericMode: currentNumericMode,
-                              customLayoutKeys: true,
-                              isShiftEnabled: _shiftEnabled,
-                              onKeyPress: (key) async {
-                                String text = _searchController.text;
-                                TextSelection currentSelection = _searchController.selection;
-                                int cursorPosition = currentSelection.start;
-
-                                if (key.keyType == VirtualKeyboardKeyType.String) {
-                                  String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                  text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                  cursorPosition += inputText.length;
-
-                                  setState(() {
-                                    searchedQuery = text;
-                                  });
-                                  await searchByKeyword(searchedQuery ?? "");
-                                } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                  switch (key.action) {
-                                    case VirtualKeyboardKeyAction.Backspace:
-                                      if (text.isNotEmpty && cursorPosition > 0) {
-                                        text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                        cursorPosition -= 1;
-
-                                        setState(() {
-                                          searchedQuery = text;
-                                        });
-                                        await searchByKeyword(searchedQuery ?? "");
-                                      }
-                                      break;
-                                    case VirtualKeyboardKeyAction.Return:
-                                      setState(() {
-                                        searchedQuery = text;
-                                      });
-                                      await searchByKeyword(searchedQuery ?? "");
-
-                                      break;
-                                    case VirtualKeyboardKeyAction.Space:
-                                      text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                      cursorPosition += 1;
-                                      setState(() {
-                                        searchedQuery = text;
-                                      });
-                                      await searchByKeyword(searchedQuery ?? "");
-                                      break;
-                                    case VirtualKeyboardKeyAction.Shift:
-                                      _shiftEnabled = !_shiftEnabled;
-                                      break;
-                                    default:
-                                      break;
-                                  }
-                                }
-                                _searchController.text = text;
-                                _searchController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                                setState(() {});
-                              },
+                              ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                (_showKeyboard)
+                    ? Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 9),
+                          child: KeyboardWidget(
+                            controller: _searchController,
+                            isNumericMode: currentNumericMode,
+                            customLayoutKeys: true,
+                            focusNodeAndTextController: FocusNodeAndTextController(
+                              focusNode: _searchFocusNode,
+                              textEditingController: _searchController,
                             ),
+                            onChanged: () async {
+                              setState(() {
+                                searchedQuery = _searchController.text;
+                              });
+                              await searchByKeyword(searchedQuery ?? "");
+                            },
+                            onSubmit: () async {
+                              _searchController.text = _searchController.text.trimRight();
+                              setState(() {
+                                searchedQuery = _searchController.text;
+                              });
+                              await searchByKeyword(searchedQuery ?? "");
+                            },
                           ),
-                        )
-                      : const SizedBox.shrink(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      const SizedBox(width: 20),
-                      Container(
-                        height: 40,
-                        decoration: const BoxDecoration(
-                          color: ProjectColors.primary,
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          boxShadow: [
-                            BoxShadow(
-                              spreadRadius: 0.5,
-                              blurRadius: 5,
-                              color: Color.fromRGBO(0, 0, 0, 0.222),
-                              offset: Offset(0, 2),
-                            ),
-                          ],
                         ),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ProjectColors.primary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+                      )
+                    : const SizedBox.shrink(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    const SizedBox(width: 20),
+                    Container(
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: ProjectColors.primary,
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                        boxShadow: [
+                          BoxShadow(
+                            spreadRadius: 0.5,
+                            blurRadius: 5,
+                            color: Color.fromRGBO(0, 0, 0, 0.222),
+                            offset: Offset(0, 2),
                           ),
-                          onPressed: _refreshData,
-                          child: const Text("Reload PLUs"),
-                        ),
+                        ],
                       ),
-                      const SizedBox(width: 20),
-                      Container(
-                        height: 40,
-                        decoration: const BoxDecoration(
-                          color: ProjectColors.primary,
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          boxShadow: [
-                            BoxShadow(
-                              spreadRadius: 0.5,
-                              blurRadius: 5,
-                              color: Color.fromRGBO(0, 0, 0, 0.222),
-                              offset: Offset(0, 2),
-                            ),
-                          ],
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ProjectColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
                         ),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: ProjectColors.primary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
-                          ),
-                          onPressed: _exportFile,
-                          child: const Text("Export PLUs"),
-                        ),
+                        onPressed: _refreshData,
+                        child: const Text("Reload PLUs"),
                       ),
-                      const SizedBox(width: 20),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
+                    ),
+                    const SizedBox(width: 20),
+                    Container(
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: ProjectColors.primary,
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                        boxShadow: [
+                          BoxShadow(
+                            spreadRadius: 0.5,
+                            blurRadius: 5,
+                            color: Color.fromRGBO(0, 0, 0, 0.222),
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ProjectColors.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
+                        ),
+                        onPressed: _exportFile,
+                        child: const Text("Export PLUs"),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

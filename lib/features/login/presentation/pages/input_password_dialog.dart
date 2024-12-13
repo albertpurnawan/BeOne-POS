@@ -186,6 +186,10 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                                 controller: _passwordController,
                                 isNumericMode: false,
                                 customLayoutKeys: true,
+                                focusNodeAndTextController: FocusNodeAndTextController(
+                                  focusNode: _passwordFocusNode,
+                                  textEditingController: _passwordController,
+                                ),
                               )
                             : const SizedBox.shrink(),
                       ],

@@ -339,6 +339,11 @@ class _ItemDetailsDialogState extends State<ItemDetailsDialog> {
                                   controller: _noteController,
                                   isNumericMode: false,
                                   customLayoutKeys: true,
+                                  enableNewLine: true,
+                                  focusNodeAndTextController: FocusNodeAndTextController(
+                                    focusNode: _noteFocusNode,
+                                    textEditingController: _noteController,
+                                  ),
                                 )
                               : const SizedBox.shrink(),
                           const SizedBox(height: 20),

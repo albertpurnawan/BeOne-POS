@@ -13,7 +13,6 @@ import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_manual_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class RoundingUpDialog extends StatefulWidget {
   const RoundingUpDialog({super.key});
@@ -328,44 +327,11 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                             controller: _textEditorAmountRoundUpController,
                             isNumericMode: true,
                             customLayoutKeys: false,
-                            onKeyPress: (key) async {
-                              String text = _textEditorAmountRoundUpController.text;
-                              TextSelection currentSelection = _textEditorAmountRoundUpController.selection;
-                              int cursorPosition = currentSelection.start;
-
-                              if (key.keyType == VirtualKeyboardKeyType.String) {
-                                String inputText = key.text ?? '';
-                                text = text.replaceRange(
-                                    (text == '0') ? cursorPosition - 1 : cursorPosition, cursorPosition, inputText);
-                                cursorPosition += inputText.length;
-                              } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                switch (key.action) {
-                                  case VirtualKeyboardKeyAction.Backspace:
-                                    if (text.isNotEmpty) {
-                                      text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                      cursorPosition -= 1;
-                                    }
-                                    break;
-                                  default:
-                                    break;
-                                }
-                              }
-                              TextEditingValue formattedValue = MoneyInputFormatter().formatEditUpdate(
-                                TextEditingValue(
-                                  text: text,
-                                  selection: TextSelection.collapsed(offset: cursorPosition),
-                                ),
-                                TextEditingValue(
-                                  text: text,
-                                  selection: TextSelection.collapsed(offset: cursorPosition),
-                                ),
-                              );
-
-                              _textEditorAmountRoundUpController.text = formattedValue.text;
-                              _textEditorAmountRoundUpController.selection = formattedValue.selection;
-
-                              setState(() {});
-                            },
+                            focusNodeAndTextController: FocusNodeAndTextController(
+                              focusNode: _amountRoundUpFocusNode,
+                              textEditingController: _textEditorAmountRoundUpController,
+                            ),
+                            textFormatter: MoneyInputFormatter(),
                           ),
                         )
                       : const SizedBox.shrink(),

@@ -12,7 +12,9 @@ import 'package:pos_fe/features/dual_screen/data/models/dual_screen.dart';
 import 'package:pos_fe/features/dual_screen/data/models/send_data.dart';
 import 'package:pos_fe/features/dual_screen/services/create_window_service.dart';
 import 'package:pos_fe/features/dual_screen/services/send_data_window_service.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -350,30 +352,26 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Row(
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => BannerPopup(
-                        title: 'Add $title',
-                        type: title.toLowerCase().contains('large') ? 1 : 2,
-                        order: banners.isEmpty ? 1 : banners.last.order + 1,
-                        onSave: addUnsavedBanner,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.add, color: Colors.white),
-                  label: const Text('Add', style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ProjectColors.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
+            ElevatedButton.icon(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => BannerPopup(
+                    title: 'Add $title',
+                    type: title.toLowerCase().contains('large') ? 1 : 2,
+                    order: banners.isEmpty ? 1 : banners.last.order + 1,
+                    onSave: addUnsavedBanner,
                   ),
+                );
+              },
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: const Text('Add', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ProjectColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
                 ),
-              ],
+              ),
             ),
           ],
         ),
@@ -381,198 +379,217 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
         if (isLoading)
           const Center(child: CircularProgressIndicator())
         else
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                width: 1,
-                color: Colors.black,
+          ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: const Color.fromARGB(255, 222, 220, 220),
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(8),
               ),
-            ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
-                columns: [
-                  DataColumn(
-                    label: Center(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.03,
-                        child: const Text(
-                          'Order',
-                          style: TextStyle(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    dividerTheme: DividerThemeData(
+                      color: const Color.fromARGB(255, 222, 220, 220),
+                      thickness: 1.0,
                     ),
                   ),
-                  DataColumn(
-                    label: Center(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.15,
-                        child: const Text(
-                          'Description',
-                          style: TextStyle(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
+                  child: DataTable(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                  DataColumn(
-                    label: Center(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.28,
-                        child: const Text(
-                          'Path',
-                          style: TextStyle(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Center(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.07,
-                        child: const Text(
-                          'Duration (s)',
-                          style: TextStyle(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Center(
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.15,
-                        child: const Text(
-                          'Actions',
-                          style: TextStyle(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-                rows: banners.map((banner) {
-                  return DataRow(
-                    cells: [
-                      DataCell(SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.03,
-                          child: Center(child: Text(banner.order.toString())))),
-                      DataCell(SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.15,
-                          child: Center(child: Text(banner.description)))),
-                      DataCell(SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.28,
-                          child: Center(
-                            child: Text(
-                              banner.path.length > 40
-                                  ? '...${banner.path.substring(40, banner.path.length)}'
-                                  : banner.path,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ))),
-                      DataCell(SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.07,
-                          child: Center(child: Text(banner.duration.toString())))),
-                      DataCell(
-                        Center(
+                    headingRowHeight: 40,
+                    headingTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                    headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
+                    dataRowColor: MaterialStateProperty.all(const Color.fromARGB(255, 240, 240, 240)),
+                    columns: [
+                      DataColumn(
+                        label: Center(
                           child: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.13,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => BannerPopup(
-                                        title: 'Edit Banner',
-                                        type: banner.type,
-                                        order: banner.order,
-                                        description: banner.description,
-                                        path: banner.path,
-                                        duration: banner.duration.toString(),
-                                        onSave: (updatedData) async {
-                                          // Find the index of the banner in the appropriate list
-                                          final List<DualScreenModel> targetList =
-                                              banner.type == 1 ? largeBanners : smallBanners;
-
-                                          final index = targetList.indexWhere((b) => b.id == banner.id);
-
-                                          if (index != -1) {
-                                            // Create an updated banner model
-                                            final updatedBanner = DualScreenModel(
-                                              id: banner.id,
-                                              description: updatedData['description'],
-                                              type: banner.type,
-                                              order: banner.order,
-                                              path: updatedData['path'],
-                                              duration: updatedData['duration'],
-                                              createdAt: banner.createdAt,
-                                              updatedAt: DateTime.now(),
-                                            );
-
-                                            // Update the banner in the unsaved list if it exists
-                                            final unsavedIndex = unsavedBanners.indexWhere((b) => b.id == banner.id);
-                                            if (unsavedIndex != -1) {
-                                              setState(() {
-                                                unsavedBanners[unsavedIndex] = updatedBanner;
-                                              });
-                                            }
-
-                                            // Update the banner in the appropriate list
-                                            setState(() {
-                                              if (banner.type == 1) {
-                                                largeBanners[index] = updatedBanner;
-                                              } else {
-                                                smallBanners[index] = updatedBanner;
-                                              }
-                                              _hasUnsavedChanges = true;
-                                            });
-
-                                            // Show success message
-                                            if (mounted) {
-                                              SnackBarHelper.presentSuccessSnackBar(
-                                                  context, 'Banner updated. Click Save to persist changes.', 3);
-                                            }
-                                          }
-                                        },
-                                      ),
-                                    );
-                                  },
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () async {
-                                    final confirm = await showDialog<bool>(
-                                      context: context,
-                                      builder: (context) => const ConfirmationDialog(
-                                        primaryMsg: "Are you sure you want to delete this banner?",
-                                        secondaryMsg: "",
-                                        isProceedOnly: false,
-                                      ),
-                                    );
-
-                                    if (confirm == true) {
-                                      await GetIt.instance<AppDatabase>().dualScreenDao.delete(banner.id);
-                                      await refreshBanners();
-                                      await _sendToDisplay();
-                                    }
-                                  },
-                                ),
-                              ],
+                            width: MediaQuery.of(context).size.width * 0.03,
+                            child: const Text(
+                              'Order',
+                              style: TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Center(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.15,
+                            child: const Text(
+                              'Description',
+                              style: TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Center(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.28,
+                            child: const Text(
+                              'Path',
+                              style: TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Center(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.07,
+                            child: const Text(
+                              'Duration (s)',
+                              style: TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ),
+                      DataColumn(
+                        label: Center(
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.15,
+                            child: const Text(
+                              'Actions',
+                              style: TextStyle(color: Colors.white),
+                              textAlign: TextAlign.center,
                             ),
                           ),
                         ),
                       ),
                     ],
-                  );
-                }).toList(),
+                    rows: banners.map((banner) {
+                      return DataRow(
+                        cells: [
+                          DataCell(SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.03,
+                              child: Center(child: Text(banner.order.toString())))),
+                          DataCell(SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.15,
+                              child: Center(child: Text(banner.description)))),
+                          DataCell(SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.28,
+                              child: Center(
+                                child: Text(
+                                  banner.path.length > 40
+                                      ? '...${banner.path.substring(40, banner.path.length)}'
+                                      : banner.path,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ))),
+                          DataCell(SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.07,
+                              child: Center(child: Text(banner.duration.toString())))),
+                          DataCell(
+                            Center(
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.13,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => BannerPopup(
+                                            title: 'Edit Banner',
+                                            type: banner.type,
+                                            order: banner.order,
+                                            description: banner.description,
+                                            path: banner.path,
+                                            duration: banner.duration.toString(),
+                                            onSave: (updatedData) async {
+                                              // Find the index of the banner in the appropriate list
+                                              final List<DualScreenModel> targetList =
+                                                  banner.type == 1 ? largeBanners : smallBanners;
+
+                                              final index = targetList.indexWhere((b) => b.id == banner.id);
+
+                                              if (index != -1) {
+                                                // Create an updated banner model
+                                                final updatedBanner = DualScreenModel(
+                                                  id: banner.id,
+                                                  description: updatedData['description'],
+                                                  type: banner.type,
+                                                  order: banner.order,
+                                                  path: updatedData['path'],
+                                                  duration: updatedData['duration'],
+                                                  createdAt: banner.createdAt,
+                                                  updatedAt: DateTime.now(),
+                                                );
+
+                                                // Update the banner in the unsaved list if it exists
+                                                final unsavedIndex =
+                                                    unsavedBanners.indexWhere((b) => b.id == banner.id);
+                                                if (unsavedIndex != -1) {
+                                                  setState(() {
+                                                    unsavedBanners[unsavedIndex] = updatedBanner;
+                                                  });
+                                                }
+
+                                                // Update the banner in the appropriate list
+                                                setState(() {
+                                                  if (banner.type == 1) {
+                                                    largeBanners[index] = updatedBanner;
+                                                  } else {
+                                                    smallBanners[index] = updatedBanner;
+                                                  }
+                                                  _hasUnsavedChanges = true;
+                                                });
+
+                                                // Show success message
+                                                if (mounted) {
+                                                  SnackBarHelper.presentSuccessSnackBar(
+                                                      context, 'Banner updated. Click Save to persist changes.', 3);
+                                                }
+                                              }
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) => const ConfirmationDialog(
+                                            primaryMsg: "Are you sure you want to delete this banner?",
+                                            secondaryMsg: "",
+                                            isProceedOnly: false,
+                                          ),
+                                        );
+
+                                        if (confirm == true) {
+                                          await GetIt.instance<AppDatabase>().dualScreenDao.delete(banner.id);
+                                          await refreshBanners();
+                                          await _sendToDisplay();
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
             ),
           ),
@@ -583,21 +600,16 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 234, 234, 234),
       appBar: AppBar(
-        leading: const BackButton(
-          color: Colors.white,
-        ),
-        title: const Text(
-          "Customer Display",
-          style: TextStyle(color: Colors.white),
-        ),
         backgroundColor: ProjectColors.primary,
+        foregroundColor: Colors.white,
+        title: const Text("Customer Display"),
         actions: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
             child: ElevatedButton.icon(
               onPressed: () {
-                // Save action
                 saveChanges();
               },
               style: ElevatedButton.styleFrom(
@@ -629,7 +641,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(8),
-                    color: Colors.white,
+                    color: const Color.fromARGB(255, 240, 240, 240),
                   ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
@@ -645,7 +657,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                     ),
                   ),
                 ),
-                Container(
+                SizedBox(
                   width: MediaQuery.of(context).size.width * 0.8,
                   child: Column(
                     children: [
@@ -674,7 +686,7 @@ class BannerPopup extends StatefulWidget {
   final Future<void> Function(Map<String, dynamic>) onSave;
 
   const BannerPopup({
-    Key? key,
+    super.key,
     required this.title,
     this.type,
     this.order,
@@ -682,7 +694,7 @@ class BannerPopup extends StatefulWidget {
     this.path,
     this.duration,
     required this.onSave,
-  }) : super(key: key);
+  });
 
   @override
   State<BannerPopup> createState() => _BannerPopupState();
@@ -694,12 +706,51 @@ class _BannerPopupState extends State<BannerPopup> {
   late TextEditingController durationController;
   final _formKey = GlobalKey<FormState>();
 
+  final FocusNode descriptionFocusNode = FocusNode();
+  final FocusNode pathFocusNode = FocusNode();
+  final FocusNode durationFocusNode = FocusNode();
+
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool currentNumericMode = false;
+  TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
+
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     descriptionController = TextEditingController(text: widget.description ?? '');
     pathController = TextEditingController(text: widget.path ?? '');
     durationController = TextEditingController(text: widget.duration ?? '');
+
+    descriptionFocusNode.addListener(() {
+      if (descriptionFocusNode.hasFocus) {
+        setState(() {
+          _activeController = descriptionController;
+          currentNumericMode = false;
+          _activeFocusNode = descriptionFocusNode;
+        });
+      }
+    });
+    pathFocusNode.addListener(() {
+      if (pathFocusNode.hasFocus) {
+        setState(() {
+          _activeController = pathController;
+          currentNumericMode = false;
+          _activeFocusNode = pathFocusNode;
+        });
+      }
+    });
+    durationFocusNode.addListener(() {
+      if (durationFocusNode.hasFocus) {
+        setState(() {
+          _activeController = durationController;
+          currentNumericMode = true;
+          _activeFocusNode = durationFocusNode;
+        });
+      }
+    });
   }
 
   @override
@@ -707,7 +758,25 @@ class _BannerPopupState extends State<BannerPopup> {
     descriptionController.dispose();
     pathController.dispose();
     durationController.dispose();
+    descriptionFocusNode.dispose();
+    pathFocusNode.dispose();
+    durationFocusNode.dispose();
+    // _activeController.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   bool validateForm() {
@@ -777,146 +846,202 @@ class _BannerPopupState extends State<BannerPopup> {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Container(
-        width: MediaQuery.of(context).size.width * 0.5,
-        color: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Title
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  decoration: BoxDecoration(
-                    color: ProjectColors.primary,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    widget.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+    return ScaffoldMessenger(
+      child: Builder(
+        builder: (childContext) {
+          return Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.6,
+                child: AlertDialog(
+                  backgroundColor: Colors.white,
+                  surfaceTintColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  title: Container(
+                    decoration: const BoxDecoration(
+                      color: ProjectColors.primary,
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // Description Field
-                TextFormField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Description is required';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
-
-                // Path Field with File Picker Icon
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: pathController,
-                        decoration: const InputDecoration(
-                          labelText: 'Path',
-                          border: OutlineInputBorder(),
+                    padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          widget.title,
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please select an image file';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: pickFile,
-                      icon: const Icon(Icons.folder, color: Colors.grey),
-                      tooltip: 'Pick Image File',
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // Duration Field
-                TextFormField(
-                  controller: durationController,
-                  decoration: const InputDecoration(
-                    labelText: 'Duration',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Duration is required';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-
-                // Action Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        side: BorderSide(width: 2, color: ProjectColors.primary),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.19,
-                        child: const Center(
-                          child: Text('Cancel', style: TextStyle(color: ProjectColors.primary)),
-                        ),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: handleSave,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ProjectColors.primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.19,
-                        child: Center(
-                          child: Text(
-                            widget.title.startsWith('Edit') ? 'Save Changes' : 'Add Banner',
-                            style: const TextStyle(color: Colors.white),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                            borderRadius: const BorderRadius.all(Radius.circular(360)),
+                          ),
+                          child: IconButton(
+                            focusColor: const Color.fromARGB(255, 110, 0, 0),
+                            focusNode: _keyboardFocusNode,
+                            icon: Icon(
+                              _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _showKeyboard = !_showKeyboard;
+                              });
+                            },
+                            tooltip: 'Toggle Keyboard',
                           ),
                         ),
+                      ],
+                    ),
+                  ),
+                  titlePadding: const EdgeInsets.all(0),
+                  contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                  content: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Description Field
+                          TextFormField(
+                            controller: descriptionController,
+                            focusNode: descriptionFocusNode,
+                            decoration: const InputDecoration(
+                              labelText: 'Description',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.none,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Description is required';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Path Field with File Picker Icon
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  controller: pathController,
+                                  focusNode: pathFocusNode,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Path',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  keyboardType: TextInputType.none,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please select an image file';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                onPressed: pickFile,
+                                icon: const Icon(Icons.folder, color: Colors.grey),
+                                tooltip: 'Pick Image File',
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Duration Field
+                          TextFormField(
+                            controller: durationController,
+                            focusNode: durationFocusNode,
+                            decoration: const InputDecoration(
+                              labelText: 'Duration',
+                              border: OutlineInputBorder(),
+                              suffix: Text(
+                                "seconds",
+                                style: TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                            ),
+                            keyboardType: TextInputType.none,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Duration is required';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+
+                          (_showKeyboard)
+                              ? SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.3,
+                                  child: KeyboardWidget(
+                                    controller: _activeController,
+                                    isNumericMode: currentNumericMode,
+                                    customLayoutKeys: true,
+                                    focusNodeAndTextController: FocusNodeAndTextController(
+                                      focusNode: _activeFocusNode,
+                                      textEditingController: _activeController,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                          const SizedBox(height: 10),
+
+                          // Action Buttons
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  side: const BorderSide(width: 1, color: ProjectColors.primary),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.19,
+                                  child: const Center(
+                                    child: Text('Cancel', style: TextStyle(color: ProjectColors.primary)),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              ElevatedButton(
+                                onPressed: handleSave,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: ProjectColors.primary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.19,
+                                  child: Center(
+                                    child: Text(
+                                      widget.title.startsWith('Edit') ? 'Save Changes' : 'Add Banner',
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

@@ -23,7 +23,6 @@ import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/otp_unlock_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class UnlockInvoice extends StatefulWidget {
   const UnlockInvoice({super.key});
@@ -42,6 +41,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   final _usernameFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
   TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   List<InvoiceDetailModel>? invoiceFound;
   InvoiceDetailModel? selectedInvoice;
@@ -51,7 +51,6 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   bool _isSendingOTP = false;
   String fullDocnum = "";
 
-  bool _shiftEnabled = false;
   bool _showKeyboard = true;
   final FocusNode _keyboardFocusNode = FocusNode();
   String currentFocusedField = '';
@@ -67,6 +66,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
         setState(() {
           currentFocusedField = 'invoice';
           _activeController = _invoiceDocNumTextController;
+          _activeFocusNode = _invoiceDocNumFocusNode;
         });
       }
     });
@@ -75,6 +75,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
         setState(() {
           currentFocusedField = 'username';
           _activeController = _usernameController;
+          _activeFocusNode = _usernameFocusNode;
         });
       }
     });
@@ -83,6 +84,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
         setState(() {
           currentFocusedField = 'password';
           _activeController = _passwordController;
+          _activeFocusNode = _passwordFocusNode;
         });
       }
     });
@@ -388,52 +390,68 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                                 controller: _activeController,
                                 isNumericMode: false,
                                 customLayoutKeys: true,
-                                isShiftEnabled: _shiftEnabled,
-                                onKeyPress: (key) async {
-                                  String text = _activeController.text;
-                                  TextSelection currentSelection = _activeController.selection;
-                                  int cursorPosition = currentSelection.start;
 
-                                  if (key.keyType == VirtualKeyboardKeyType.String) {
-                                    String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                    text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                    cursorPosition += inputText.length;
-                                  } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                    switch (key.action) {
-                                      case VirtualKeyboardKeyAction.Backspace:
-                                        if (text.isNotEmpty) {
-                                          text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                          cursorPosition -= 1;
-                                        }
-                                        break;
-                                      case VirtualKeyboardKeyAction.Return:
-                                        _activeController.text = _activeController.text.trimRight();
-                                        if (_activeController == _invoiceDocNumTextController) {
-                                          _invoiceDocNumFocusNode.unfocus();
-                                          final invoiceSearched =
-                                              await _searchInvoiceDetail(_invoiceDocNumTextController.text);
-                                          setState(() {
-                                            invoiceFound = invoiceSearched;
-                                            showInvoice = false;
-                                          });
-                                        }
-                                        break;
-                                      case VirtualKeyboardKeyAction.Space:
-                                        text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                        cursorPosition += 1;
-                                        break;
-                                      case VirtualKeyboardKeyAction.Shift:
-                                        _shiftEnabled = !_shiftEnabled;
-                                        break;
-                                      default:
-                                        break;
-                                    }
+                                focusNodeAndTextController: FocusNodeAndTextController(
+                                  focusNode: _activeFocusNode,
+                                  textEditingController: _activeController,
+                                ),
+                                onSubmit: () async {
+                                  _activeController.text = _activeController.text.trimRight();
+                                  if (_activeController == _invoiceDocNumTextController) {
+                                    _invoiceDocNumFocusNode.unfocus();
+                                    final invoiceSearched =
+                                        await _searchInvoiceDetail(_invoiceDocNumTextController.text);
+                                    setState(() {
+                                      invoiceFound = invoiceSearched;
+                                      showInvoice = false;
+                                    });
                                   }
-                                  _activeController.text = text;
-                                  _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                                  setState(() {});
                                 },
+                                // onKeyPress: (key) async {
+                                //   String text = _activeController.text;
+                                //   TextSelection currentSelection = _activeController.selection;
+                                //   int cursorPosition = currentSelection.start;
+
+                                //   if (key.keyType == VirtualKeyboardKeyType.String) {
+                                //     String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                //     text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                //     cursorPosition += inputText.length;
+                                //   } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                //     switch (key.action) {
+                                //       case VirtualKeyboardKeyAction.Backspace:
+                                //         if (text.isNotEmpty) {
+                                //           text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                //           cursorPosition -= 1;
+                                //         }
+                                //         break;
+                                //       case VirtualKeyboardKeyAction.Return:
+                                //         _activeController.text = _activeController.text.trimRight();
+                                //         if (_activeController == _invoiceDocNumTextController) {
+                                //           _invoiceDocNumFocusNode.unfocus();
+                                //           final invoiceSearched =
+                                //               await _searchInvoiceDetail(_invoiceDocNumTextController.text);
+                                //           setState(() {
+                                //             invoiceFound = invoiceSearched;
+                                //             showInvoice = false;
+                                //           });
+                                //         }
+                                //         break;
+                                //       case VirtualKeyboardKeyAction.Space:
+                                //         text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                //         cursorPosition += 1;
+                                //         break;
+                                //       case VirtualKeyboardKeyAction.Shift:
+                                //         _shiftEnabled = !_shiftEnabled;
+                                //         break;
+                                //       default:
+                                //         break;
+                                //     }
+                                //   }
+                                //   _activeController.text = text;
+                                //   _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                                //   setState(() {});
+                                // },
                               ),
                             )
                           : const SizedBox.shrink(),

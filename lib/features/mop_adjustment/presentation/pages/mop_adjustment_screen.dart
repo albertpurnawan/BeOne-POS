@@ -22,7 +22,6 @@ import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/mop_adjustment_service.dart';
 import 'package:uuid/uuid.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class MOPAdjustmentScreen extends StatefulWidget {
   const MOPAdjustmentScreen({super.key});
@@ -66,11 +65,11 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
 
-  bool _shiftEnabled = false;
   bool _showKeyboard = true;
   final FocusNode _keyboardFocusNode = FocusNode();
   bool currentNumericMode = false;
   TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -84,6 +83,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
         setState(() {
           _activeController = _shiftDocnumController;
           currentNumericMode = false;
+          _activeFocusNode = _shiftDocnumFocusNode;
         });
       }
     });
@@ -92,6 +92,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
         setState(() {
           _activeController = _amountController;
           currentNumericMode = true;
+          _activeFocusNode = _amountFocusNode;
         });
       }
     });
@@ -100,6 +101,7 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
         setState(() {
           _activeController = _remarksController;
           currentNumericMode = false;
+          _activeFocusNode = _remarkFocusNode;
         });
       }
     });
@@ -352,69 +354,38 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                             controller: _activeController,
                             isNumericMode: currentNumericMode,
                             customLayoutKeys: true,
-                            isShiftEnabled: _shiftEnabled,
-                            onKeyPress: (key) async {
-                              String text = _activeController.text;
-                              TextSelection currentSelection = _activeController.selection;
-                              int cursorPosition = currentSelection.start;
-
-                              if (key.keyType == VirtualKeyboardKeyType.String) {
-                                String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                cursorPosition += inputText.length;
-                                if (_activeController == _amountController) {
-                                  amountChanged = Helpers.revertMoneyToDecimalFormat(text);
-                                  if (amountChanged != null && text.isNotEmpty) {
-                                    if (amountChanged! > (maxAmount ?? 0)) {
-                                      setState(() {
-                                        isErr = true;
-                                        errMsg = "Invalid amount";
-                                      });
-                                    } else if (amountChanged == 0) {
-                                      setState(() {
-                                        isErr = true;
-                                        errMsg = "Amount can't be zero";
-                                      });
-                                    } else {
-                                      setState(() {
-                                        isErr = false;
-                                      });
-                                    }
-                                  }
-                                }
-                              } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                switch (key.action) {
-                                  case VirtualKeyboardKeyAction.Backspace:
-                                    if (text.isNotEmpty && cursorPosition > 0) {
-                                      text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                      cursorPosition -= 1;
-                                      if (_activeController == _amountController) {
-                                        amountChanged = Helpers.revertMoneyToDecimalFormat(text);
-                                        if (amountChanged != null && text.isNotEmpty) {
-                                          if (amountChanged! > (maxAmount ?? 0)) {
-                                            setState(() {
-                                              isErr = true;
-                                              errMsg = "Invalid amount";
-                                            });
-                                          } else if (amountChanged == 0) {
-                                            setState(() {
-                                              isErr = true;
-                                              errMsg = "Amount can't be zero";
-                                            });
-                                          } else {
-                                            setState(() {
-                                              isErr = false;
-                                            });
-                                          }
-                                        }
+                            focusNodeAndTextController: FocusNodeAndTextController(
+                              focusNode: _activeFocusNode,
+                              textEditingController: _activeController,
+                            ),
+                            onChanged: (_activeController == _amountController)
+                                ? () {
+                                    amountChanged = Helpers.revertMoneyToDecimalFormat(_amountController.text);
+                                    if (amountChanged != null && _amountController.text.isNotEmpty) {
+                                      if (amountChanged! > (maxAmount ?? 0)) {
+                                        setState(() {
+                                          isErr = true;
+                                          errMsg = "Invalid amount";
+                                        });
+                                      } else if (amountChanged == 0) {
+                                        setState(() {
+                                          isErr = true;
+                                          errMsg = "Amount can't be zero";
+                                        });
+                                      } else {
+                                        setState(() {
+                                          isErr = false;
+                                        });
                                       }
                                     }
-                                    break;
-                                  case VirtualKeyboardKeyAction.Return:
+                                  }
+                                : null,
+                            onSubmit: (_activeController == _shiftDocnumController)
+                                ? () async {
                                     _activeController.text = _activeController.text.trimRight();
 
                                     if (_activeController == _shiftDocnumController) {
-                                      final shiftsSearched = await _searchShift(text);
+                                      final shiftsSearched = await _searchShift(_activeController.text);
                                       setState(() {
                                         shiftsFound = shiftsSearched;
                                         showMOPField = false;
@@ -425,49 +396,11 @@ class _MOPAdjustmentScreenState extends State<MOPAdjustmentScreen> {
                                         maxAmount = 0;
                                       });
                                       FocusManager.instance.primaryFocus?.unfocus();
-                                    } else if (_activeController == _remarksController) {
-                                      if (_shiftEnabled) {
-                                        FocusScope.of(context).nextFocus();
-                                      } else {
-                                        text = text.replaceRange(cursorPosition, cursorPosition, '\n');
-                                        cursorPosition += 1;
-                                      }
                                     }
-                                    break;
-                                  case VirtualKeyboardKeyAction.Space:
-                                    if (_activeController == _remarksController) {
-                                      text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                      cursorPosition += 1;
-                                    }
-                                    break;
-                                  case VirtualKeyboardKeyAction.Shift:
-                                    _shiftEnabled = !_shiftEnabled;
-                                    break;
-                                  default:
-                                    break;
-                                }
-                              }
-                              if (_activeController == _amountController) {
-                                TextEditingValue formattedValue = MoneyInputFormatter().formatEditUpdate(
-                                  TextEditingValue(
-                                    text: text,
-                                    selection: TextSelection.collapsed(offset: text.length),
-                                  ),
-                                  TextEditingValue(
-                                    text: text,
-                                    selection: TextSelection.collapsed(offset: text.length),
-                                  ),
-                                );
-                                _activeController.text = formattedValue.text;
-                                _activeController.selection = formattedValue.selection;
-                                setState(() {});
-                              } else {
-                                _activeController.text = text;
-                                _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                                setState(() {});
-                              }
-                            },
+                                  }
+                                : null,
+                            enableNewLine: (_activeController == _remarksController) ? true : false,
+                            textFormatter: (_activeController == _amountController) ? MoneyInputFormatter() : null,
                           ),
                         )
                       : const SizedBox.shrink(),

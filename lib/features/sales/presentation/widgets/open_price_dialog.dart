@@ -10,7 +10,6 @@ import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class OpenPriceDialog extends StatefulWidget {
   const OpenPriceDialog({super.key, required this.receiptItemEntity, required this.quantity});
@@ -151,41 +150,11 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
                           controller: _textEditingControllerOpenPrice,
                           isNumericMode: true,
                           customLayoutKeys: true,
-                          onKeyPress: (key) async {
-                            String text = _textEditingControllerOpenPrice.text;
-                            TextSelection currentSelection = _textEditingControllerOpenPrice.selection;
-                            int cursorPosition = currentSelection.end;
-
-                            if (key.keyType == VirtualKeyboardKeyType.String) {
-                              String inputText = key.text ?? '';
-                              text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                              cursorPosition += inputText.length;
-                            } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                              switch (key.action) {
-                                case VirtualKeyboardKeyAction.Backspace:
-                                  if (text.isNotEmpty && cursorPosition > 0) {
-                                    text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                    cursorPosition -= 1;
-                                  }
-                                  break;
-                                default:
-                                  break;
-                              }
-                            }
-                            TextEditingValue formattedValue = MoneyInputFormatter().formatEditUpdate(
-                              TextEditingValue(
-                                text: text,
-                                selection: TextSelection.collapsed(offset: cursorPosition),
-                              ),
-                              TextEditingValue(
-                                text: text,
-                                selection: TextSelection.collapsed(offset: cursorPosition),
-                              ),
-                            );
-                            _textEditingControllerOpenPrice.text = formattedValue.text;
-                            _textEditingControllerOpenPrice.selection = formattedValue.selection;
-                            setState(() {});
-                          },
+                          focusNodeAndTextController: FocusNodeAndTextController(
+                            focusNode: _focusNodeOpenPrice,
+                            textEditingController: _textEditingControllerOpenPrice,
+                          ),
+                          textFormatter: MoneyInputFormatter(),
                         ),
                       )
                     : const SizedBox.shrink(),
@@ -194,9 +163,6 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
           ),
         ),
       ),
-
-      // contentPadding: const EdgeInsets.symmetric(
-      //     horizontal: 20, vertical: 5),
       actions: <Widget>[
         Row(
           children: [

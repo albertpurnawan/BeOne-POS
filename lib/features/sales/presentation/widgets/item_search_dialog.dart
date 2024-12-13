@@ -15,7 +15,6 @@ import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class ItemSearchDialog extends StatefulWidget {
   const ItemSearchDialog({super.key});
@@ -33,7 +32,6 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
   final TextEditingController _textEditingController = TextEditingController();
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
 
-  bool _shiftEnabled = false;
   bool _showKeyboard = true;
   final FocusNode _keyboardFocusNode = FocusNode();
 
@@ -201,7 +199,6 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                               ),
                               onPressed: () => onSubmit(),
                             ),
-
                             hintText: "Enter item name, code, or barcode",
                             hintStyle: const TextStyle(
                               fontSize: 16,
@@ -344,44 +341,14 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                 controller: _textEditingController,
                                 isNumericMode: false,
                                 customLayoutKeys: true,
-                                isShiftEnabled: _shiftEnabled,
-                                onKeyPress: (key) async {
-                                  String text = _textEditingController.text;
-                                  TextSelection currentSelection = _textEditingController.selection;
-                                  int cursorPosition = currentSelection.start;
-
-                                  if (key.keyType == VirtualKeyboardKeyType.String) {
-                                    String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                    text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                    cursorPosition += inputText.length;
-                                  } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                    switch (key.action) {
-                                      case VirtualKeyboardKeyAction.Backspace:
-                                        if (text.isNotEmpty) {
-                                          text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                          cursorPosition -= 1;
-                                        }
-                                        break;
-                                      case VirtualKeyboardKeyAction.Return:
-                                        _textEditingController.text = _textEditingController.text.trimRight();
-                                        await onSubmit();
-                                        break;
-                                      case VirtualKeyboardKeyAction.Space:
-                                        text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                        cursorPosition += 1;
-                                        break;
-                                      case VirtualKeyboardKeyAction.Shift:
-                                        _shiftEnabled = !_shiftEnabled;
-                                        break;
-                                      default:
-                                        break;
-                                    }
-                                  }
-                                  _textEditingController.text = text;
-                                  _textEditingController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                                  setState(() {});
+                                onSubmit: () {
+                                  _textEditingController.text = _textEditingController.text.trimRight();
+                                  onSubmit();
                                 },
+                                focusNodeAndTextController: FocusNodeAndTextController(
+                                  focusNode: _searchInputFocusNode,
+                                  textEditingController: _textEditingController,
+                                ),
                               ),
                             )
                           : const SizedBox.shrink(),

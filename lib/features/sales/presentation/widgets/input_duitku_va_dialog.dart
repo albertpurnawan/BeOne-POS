@@ -15,7 +15,6 @@ import 'package:pos_fe/features/sales/domain/entities/duitku_va_details.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class InputDuitkuVADialog extends StatefulWidget {
   const InputDuitkuVADialog({
@@ -425,111 +424,88 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                             controller: _textEditingControllerVAAmount,
                             isNumericMode: true,
                             customLayoutKeys: true,
-                            onKeyPress: (key) async {
+                            focusNodeAndTextController: FocusNodeAndTextController(
+                              focusNode: _focusNodeVAAmount,
+                              textEditingController: _textEditingControllerVAAmount,
+                            ),
+                            textFormatter: MoneyInputFormatter(),
+                            onChanged: () {
                               String text = _textEditingControllerVAAmount.text;
                               TextSelection currentSelection = _textEditingControllerVAAmount.selection;
                               int cursorPosition = currentSelection.end;
-
-                              if (key.keyType == VirtualKeyboardKeyType.String) {
-                                String inputText = key.text ?? '';
-                                text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                cursorPosition += inputText.length;
-
-                                final double mopAmount = Helpers.revertMoneyToDecimalFormat(text);
-                                if (mopAmount > widget.amount) {
-                                  setState(() {
-                                    isErr = true;
-                                    errMsg = "Max amount exceeded";
-                                  });
-                                } else if (mopAmount <= 0) {
-                                  setState(() {
-                                    isErr = true;
-                                    errMsg = "Amount can't be negative or zero";
-                                  });
-                                } else if (isErr) {
-                                  setState(() {
-                                    isErr = false;
-                                    errMsg = "Invalid amount";
-                                  });
-                                }
-                              } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                switch (key.action) {
-                                  case VirtualKeyboardKeyAction.Backspace:
-                                    if (text.isNotEmpty && cursorPosition > 0) {
-                                      text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                      cursorPosition -= 1;
-
-                                      final double mopAmount = Helpers.revertMoneyToDecimalFormat(text);
-                                      if (mopAmount > widget.amount) {
-                                        setState(() {
-                                          isErr = true;
-                                          errMsg = "Max amount exceeded";
-                                        });
-                                      } else if (mopAmount <= 0) {
-                                        setState(() {
-                                          isErr = true;
-                                          errMsg = "Amount can't be negative or zero";
-                                        });
-                                      } else if (isErr) {
-                                        setState(() {
-                                          isErr = false;
-                                          errMsg = "Invalid amount";
-                                        });
-                                      }
-                                    }
-                                    break;
-                                  default:
-                                    break;
-                                }
+                              String inputText = _textEditingControllerVAAmount.text;
+                              text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                              cursorPosition += inputText.length;
+                              final double mopAmount = Helpers.revertMoneyToDecimalFormat(text);
+                              if (mopAmount > widget.amount) {
+                                setState(() {
+                                  isErr = true;
+                                  errMsg = "Max amount exceeded";
+                                });
+                              } else if (mopAmount <= 0) {
+                                setState(() {
+                                  isErr = true;
+                                  errMsg = "Amount can't be negative or zero";
+                                });
+                              } else if (isErr) {
+                                setState(() {
+                                  isErr = false;
+                                  errMsg = "Invalid amount";
+                                });
                               }
-                              TextEditingValue formattedValue = MoneyInputFormatter().formatEditUpdate(
-                                TextEditingValue(
-                                  text: text,
-                                  selection: TextSelection.collapsed(offset: cursorPosition),
-                                ),
-                                TextEditingValue(
-                                  text: text,
-                                  selection: TextSelection.collapsed(offset: cursorPosition),
-                                ),
-                              );
-                              _textEditingControllerVAAmount.text = formattedValue.text;
-                              _textEditingControllerVAAmount.selection = formattedValue.selection;
-                              setState(() {});
                             },
+                            // onKeyPress: (key) async {
+                            //   String text = _textEditingControllerVAAmount.text;
+                            //   TextSelection currentSelection = _textEditingControllerVAAmount.selection;
+                            //   int cursorPosition = currentSelection.end;
+
+                            //   if (key.keyType == VirtualKeyboardKeyType.String) {
+                            //   } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                            //     switch (key.action) {
+                            //       case VirtualKeyboardKeyAction.Backspace:
+                            //         if (text.isNotEmpty && cursorPosition > 0) {
+                            //           text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                            //           cursorPosition -= 1;
+
+                            //           final double mopAmount = Helpers.revertMoneyToDecimalFormat(text);
+                            //           if (mopAmount > widget.amount) {
+                            //             setState(() {
+                            //               isErr = true;
+                            //               errMsg = "Max amount exceeded";
+                            //             });
+                            //           } else if (mopAmount <= 0) {
+                            //             setState(() {
+                            //               isErr = true;
+                            //               errMsg = "Amount can't be negative or zero";
+                            //             });
+                            //           } else if (isErr) {
+                            //             setState(() {
+                            //               isErr = false;
+                            //               errMsg = "Invalid amount";
+                            //             });
+                            //           }
+                            //         }
+                            //         break;
+                            //       default:
+                            //         break;
+                            //     }
+                            //   }
+                            //   TextEditingValue formattedValue = MoneyInputFormatter().formatEditUpdate(
+                            //     TextEditingValue(
+                            //       text: text,
+                            //       selection: TextSelection.collapsed(offset: cursorPosition),
+                            //     ),
+                            //     TextEditingValue(
+                            //       text: text,
+                            //       selection: TextSelection.collapsed(offset: cursorPosition),
+                            //     ),
+                            //   );
+                            //   _textEditingControllerVAAmount.text = formattedValue.text;
+                            //   _textEditingControllerVAAmount.selection = formattedValue.selection;
+                            //   setState(() {});
+                            // },
                           )
                         : const SizedBox.shrink(),
-                    // SizedBox(
-                    //   height: 50,
-                    //   child: TextFormField(
-                    //     focusNode: _focusNodeRemarks,
-                    //     controller: _textEditingControllerRemarks,
-                    //     autofocus: true,
-                    //     keyboardType: TextInputType.text,
-                    //     textAlign: TextAlign.center,
-                    //     style: const TextStyle(fontSize: 18),
-                    //     onChanged: (value) {},
-                    //     onEditingComplete: () {},
-                    //     decoration: InputDecoration(
-                    //         contentPadding: const EdgeInsets.all(10),
-                    //         hintText: "Remarks",
-                    //         hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 16),
-                    //         border: const OutlineInputBorder(),
-                    //         suffix: isErr
-                    //             ? Text(
-                    //                 errMsg,
-                    //                 style: const TextStyle(
-                    //                     fontSize: 14,
-                    //                     fontStyle: FontStyle.normal,
-                    //                     fontWeight: FontWeight.w700,
-                    //                     color: ProjectColors.swatch),
-                    //               )
-                    //             : null,
-                    //         prefixIcon: const Icon(
-                    //           Icons.note_alt_outlined,
-                    //           size: 24,
-                    //         )),
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
@@ -548,8 +524,6 @@ class _InputDuitkuVADialogState extends State<InputDuitkuVADialog> {
                     onPressed: () {
                       setState(() {
                         context.pop();
-                        // Future.delayed(const Duration(milliseconds: 200),
-                        //     () => _newReceiptItemCodeFocusNode.requestFocus());
                       });
                     },
                     child: Center(

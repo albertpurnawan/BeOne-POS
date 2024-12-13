@@ -11,7 +11,6 @@ import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class InputMopAmountDialog extends StatefulWidget {
   const InputMopAmountDialog({
@@ -37,7 +36,7 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
   bool _isDropdownShown = false;
   final GlobalKey _iconButtonKey = GlobalKey();
   bool _currentNumericMode = true;
-  bool _shiftEnabled = false;
+
   String initialAmount = "";
 
   late final _focusNodeOpenPrice = FocusNode(
@@ -323,61 +322,17 @@ class _InputMopAmountDialogState extends State<InputMopAmountDialog> {
                         controller: _textEditingControllerOpenPrice,
                         isNumericMode: _currentNumericMode,
                         customLayoutKeys: true,
-                        isShiftEnabled: _shiftEnabled,
-                        onKeyPress: (key) async {
-                          String text = _textEditingControllerOpenPrice.text;
-                          TextSelection currentSelection = _textEditingControllerOpenPrice.selection;
-                          int cursorPosition = currentSelection.end;
-
-                          if (key.keyType == VirtualKeyboardKeyType.String) {
-                            String inputText = key.text ?? '';
-                            text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                            cursorPosition += inputText.length;
-                          } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                            switch (key.action) {
-                              case VirtualKeyboardKeyAction.Backspace:
-                                if (text.isNotEmpty && cursorPosition > 0) {
-                                  text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                  cursorPosition -= 1;
-                                }
-                                break;
-                              case VirtualKeyboardKeyAction.Return:
-                                _textEditingControllerOpenPrice.text = _textEditingControllerOpenPrice.text.trimRight();
-                                final double mopAmount =
-                                    Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text);
-                                if (mopAmount == double.infinity) return;
-                                if (mopAmount > widget.max) return;
-                                context.pop(mopAmount);
-
-                                break;
-                              case VirtualKeyboardKeyAction.Space:
-                                text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                cursorPosition += 1;
-                                break;
-                              case VirtualKeyboardKeyAction.Shift:
-                                _shiftEnabled = !_shiftEnabled;
-                                break;
-                              default:
-                                break;
-                            }
-                          }
-                          TextEditingValue formattedValue = NegativeMoneyInputFormatter().formatEditUpdate(
-                            TextEditingValue(
-                              text: text,
-                              selection: TextSelection.collapsed(offset: cursorPosition),
-                            ),
-                            TextEditingValue(
-                              text: text,
-                              selection: TextSelection.collapsed(offset: cursorPosition),
-                            ),
-                          );
-
-                          _textEditingControllerOpenPrice.text = formattedValue.text;
-
-                          _textEditingControllerOpenPrice.selection = formattedValue.selection;
-
-                          setState(() {});
+                        focusNodeAndTextController: FocusNodeAndTextController(
+                            focusNode: _focusNodeOpenPrice, textEditingController: _textEditingControllerOpenPrice),
+                        onSubmit: () {
+                          _textEditingControllerOpenPrice.text = _textEditingControllerOpenPrice.text.trimRight();
+                          final double mopAmount =
+                              Helpers.revertMoneyToDecimalFormat(_textEditingControllerOpenPrice.text);
+                          if (mopAmount == double.infinity) return;
+                          if (mopAmount > widget.max) return;
+                          context.pop(mopAmount);
                         },
+                        textFormatter: _currentNumericMode ? MoneyInputFormatter() : NegativeMoneyInputFormatter(),
                       ),
                     )
                   : const SizedBox.shrink(),

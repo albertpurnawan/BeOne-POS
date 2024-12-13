@@ -12,6 +12,7 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
@@ -51,13 +52,19 @@ class ApprovalDialog extends StatefulWidget {
 
 class _ApprovalDialogState extends State<ApprovalDialog> {
   final _formKey = GlobalKey<FormState>();
-  final usernameController = TextEditingController();
-  final passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
   final _usernameFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
   bool _obscureText = true;
   bool _isOTPClicked = false;
   bool _isSendingOTP = false;
+
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+  TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
   late String remarks;
   late String category;
   late String subject;
@@ -65,8 +72,49 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     modularApprovalandOTP(widget.approvalType);
     super.initState();
+    _usernameFocusNode.addListener(() {
+      if (_usernameFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _usernameController;
+          _activeFocusNode = _usernameFocusNode;
+        });
+      }
+    });
+    _passwordFocusNode.addListener(() {
+      if (_passwordFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _passwordController;
+          _activeFocusNode = _passwordFocusNode;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _usernameFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _keyboardFocusNode.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<String> checkPassword(String username, String password) async {
@@ -103,7 +151,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
-    String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
+    String passwordCorrect = await checkPassword(_usernameController.text, _passwordController.text);
     if (passwordCorrect == "Success") {
       await updateReceiptApprovals(childContext);
       parentContext.pop(true);
@@ -115,7 +163,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   }
 
   Future<void> updateReceiptApprovals(BuildContext context) async {
-    final user = await GetIt.instance<AppDatabase>().userDao.readByUsername(usernameController.text, null);
+    final user = await GetIt.instance<AppDatabase>().userDao.readByUsername(_usernameController.text, null);
     final receiptCubit = context.read<ReceiptCubit>();
 
     final approval = ApprovalInvoiceModel(
@@ -287,10 +335,35 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                   color: ProjectColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
-                child: const Text(
-                  'Approval',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Approval',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                        borderRadius: const BorderRadius.all(Radius.circular(360)),
+                      ),
+                      child: IconButton(
+                        focusColor: const Color.fromARGB(255, 110, 0, 0),
+                        focusNode: _keyboardFocusNode,
+                        icon: Icon(
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showKeyboard = !_showKeyboard;
+                          });
+                        },
+                        tooltip: 'Toggle Keyboard',
+                      ),
+                    ),
+                  ],
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -309,9 +382,9 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                             width: MediaQuery.of(childContext).size.width * 0.5,
                             child: TextFormField(
                               focusNode: _usernameFocusNode,
-                              controller: usernameController,
+                              controller: _usernameController,
                               autofocus: true,
-                              keyboardType: TextInputType.text,
+                              keyboardType: TextInputType.none,
                               onFieldSubmitted: (value) async => await onSubmit(childContext, parentContext),
                               validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
                               textAlign: TextAlign.left,
@@ -331,10 +404,11 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                           SizedBox(
                             width: MediaQuery.of(childContext).size.width * 0.5,
                             child: TextFormField(
-                              controller: passwordController,
+                              focusNode: _passwordFocusNode,
+                              controller: _passwordController,
                               obscureText: _obscureText,
                               autofocus: true,
-                              keyboardType: TextInputType.text,
+                              keyboardType: TextInputType.none,
                               onFieldSubmitted: (value) async {
                                 await onSubmit(childContext, parentContext);
                               },
@@ -405,7 +479,22 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                                 ),
                             ],
                           ),
-                          const SizedBox(height: 30),
+                          const SizedBox(height: 10),
+                          (_showKeyboard)
+                              ? SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.5,
+                                  child: KeyboardWidget(
+                                    controller: _activeController,
+                                    isNumericMode: false,
+                                    customLayoutKeys: true,
+                                    focusNodeAndTextController: FocusNodeAndTextController(
+                                      focusNode: _activeFocusNode,
+                                      textEditingController: _activeController,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                          const SizedBox(height: 10),
                           Row(
                             children: [
                               Expanded(

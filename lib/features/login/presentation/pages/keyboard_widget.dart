@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
@@ -8,17 +9,30 @@ class KeyboardWidget extends StatefulWidget {
   final TextEditingController controller;
   final bool isNumericMode;
   final void Function(VirtualKeyboardKey)? onKeyPress;
+  final void Function()? onChanged;
+  final void Function()? onChangedBackspace;
+  final void Function()? onSubmit;
   final bool customLayoutKeys;
   final bool? isShiftEnabled;
   final double? height;
+  final FocusNodeAndTextController? focusNodeAndTextController;
+  final TextInputFormatter? textFormatter;
+  final bool enableNewLine;
+
   const KeyboardWidget({
     super.key,
     required this.controller,
     required this.isNumericMode,
     this.onKeyPress,
+    this.onChanged,
+    this.onChangedBackspace,
+    this.onSubmit,
     this.height,
     this.isShiftEnabled,
+    this.focusNodeAndTextController,
+    this.textFormatter,
     required this.customLayoutKeys,
+    this.enableNewLine = false,
   });
 
   @override
@@ -26,18 +40,16 @@ class KeyboardWidget extends StatefulWidget {
 }
 
 class _KeyboardWidgetState extends State<KeyboardWidget> {
-  bool _shiftEnabled = false;
   bool _isNumericMode = false;
   double _height = 0;
 
   // Timer? _backspaceTimer;
 
-  late TextEditingController _controllerText;
+  bool _shiftEnabled = false;
 
   @override
   void initState() {
     super.initState();
-    _controllerText = TextEditingController();
     setState(() {
       _isNumericMode = widget.isNumericMode;
       _height = widget.height ?? 250;
@@ -69,58 +81,91 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
   //   _backspaceTimer = null;
   // }
 
-  void _defaultOnKeyPress(VirtualKeyboardKey key) {
-    String text = widget.controller.text;
-    TextSelection currentSelection = widget.controller.selection;
+  void _defaultPostKeyPress(VirtualKeyboardKey key) {
+    String text = widget.focusNodeAndTextController?.textEditingController.text ?? widget.controller.text;
+    TextSelection currentSelection =
+        widget.focusNodeAndTextController?.textEditingController.selection ?? widget.controller.selection;
     int cursorPosition = currentSelection.start;
 
     if (key.keyType == VirtualKeyboardKeyType.String) {
-      String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-      text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-      cursorPosition += inputText.length;
+      (widget.onChanged != null) ? widget.onChanged!() : null;
     } else if (key.keyType == VirtualKeyboardKeyType.Action) {
       switch (key.action) {
-        case VirtualKeyboardKeyAction.Backspace:
-          // _startBackspaceRepeater(() {
-          if (text.isNotEmpty && cursorPosition > 0) {
+        case VirtualKeyboardKeyAction.Return:
+          if (widget.onSubmit != null) {
+            widget.onSubmit!();
+          }
+          if (text.isNotEmpty && cursorPosition > 0 && widget.enableNewLine == false) {
             text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
             cursorPosition -= 1;
           }
-          // });
           break;
-
-        case VirtualKeyboardKeyAction.Return:
-          if (_shiftEnabled) {
-            FocusScope.of(context).nextFocus();
+        case VirtualKeyboardKeyAction.Backspace:
+          if (widget.onChangedBackspace != null) {
+            widget.onChangedBackspace!();
           } else {
-            text = text.replaceRange(cursorPosition, cursorPosition, '\n');
-            cursorPosition += 1;
+            (widget.onChanged != null) ? widget.onChanged!() : null;
           }
           break;
-
-        case VirtualKeyboardKeyAction.Space:
-          text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-          cursorPosition += 1;
-          break;
-
         case VirtualKeyboardKeyAction.Shift:
-          _shiftEnabled = !_shiftEnabled;
+          setState(() {
+            _shiftEnabled = !_shiftEnabled;
+          });
           break;
-
+        case VirtualKeyboardKeyAction.Space:
+        case VirtualKeyboardKeyAction.SwithLanguage:
         default:
+          (widget.onChanged != null) ? widget.onChanged!() : null;
           break;
       }
     }
 
-    widget.controller.text = text;
-    widget.controller.selection = TextSelection.collapsed(offset: cursorPosition);
+    if (widget.textFormatter != null) {
+      TextEditingValue formattedValue = widget.textFormatter!.formatEditUpdate(
+        TextEditingValue(
+          text: text,
+          selection: TextSelection.collapsed(offset: cursorPosition),
+        ),
+        TextEditingValue(
+          text: text,
+          selection: TextSelection.collapsed(offset: cursorPosition),
+        ),
+      );
+      widget.focusNodeAndTextController?.textEditingController.text = formattedValue.text;
+      widget.focusNodeAndTextController?.textEditingController.selection = formattedValue.selection;
 
-    setState(() {});
+      setState(() {});
+    } else {
+      widget.focusNodeAndTextController?.textEditingController.text = text;
+      widget.focusNodeAndTextController?.textEditingController.selection =
+          TextSelection.collapsed(offset: cursorPosition);
+
+      setState(() {});
+    }
+  }
+
+  void _defaultPreKeyPress(VirtualKeyboardKey key) {
+    if (widget.focusNodeAndTextController != null) {
+      if (!widget.focusNodeAndTextController!.focusNode.hasFocus) {
+        widget.focusNodeAndTextController?.focusNode.requestFocus();
+      }
+
+      TextEditingController controller = widget.focusNodeAndTextController!.textEditingController;
+      TextSelection currentSelection = controller.selection;
+
+      widget.focusNodeAndTextController?.textEditingController.value = TextEditingValue(
+        text: controller.text,
+        selection: currentSelection.isValid
+            ? currentSelection
+            : TextSelection.collapsed(
+                offset: controller.text.length,
+              ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    log("${widget.isShiftEnabled}");
     return Center(
       child: FocusScope(
         canRequestFocus: false,
@@ -135,10 +180,10 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                 height: _height,
                 width: MediaQuery.of(context).size.width * 1,
                 textColor: ProjectColors.primary,
-                textController: _controllerText,
+                textController: widget.focusNodeAndTextController?.textEditingController ?? widget.controller,
                 customLayoutKeys: widget.customLayoutKeys
                     ? CustomKeyboardLayoutKeys([
-                        (widget.isShiftEnabled != null && widget.isShiftEnabled == true)
+                        (_shiftEnabled == true)
                             ? VirtualKeyboardDefaultLayouts.Arabic
                             : VirtualKeyboardDefaultLayouts.English
                       ], _shiftEnabled)
@@ -146,7 +191,8 @@ class _KeyboardWidgetState extends State<KeyboardWidget> {
                 defaultLayouts: const [VirtualKeyboardDefaultLayouts.English, VirtualKeyboardDefaultLayouts.Arabic],
                 //reverseLayout :true,
                 type: _isNumericMode ? VirtualKeyboardType.Numeric : VirtualKeyboardType.Alphanumeric,
-                postKeyPress: (widget.onKeyPress != null) ? widget.onKeyPress : _defaultOnKeyPress,
+                postKeyPress: _defaultPostKeyPress,
+                preKeyPress: _defaultPreKeyPress,
               ),
             )
           ],
@@ -166,6 +212,7 @@ class CustomKeyboardLayoutKeys extends VirtualKeyboardLayoutKeys {
 
   @override
   List<List> getLanguage(int index) {
+    log("isShiftEnabled- $isShiftEnabled");
     switch (defaultLayouts[index]) {
       case VirtualKeyboardDefaultLayouts.English:
         return isShiftEnabled ? _defaultShiftLayout : _defaultEnglishLayout;
@@ -215,3 +262,13 @@ const List<List> _defaultArabicLayout = [
   // Row 5
   [VirtualKeyboardKeyAction.SwithLanguage, '~', VirtualKeyboardKeyAction.Space, '_', '+', '|']
 ];
+
+class FocusNodeAndTextController {
+  final FocusNode focusNode;
+  final TextEditingController textEditingController;
+
+  FocusNodeAndTextController({
+    required this.focusNode,
+    required this.textEditingController,
+  });
+}

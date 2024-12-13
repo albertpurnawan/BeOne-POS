@@ -13,7 +13,6 @@ import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:thermal_printer/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:thermal_printer/thermal_printer.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class DefaultPrinterSettings extends StatefulWidget {
   const DefaultPrinterSettings({Key? key}) : super(key: key);
@@ -51,8 +50,9 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
   final FocusNode _ipFocusNode = FocusNode();
   final FocusNode _portFocusNode = FocusNode();
   final FocusNode _keyboardFocusNode = FocusNode();
-  bool _shiftEnabled = false;
+
   TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -83,7 +83,9 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                 : false,
       );
     }
-    _portController.text = _port;
+
+    _ipController.text = selectedPrinter?.address ?? "";
+    _portController.text = selectedPrinter?.port ?? "";
     _scan();
 
     // subscription to listen change status of bluetooth connection
@@ -136,6 +138,7 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
       if (_ipFocusNode.hasFocus) {
         setState(() {
           _activeController = _ipController;
+          _activeFocusNode = _ipFocusNode;
         });
       }
     });
@@ -143,6 +146,7 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
       if (_portFocusNode.hasFocus) {
         setState(() {
           _activeController = _portController;
+          _activeFocusNode = _portFocusNode;
         });
       }
     });
@@ -247,14 +251,15 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
      */
     GetIt.instance<SharedPreferences>().setStringList("defaultPrinter", [
       device.deviceName ?? "null",
-      device.address ?? "null",
-      device.port ?? "null",
+      device.address ?? _ipController.text,
+      device.port ?? _portController.text,
       device.vendorId ?? "null",
       device.productId ?? "null",
       device.isBle.toString(),
       device.typePrinter.toString(),
       device.state?.toString() ?? "null",
     ]);
+
     GetIt.instance<ReceiptPrinter>().selectedPrinter = device;
     setState(() {});
   }
@@ -604,7 +609,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                               )
                               .toList()),
                       Visibility(
-                        visible: defaultPrinterType == PrinterType.network && Platform.isWindows,
+                        visible: defaultPrinterType == PrinterType.network &&
+                            Platform.isWindows, // (Platform.isWindows || Platform.isAndroid)
                         child: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
                           child: TextFormField(
@@ -620,7 +626,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                         ),
                       ),
                       Visibility(
-                        visible: defaultPrinterType == PrinterType.network && Platform.isWindows,
+                        visible: defaultPrinterType == PrinterType.network &&
+                            Platform.isWindows, // (Platform.isWindows || Platform.isAndroid)
                         child: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
                           child: TextFormField(
@@ -654,7 +661,8 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                         ),
                       ),
                       Visibility(
-                        visible: defaultPrinterType == PrinterType.network && Platform.isWindows,
+                        visible: defaultPrinterType == PrinterType.network &&
+                            Platform.isWindows, // (Platform.isWindows || Platform.isAndroid)
                         child: Padding(
                           padding: const EdgeInsets.only(top: 10.0),
                           child: (_showKeyboard)
@@ -662,53 +670,69 @@ class _DefaultPrinterSettingsState extends State<DefaultPrinterSettings> {
                                   controller: _activeController,
                                   isNumericMode: false,
                                   customLayoutKeys: true,
-                                  isShiftEnabled: _shiftEnabled,
-                                  onKeyPress: (key) {
-                                    String text = _activeController.text;
-                                    TextSelection currentSelection = _activeController.selection;
-                                    int cursorPosition = currentSelection.start;
 
-                                    if (key.keyType == VirtualKeyboardKeyType.String) {
-                                      String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                      text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                      cursorPosition += inputText.length;
-
-                                      (_activeController == _ipController) ? setIpAddress(text) : setPort(text);
-                                    } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                      switch (key.action) {
-                                        case VirtualKeyboardKeyAction.Backspace:
-                                          if (text.isNotEmpty && currentSelection.start > 0) {
-                                            text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                            cursorPosition -= 1;
-
-                                            (_activeController == _ipController) ? setIpAddress(text) : setPort(text);
-                                          }
-                                          break;
-                                        case VirtualKeyboardKeyAction.Return:
-                                          (_shiftEnabled)
-                                              ? FocusScope.of(context).nextFocus()
-                                              : (_activeController == _ipController)
-                                                  ? setIpAddress(text)
-                                                  : setPort(text);
-                                          break;
-                                        case VirtualKeyboardKeyAction.Space:
-                                          text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                          cursorPosition += 1;
-                                          (_activeController == _ipController) ? setIpAddress(text) : setPort(text);
-                                          break;
-                                        case VirtualKeyboardKeyAction.Shift:
-                                          _shiftEnabled = !_shiftEnabled;
-                                          break;
-                                        default:
-                                          break;
-                                      }
-                                    }
-
-                                    _activeController.text = text;
-                                    _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                                    setState(() {});
+                                  focusNodeAndTextController: FocusNodeAndTextController(
+                                    focusNode: _activeFocusNode,
+                                    textEditingController: _activeController,
+                                  ),
+                                  onChanged: (_activeController == _ipController)
+                                      ? () {
+                                          (_activeController == _ipController)
+                                              ? setIpAddress(_ipController.text)
+                                              : setPort(_ipController.text);
+                                        }
+                                      : null,
+                                  onSubmit: () {
+                                    (_activeController == _ipController)
+                                        ? setIpAddress(_ipController.text)
+                                        : setPort(_ipController.text);
                                   },
+                                  // onKeyPress: (key) {
+                                  //   String text = _activeController.text;
+                                  //   TextSelection currentSelection = _activeController.selection;
+                                  //   int cursorPosition = currentSelection.start;
+
+                                  //   if (key.keyType == VirtualKeyboardKeyType.String) {
+                                  //     String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                  //     text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                  //     cursorPosition += inputText.length;
+
+                                  //     (_activeController == _ipController) ? setIpAddress(text) : setPort(text);
+                                  //   } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                  //     switch (key.action) {
+                                  //       case VirtualKeyboardKeyAction.Backspace:
+                                  //         if (text.isNotEmpty && currentSelection.start > 0) {
+                                  //           text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                  //           cursorPosition -= 1;
+
+                                  //           (_activeController == _ipController) ? setIpAddress(text) : setPort(text);
+                                  //         }
+                                  //         break;
+                                  //       case VirtualKeyboardKeyAction.Return:
+                                  //         (_shiftEnabled)
+                                  //             ? FocusScope.of(context).nextFocus()
+                                  //             : (_activeController == _ipController)
+                                  //                 ? setIpAddress(text)
+                                  //                 : setPort(text);
+                                  //         break;
+                                  //       case VirtualKeyboardKeyAction.Space:
+                                  //         text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                  //         cursorPosition += 1;
+                                  //         (_activeController == _ipController) ? setIpAddress(text) : setPort(text);
+                                  //         break;
+                                  //       case VirtualKeyboardKeyAction.Shift:
+                                  //         _shiftEnabled = !_shiftEnabled;
+                                  //         break;
+                                  //       default:
+                                  //         break;
+                                  //     }
+                                  //   }
+
+                                  //   _activeController.text = text;
+                                  //   _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                                  //   setState(() {});
+                                  // },
                                 )
                               : const SizedBox.shrink(),
                         ),

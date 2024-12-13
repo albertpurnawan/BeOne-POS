@@ -19,7 +19,6 @@ import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_redeem_vouchers_fail_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirm_redeem_vouchers_success_dialog.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class VoucherCheckout extends StatefulWidget {
   final Function(
@@ -52,7 +51,6 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
 
   final FocusNode _keyboardFocusNode = FocusNode();
   bool _showKeyboard = true;
-  bool _shiftEnabled = false;
 
   List<Widget> _buildVoucherRows(
     List<VouchersSelectionModel> vouchers,
@@ -61,8 +59,6 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
     return vouchers.where((element) => element.type == widget.voucherType).toList().asMap().entries.map((entry) {
       int index = entry.key;
       VouchersSelectionModel voucher = entry.value;
-      // return Text(
-      //     "${voucher.voucherAlias} - ${voucher.voucherAmount}");
 
       return SizedBox(
         width: double.infinity,
@@ -620,48 +616,19 @@ class _VoucherCheckoutState extends State<VoucherCheckout> {
                           controller: _voucherCheckController,
                           isNumericMode: false,
                           customLayoutKeys: true,
-                          isShiftEnabled: _shiftEnabled,
-                          onKeyPress: (key) async {
-                            String text = _voucherCheckController.text;
-                            TextSelection currentSelection = _voucherCheckController.selection;
-                            int cursorPosition = currentSelection.start;
-
-                            if (key.keyType == VirtualKeyboardKeyType.String) {
-                              String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                              text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                              cursorPosition += inputText.length;
-                            } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                              switch (key.action) {
-                                case VirtualKeyboardKeyAction.Backspace:
-                                  if (text.isNotEmpty) {
-                                    text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                    cursorPosition -= 1;
-                                  }
-                                  break;
-                                case VirtualKeyboardKeyAction.Return:
-                                  try {
-                                    await _checkVoucher(text);
-                                    text = "";
-                                    _voucherFocusNode.requestFocus();
-                                  } catch (e) {
-                                    _voucherFocusNode.requestFocus();
-                                  }
-                                  break;
-                                case VirtualKeyboardKeyAction.Space:
-                                  text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                  cursorPosition += 1;
-                                  break;
-                                case VirtualKeyboardKeyAction.Shift:
-                                  _shiftEnabled = !_shiftEnabled;
-                                  break;
-                                default:
-                                  break;
-                              }
+                          focusNodeAndTextController: FocusNodeAndTextController(
+                            focusNode: _voucherFocusNode,
+                            textEditingController: _voucherCheckController,
+                          ),
+                          onSubmit: () async {
+                            try {
+                              String text = _voucherCheckController.text.trimRight();
+                              await _checkVoucher(text);
+                              _voucherCheckController.text = "";
+                              _voucherFocusNode.requestFocus();
+                            } catch (e) {
+                              _voucherFocusNode.requestFocus();
                             }
-                            _voucherCheckController.text = text;
-                            _voucherCheckController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                            setState(() {});
                           },
                         ),
                       )

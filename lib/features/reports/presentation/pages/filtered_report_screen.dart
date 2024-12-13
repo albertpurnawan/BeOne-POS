@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -9,7 +11,6 @@ import 'package:pos_fe/features/reports/presentation/widgets/table_report_mop_wi
 import 'package:pos_fe/features/reports/presentation/widgets/table_report_shift_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class FiltereReportScreen extends StatefulWidget {
   const FiltereReportScreen({super.key});
@@ -25,9 +26,9 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
   DateTime? selectedFromDate;
   DateTime? selectedToDate;
   String? searchedQuery;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusnode = FocusNode();
 
-  bool _shiftEnabled = false;
   bool _showKeyboard = true;
   final FocusNode _keyboardFocusNode = FocusNode();
 
@@ -44,6 +45,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusnode.dispose();
     _keyboardFocusNode.dispose();
     super.dispose();
   }
@@ -318,6 +320,7 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                                 height: 30,
                                 child: TextField(
                                   controller: _searchController,
+                                  focusNode: _searchFocusnode,
                                   decoration: const InputDecoration(
                                     contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 8),
                                     border: OutlineInputBorder(),
@@ -391,51 +394,21 @@ class _FiltereReportScreenState extends State<FiltereReportScreen> {
                           controller: _searchController,
                           isNumericMode: false,
                           customLayoutKeys: true,
-                          isShiftEnabled: _shiftEnabled,
-                          onKeyPress: (key) async {
-                            String text = _searchController.text;
-                            TextSelection currentSelection = _searchController.selection;
-                            int cursorPosition = currentSelection.start;
-
-                            if (key.keyType == VirtualKeyboardKeyType.String) {
-                              String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                              text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                              cursorPosition += inputText.length;
-                              setState(() {
-                                searchedQuery = text;
-                              });
-                            } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                              switch (key.action) {
-                                case VirtualKeyboardKeyAction.Backspace:
-                                  if (text.isNotEmpty) {
-                                    text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                    cursorPosition -= 1;
-                                  }
-                                  setState(() {
-                                    searchedQuery = text;
-                                  });
-                                  break;
-                                case VirtualKeyboardKeyAction.Return:
-                                  _searchController.text = _searchController.text.trimRight();
-                                  setState(() {
-                                    searchedQuery = _searchController.text;
-                                  });
-                                  break;
-                                case VirtualKeyboardKeyAction.Space:
-                                  text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                  cursorPosition += 1;
-                                  break;
-                                case VirtualKeyboardKeyAction.Shift:
-                                  _shiftEnabled = !_shiftEnabled;
-                                  break;
-                                default:
-                                  break;
-                              }
-                            }
-                            _searchController.text = text;
-                            _searchController.selection = TextSelection.collapsed(offset: cursorPosition);
-
-                            setState(() {});
+                          focusNodeAndTextController: FocusNodeAndTextController(
+                            focusNode: _searchFocusnode,
+                            textEditingController: _searchController,
+                          ),
+                          onChanged: () {
+                            log("HREEE");
+                            setState(() {
+                              searchedQuery = _searchController.text;
+                            });
+                          },
+                          onSubmit: () {
+                            _searchController.text = _searchController.text.trimRight();
+                            setState(() {
+                              searchedQuery = _searchController.text;
+                            });
                           },
                         ),
                       ),

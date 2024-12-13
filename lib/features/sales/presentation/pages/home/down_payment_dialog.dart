@@ -32,7 +32,6 @@ import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.da
 import 'package:pos_fe/features/sales/presentation/widgets/select_employee_dialog.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 import 'package:uuid/uuid.dart';
-import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class DownPaymentDialog extends StatefulWidget {
   const DownPaymentDialog({super.key});
@@ -75,11 +74,11 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
 
   double totalAmount = 0;
 
-  bool _shiftEnabled = false;
   bool _showKeyboard = true;
   final FocusNode _keyboardFocusNode = FocusNode();
   bool currentNumericMode = false;
   TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -94,6 +93,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       if (_amountFocusNode.hasFocus) {
         setState(() {
           _activeController = _amountController;
+          _activeFocusNode = _amountFocusNode;
           currentNumericMode = true;
         });
       }
@@ -102,6 +102,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
       if (_remarksFocusNode.hasFocus) {
         setState(() {
           _activeController = _remarksController;
+          _activeFocusNode = _remarksFocusNode;
           currentNumericMode = false;
         });
       }
@@ -111,6 +112,7 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
         if (_drawAmountFocusNodes[i].hasFocus) {
           setState(() {
             _activeController = _drawAmountControllers[i];
+            _activeFocusNode = _drawAmountFocusNodes[i];
             currentNumericMode = true;
           });
         }
@@ -806,46 +808,11 @@ class _DownPaymentDialogState extends State<DownPaymentDialog> {
                                 isNumericMode: isReceive ? currentNumericMode : true,
                                 customLayoutKeys: true,
                                 height: 200,
-                                onKeyPress: (key) async {
-                                  String text = _activeController.text;
-                                  TextSelection currentSelection = _activeController.selection;
-                                  int cursorPosition = currentSelection.start;
-
-                                  if (key.keyType == VirtualKeyboardKeyType.String) {
-                                    String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
-                                    text = text.replaceRange(cursorPosition, cursorPosition, inputText);
-                                    cursorPosition += inputText.length;
-                                  } else if (key.keyType == VirtualKeyboardKeyType.Action) {
-                                    switch (key.action) {
-                                      case VirtualKeyboardKeyAction.Backspace:
-                                        if (text.isNotEmpty && cursorPosition > 0) {
-                                          text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
-                                          cursorPosition -= 1;
-                                        }
-                                        break;
-                                      case VirtualKeyboardKeyAction.Return:
-                                        _activeController.text = _activeController.text.trimRight();
-
-                                        break;
-                                      case VirtualKeyboardKeyAction.Space:
-                                        if (_activeController == _remarksController) {
-                                          text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                          cursorPosition += 1;
-                                        } else {
-                                          text = text.replaceRange(cursorPosition, cursorPosition, ' ');
-                                          cursorPosition += 1;
-                                        }
-                                        break;
-                                      case VirtualKeyboardKeyAction.Shift:
-                                        _shiftEnabled = !_shiftEnabled;
-                                        break;
-                                      default:
-                                        break;
-                                    }
-                                  }
-                                  _activeController.text = text;
-                                  _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
-                                },
+                                focusNodeAndTextController: FocusNodeAndTextController(
+                                  focusNode: _activeFocusNode,
+                                  textEditingController: _activeController,
+                                ),
+                                textFormatter: (_activeFocusNode == _amountFocusNode) ? MoneyInputFormatter() : null,
                               ),
                             ),
                           )
