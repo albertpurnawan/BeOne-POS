@@ -1558,7 +1558,7 @@ class ReceiptPrinter {
     bytes += generator.row([
       PosColumn(
           width: 5,
-          text: Helpers.alignLeftByAddingSpace('Inv. Count All', width5Length),
+          text: Helpers.alignLeftByAddingSpace('Invoice Count (All)', width5Length),
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 7,
@@ -1568,7 +1568,7 @@ class ReceiptPrinter {
     bytes += generator.row([
       PosColumn(
           width: 5,
-          text: Helpers.alignLeftByAddingSpace('Inv. Count Return', width5Length),
+          text: Helpers.alignLeftByAddingSpace('Invoice Count (Return)', width5Length),
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 7,
@@ -1595,7 +1595,7 @@ class ReceiptPrinter {
 
       if (groupedTransactions.containsKey(payTypeCode)) {
         for (int i = 0; i < groupedTransactions[payTypeCode]!.length; i++) {
-          var transaction = groupedTransactions[payTypeCode]![i];
+          dynamic transaction = groupedTransactions[payTypeCode]![i];
           String detailDescription = transaction['description']?.trim() ?? "Unknown";
           String amount = Helpers.parseMoney(transaction['amount']);
 
@@ -1611,12 +1611,13 @@ class ReceiptPrinter {
               styles: const PosStyles(align: PosAlign.left),
             ),
           ]);
-          dev.log("$i ${groupedTransactions[payTypeCode]!.length - 1}");
-          if (i != groupedTransactions[payTypeCode]!.length - 1) bytes += generator.emptyLines(1);
+          bytes += generator.emptyLines(1);
         }
       }
     }
+
     bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
+
     bytes += generator.row([
       PosColumn(
           width: 5,
