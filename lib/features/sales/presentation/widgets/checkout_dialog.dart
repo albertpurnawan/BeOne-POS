@@ -685,6 +685,27 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     }
   }
 
+  Future<void> handleCheckoutSuccessOnCustomerDisplay() async {
+    if (await GetIt.instance<GetPosParameterUseCase>().call() != null &&
+        (await GetIt.instance<GetPosParameterUseCase>().call())!.customerDisplayActive == 0) {
+      return;
+    }
+    final windows = await DesktopMultiWindow.getAllSubWindowIds();
+    if (windows.isEmpty) {
+      debugPrint('No display window found');
+      return;
+    }
+    final windowId = windows[0];
+
+    final Map<String, dynamic> data = {
+      'done': true,
+    };
+
+    final jsonData = jsonEncode(data);
+    debugPrint("Sending data to display from sales: $jsonData");
+    final sendingData = await sendData(windowId, jsonData, 'updateTransactionSuccessDone', 'Checkout');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Builder(builder: (childContext) {
@@ -702,6 +723,8 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
               isCharged = false;
               Navigator.of(context).pop();
               context.read<ReceiptCubit>().resetReceipt();
+
+              handleCheckoutSuccessOnCustomerDisplay();
               return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.escape && !isCharged) {
               context.pop();
@@ -1154,25 +1177,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                             Navigator.of(context).pop();
 
                             await context.read<ReceiptCubit>().resetReceipt();
-                            if (await GetIt.instance<GetPosParameterUseCase>().call() != null &&
-                                (await GetIt.instance<GetPosParameterUseCase>().call())!.customerDisplayActive == 0) {
-                              return;
-                            }
-                            final windows = await DesktopMultiWindow.getAllSubWindowIds();
-                            if (windows.isEmpty) {
-                              debugPrint('No display window found');
-                              return;
-                            }
-                            final windowId = windows[0];
-
-                            final Map<String, dynamic> data = {
-                              'done': true,
-                            };
-
-                            final jsonData = jsonEncode(data);
-                            debugPrint("Sending data to display from sales: $jsonData");
-                            final sendingData =
-                                await sendData(windowId, jsonData, 'updateTransactionSuccessDone', 'Checkout');
+                            await handleCheckoutSuccessOnCustomerDisplay();
                           },
                           child: Center(
                             child: RichText(

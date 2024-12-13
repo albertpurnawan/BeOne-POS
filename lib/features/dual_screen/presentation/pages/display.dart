@@ -83,8 +83,7 @@ class _DisplayPageState extends State<DisplayPage> {
               // Attempt to decode if it's a string
               return DualScreenModel.fromMap(jsonDecode(banner));
             } else {
-              throw FormatException(
-                  'Expected a Map or a JSON string for each banner');
+              throw FormatException('Expected a Map or a JSON string for each banner');
             }
           }).toList();
         } else {
@@ -99,8 +98,7 @@ class _DisplayPageState extends State<DisplayPage> {
             // Attempt to decode if it's a string
             return DualScreenModel.fromMap(jsonDecode(banner));
           } else {
-            throw FormatException(
-                'Expected a Map or a JSON string for each banner');
+            throw FormatException('Expected a Map or a JSON string for each banner');
           }
         }).toList();
       } else if (dualScreenModel != null) {
@@ -108,24 +106,14 @@ class _DisplayPageState extends State<DisplayPage> {
       }
 
       setState(() {
-        largeBannersUrl = allBanners
-            .where((banner) => banner.type == 1 && banner.path.contains('http'))
-            .toList()
+        largeBannersUrl = allBanners.where((banner) => banner.type == 1 && banner.path.contains('http')).toList()
           ..sort((a, b) => a.order.compareTo(b.order));
-        smallBannersUrl = allBanners
-            .where((banner) => banner.type == 2 && banner.path.contains('http'))
-            .toList()
+        smallBannersUrl = allBanners.where((banner) => banner.type == 2 && banner.path.contains('http')).toList()
           ..sort((a, b) => a.order.compareTo(b.order));
 
-        largeBannersLocal = allBanners
-            .where(
-                (banner) => banner.type == 1 && !banner.path.contains('http'))
-            .toList()
+        largeBannersLocal = allBanners.where((banner) => banner.type == 1 && !banner.path.contains('http')).toList()
           ..sort((a, b) => a.order.compareTo(b.order));
-        smallBannersLocal = allBanners
-            .where(
-                (banner) => banner.type == 2 && !banner.path.contains('http'))
-            .toList()
+        smallBannersLocal = allBanners.where((banner) => banner.type == 2 && !banner.path.contains('http')).toList()
           ..sort((a, b) => a.order.compareTo(b.order));
 
         isLoading = false;
@@ -138,8 +126,8 @@ class _DisplayPageState extends State<DisplayPage> {
 
       if (mounted) {
         // More informative error message
-        SnackBarHelper.presentErrorSnackBar(context,
-            'Failed to load banners. Please check your connection and try again. Error: ${e.toString()}');
+        SnackBarHelper.presentErrorSnackBar(
+            context, 'Failed to load banners. Please check your connection and try again. Error: ${e.toString()}');
       }
     }
     _downloadAllBanners();
@@ -242,29 +230,26 @@ class _DisplayPageState extends State<DisplayPage> {
           try {
             final String jsonString = call.arguments as String;
             final Map<String, dynamic> data = jsonDecode(jsonString);
-            final List<MopSelectionEntity> mopSelections =
-                (data['mopSelections'] as List?)?.map((mopData) {
-                      return MopSelectionEntity(
-                        mopAlias: mopData['mopAlias'] ?? '',
-                        amount: (mopData['amount'] as num?)?.toDouble() ?? 0.0,
-                        payTypeCode: mopData['payTypeCode'] ?? '',
-                        cardName: mopData['cardName'],
-                        tpmt2Id: mopData['tpmt2Id'],
-                        tpmt3Id: mopData['tpmt3Id'],
-                        tpmt1Id: mopData['tpmt1Id'],
-                        description: mopData['description'],
-                        subType: mopData['subType'],
-                      );
-                    }).toList() ??
-                    [];
+            final List<MopSelectionEntity> mopSelections = (data['mopSelections'] as List?)?.map((mopData) {
+                  return MopSelectionEntity(
+                    mopAlias: mopData['mopAlias'] ?? '',
+                    amount: (mopData['amount'] as num?)?.toDouble() ?? 0.0,
+                    payTypeCode: mopData['payTypeCode'] ?? '',
+                    cardName: mopData['cardName'],
+                    tpmt2Id: mopData['tpmt2Id'],
+                    tpmt3Id: mopData['tpmt3Id'],
+                    tpmt1Id: mopData['tpmt1Id'],
+                    description: mopData['description'],
+                    subType: mopData['subType'],
+                  );
+                }).toList() ??
+                [];
 
             setState(() {
               TransactionSuccessData = {
                 'docNum': data['docNum'] ?? '',
                 'grandTotal': data['grandTotal'] ?? 0.0,
-                'transDateTime': data['transDateTime'] != null
-                    ? DateTime.parse(data['transDateTime'])
-                    : null,
+                'transDateTime': data['transDateTime'] != null ? DateTime.parse(data['transDateTime']) : null,
                 'mopSelections': mopSelections,
                 'totalPayment': currentSalesCheckout['totalPayment'] ?? 0.0,
                 'changed': currentSalesCheckout['changed'] ?? 0.0,
@@ -272,9 +257,7 @@ class _DisplayPageState extends State<DisplayPage> {
             });
 
             // Show dialog when new data arrives
-            if (mounted &&
-                TransactionSuccessData['docNum'] != null &&
-                TransactionSuccessData['docNum'].isNotEmpty) {
+            if (mounted && TransactionSuccessData['docNum'] != null && TransactionSuccessData['docNum'].isNotEmpty) {
               final dialog = showDialog(
                 context: context,
                 barrierDismissible: false,
@@ -290,8 +273,7 @@ class _DisplayPageState extends State<DisplayPage> {
                         child: Container(
                           decoration: const BoxDecoration(
                             color: ProjectColors.primary,
-                            borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(5.0)),
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                           ),
                           padding: const EdgeInsets.fromLTRB(25, 5, 10, 5),
                           child: const Column(
@@ -315,24 +297,15 @@ class _DisplayPageState extends State<DisplayPage> {
                       content: _DisplayCheckoutSuccessDialogContent(
                         checkoutData: TransactionSuccessData,
                         docNum: TransactionSuccessData['docNum'] ?? '',
-                        grandTotal: double.tryParse(
-                                TransactionSuccessData['grandTotal']
-                                        ?.toString() ??
-                                    '0') ??
-                            0.0,
+                        grandTotal: double.tryParse(TransactionSuccessData['grandTotal']?.toString() ?? '0') ?? 0.0,
                         transDateTime: TransactionSuccessData['transDateTime'],
-                        mopSelections:
-                            TransactionSuccessData['mopSelections'] ?? [],
-                        totalPayment:
-                            TransactionSuccessData['totalPayment'] == null
-                                ? 0.0
-                                : _safeParseDouble(
-                                    TransactionSuccessData['totalPayment']
-                                        .toString()),
+                        mopSelections: TransactionSuccessData['mopSelections'] ?? [],
+                        totalPayment: TransactionSuccessData['totalPayment'] == null
+                            ? 0.0
+                            : _safeParseDouble(TransactionSuccessData['totalPayment'].toString()),
                         changed: TransactionSuccessData['changed'] == null
                             ? 0.0
-                            : _safeParseDouble(
-                                TransactionSuccessData['changed'].toString()),
+                            : _safeParseDouble(TransactionSuccessData['changed'].toString()),
                       ),
                       actions: [
                         TextButton(
@@ -420,8 +393,7 @@ class _DisplayPageState extends State<DisplayPage> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     // Calculate base size based on screen dimensions
-    final baseSize =
-        (screenWidth * screenHeight) / (1920 * 1080); // normalized to 1080p
+    final baseSize = (screenWidth * screenHeight) / (1920 * 1080); // normalized to 1080p
 
     // Scale font size proportionally
     final scaleFactor = isHeader ? 1.2 : 1.0;
@@ -435,8 +407,7 @@ class _DisplayPageState extends State<DisplayPage> {
 
   double _getColumnWidth(BuildContext context, String columnType) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final totalWidth =
-        screenWidth * 0.4; // Since container width is 40% of screen
+    final totalWidth = screenWidth * 0.4; // Since container width is 40% of screen
 
     // Dynamic ratios based on available width
     final Map<String, double> columnRatios = {
@@ -574,8 +545,7 @@ class _DisplayPageState extends State<DisplayPage> {
                   if (scrollInfo is ScrollEndNotification) {
                     // Store the current scroll position
                     final currentPosition = _scrollController.position.pixels;
-                    final maxScroll =
-                        _scrollController.position.maxScrollExtent;
+                    final maxScroll = _scrollController.position.maxScrollExtent;
                     // If we're near the bottom, keep scrolling to bottom for new items
                     if (currentPosition >= maxScroll - 50) {
                       _scrollToBottom();
@@ -597,9 +567,7 @@ class _DisplayPageState extends State<DisplayPage> {
                                 minHeight: 40,
                               ),
                               decoration: BoxDecoration(
-                                color: index % 2 == 0
-                                    ? Colors.white
-                                    : Colors.grey.shade50,
+                                color: index % 2 == 0 ? Colors.white : Colors.grey.shade50,
                                 border: Border(
                                   bottom: BorderSide(
                                     color: Colors.grey.shade300,
@@ -688,17 +656,14 @@ class _DisplayPageState extends State<DisplayPage> {
 
       // Get the application documents directory
       final Directory appDocDir = await getApplicationDocumentsDirectory();
-      final largeBannnerStorage =
-          Directory('${appDocDir.path}/POS/largeBanner/');
-      final smallBannnerStorage =
-          Directory('${appDocDir.path}/POS/smallBanner/');
+      final largeBannnerStorage = Directory('${appDocDir.path}/POS/largeBanner/');
+      final smallBannnerStorage = Directory('${appDocDir.path}/POS/smallBanner/');
 
       // Create banners directory if it doesn't exist
       if (!await largeBannnerStorage.exists()) {
         await largeBannnerStorage.create(recursive: true);
       } else {
-        final List<FileSystemEntity> files =
-            await largeBannnerStorage.list().toList();
+        final List<FileSystemEntity> files = await largeBannnerStorage.list().toList();
         for (var file in files) {
           if (file is File && await file.exists()) {
             await file.delete();
@@ -709,8 +674,7 @@ class _DisplayPageState extends State<DisplayPage> {
       if (!await smallBannnerStorage.exists()) {
         await smallBannnerStorage.create(recursive: true);
       } else {
-        final List<FileSystemEntity> files =
-            await smallBannnerStorage.list().toList();
+        final List<FileSystemEntity> files = await smallBannnerStorage.list().toList();
         for (var file in files) {
           if (file is File && await file.exists()) {
             await file.delete();
@@ -729,15 +693,12 @@ class _DisplayPageState extends State<DisplayPage> {
             // Generate a more readable filename using banner ID or order'
             String filename;
             if (_isVideoFile(banner.path)) {
-              filename =
-                  'large_banner_${DateTime.now().millisecondsSinceEpoch}_${banner.id ?? banner.order}.mp4';
+              filename = 'large_banner_${DateTime.now().millisecondsSinceEpoch}_${banner.id ?? banner.order}.mp4';
             } else {
-              filename =
-                  'large_banner_${DateTime.now().millisecondsSinceEpoch}_${banner.id ?? banner.order}.jpg';
+              filename = 'large_banner_${DateTime.now().millisecondsSinceEpoch}_${banner.id ?? banner.order}.jpg';
             }
 
-            final File localFile =
-                File('${largeBannnerStorage.path}/$filename');
+            final File localFile = File('${largeBannnerStorage.path}/$filename');
 
             // Clean up old file if it exists
             if (await localFile.exists()) {
@@ -790,15 +751,12 @@ class _DisplayPageState extends State<DisplayPage> {
             // Generate a unique filename
             String filename;
             if (_isVideoFile(banner.path)) {
-              filename =
-                  'small_banner_${DateTime.now().millisecondsSinceEpoch}_${banner.id ?? banner.order}.mp4';
+              filename = 'small_banner_${DateTime.now().millisecondsSinceEpoch}_${banner.id ?? banner.order}.mp4';
             } else {
-              filename =
-                  'small_banner_${DateTime.now().millisecondsSinceEpoch}_${banner.id ?? banner.order}.jpg';
+              filename = 'small_banner_${DateTime.now().millisecondsSinceEpoch}_${banner.id ?? banner.order}.jpg';
             }
 
-            final File localFile =
-                File('${smallBannnerStorage.path}/$filename');
+            final File localFile = File('${smallBannnerStorage.path}/$filename');
 
             // Download with Dio
             await dio.download(
@@ -897,8 +855,7 @@ class _DisplayPageState extends State<DisplayPage> {
     if (largeBanners.isNotEmpty) {
       // Only start timer if current banner is not a video
       if (!_isVideoFile(largeBanners[_currentIndex].path)) {
-        _timer1 = Timer.periodic(
-            Duration(seconds: largeBanners[_currentIndex].duration), (timer) {
+        _timer1 = Timer.periodic(Duration(seconds: largeBanners[_currentIndex].duration), (timer) {
           if (!mounted) return;
           _moveToNextItem();
         });
@@ -908,8 +865,7 @@ class _DisplayPageState extends State<DisplayPage> {
     if (smallBanners.isNotEmpty) {
       // Only start timer if current banner is not a video
       if (!_isVideoFile(smallBanners[_currentIndex2].path)) {
-        _timer2 = Timer.periodic(
-            Duration(seconds: smallBanners[_currentIndex2].duration), (timer) {
+        _timer2 = Timer.periodic(Duration(seconds: smallBanners[_currentIndex2].duration), (timer) {
           if (!mounted) return;
           _moveToNextItem2();
         });
@@ -1036,9 +992,7 @@ class _DisplayPageState extends State<DisplayPage> {
     } else {
       return Image.file(
         File(banner.path),
-        fit: BoxFit.fill,
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
+        fit: BoxFit.contain,
       );
     }
   }
@@ -1096,8 +1050,7 @@ class _DisplayPageState extends State<DisplayPage> {
     );
   }
 
-  Widget _buildCustomerSection(BuildContext context, Map<String, dynamic> data,
-      Map<String, dynamic> data2) {
+  Widget _buildCustomerSection(BuildContext context, Map<String, dynamic> data, Map<String, dynamic> data2) {
     return Expanded(
       flex: 2,
       child: Padding(
@@ -1113,8 +1066,7 @@ class _DisplayPageState extends State<DisplayPage> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: LayoutBuilder(builder: (context, constraints) {
-            final baseSize =
-                (constraints.maxWidth * constraints.maxHeight) / (800 * 600);
+            final baseSize = (constraints.maxWidth * constraints.maxHeight) / (800 * 600);
             final fontSize = (baseSize * 14).clamp(10.0, 12.0);
             final headerFontSize = (fontSize * 1.2).clamp(12.0, 18.0);
             final padding = (baseSize * 12).clamp(6.0, 10.0);
@@ -1196,8 +1148,7 @@ class _DisplayPageState extends State<DisplayPage> {
     );
   }
 
-  Widget _buildGrandTotalSection(
-      BuildContext context, Map<String, dynamic> data) {
+  Widget _buildGrandTotalSection(BuildContext context, Map<String, dynamic> data) {
     final hasItems = data['items'] != null && data['items'].length > 0;
 
     return Expanded(
@@ -1212,8 +1163,7 @@ class _DisplayPageState extends State<DisplayPage> {
             color: hasItems ? Colors.green.shade700 : Colors.green,
           ),
           child: LayoutBuilder(builder: (context, constraints) {
-            final baseSize =
-                (constraints.maxWidth * constraints.maxHeight) / (800 * 600);
+            final baseSize = (constraints.maxWidth * constraints.maxHeight) / (800 * 600);
             final fontSize = (baseSize * 20).clamp(14.0, 24.0);
             final padding = (baseSize * 16).clamp(8.0, 32.0);
 
@@ -1268,8 +1218,7 @@ class _DisplayPageState extends State<DisplayPage> {
               children: [
                 Expanded(
                   child: Padding(
-                    padding:
-                        const EdgeInsets.only(left: 20, bottom: 40, right: 12),
+                    padding: const EdgeInsets.only(left: 20, bottom: 40, right: 12),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -1309,8 +1258,7 @@ class _DisplayPageState extends State<DisplayPage> {
                                     ),
                                   ),
                                   Text(
-                                    dataMap['cashRegisterId'] ??
-                                        'Unknown Register',
+                                    dataMap['cashRegisterId'] ?? 'Unknown Register',
                                     style: const TextStyle(
                                       fontSize: 32,
                                       fontWeight: FontWeight.bold,
@@ -1323,21 +1271,16 @@ class _DisplayPageState extends State<DisplayPage> {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  DateFormat('EEEE, dd MMM yyyy')
-                                      .format(DateTime.now()),
+                                  DateFormat('EEEE, dd MMM yyyy').format(DateTime.now()),
                                   style: const TextStyle(fontSize: 14),
                                 ),
                                 Text(
                                   dataMap['storeName'] ?? '',
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
+                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                                 ),
                                 Text(
                                   dataMap['cashierName'] ?? '',
-                                  style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
+                                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
@@ -1346,8 +1289,7 @@ class _DisplayPageState extends State<DisplayPage> {
                         _buildSalesDisplay(),
                         Row(
                           children: [
-                            _buildCustomerSection(context, currentSalesData,
-                                currentSalesCheckout),
+                            _buildCustomerSection(context, currentSalesData, currentSalesCheckout),
                             _buildGrandTotalSection(context, currentSalesData),
                           ],
                         ),
@@ -1363,15 +1305,14 @@ class _DisplayPageState extends State<DisplayPage> {
                     maxHeight: MediaQuery.of(context).size.height * 1,
                     maxWidth: MediaQuery.of(context).size.width * 0.6,
                   ),
-                  width: 1264, // Fixed width for the right side
+                  width: double.infinity, // Fixed width for the right side
                   child: Column(
                     children: [
                       Expanded(
                         flex: 7,
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 1000),
-                          transitionBuilder:
-                              (Widget child, Animation<double> animation) {
+                          transitionBuilder: (Widget child, Animation<double> animation) {
                             return FadeTransition(
                               opacity: animation,
                               child: child,
@@ -1399,20 +1340,20 @@ class _DisplayPageState extends State<DisplayPage> {
                       const SizedBox(height: 8),
                       Expanded(
                         flex: 3,
-                        child: CarouselSlider(
-                          options: CarouselOptions(
-                            height: double.infinity,
-                            viewportFraction: 1.0,
-                            autoPlay: true,
-                            autoPlayInterval: const Duration(seconds: 3),
-                            autoPlayAnimationDuration:
-                                const Duration(milliseconds: 800),
-                            autoPlayCurve: Curves.fastOutSlowIn,
-                            pauseAutoPlayOnTouch: true,
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: CarouselSlider(
+                            options: CarouselOptions(
+                              // height: double.infinity,
+                              viewportFraction: 0.8,
+                              autoPlay: true,
+                              autoPlayInterval: const Duration(seconds: 3),
+                              autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                              autoPlayCurve: Curves.fastOutSlowIn,
+                              pauseAutoPlayOnTouch: true,
+                            ),
+                            items: smallBanners.map((banner) => _buildSmallBannerMedia(banner)).toList(),
                           ),
-                          items: smallBanners
-                              .map((banner) => _buildSmallBannerMedia(banner))
-                              .toList(),
                         ),
                       )
                     ],
@@ -1447,12 +1388,10 @@ class _DisplayCheckoutSuccessDialogContent extends StatefulWidget {
   });
 
   @override
-  State<_DisplayCheckoutSuccessDialogContent> createState() =>
-      _DisplayCheckoutSuccessDialogContentState();
+  State<_DisplayCheckoutSuccessDialogContent> createState() => _DisplayCheckoutSuccessDialogContentState();
 }
 
-class _DisplayCheckoutSuccessDialogContentState
-    extends State<_DisplayCheckoutSuccessDialogContent> {
+class _DisplayCheckoutSuccessDialogContentState extends State<_DisplayCheckoutSuccessDialogContent> {
   String currencyName = "";
   List<TableRow> voucherDetails = [];
 
@@ -1498,8 +1437,7 @@ class _DisplayCheckoutSuccessDialogContentState
                         height: 30,
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 2),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(60),
                           boxShadow: const [
@@ -1551,8 +1489,7 @@ class _DisplayCheckoutSuccessDialogContentState
                       ),
                       Text(
                         widget.transDateTime != null
-                            ? DateFormat("EEE, dd MMM yyyy hh:mm aaa")
-                                .format(widget.transDateTime!)
+                            ? DateFormat("EEE, dd MMM yyyy hh:mm aaa").format(widget.transDateTime!)
                             : "",
                         style: const TextStyle(
                           fontSize: 16,
@@ -1569,8 +1506,7 @@ class _DisplayCheckoutSuccessDialogContentState
               ),
               const SizedBox(height: 10),
               Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
                   // width: double.infinity,
                   child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1631,9 +1567,7 @@ class _DisplayCheckoutSuccessDialogContentState
                         Text(
                           textAlign: TextAlign.right,
                           widget.changed != null
-                              ? Helpers.parseMoney(double.tryParse(
-                                      widget.grandTotal.toString()) ??
-                                  0.0)
+                              ? Helpers.parseMoney(double.tryParse(widget.grandTotal.toString()) ?? 0.0)
                               : "",
                           style: const TextStyle(
                             fontSize: 16,
@@ -1654,15 +1588,12 @@ class _DisplayCheckoutSuccessDialogContentState
                       )
                     ]),
                     ...List.generate(widget.mopSelections.length, (index) {
-                      final MopSelectionEntity mop =
-                          widget.mopSelections[index];
+                      final MopSelectionEntity mop = widget.mopSelections[index];
 
                       return TableRow(
                         children: [
                           Text(
-                            (mop.tpmt2Id != null)
-                                ? mop.cardName!
-                                : mop.mopAlias,
+                            (mop.tpmt2Id != null) ? mop.cardName! : mop.mopAlias,
                             style: const TextStyle(
                               fontSize: 16,
                               color: Colors.black87,
@@ -1670,9 +1601,8 @@ class _DisplayCheckoutSuccessDialogContentState
                           ),
                           const SizedBox(),
                           Text(
-                            Helpers.parseMoney(mop.payTypeCode == "1"
-                                ? mop.amount! + (widget.changed ?? 0)
-                                : mop.amount!),
+                            Helpers.parseMoney(
+                                mop.payTypeCode == "1" ? mop.amount! + (widget.changed ?? 0) : mop.amount!),
                             textAlign: TextAlign.right,
                             style: const TextStyle(
                               fontSize: 16,
@@ -1694,9 +1624,7 @@ class _DisplayCheckoutSuccessDialogContentState
                         ),
                         const SizedBox(),
                         Text(
-                          Helpers.parseMoney(
-                              double.tryParse(widget.totalPayment.toString()) ??
-                                  0.0),
+                          Helpers.parseMoney(double.tryParse(widget.totalPayment.toString()) ?? 0.0),
                           textAlign: TextAlign.right,
                           style: const TextStyle(
                             fontSize: 16,
@@ -1718,9 +1646,7 @@ class _DisplayCheckoutSuccessDialogContentState
                         const SizedBox(),
                         Text(
                           widget.changed != null
-                              ? Helpers.parseMoney(
-                                  double.tryParse(widget.changed.toString()) ??
-                                      0.0)
+                              ? Helpers.parseMoney(double.tryParse(widget.changed.toString()) ?? 0.0)
                               : "",
                           textAlign: TextAlign.right,
                           style: const TextStyle(
