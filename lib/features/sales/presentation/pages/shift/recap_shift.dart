@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
@@ -187,7 +189,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             return map;
           })
           .values
-          .toList();
+          .toList()
+        ..sort((a, b) => a.payTypeCode.compareTo(b.payTypeCode));
 
       transactionsTpmt1 = transactionsTpmt1
           .fold<Map<String, MeansOfPaymentModel>>({}, (map, transaction) {
@@ -236,6 +239,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           .values
           .toList();
     });
+    log("transactionsTopmt - $transactionsTopmt");
+    log("transactionsMOP - $transactionsMOP");
   }
 
   @override
@@ -698,7 +703,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           children: [
             const Expanded(
               child: Text(
-                "Number of Invoices (All)",
+                "Invoice Count (All)",
                 style: TextStyle(
                   fontSize: 16,
                 ),
@@ -722,7 +727,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           children: [
             const Expanded(
               child: Text(
-                "Number of Invoices (Return)",
+                "Invoice Count (Return)",
                 style: TextStyle(
                   fontSize: 16,
                 ),
@@ -808,6 +813,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                             transactionsTopmt[index].description,
                             style: const TextStyle(
                               fontSize: 16,
+                              fontWeight: FontWeight.w700,
                             ),
                             textAlign: TextAlign.start,
                           ),

@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:image/image.dart' as img;
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
@@ -1557,7 +1558,7 @@ class ReceiptPrinter {
     bytes += generator.row([
       PosColumn(
           width: 5,
-          text: Helpers.alignLeftByAddingSpace('Inv. Count-All', width5Length),
+          text: Helpers.alignLeftByAddingSpace('Inv. Count All', width5Length),
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 7,
@@ -1567,7 +1568,7 @@ class ReceiptPrinter {
     bytes += generator.row([
       PosColumn(
           width: 5,
-          text: Helpers.alignLeftByAddingSpace('Inv. Count-Return', width5Length),
+          text: Helpers.alignLeftByAddingSpace('Inv. Count Return', width5Length),
           styles: const PosStyles(align: PosAlign.left)),
       PosColumn(
           width: 7,
@@ -1580,7 +1581,7 @@ class ReceiptPrinter {
           align: PosAlign.center,
           bold: true,
         ));
-    for (var paymentType in printCloseShiftDetail.transactionsTopmt) {
+    for (PaymentTypeModel? paymentType in printCloseShiftDetail.transactionsTopmt) {
       if (paymentType == null) throw "Failed to retrieve Payment Type";
 
       String payTypeCode = paymentType.payTypeCode;
@@ -1593,7 +1594,7 @@ class ReceiptPrinter {
           ));
 
       if (groupedTransactions.containsKey(payTypeCode)) {
-        for (var i = 0; i < groupedTransactions[payTypeCode]!.length; i++) {
+        for (int i = 0; i < groupedTransactions[payTypeCode]!.length; i++) {
           var transaction = groupedTransactions[payTypeCode]![i];
           String detailDescription = transaction['description']?.trim() ?? "Unknown";
           String amount = Helpers.parseMoney(transaction['amount']);
@@ -1610,12 +1611,8 @@ class ReceiptPrinter {
               styles: const PosStyles(align: PosAlign.left),
             ),
           ]);
-
-          if (i == groupedTransactions[payTypeCode]!.length - 1) {
-            bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
-          } else {
-            bytes += generator.emptyLines(1);
-          }
+          dev.log("$i ${groupedTransactions[payTypeCode]!.length - 1}");
+          if (i != groupedTransactions[payTypeCode]!.length - 1) bytes += generator.emptyLines(1);
         }
       }
     }

@@ -391,7 +391,8 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
             return map;
           })
           .values
-          .toList();
+          .toList()
+        ..sort((a, b) => a.payTypeCode.compareTo(b.payTypeCode));
 
       transactionsTpmt1 = transactionsTpmt1
           .fold<Map<String, MeansOfPaymentModel>>({}, (map, transaction) {
@@ -777,7 +778,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           children: [
             const Expanded(
               child: Text(
-                "Number of Invoices (All)",
+                "Invoice Count (All)",
                 style: TextStyle(
                   fontSize: 16,
                 ),
@@ -801,7 +802,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           children: [
             const Expanded(
               child: Text(
-                "Number of Invoices (Return)",
+                "Invoice Count (Return)",
                 style: TextStyle(
                   fontSize: 16,
                 ),
@@ -890,6 +891,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                             transactionsTopmt[index].description,
                             style: const TextStyle(
                               fontSize: 16,
+                              fontWeight: FontWeight.w700,
                             ),
                             textAlign: TextAlign.start,
                           ),
@@ -948,7 +950,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                                                     ),
                                                   ),
                                                   color: isLastRow
-                                                      ? Color.fromARGB(255, 220, 220, 220)
+                                                      ? const Color.fromARGB(255, 220, 220, 220)
                                                       : Colors.transparent,
                                                 ),
                                                 width: 275,
