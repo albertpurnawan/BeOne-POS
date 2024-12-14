@@ -75,6 +75,7 @@ class _SalesPageState extends State<SalesPage> {
   bool isEditingReceiptItemQty = false;
   bool isNewItemAdded = false;
   late int salesViewType;
+  bool isReturnableStore = false;
 
   // States for handling current time
   late Timer _timer;
@@ -306,9 +307,22 @@ class _SalesPageState extends State<SalesPage> {
     countTotalShifts();
     getLastSync();
     checkIsSyncing();
+    _validateReturnableStore();
 
     // Start Check Member
     checkReceiptWithMember(context.read<ReceiptCubit>().state);
+  }
+
+  Future<void> _validateReturnableStore() async {
+    final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+    final tostr = await GetIt.instance<AppDatabase>()
+        .storeMasterDao
+        .readByDocId(topos[0].tostrId!, null);
+    if (tostr?.returnauthorization == 1) {
+      setState(() {
+        isReturnableStore = true;
+      });
+    }
   }
 
   Future<void> checkIsSyncing() async {
@@ -2346,12 +2360,13 @@ class _SalesPageState extends State<SalesPage> {
                       ),
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () async {
-                            setState(() {
-                              isEditingNewReceiptItemCode = false;
-                              isEditingNewReceiptItemQty = false;
-                              isUpdatingReceiptItemQty = false;
-                            });
+                          onPressed: isReturnableStore
+                              ? () async {
+                                  setState(() {
+                                    isEditingNewReceiptItemCode = false;
+                                    isEditingNewReceiptItemQty = false;
+                                    isUpdatingReceiptItemQty = false;
+                                  });
 
                             final bool? isSaved = await showDialog<bool>(
                               context: context,
@@ -2377,7 +2392,9 @@ class _SalesPageState extends State<SalesPage> {
                             shadowColor: Colors.black87,
                             padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
                             foregroundColor: Colors.white,
-                            backgroundColor: ProjectColors.primary,
+                            backgroundColor: isReturnableStore
+                                ? ProjectColors.primary
+                                : ProjectColors.lightBlack,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
                             ),
@@ -2407,12 +2424,16 @@ class _SalesPageState extends State<SalesPage> {
                                     alignment: Alignment.bottomLeft,
                                     child: RichText(
                                       textAlign: TextAlign.left,
-                                      text: const TextSpan(
+                                      text: TextSpan(
                                         children: [
                                           TextSpan(
                                             text: "Return",
                                             style: TextStyle(
-                                                fontWeight: FontWeight.w600, fontSize: 14, color: Colors.white),
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
+                                                color: isReturnableStore
+                                                    ? Colors.white
+                                                    : Colors.grey),
                                           ),
                                         ],
                                       ),
@@ -4402,17 +4423,16 @@ class _SalesPageState extends State<SalesPage> {
           totalAmountReturn += item.totalAmount.abs();
         }
       }
-      final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-      final tostr = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos[0].tostrId!, null);
-      if (tostr?.returnauthorization == 1) {
-        final bool? isAuthorized = await showDialog<bool>(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => ApprovalDialog(
-                approvalType: ApprovalType.returnItem, returnQty: totalQtyReturn, returnAmount: totalAmountReturn));
-        if (isAuthorized == true) {
-          return true;
-        }
+
+      final bool? isAuthorized = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => ApprovalDialog(
+              approvalType: ApprovalType.returnItem,
+              returnQty: totalQtyReturn,
+              returnAmount: totalAmountReturn));
+      if (isAuthorized == true) {
+        return true;
       }
 
       return false;
