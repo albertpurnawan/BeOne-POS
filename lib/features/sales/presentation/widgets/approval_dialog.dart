@@ -298,11 +298,6 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext parentContext) {
     return ScaffoldMessenger(
       child: Builder(builder: (childContext) {

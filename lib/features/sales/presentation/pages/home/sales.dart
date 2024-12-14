@@ -315,9 +315,7 @@ class _SalesPageState extends State<SalesPage> {
 
   Future<void> _validateReturnableStore() async {
     final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
-    final tostr = await GetIt.instance<AppDatabase>()
-        .storeMasterDao
-        .readByDocId(topos[0].tostrId!, null);
+    final tostr = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos[0].tostrId!, null);
     if (tostr?.returnauthorization == 1) {
       setState(() {
         isReturnableStore = true;
@@ -2360,13 +2358,12 @@ class _SalesPageState extends State<SalesPage> {
                       ),
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: isReturnableStore
-                              ? () async {
-                                  setState(() {
-                                    isEditingNewReceiptItemCode = false;
-                                    isEditingNewReceiptItemQty = false;
-                                    isUpdatingReceiptItemQty = false;
-                                  });
+                          onPressed: () async {
+                            setState(() {
+                              isEditingNewReceiptItemCode = false;
+                              isEditingNewReceiptItemQty = false;
+                              isUpdatingReceiptItemQty = false;
+                            });
 
                             final bool? isSaved = await showDialog<bool>(
                               context: context,
@@ -2392,9 +2389,7 @@ class _SalesPageState extends State<SalesPage> {
                             shadowColor: Colors.black87,
                             padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
                             foregroundColor: Colors.white,
-                            backgroundColor: isReturnableStore
-                                ? ProjectColors.primary
-                                : ProjectColors.lightBlack,
+                            backgroundColor: ProjectColors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),
                             ),
@@ -2429,11 +2424,7 @@ class _SalesPageState extends State<SalesPage> {
                                           TextSpan(
                                             text: "Return",
                                             style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 14,
-                                                color: isReturnableStore
-                                                    ? Colors.white
-                                                    : Colors.grey),
+                                                fontWeight: FontWeight.w600, fontSize: 14, color: Colors.white),
                                           ),
                                         ],
                                       ),
@@ -4428,9 +4419,7 @@ class _SalesPageState extends State<SalesPage> {
           context: context,
           barrierDismissible: false,
           builder: (context) => ApprovalDialog(
-              approvalType: ApprovalType.returnItem,
-              returnQty: totalQtyReturn,
-              returnAmount: totalAmountReturn));
+              approvalType: ApprovalType.returnItem, returnQty: totalQtyReturn, returnAmount: totalAmountReturn));
       if (isAuthorized == true) {
         return true;
       }
