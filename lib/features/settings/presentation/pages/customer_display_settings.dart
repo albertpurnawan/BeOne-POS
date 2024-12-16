@@ -82,35 +82,173 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
     await loadBanners();
   }
 
-  Future<void> addUnsavedBanner(Map<String, dynamic> data) async {
-    try {
-      final now = DateTime.now();
-      final model = DualScreenModel(
-        id: DateTime.now().millisecondsSinceEpoch * -1, // Unique negative ID for unsaved banners
-        description: data['description'] as String,
-        type: data['type'] as int,
-        order: data['order'] as int,
-        path: data['path'] as String,
-        duration: data['duration'] as int,
-        createdAt: now,
-        updatedAt: now,
-      );
-      await GetIt.instance<AppDatabase>().dualScreenDao.create(data: model);
-      setState(() {
-        if (model.type == 1) {
-          largeBanners = [...largeBanners, model]..sort((a, b) => a.order.compareTo(b.order));
-        } else {
-          smallBanners = [...smallBanners, model]..sort((a, b) => a.order.compareTo(b.order));
-        }
-      });
+  // Future<void> saveChanges(Map<String, dynamic> data) async {
+  //   try {
+  //     setState(() => isLoading = true);
+  //     final now = DateTime.now();
+  //     List<DualScreenModel> allBanners = await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
+  //     final newId = DateTime.now().millisecondsSinceEpoch * -1;
+  //     DualScreenModel newBanner = DualScreenModel(
+  //       id: newId,
+  //       description: data['description'] as String,
+  //       type: data['type'] as int,
+  //       order: data['order'] as int,
+  //       path: data['path'] as String,
+  //       duration: data['duration'] as int,
+  //       createdAt: now,
+  //       updatedAt: now,
+  //     );
+  //     setState(() {
+  //       allBanners.add(newBanner);
+  //     });
+  //     print(allBanners);
+  //     final lastId = allBanners.isEmpty ? 0 : allBanners.map((e) => e.id).reduce(max);
+  //     final lastLargeOrder = allBanners.where((b) => b.type == 1).fold(0, (max, b) => b.order > max ? b.order : max);
+  //     final lastSmallOrder = allBanners.where((b) => b.type == 2).fold(0, (max, b) => b.order > max ? b.order : max);
+  //     var currentId = lastId;
+  //     var currentLargeOrder = lastLargeOrder;
+  //     var currentSmallOrder = lastSmallOrder;
+  //     for (final banner in allBanners) {
+  //       // Check if banner already exists in database
+  //       final existingBanner = allBanners.firstWhere(
+  //         (b) => b.id == banner.id,
+  //         orElse: () => DualScreenModel(
+  //           id: 0,
+  //           description: '',
+  //           type: 0,
+  //           order: 0,
+  //           path: '',
+  //           duration: 0,
+  //           createdAt: DateTime.now(),
+  //           updatedAt: DateTime.now(),
+  //         ),
+  //       );
 
-      if (mounted) {
-        SnackBarHelper.presentSuccessSnackBar(context, 'Banner added. Click Save to persist changes.', 3);
+  //       if (existingBanner.id == 0) {
+  //         currentId++;
+  //         final order = banner.type == 1 ? ++currentLargeOrder : ++currentSmallOrder;
+
+  //         final bannerToSave = DualScreenModel(
+  //           id: currentId,
+  //           description: banner.description,
+  //           type: banner.type,
+  //           order: order,
+  //           path: banner.path,
+  //           duration: banner.duration,
+  //           createdAt: banner.createdAt,
+  //           updatedAt: banner.updatedAt,
+  //         );
+  //         await GetIt.instance<AppDatabase>().dualScreenDao.create(data: bannerToSave);
+  //       } else {
+  //         // Update existing banner
+  //         final updatedBanner = DualScreenModel(
+  //           id: existingBanner.id,
+  //           description: banner.description,
+  //           type: banner.type,
+  //           order: existingBanner.order,
+  //           path: banner.path,
+  //           duration: banner.duration,
+  //           createdAt: existingBanner.createdAt,
+  //           updatedAt: DateTime.now(),
+  //         );
+  //         await GetIt.instance<AppDatabase>()
+  //             .dualScreenDao
+  //             .updateById(id: existingBanner.id.toString(), data: updatedBanner);
+  //       }
+  //     }
+  //     await _updateCustomerDisplayActive();
+  //     await _updateCustomerDisplay();
+  //     await refreshBanners();
+
+  //     if (dropdownValue.toLowerCase() == 'yes') {
+  //       await _sendToDisplay();
+  //     }
+  //     if (mounted) {
+  //       SnackBarHelper.presentSuccessSnackBar(context, 'All changes saved successfully', 3);
+  //     }
+  //   } catch (e) {
+  //     setState(() => isLoading = false);
+  //     if (mounted) {
+  //       SnackBarHelper.presentErrorSnackBar(context, 'Error saving changes: ${e.toString()}');
+  //     }
+  //   }
+  // }
+
+  Future<void> saveChanges(Map<String, dynamic> data) async {
+    try {
+      setState(() => isLoading = true);
+      final now = DateTime.now();
+
+      // Check if the banner already exists
+      final existingBannerId = data['id'] as int?; // Assuming the ID is passed in the data
+      DualScreenModel? existingBanner;
+
+      if (existingBannerId != null) {
+        // Fetch the existing banner from the database
+        existingBanner = await GetIt.instance<AppDatabase>().dualScreenDao.findById(existingBannerId);
+      }
+      final allBanners = await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
+      final lastId = allBanners.isEmpty ? 0 : allBanners.map((e) => e.id).reduce(max);
+      var currentId = lastId;
+
+      if (existingBanner == null) {
+        currentId++;
+        DualScreenModel newBanner = DualScreenModel(
+          id: currentId, // Unique negative ID for unsaved banners
+          description: data['description'] as String,
+          type: data['type'] as int,
+          order: data['order'] as int,
+          path: data['path'] as String,
+          duration: data['duration'] as int,
+          createdAt: now,
+          updatedAt: now,
+        );
+
+        // Save the new banner to the database
+        await GetIt.instance<AppDatabase>().dualScreenDao.create(data: newBanner);
+
+        if (mounted) {
+          SnackBarHelper.presentSuccessSnackBar(context, 'Banner added successfully', 3);
+        }
+      } else {
+        // Update existing banner
+        final updatedBanner = DualScreenModel(
+          id: existingBanner.id,
+          description: data['description'] as String,
+          type: data['type'] as int,
+          order: data['order'] as int,
+          path: data['path'] as String,
+          duration: data['duration'] as int,
+          createdAt: existingBanner.createdAt,
+          updatedAt: now, // Update the timestamp
+        );
+
+        await GetIt.instance<AppDatabase>()
+            .dualScreenDao
+            .updateById(id: existingBanner.id.toString(), data: updatedBanner);
+
+        if (mounted) {
+          SnackBarHelper.presentSuccessSnackBar(context, 'Banner updated successfully', 3);
+        }
+      }
+
+      // Optionally refresh the banners list if needed
+      await refreshBanners();
+
+      // Additional logic if needed
+      print(dropdownValue.toLowerCase());
+
+      if (dropdownValue.toLowerCase() == 'yes') {
+        await _sendToDisplay();
+        print("masuk");
       }
     } catch (e) {
+      setState(() => isLoading = false);
       if (mounted) {
-        SnackBarHelper.presentErrorSnackBar(context, 'Error adding banner: ${e.toString()}');
+        SnackBarHelper.presentErrorSnackBar(context, 'Error saving changes: ${e.toString()}');
       }
+    } finally {
+      setState(() => isLoading = false); // Ensure loading state is reset
     }
   }
 
@@ -256,7 +394,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                     title: 'Add $title',
                     type: title.toLowerCase().contains('large') ? 1 : 2,
                     order: banners.isEmpty ? 1 : banners.last.order + 1,
-                    onSave: addUnsavedBanner,
+                    onSave: saveChanges,
                   ),
                 );
               },
@@ -416,34 +554,23 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
 
                                               if (index != -1) {
                                                 // Create an updated banner model
-                                                final updatedBanner = DualScreenModel(
-                                                  id: banner.id,
-                                                  description: updatedData['description'],
-                                                  type: banner.type,
-                                                  order: banner.order,
-                                                  path: updatedData['path'],
-                                                  duration: updatedData['duration'],
-                                                  createdAt: banner.createdAt,
-                                                  updatedAt: DateTime.now(),
-                                                );
+                                                final updatedBanner = <String, dynamic>{
+                                                  'id': banner.id,
+                                                  'description': updatedData['description'],
+                                                  'type': banner.type,
+                                                  'order': banner.order,
+                                                  'path': updatedData['path'],
+                                                  'duration': updatedData['duration'],
+                                                  'createdAt': banner.createdAt,
+                                                  'updatedAt': DateTime.now(),
+                                                };
 
-                                                // Update the banner in the appropriate list
-                                                setState(() {
-                                                  if (banner.type == 1) {
-                                                    largeBanners[index] = updatedBanner;
-                                                  } else {
-                                                    smallBanners[index] = updatedBanner;
-                                                  }
-                                                });
+                                                saveChanges(updatedBanner);
 
                                                 // Show success message
                                                 if (mounted) {
                                                   SnackBarHelper.presentSuccessSnackBar(
                                                       context, 'Customer display setting updated successfully', 3);
-
-                                                  await GetIt.instance<AppDatabase>()
-                                                      .dualScreenDao
-                                                      .updateById(id: banner.id.toString(), data: updatedBanner);
                                                 }
                                               }
                                             },

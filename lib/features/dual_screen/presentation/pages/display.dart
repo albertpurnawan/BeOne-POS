@@ -888,24 +888,31 @@ class _DisplayPageState extends State<DisplayPage> {
 
   void _moveToNextItem2() {
     if (!mounted || smallBanners.isEmpty) return;
-    print('_currentIndex2: ' + _currentIndex2.toString());
-    print('smallBanners.length: ' + smallBanners.length.toString());
-    setState(() {
-      int nextIndex2 = smallBanners[_currentIndex2].order - 1;
-      print('nextIndex2: ' + nextIndex2.toString());
 
-      if (nextIndex2 < smallBanners.length - 1) {
-        _currentIndex2 = nextIndex2 + 1;
-        _pageController.nextPage(
-          duration: Duration(seconds: smallBanners[_currentIndex2].duration),
-          curve: Curves.easeInOut,
-        );
-      } else {
+    int nextIndex2 = (_currentIndex2 + 1) % smallBanners.length;
+
+    if (nextIndex2 == 0) {
+      _pageController.animateToPage(
+        0,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.linearToEaseOut,
+      );
+      setState(() {
         _currentIndex2 = 0;
-      }
+      });
+    } else {
+      _pageController.nextPage(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.linearToEaseOut,
+      );
+    }
+
+    setState(() {
+      _currentIndex2 = nextIndex2;
     });
+
     _timer2?.cancel();
-    _timer2 = Timer.periodic(Duration(seconds: smallBanners[_currentIndex2].duration), (timer) {
+    _timer2 = Timer(Duration(seconds: smallBanners[_currentIndex2].duration), () {
       if (!mounted) return;
       _moveToNextItem2();
     });
@@ -1346,27 +1353,15 @@ class _DisplayPageState extends State<DisplayPage> {
                                         width: MediaQuery.of(context).size.width,
                                         height: MediaQuery.of(context).size.height,
                                         child: PageView.builder(
+                                          physics: const BouncingScrollPhysics(),
+                                          pageSnapping: true,
                                           controller: _pageController,
                                           itemCount: smallBanners.length,
-                                          onPageChanged: (index) {
-                                            setState(() {
-                                              _currentIndex2 = index;
-                                            });
-                                          },
+                                          padEnds: true,
                                           itemBuilder: (context, index) {
-                                            return _buildSmallBannerMedia(smallBanners[index]);
+                                            return _buildSmallBannerMedia(smallBanners[index]); // Use the correct index
                                           },
                                         ),
-                                        // CarouselSlider(
-                                        //   options: CarouselOptions(
-                                        //     viewportFraction: 1,
-                                        //     autoPlay: true,
-                                        //     autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                                        //     autoPlayCurve: Curves.fastOutSlowIn,
-                                        //     pauseAutoPlayOnTouch: true,
-                                        //   ),
-                                        //   items: smallBanners.map((banner) => _buildSmallBannerMedia(banner)).toList(),
-                                        // ),
                                       )
                                     : Container(
                                         color: Colors.grey, // Placeholder color
