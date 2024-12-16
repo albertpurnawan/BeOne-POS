@@ -211,6 +211,7 @@ import 'package:pos_fe/features/sales/data/models/promo_package_customer_group.d
 import 'package:pos_fe/features/sales/data/models/promo_package_default_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_customer_group.dart';
@@ -369,6 +370,26 @@ class AppDatabase {
         )
       """;
 
+  static String createTpsm2 = """
+      CREATE TABLE $tablePromoSpesialMultiItemAssignStore (
+        `docid` TEXT PRIMARY KEY,
+        ${PromoSpesialMultiItemAssignStoreFields.createDate} datetime NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.updateDate} datetime DEFAULT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.topsmId} text DEFAULT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.tostrId} text DEFAULT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.holiday} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day1} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day2} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day3} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day4} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day5} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day6} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day7} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.form} varchar(1) NOT NULL,
+        createdat TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    """;
+
   static String createTpsm4 = """
       CREATE TABLE $tablePromoSpesialMultiItemCustomerGroup (
         `docid` TEXT PRIMARY KEY,
@@ -379,7 +400,7 @@ class AppDatabase {
         ${PromoSpesialMultiItemCustomerGroupFields.form} varchar(1) NOT NULL,
         createdat TEXT DEFAULT CURRENT_TIMESTAMP
       )
-""";
+    """;
 
   AppDatabase._init();
 
@@ -3841,6 +3862,7 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       await db.execute(
           '''ALTER TABLE $tableAuthStore ADD COLUMN ${AuthStoreFields.returnauthorization} int NOT NULL DEFAULT '0' ''');
       // Create Table Promo Spesial Multi Item
+      await db.execute(createTpsm2);
       await db.execute(createTpsm4);
     },
   };
