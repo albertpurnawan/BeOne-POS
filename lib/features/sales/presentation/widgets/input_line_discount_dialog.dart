@@ -259,7 +259,7 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                 child: Row(
                   children: [
                     Expanded(
-                      flex: 1,
+                      flex: 2,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -354,13 +354,21 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            "Item Name",
-                            style: TextStyle(fontSize: 14),
+                          const Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Item Barcode",
+                              style: TextStyle(fontSize: 14),
+                            ),
                           ),
-                          Text(
-                            widget.receiptItemEntity.itemEntity.itemName,
-                            style: const TextStyle(fontSize: 14),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              widget.receiptItemEntity.itemEntity.barcode,
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                            ),
                           ),
                         ],
                       ),
@@ -368,13 +376,111 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            "Total Amount",
-                            style: TextStyle(fontSize: 14),
+                          const Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Item Name",
+                              style: TextStyle(fontSize: 14),
+                            ),
                           ),
-                          Text(
-                            Helpers.parseMoney(widget.receiptItemEntity.totalAmount),
-                            style: const TextStyle(fontSize: 14),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              widget.receiptItemEntity.itemEntity.itemName,
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Quantity",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              Helpers.cleanDecimal(widget.receiptItemEntity.quantity, 3),
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Initial Total Amount (Tax Inc.)",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              Helpers.parseMoney(widget.receiptItemEntity.totalAmount),
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Line Discount",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              _inputAmountController.text == "" ? "0" : _inputAmountController.text,
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 5),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Expanded(
+                            flex: 2,
+                            child: Text(
+                              "Total Amount (Tax Inc.)",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              Helpers.parseMoney((widget.receiptItemEntity.totalAmount -
+                                      Helpers.revertMoneyToDecimalFormatDouble(_inputAmountController.text))
+                                  .round()),
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                            ),
                           ),
                         ],
                       ),
