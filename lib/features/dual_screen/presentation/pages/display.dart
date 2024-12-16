@@ -484,11 +484,12 @@ class _DisplayPageState extends State<DisplayPage> {
               height: _getHeaderHeight(context),
               decoration: BoxDecoration(
                 color: ProjectColors.primary,
+                borderRadius: const BorderRadius.only(topLeft: Radius.circular(7), topRight: Radius.circular(7)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
                     blurRadius: 4,
-                    offset: const Offset(0, 2),
+                    offset: Offset(0, 2),
                   ),
                 ],
               ),

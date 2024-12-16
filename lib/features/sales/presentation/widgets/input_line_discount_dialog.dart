@@ -259,7 +259,7 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                 child: Row(
                   children: [
                     Expanded(
-                      flex: 1,
+                      flex: 2,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -342,39 +342,121 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
               ),
               const SizedBox(height: 10),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: ProjectColors.background,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Column(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(color: ProjectColors.background, borderRadius: BorderRadius.circular(5)),
+                  child: Table(
+                    // defaultColumnWidth: IntrinsicColumnWidth(),
+                    columnWidths: const {0: FixedColumnWidth(150), 1: FlexColumnWidth()},
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      TableRow(
                         children: [
-                          const Text(
-                            "Item Name",
-                            style: TextStyle(fontSize: 14),
+                          const TableCell(
+                            child: Text(
+                              "Barcode",
+                              style: TextStyle(fontSize: 12),
+                            ),
                           ),
-                          Text(
-                            widget.receiptItemEntity.itemEntity.itemName,
-                            style: const TextStyle(fontSize: 14),
+                          TableCell(
+                            child: Text(
+                              widget.receiptItemEntity.itemEntity.barcode,
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 5),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      TableRow(
                         children: [
-                          const Text(
-                            "Total Amount",
-                            style: TextStyle(fontSize: 14),
+                          const TableCell(
+                            child: Text(
+                              "Name",
+                              style: TextStyle(fontSize: 12),
+                            ),
                           ),
-                          Text(
-                            Helpers.parseMoney(widget.receiptItemEntity.totalAmount),
-                            style: const TextStyle(fontSize: 14),
+                          TableCell(
+                            child: Text(
+                              widget.receiptItemEntity.itemEntity.itemName,
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const TableCell(
+                            child: Text(
+                              "Quantity",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              Helpers.cleanDecimal(widget.receiptItemEntity.quantity, 3),
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const TableCell(
+                            child: Text(
+                              "Initial Total Amt (Tax Inc.)",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              Helpers.parseMoney(widget.receiptItemEntity.totalAmount.round()),
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const TableCell(
+                            child: Text(
+                              "Line Disc.",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              _inputAmountController.text == "" ? "0" : _inputAmountController.text,
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const TableRow(
+                        children: [
+                          TableCell(
+                              child: SizedBox(
+                            height: 10,
+                          )),
+                          TableCell(
+                              child: SizedBox(
+                            height: 10,
+                          )),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const TableCell(
+                            child: Text(
+                              "Total Amt. (Tax Inc.)",
+                              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              Helpers.parseMoney((widget.receiptItemEntity.totalAmount -
+                                      Helpers.revertMoneyToDecimalFormatDouble(_inputAmountController.text))
+                                  .round()),
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
                           ),
                         ],
                       ),
