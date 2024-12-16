@@ -280,7 +280,11 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       // Trigger approval when grand total is 0
       if (state.grandTotal == 0) {
         final bool? isAuthorized = await showDialog<bool>(
-            context: context, barrierDismissible: false, builder: (context) => const ApprovalDialog());
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => const ApprovalDialog(
+                  approvalType: ApprovalType.zeroTransaction,
+                ));
         if (isAuthorized != true) {
           setState(() {
             isCharging = false;

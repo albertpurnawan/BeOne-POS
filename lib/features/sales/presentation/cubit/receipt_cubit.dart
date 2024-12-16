@@ -1061,7 +1061,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       // dev.log("after emit ${state.receiptItems}");
       return;
     } catch (e) {
-      emit(initialState);
       rethrow;
     }
   }

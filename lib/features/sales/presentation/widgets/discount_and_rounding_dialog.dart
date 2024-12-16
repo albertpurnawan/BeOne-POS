@@ -105,7 +105,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     // Calculate and set the discount percentage
     if ((state.discHeaderManual ?? 0) != 0) {
       final percentage = ((state.discHeaderManual ?? 0) / initialGrandTotal * 100).abs();
-      _textEditorHeaderDiscountPercentController.text = '${percentage.toStringAsFixed(2)}%';
+      _textEditorHeaderDiscountPercentController.text = percentage.toStringAsFixed(2);
     }
 
     isManualRounded = widget.manualRounded;
@@ -306,7 +306,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
       if (input < (storeMasterEntity.minDiscount ?? 0) ||
           input > (storeMasterEntity.maxDiscount ?? 0) ||
           lineDiscountInputs.any((element) => element.lineDiscountAmount != 0)) {
-        await showDialog(
+        final bool? isAuthorized = await showDialog(
             context: context,
             barrierDismissible: false,
             builder: (context) => ApprovalDialog(
@@ -317,9 +317,11 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                   docnum: widget.docnum,
                   lineDiscountParameters: lineDiscountInputs,
                 ));
+        await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
+        if (isAuthorized == true) context.pop(true);
       } else {
         await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
-        context.pop(input);
+        context.pop(true);
       }
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
@@ -791,7 +793,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                   }
                 } else if (_activeController == _textEditorHeaderDiscountPercentController) {
                   // Handle percentage input with decimal formatting
-                  if (text.isEmpty || RegExp(r'^\d*\.?\d{0,3}$').hasMatch(text.replaceAll('%', ''))) {
+                  if (text.isEmpty || RegExp(r'^\-?\d*\.?\d{0,3}$').hasMatch(text.replaceAll('%', ''))) {
                     // Remove % if present for processing
                     final cleanText = text.replaceAll('%', '');
 
@@ -844,13 +846,13 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                       setState(() {});
                     },
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}%?$')),
+                      FilteringTextInputFormatter.allow(RegExp(r'^\-?\d*\.?\d{0,3}%?$')),
                     ],
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 24),
                     decoration: const InputDecoration(
                         contentPadding: EdgeInsets.all(10),
-                        hintText: "ex. 10%",
+                        hintText: "e.g. 10",
                         hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
                         border: OutlineInputBorder(),
                         suffixText: '%'),
@@ -886,7 +888,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                     style: const TextStyle(fontSize: 24),
                     decoration: const InputDecoration(
                       contentPadding: EdgeInsets.all(10),
-                      hintText: "ex. 100,000",
+                      hintText: "e.g. 100,000",
                       hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
                       border: OutlineInputBorder(),
                     ),
@@ -1002,6 +1004,8 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                       setState(() {
                         e.lineDiscountAmount = lineDiscount;
                       });
+
+                      SnackBarHelper.presentSuccessSnackBar(context, "Line Discount saved", null);
                     } catch (e) {
                       SnackBarHelper.presentErrorSnackBar(context, e.toString());
                     }

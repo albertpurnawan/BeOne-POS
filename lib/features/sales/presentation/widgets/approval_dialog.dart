@@ -69,6 +69,8 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   late String category;
   late String subject;
   late String body;
+  late String tastrField;
+  String dialogPrefix = "";
 
   @override
   void initState() {
@@ -120,14 +122,10 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   Future<String> checkPassword(String username, String password) async {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
     String check = "";
-    String category = "nonpositivetrx";
     final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(username, null);
 
     if (user != null) {
-      if (widget.approvalType == ApprovalType.returnItem) {
-        category = "returnauthorization";
-      }
-      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, category, null);
+      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, tastrField, null);
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
         if (tastr.statusActive != 1) {
@@ -205,6 +203,8 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
           barrierDismissible: false,
           builder: (context) => OTPSubmissionDialog(
             requester: value,
+            subject: subject,
+            body: body,
           ),
         );
       });
@@ -264,10 +264,14 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
           Total Line Discounts: ${Helpers.parseMoney(lineDiscountsTotal)},
           Final Grand Total: ${Helpers.parseMoney(widget.finalGrandTotal as num)},
         ''';
+
+        tastrField = 'discandround';
+        dialogPrefix = "Discount";
       });
     } else if (type == ApprovalType.returnItem) {
       setState(() {
-        remarks = "Return Qty.: ${widget.returnQty.toString()} Return Amount: ${widget.returnAmount.toString()}";
+        remarks =
+            "Return Qty.: ${widget.returnQty.toString()} Return Amount: ${Helpers.parseMoney(widget.returnAmount ?? 0)}";
         category = "003 - Return Transaction";
         subject = "OTP RUBY POS Return Transaction - [${store.storeCode}]";
 
@@ -278,10 +282,13 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
           Cashier Name: ${employee?.empName ?? user.username},
           Return Qty: ${widget.returnQty.toString()},
           Return Amount:
-            ${widget.returnAmount.toString()}
+            ${Helpers.parseMoney(widget.returnAmount ?? 0)}
         ''';
+
+        tastrField = 'returnauthorization';
+        dialogPrefix = 'Return';
       });
-    } else {
+    } else if (type == ApprovalType.zeroTransaction) {
       setState(() {
         remarks = "Approval Transaction 0";
         category = "002 - Transaction 0";
@@ -293,6 +300,9 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
         ''';
 
         subject = "OTP RUBY POS Zero or Negative Transaction - [${store.storeCode}]";
+
+        tastrField = 'nonpositivetrx';
+        dialogPrefix = "Zero Transaction";
       });
     }
   }
@@ -334,8 +344,8 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Approval',
+                    Text(
+                      '${dialogPrefix + " "}Approval',
                       style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                     ),
                     Container(

@@ -272,9 +272,6 @@ class _SalesPageState extends State<SalesPage> {
   String? lastSync;
   bool changeColor = false;
 
-  // Check Customer
-  bool isMember = false;
-
   // Check Item "DP" on Store
   bool itemDPAvailable = true;
 
@@ -310,7 +307,7 @@ class _SalesPageState extends State<SalesPage> {
     _validateReturnableStore();
 
     // Start Check Member
-    checkReceiptWithMember(context.read<ReceiptCubit>().state);
+    // checkReceiptWithMember(context.read<ReceiptCubit>().state);
   }
 
   Future<void> _validateReturnableStore() async {
@@ -374,11 +371,9 @@ class _SalesPageState extends State<SalesPage> {
     }
   }
 
-  Future<void> checkReceiptWithMember(ReceiptEntity receipt) async {
-    setState(() {
-      isMember = ((receipt.customerEntity != null) && (receipt.customerEntity!.custCode != '99'));
-      log("isMember = $isMember");
-    });
+  bool get isMember {
+    final ReceiptEntity state = context.read<ReceiptCubit>().state;
+    return ((state.customerEntity != null) && (state.customerEntity!.custCode != '99'));
   }
 
   Future<void> checkItemDPAvailability() async {
@@ -2586,7 +2581,7 @@ class _SalesPageState extends State<SalesPage> {
                               _newReceiptItemCodeFocusNode.requestFocus();
                             });
                           });
-                          await checkReceiptWithMember(context.read<ReceiptCubit>().state);
+                          // await checkReceiptWithMember(context.read<ReceiptCubit>().state);
                         },
                         style: OutlinedButton.styleFrom(
                           elevation: 5,
@@ -2690,7 +2685,7 @@ class _SalesPageState extends State<SalesPage> {
                           // isMember = false;
                           _newReceiptItemCodeFocusNode.requestFocus();
                         });
-                        await checkReceiptWithMember(context.read<ReceiptCubit>().state);
+                        // await checkReceiptWithMember(context.read<ReceiptCubit>().state);
                       },
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
@@ -3319,7 +3314,7 @@ class _SalesPageState extends State<SalesPage> {
                           context.read<CustomersCubit>().clearCustomers();
                           isEditingNewReceiptItemCode = true;
                           _newReceiptItemCodeFocusNode.requestFocus();
-                          checkReceiptWithMember(context.read<ReceiptCubit>().state);
+                          // checkReceiptWithMember(context.read<ReceiptCubit>().state);
                         }));
                   },
                   style: OutlinedButton.styleFrom(
@@ -3969,7 +3964,7 @@ class _SalesPageState extends State<SalesPage> {
               context.read<CustomersCubit>().clearCustomers();
               isEditingNewReceiptItemCode = true;
               _newReceiptItemCodeFocusNode.requestFocus();
-              checkReceiptWithMember(context.read<ReceiptCubit>().state);
+              // checkReceiptWithMember(context.read<ReceiptCubit>().state);
             }));
       } else if (event.physicalKey == (PhysicalKeyboardKey.f7)) {
         await removeItem();
@@ -4020,7 +4015,7 @@ class _SalesPageState extends State<SalesPage> {
           });
         });
         if (context.mounted) {
-          await checkReceiptWithMember(context.read<ReceiptCubit>().state);
+          // await checkReceiptWithMember(context.read<ReceiptCubit>().state);
         }
       } else if (event.physicalKey == (PhysicalKeyboardKey.f2)) {
         bool receiveDP = await checkItemDP();
@@ -4138,6 +4133,22 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   Future<void> checkout() async {
+    final ReceiptEntity initialState = context.read<ReceiptCubit>().state;
+    final ReceiptEntity copyInitialState = initialState.copyWith(
+      receiptItems: initialState.receiptItems.map((e) => e.copyWith()).toList(),
+      previousReceiptEntity: initialState.previousReceiptEntity?.copyWith(
+        receiptItems: initialState.previousReceiptEntity?.receiptItems.map((e) => e.copyWith()).toList(),
+        previousReceiptEntity: null,
+      ),
+
+      // Reset MOP related fields
+      vouchers: [],
+      totalPayment: 0,
+      changed: 0,
+      totalVoucher: 0,
+      totalNonVoucher: 0,
+    )..mopSelections = [];
+
     try {
       if (context.read<ReceiptCubit>().state.receiptItems.isEmpty) {
         return SnackBarHelper.presentErrorSnackBar(context, "Receipt cannot be empty");
@@ -4158,80 +4169,80 @@ class _SalesPageState extends State<SalesPage> {
         isEditingNewReceiptItemQty = false;
         isUpdatingReceiptItemQty = false;
       });
-      final isAuthorized = await _showDialogReturn();
-      if (isAuthorized) {
-        try {
-          final String cashierName = GetIt.instance<SharedPreferences>().getString("username") ?? "";
-          final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(cashierName, null);
-          List<DownPaymentEntity> dpList = context.read<ReceiptCubit>().state.downPayments ?? [];
-          List<String> docnumList = [];
-          if (dpList.isNotEmpty) {
-            for (DownPaymentEntity dp in dpList) {
-              if (dp.isSelected == true && dp.isReceive == false) {
-                docnumList.add(dp.refpos2 ?? "");
-              }
-            }
 
-            if (user != null) {
-              String checkLock = await GetIt.instance<InvoiceApi>().lockInvoice(user.docId, docnumList);
-              if (checkLock.contains("Connection failed") || checkLock.contains("The connection errored")) {
-                SnackBarHelper.presentErrorSnackBar(
-                    context, "Failed to process DP Transaction. Please check your connection and try again");
-                return;
-              } else if (checkLock.contains("Can't init lock")) {
-                SnackBarHelper.presentErrorSnackBar(
-                    context, "Can't process transaction because one of the down payments is locked");
-                return;
-              }
+      try {
+        final String cashierName = GetIt.instance<SharedPreferences>().getString("username") ?? "";
+        final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(cashierName, null);
+        List<DownPaymentEntity> dpList = context.read<ReceiptCubit>().state.downPayments ?? [];
+        List<String> docnumList = [];
+        if (dpList.isNotEmpty) {
+          for (DownPaymentEntity dp in dpList) {
+            if (dp.isSelected == true && dp.isReceive == false) {
+              docnumList.add(dp.refpos2 ?? "");
             }
           }
-        } catch (e) {
-          return;
-        }
 
-        if (context.read<ReceiptCubit>().state.previousReceiptEntity == null) {
-          await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
-        }
-
-        await Future.delayed(const Duration(milliseconds: 300), null);
-
-        final ReceiptEntity receiptEntity = context.read<ReceiptCubit>().state;
-
-        log("currentLength ${receiptEntity.promos.length} previousLength ${receiptEntity.previousReceiptEntity?.promos.length}");
-
-        if (receiptEntity.promos != (receiptEntity.previousReceiptEntity?.promos ?? <PromotionsEntity>[])) {
-          await showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => PromotionSummaryDialog(
-                    receiptEntity: context.read<ReceiptCubit>().state,
-                  ));
-        }
-
-        // Show CheckoutDialog and wait for it to complete
-        await showDialog(context: context, barrierDismissible: false, builder: (context) => const CheckoutDialog())
-            .then((value) {
-          if (mounted) {
-            // Check if the widget is still mounted
-            setState(() {
-              isEditingNewReceiptItemCode = true;
-              _newReceiptItemCodeFocusNode.requestFocus();
-            });
+          if (user != null) {
+            String checkLock = await GetIt.instance<InvoiceApi>().lockInvoice(user.docId, docnumList);
+            if (checkLock.contains("Connection failed") || checkLock.contains("The connection errored")) {
+              SnackBarHelper.presentErrorSnackBar(
+                  context, "Failed to process DP Transaction. Please check your connection and try again");
+              return;
+            } else if (checkLock.contains("Can't init lock")) {
+              SnackBarHelper.presentErrorSnackBar(
+                  context, "Can't process transaction because one of the down payments is locked");
+              return;
+            }
           }
-        });
-      } else {
-        return;
+        }
+      } catch (e) {
+        throw "There's an issue on Down Payment";
       }
+
+      if (context.read<ReceiptCubit>().state.previousReceiptEntity == null) {
+        await context.read<ReceiptCubit>().processReceiptBeforeCheckout(context);
+      }
+
+      await Future.delayed(const Duration(milliseconds: 300), null);
+      final isAuthorized = await _showDialogReturn();
+      if (isAuthorized != true) throw "Return authorization failed";
+      final ReceiptEntity receiptEntity = context.read<ReceiptCubit>().state;
+
+      if (receiptEntity.promos != (receiptEntity.previousReceiptEntity?.promos ?? <PromotionsEntity>[])) {
+        await showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => PromotionSummaryDialog(
+                  receiptEntity: context.read<ReceiptCubit>().state,
+                ));
+      }
+
+      // Show CheckoutDialog and wait for it to complete
+      await showDialog(context: context, barrierDismissible: false, builder: (context) => const CheckoutDialog())
+          .then((value) {
+        if (mounted) {
+          // Check if the widget is still mounted
+          setState(() {
+            isEditingNewReceiptItemCode = true;
+            _newReceiptItemCodeFocusNode.requestFocus();
+          });
+        }
+      });
 
       // Delay for additional processing if needed
       Future.delayed(const Duration(milliseconds: 100)).then((_) {
         if (mounted) {
           // Check if the widget is still mounted
-          checkReceiptWithMember(context.read<ReceiptCubit>().state);
+          // checkReceiptWithMember(context.read<ReceiptCubit>().state);
         }
       });
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
+      context.read<ReceiptCubit>().replaceState(copyInitialState);
+      setState(() {
+        isEditingNewReceiptItemCode = true;
+        _newReceiptItemCodeFocusNode.requestFocus();
+      });
     }
   }
 
@@ -4279,7 +4290,6 @@ class _SalesPageState extends State<SalesPage> {
       }
       final windows = await DesktopMultiWindow.getAllSubWindowIds();
       if (windows.isEmpty) {
-        debugPrint('No display window found');
         return;
       }
       final windowId = windows[0];
@@ -4314,10 +4324,7 @@ class _SalesPageState extends State<SalesPage> {
       };
 
       final jsonData = jsonEncode(data);
-      debugPrint("Sending data to display from sales: $jsonData");
       final sendingData = await sendData(windowId, jsonData, 'updateSalesData', 'Sales');
-
-      debugPrint("Send result: $sendingData");
     } catch (e, stackTrace) {
       print('Error send data to client display from sales: $e');
     }
@@ -4405,6 +4412,7 @@ class _SalesPageState extends State<SalesPage> {
   Future<bool> _showDialogReturn() async {
     final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
     final approvals = context.read<ReceiptCubit>().state.approvals;
+    log(approvals.toString());
     if (receiptItems.any((item) => item.refpos3 != null && item.refpos3 != "") && approvals == null) {
       double totalQtyReturn = 0.0;
       double totalAmountReturn = 0;
@@ -4424,8 +4432,9 @@ class _SalesPageState extends State<SalesPage> {
         return true;
       }
 
-      return false;
+      throw "Return authorization failed";
     }
-    return true; // Dialog was not shown
+
+    return true;
   }
 }
