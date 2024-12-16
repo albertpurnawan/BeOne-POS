@@ -1,5 +1,4 @@
 import 'package:pos_fe/core/resources/base_dao.dart';
-import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_header.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -7,7 +6,7 @@ class PromoSpesialMultiItemHeaderDao extends BaseDao<PromoSpesialMultiItemHeader
   PromoSpesialMultiItemHeaderDao(Database db)
       : super(
           db: db,
-          tableName: tablePromoHargaSpecialHeader,
+          tableName: tablePromoSpesialMultiItemHeader,
           modelFields: PromoSpesialMultiItemHeaderFields.values,
         );
 

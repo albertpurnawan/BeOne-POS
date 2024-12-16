@@ -1,5 +1,4 @@
 import 'package:pos_fe/core/resources/base_dao.dart';
-import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_assign_store.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -8,7 +7,7 @@ class PromoSpesialMultiItemAssignStoreDao extends BaseDao<PromoSpesialMultiItemA
       : super(
             db: db,
             tableName: tablePromoSpesialMultiItemAssignStore,
-            modelFields: PromoHargaSpesialAssignStoreFields.values);
+            modelFields: PromoSpesialMultiItemAssignStoreFields.values);
 
   @override
   Future<PromoSpesialMultiItemAssignStoreModel?> readByDocId(String docId, Transaction? txn) async {

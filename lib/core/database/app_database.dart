@@ -79,6 +79,10 @@ import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_b
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_customer_group_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_get_condition_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_header_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_spesial_multi_item_assign_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_spesial_multi_item_customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_spesial_multi_item_detail_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_spesial_multi_item_header_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promotions_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/province_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/queued_invoice_detail_dao.dart';
@@ -240,7 +244,7 @@ import 'package:pos_fe/features/settings/data/models/receipt_content.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
-  final int databaseVersion = 7;
+  final int databaseVersion = 9;
   final _databaseName = "pos_fe.db";
 
   Database? _database;
@@ -333,6 +337,10 @@ class AppDatabase {
   late CampaignDao campaignDao;
   late DownPaymentItemsDao downPaymentItemsDao;
   late DualScreenDao dualScreenDao;
+  late PromoSpesialMultiItemHeaderDao promoSpesialMultiItemHeaderDao;
+  late PromoSpesialMultiItemDetailDao promoSpesialMultiItemDetailDao;
+  late PromoSpesialMultiItemAssignStoreDao promoSpesialMultiItemAssignStoreDao;
+  late PromoSpesialMultiItemCustomerGroupDao promoSpesialMultiItemCustomerGroupDao;
 
   static String createTinv7 = """
         CREATE TABLE $tableDownPaymentItem (
@@ -565,6 +573,10 @@ PRAGMA foreign_keys = ON;
     campaignDao = CampaignDao(_database!);
     downPaymentItemsDao = DownPaymentItemsDao(_database!);
     dualScreenDao = DualScreenDao(_database!);
+    promoSpesialMultiItemHeaderDao = PromoSpesialMultiItemHeaderDao(_database!);
+    promoSpesialMultiItemDetailDao = PromoSpesialMultiItemDetailDao(_database!);
+    promoSpesialMultiItemAssignStoreDao = PromoSpesialMultiItemAssignStoreDao(_database!);
+    promoSpesialMultiItemCustomerGroupDao = PromoSpesialMultiItemCustomerGroupDao(_database!);
 
     await receiptContentDao.deleteAll();
     await receiptContentDao.bulkCreate(
@@ -3900,6 +3912,8 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       // alter table tastr returnauthorization
       await db.execute(
           '''ALTER TABLE $tableAuthStore ADD COLUMN ${AuthStoreFields.returnauthorization} int NOT NULL DEFAULT '0' ''');
+    },
+    'from_version_8_to_version_9': (Database db) async {
       // Create Table Promo Spesial Multi Item
       await db.execute(createTopsm);
       await db.execute(createTpsm1);
