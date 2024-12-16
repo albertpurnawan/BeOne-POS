@@ -4081,6 +4081,53 @@ class _SalesPageState extends State<SalesPage> {
     }
   }
 
+  Future<AddUpdateReceiptItemsParams?> checkScallableItem(String barcode) async {
+    final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+    if (topos == null) throw "Failed to retrieve POS Parameter";
+    final store = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos.tostrId ?? "", null);
+    if (store == null) throw "Failed to retrieve Store Parameter";
+
+    final storeScaleActive = store.scaleActive;
+    final storeScaleFlag = store.scaleFlag ?? "";
+    final storeScaleFlagLength = storeScaleFlag.length;
+    final storeItemCodeLength = store.scaleItemCodeLength ?? 0;
+    final storeQuantityLength = store.scaleQuantityLength ?? 0;
+    final storeQtyDivider = store.scaleQtyDivider ?? 1000;
+    if (storeScaleActive == 1) {
+      final itemScaleFlag = barcode.substring(0, storeScaleFlagLength);
+
+      if (itemScaleFlag == storeScaleFlag) {
+        final itemCode = barcode.substring(storeScaleFlagLength, storeScaleFlagLength + storeItemCodeLength);
+
+        final itemQty = double.parse(barcode.substring(storeScaleFlagLength + storeItemCodeLength,
+                storeScaleFlagLength + storeItemCodeLength + storeQuantityLength)) /
+            storeQtyDivider;
+
+        final item = await GetIt.instance<AppDatabase>().itemsDao.readItemByBarcode(itemCode);
+        if (item == null) throw "Failed to retrieve Item Parameter";
+
+        if (item.scaleActive == 1) {
+          final updatedParams = AddUpdateReceiptItemsParams(
+              barcode: itemCode,
+              itemEntity: null,
+              quantity: itemQty,
+              context: context,
+              onOpenPriceInputted: () => setState(() {
+                    isEditingNewReceiptItemCode = true;
+                    _newReceiptItemCodeFocusNode.requestFocus();
+                  }));
+          return updatedParams;
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
   Future<void> addUpdateReceiptItems(AddUpdateReceiptItemsParams params) async {
     try {
       if (params.barcode == "99") throw "Warning: Modifying the Down Payment quantity is not allowed";
@@ -4092,7 +4139,17 @@ class _SalesPageState extends State<SalesPage> {
       }
 
       if (mounted) {
-        await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+        if (params.barcode != null && isUpdatingReceiptItemQty == false) {
+          final updatedParams = await checkScallableItem(params.barcode ?? "");
+
+          if (updatedParams != null) {
+            await context.read<ReceiptCubit>().addUpdateReceiptItems(updatedParams);
+          } else {
+            await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+          }
+        } else {
+          await context.read<ReceiptCubit>().addUpdateReceiptItems(params);
+        }
       }
 
       indexIsSelect = [-1, 0];
