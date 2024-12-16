@@ -2208,23 +2208,8 @@ class _SalesPageState extends State<SalesPage> {
                         child: TapRegion(
                           groupId: 1,
                           child: OutlinedButton(
-                            onPressed: (indexIsSelect[1] == 0 ||
-                                    context
-                                            .read<ReceiptCubit>()
-                                            .state
-                                            .receiptItems[indexIsSelect[0]]
-                                            .itemEntity
-                                            .itemCode ==
-                                        '99' ||
-                                    context
-                                            .read<ReceiptCubit>()
-                                            .state
-                                            .receiptItems[indexIsSelect[0]]
-                                            .itemEntity
-                                            .itemCode ==
-                                        '08700000002')
-                                ? null
-                                : () {
+                            onPressed: _isItemAttributesEnable
+                                ? () {
                                     context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
                                     showDialog(
                                       context: context,
@@ -2241,29 +2226,15 @@ class _SalesPageState extends State<SalesPage> {
                                         _newReceiptItemCodeFocusNode.requestFocus();
                                       });
                                     });
-                                  },
+                                  }
+                                : null,
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
                               padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
                               foregroundColor: Colors.white,
-                              backgroundColor: (indexIsSelect[1] == 0 ||
-                                      context
-                                              .read<ReceiptCubit>()
-                                              .state
-                                              .receiptItems[indexIsSelect[0]]
-                                              .itemEntity
-                                              .itemCode ==
-                                          '99' ||
-                                      context
-                                              .read<ReceiptCubit>()
-                                              .state
-                                              .receiptItems[indexIsSelect[0]]
-                                              .itemEntity
-                                              .itemCode ==
-                                          '08700000002')
-                                  ? ProjectColors.lightBlack
-                                  : ProjectColors.primary,
+                              backgroundColor:
+                                  _isItemAttributesEnable ? ProjectColors.primary : ProjectColors.lightBlack,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -2284,23 +2255,7 @@ class _SalesPageState extends State<SalesPage> {
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w300,
                                                 fontSize: 14,
-                                                color: (indexIsSelect[1] == 0 ||
-                                                        context
-                                                                .read<ReceiptCubit>()
-                                                                .state
-                                                                .receiptItems[indexIsSelect[0]]
-                                                                .itemEntity
-                                                                .itemCode ==
-                                                            '99' ||
-                                                        context
-                                                                .read<ReceiptCubit>()
-                                                                .state
-                                                                .receiptItems[indexIsSelect[0]]
-                                                                .itemEntity
-                                                                .itemCode ==
-                                                            '08700000002')
-                                                    ? Colors.grey
-                                                    : Colors.white),
+                                                color: _isItemAttributesEnable ? Colors.white : Colors.grey),
                                           ),
                                         ],
                                       ),
@@ -2318,23 +2273,7 @@ class _SalesPageState extends State<SalesPage> {
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 14,
-                                                  color: (indexIsSelect[1] == 0 ||
-                                                          context
-                                                                  .read<ReceiptCubit>()
-                                                                  .state
-                                                                  .receiptItems[indexIsSelect[0]]
-                                                                  .itemEntity
-                                                                  .itemCode ==
-                                                              '99' ||
-                                                          context
-                                                                  .read<ReceiptCubit>()
-                                                                  .state
-                                                                  .receiptItems[indexIsSelect[0]]
-                                                                  .itemEntity
-                                                                  .itemCode ==
-                                                              '08700000002')
-                                                      ? Colors.grey
-                                                      : Colors.white),
+                                                  color: _isItemAttributesEnable ? Colors.white : Colors.grey),
                                             ),
                                           ],
                                         ),
@@ -4413,6 +4352,14 @@ class _SalesPageState extends State<SalesPage> {
   // =================================================
   //             [END] Other Functions
   // =================================================
+
+  bool get _isItemAttributesEnable {
+    if (context.read<ReceiptCubit>().state.receiptItems.isEmpty) return false;
+    if (context.read<ReceiptCubit>().state.receiptItems.length - 1 < indexIsSelect[0]) return false;
+    return (indexIsSelect[1] == 1 &&
+        context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]].itemEntity.itemCode != '99' &&
+        context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]].itemEntity.itemCode != '08700000002');
+  }
 
   Widget _noteChip(double amount, int type) {
     return Padding(
