@@ -390,7 +390,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+                scrollDirection: Axis.vertical,
                 child: Theme(
                   data: Theme.of(context).copyWith(
                     dividerTheme: DividerThemeData(
