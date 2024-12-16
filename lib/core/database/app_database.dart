@@ -213,6 +213,7 @@ import 'package:pos_fe/features/sales/data/models/promo_package_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_detail.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_default_valid_days.dart';
@@ -370,6 +371,21 @@ class AppDatabase {
         )
       """;
 
+  static String createTpsm1 = """
+      CREATE TABLE $tablePromoSpesialMultiItemDetail (
+        `docid` TEXT PRIMARY KEY,
+        ${PromoSpesialMultiItemDetailFields.createDate} datetime NOT NULL,
+        ${PromoSpesialMultiItemDetailFields.updateDate} datetime DEFAULT NULL,
+        ${PromoSpesialMultiItemDetailFields.topsmId} text DEFAULT NULL,
+        ${PromoSpesialMultiItemDetailFields.toitmId} text DEFAULT NULL,
+        ${PromoSpesialMultiItemDetailFields.qtyFrom} double NOT NULL,
+        ${PromoSpesialMultiItemDetailFields.qtyTo} double NOT NULL,
+        ${PromoSpesialMultiItemDetailFields.price} double NOT NULL,
+        ${PromoSpesialMultiItemDetailFields.form} varchar(1) NOT NULL,
+        createdat TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+      """;
+
   static String createTpsm2 = """
       CREATE TABLE $tablePromoSpesialMultiItemAssignStore (
         `docid` TEXT PRIMARY KEY,
@@ -388,7 +404,7 @@ class AppDatabase {
         ${PromoSpesialMultiItemAssignStoreFields.form} varchar(1) NOT NULL,
         createdat TEXT DEFAULT CURRENT_TIMESTAMP
       )
-    """;
+      """;
 
   static String createTpsm4 = """
       CREATE TABLE $tablePromoSpesialMultiItemCustomerGroup (
@@ -400,7 +416,7 @@ class AppDatabase {
         ${PromoSpesialMultiItemCustomerGroupFields.form} varchar(1) NOT NULL,
         createdat TEXT DEFAULT CURRENT_TIMESTAMP
       )
-    """;
+      """;
 
   AppDatabase._init();
 
@@ -3688,6 +3704,8 @@ CREATE TABLE $tableDuitkuVAAssignStore (
 
         await txn.execute(createTinv7);
         await txn.execute(createTobnr);
+        await txn.execute(createTpsm1);
+        await txn.execute(createTpsm2);
         await txn.execute(createTpsm4);
       });
     } catch (e) {
@@ -3862,6 +3880,7 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       await db.execute(
           '''ALTER TABLE $tableAuthStore ADD COLUMN ${AuthStoreFields.returnauthorization} int NOT NULL DEFAULT '0' ''');
       // Create Table Promo Spesial Multi Item
+      await db.execute(createTpsm1);
       await db.execute(createTpsm2);
       await db.execute(createTpsm4);
     },
