@@ -3199,6 +3199,7 @@ CREATE TABLE $tablePromoHargaSpecialHeader (
   ${PromoHargaSpesialHeaderFields.toitmId} text DEFAULT NULL,
   ${PromoHargaSpesialHeaderFields.promoType} int DEFAULT NULL,
   ${PromoHargaSpesialHeaderFields.form} varchar(1) NOT NULL,
+  ${PromoHargaSpesialHeaderFields.detailQtyValidation} int NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `topsb_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
