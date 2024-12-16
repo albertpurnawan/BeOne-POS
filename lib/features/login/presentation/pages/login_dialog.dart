@@ -38,7 +38,7 @@ class _LoginDialogState extends State<LoginDialog> {
   @override
   void initState() {
     super.initState();
-
+    _usernameFocusNode.requestFocus();
     _usernameFocusNode.addListener(() {
       setState(() {
         if (_usernameFocusNode.hasFocus) {
