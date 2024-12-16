@@ -21,7 +21,7 @@ class PromoSpesialMultiItemDetailFields {
   static const String updateDate = "updatedate";
   static const String topsmId = "topsmId";
   static const String toitmId = "toitmId";
-  static const String qtyFrom = "qtyFrom";
+  static const String qtyFrom = "qtyfrom";
   static const String qtyTo = "qtyto";
   static const String price = "price";
   static const String form = "form";
