@@ -52,7 +52,7 @@ class _DisplayPageState extends State<DisplayPage> {
   VideoPlayerController? _videoControllerSmall;
   bool _isLargeVideoInitialized = false;
   bool _isSmallVideoInitialized = false;
-
+  final PageController _pageController = PageController(initialPage: 0);
   final dio = Dio();
   SharedPreferences? _prefs;
   late Map<String, dynamic> dataMap;
@@ -115,14 +115,10 @@ class _DisplayPageState extends State<DisplayPage> {
           ..sort((a, b) => a.order.compareTo(b.order));
         smallBannersLocal = allBanners.where((banner) => banner.type == 2 && !banner.path.contains('http')).toList()
           ..sort((a, b) => a.order.compareTo(b.order));
-
-        isLoading = false;
       });
     } catch (e, stackTrace) {
       print('Error: $e');
       print('Stacktrace: $stackTrace');
-
-      setState(() => isLoading = false);
 
       if (mounted) {
         // More informative error message
@@ -808,6 +804,7 @@ class _DisplayPageState extends State<DisplayPage> {
           ..sort((a, b) => a.order.compareTo(b.order));
         this.largeBanners = downloadedLargeBanners;
         this.smallBanners = downloadedSmallBanners;
+        isLoading = false;
       });
       _startTimers();
     } catch (e) {
@@ -876,7 +873,7 @@ class _DisplayPageState extends State<DisplayPage> {
       int nextIndex = largeBanners[_currentIndex].order - 1;
       print('nextIndex: ' + nextIndex.toString());
 
-      if (nextIndex < largeBanners.length) {
+      if (nextIndex < largeBanners.length - 1) {
         _currentIndex = nextIndex + 1;
       } else {
         _currentIndex = 0;
@@ -897,8 +894,12 @@ class _DisplayPageState extends State<DisplayPage> {
       int nextIndex2 = smallBanners[_currentIndex2].order - 1;
       print('nextIndex2: ' + nextIndex2.toString());
 
-      if (nextIndex2 < smallBanners.length) {
+      if (nextIndex2 < smallBanners.length - 1) {
         _currentIndex2 = nextIndex2 + 1;
+        _pageController.nextPage(
+          duration: Duration(seconds: smallBanners[_currentIndex2].duration),
+          curve: Curves.easeInOut,
+        );
       } else {
         _currentIndex2 = 0;
       }
@@ -929,14 +930,13 @@ class _DisplayPageState extends State<DisplayPage> {
       await controller.initialize();
       controller.play();
 
-      // Add video completion listener
       controller.addListener(() {
         if (controller.value.position >= controller.value.duration) {
           if (isLarge) {
-            _timer1?.cancel(); // Cancel the timer for large banner
+            _timer1?.cancel();
             _moveToNextItem();
           } else {
-            _timer2?.cancel(); // Cancel the timer for small banner
+            _timer2?.cancel();
             _moveToNextItem2();
           }
         }
@@ -954,28 +954,15 @@ class _DisplayPageState extends State<DisplayPage> {
       if (isLarge) {
         _isLargeVideoInitialized = false;
         _timer1?.cancel();
-        // Move to next large banner
-        // setState(() {
-        //   _currentIndex = (_currentIndex + 1) % largeBanners.length;
-        // });
       } else {
         _isSmallVideoInitialized = false;
         _timer2?.cancel();
-        // Move to next small banner
-        // setState(() {
-        //   _currentIndex2 = (_currentIndex2 + 1) % smallBanners.length;
-        // });
       }
     }
   }
 
-  Future<String> _buildLargeBannerMedia(DualScreenModel banner) async {
-    return banner.path;
-  }
-
   Widget _buildSmallBannerMedia(DualScreenModel banner) {
     if (_isVideoFile(banner.path)) {
-      // Initialize video if not already done
       if (!_isSmallVideoInitialized) {
         _initializeVideoController(banner.path, false);
       }
@@ -986,14 +973,14 @@ class _DisplayPageState extends State<DisplayPage> {
           child: VideoPlayer(_videoControllerSmall!),
         );
       } else {
-        // Move to next banner if video failed to initialize
         _moveToNextItem2();
         return const Center(child: CircularProgressIndicator());
       }
     } else {
       return Image.file(
         File(banner.path),
-        fit: BoxFit.contain,
+        fit: BoxFit.fitWidth,
+        width: double.infinity,
       );
     }
   }
@@ -1311,61 +1298,86 @@ class _DisplayPageState extends State<DisplayPage> {
                     children: [
                       Expanded(
                         flex: 7,
-                        // child: AnimatedSwitcher(
-                        //   duration: Duration(seconds: largeBanners[_currentIndex].duration),
-                        //   transitionBuilder: (Widget child, Animation<double> animation) {
-                        //     return FadeTransition(
-                        //       opacity: animation,
-                        //       child: child,
-                        //     );
-                        //   },
-                        //   child: FutureBuilder<Widget>(
-                        //     future: largeBanners.isNotEmpty
-                        //         ? _buildLargeBannerMedia(
-                        //             largeBanners[_currentIndex],
-                        //           )
-                        //         : Future.value(const Center(
-                        //             child: CircularProgressIndicator(),
-                        //           )),
-                        //     builder: (context, snapshot) {
-                        //       if (snapshot.hasData) {
-                        //         return snapshot.data!;
-                        //       }
-                        //       return const Center(
-                        //         child: CircularProgressIndicator(),
-                        //       );
-                        //     },
-                        //   ),
-                        // ),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          height: MediaQuery.of(context).size.height,
-                          child: ImageFade(
-                            image: FileImage(
-                              File(largeBanners[_currentIndex].path),
-                            ),
-                            duration: const Duration(milliseconds: 150),
-                            syncDuration: const Duration(milliseconds: 150),
-                          ),
+                        child: LayoutBuilder(
+                          builder: (BuildContext context, BoxConstraints constraints) {
+                            double height = constraints.maxHeight;
+                            double width = constraints.maxWidth;
+
+                            return isLoading
+                                ? const Center(
+                                    child: CircularProgressIndicator(),
+                                  )
+                                : largeBanners.isNotEmpty
+                                    ? ImageFade(
+                                        image: FileImage(
+                                          File(largeBanners[_currentIndex].path),
+                                        ),
+                                        duration: const Duration(milliseconds: 150),
+                                        syncDuration: const Duration(milliseconds: 150),
+                                        alignment: Alignment.center,
+                                        fit: BoxFit.fill,
+                                      )
+                                    : Container(
+                                        color: Colors.grey, // Placeholder color
+                                        child: Center(
+                                          child: Text(
+                                            '$width X $height', // Placeholder text
+                                            style: TextStyle(color: Colors.white, fontSize: 20),
+                                          ),
+                                        ),
+                                      );
+                          },
                         ),
                       ),
                       const SizedBox(height: 8),
                       Expanded(
                         flex: 3,
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: CarouselSlider(
-                            options: CarouselOptions(
-                              // height: double.infinity,
-                              viewportFraction: 0.8,
-                              autoPlay: true,
-                              // autoPlayInterval: Duration(seconds: smallBanners[_currentIndex].duration),
-                              autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                              autoPlayCurve: Curves.fastOutSlowIn,
-                              pauseAutoPlayOnTouch: true,
-                            ),
-                            items: smallBanners.map((banner) => _buildSmallBannerMedia(banner)).toList(),
-                          ),
+                        child: LayoutBuilder(
+                          builder: (BuildContext context, BoxConstraints constraints) {
+                            double height = constraints.maxHeight;
+                            double width = constraints.maxWidth;
+
+                            return isLoading
+                                ? const Center(
+                                    child: CircularProgressIndicator(),
+                                  )
+                                : smallBanners.isNotEmpty
+                                    ? Container(
+                                        width: MediaQuery.of(context).size.width,
+                                        height: MediaQuery.of(context).size.height,
+                                        child: PageView.builder(
+                                          controller: _pageController,
+                                          itemCount: smallBanners.length,
+                                          onPageChanged: (index) {
+                                            setState(() {
+                                              _currentIndex2 = index;
+                                            });
+                                          },
+                                          itemBuilder: (context, index) {
+                                            return _buildSmallBannerMedia(smallBanners[index]);
+                                          },
+                                        ),
+                                        // CarouselSlider(
+                                        //   options: CarouselOptions(
+                                        //     viewportFraction: 1,
+                                        //     autoPlay: true,
+                                        //     autoPlayAnimationDuration: const Duration(milliseconds: 800),
+                                        //     autoPlayCurve: Curves.fastOutSlowIn,
+                                        //     pauseAutoPlayOnTouch: true,
+                                        //   ),
+                                        //   items: smallBanners.map((banner) => _buildSmallBannerMedia(banner)).toList(),
+                                        // ),
+                                      )
+                                    : Container(
+                                        color: Colors.grey, // Placeholder color
+                                        child: Center(
+                                          child: Text(
+                                            '$width X $height', // Placeholder text
+                                            style: TextStyle(color: Colors.white, fontSize: 20),
+                                          ),
+                                        ),
+                                      );
+                          },
                         ),
                       )
                     ],

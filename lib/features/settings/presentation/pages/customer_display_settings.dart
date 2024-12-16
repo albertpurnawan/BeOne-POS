@@ -29,9 +29,7 @@ class CustomerDisplay extends StatefulWidget {
 class _CustomerDisplayState extends State<CustomerDisplay> {
   List<DualScreenModel> largeBanners = [];
   List<DualScreenModel> smallBanners = [];
-  List<DualScreenModel> unsavedBanners = [];
   bool isLoading = true;
-  bool _hasUnsavedChanges = false;
   String dropdownValue = 'Yes';
   POSParameterModel? _posParameter;
 
@@ -97,15 +95,13 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
         createdAt: now,
         updatedAt: now,
       );
-
+      await GetIt.instance<AppDatabase>().dualScreenDao.create(data: model);
       setState(() {
-        unsavedBanners.add(model);
         if (model.type == 1) {
           largeBanners = [...largeBanners, model]..sort((a, b) => a.order.compareTo(b.order));
         } else {
           smallBanners = [...smallBanners, model]..sort((a, b) => a.order.compareTo(b.order));
         }
-        _hasUnsavedChanges = true;
       });
 
       if (mounted) {
@@ -114,103 +110,6 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
     } catch (e) {
       if (mounted) {
         SnackBarHelper.presentErrorSnackBar(context, 'Error adding banner: ${e.toString()}');
-      }
-    }
-  }
-
-  Future<void> saveChanges() async {
-    if (!_hasUnsavedChanges) return;
-
-    try {
-      setState(() => isLoading = true);
-
-      // If no unsaved banners, use all large and small banners
-      if (unsavedBanners.isEmpty) {
-        unsavedBanners.addAll(largeBanners);
-        unsavedBanners.addAll(smallBanners);
-      }
-
-      // Get all existing banners to find the last ID
-      final allBanners = await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
-      final lastId = allBanners.isEmpty ? 0 : allBanners.map((e) => e.id).reduce(max);
-
-      // Get the last order for each type
-      final lastLargeOrder = allBanners.where((b) => b.type == 1).fold(0, (max, b) => b.order > max ? b.order : max);
-      final lastSmallOrder = allBanners.where((b) => b.type == 2).fold(0, (max, b) => b.order > max ? b.order : max);
-
-      // Save all unsaved banners to database with incremented IDs and orders
-      var currentId = lastId;
-      var currentLargeOrder = lastLargeOrder;
-      var currentSmallOrder = lastSmallOrder;
-      for (final banner in unsavedBanners) {
-        // Check if banner already exists in database
-        final existingBanner = allBanners.firstWhere(
-          (b) => b.id == banner.id,
-          orElse: () => DualScreenModel(
-            id: 0,
-            description: '',
-            type: 0,
-            order: 0,
-            path: '',
-            duration: 0,
-            createdAt: DateTime.now(),
-            updatedAt: DateTime.now(),
-          ),
-        );
-
-        // If banner doesn't exist in database, increment ID and order
-        if (existingBanner.id == 0) {
-          currentId++;
-          final order = banner.type == 1 ? ++currentLargeOrder : ++currentSmallOrder;
-
-          final bannerToSave = DualScreenModel(
-            id: currentId,
-            description: banner.description,
-            type: banner.type,
-            order: order,
-            path: banner.path,
-            duration: banner.duration,
-            createdAt: banner.createdAt,
-            updatedAt: banner.updatedAt,
-          );
-          await GetIt.instance<AppDatabase>().dualScreenDao.create(data: bannerToSave);
-        } else {
-          // Update existing banner
-          final updatedBanner = DualScreenModel(
-            id: existingBanner.id,
-            description: banner.description,
-            type: banner.type,
-            order: existingBanner.order,
-            path: banner.path,
-            duration: banner.duration,
-            createdAt: existingBanner.createdAt,
-            updatedAt: DateTime.now(),
-          );
-          await GetIt.instance<AppDatabase>()
-              .dualScreenDao
-              .updateById(id: existingBanner.id.toString(), data: updatedBanner);
-        }
-      }
-      await _updateCustomerDisplayActive();
-      await _updateCustomerDisplay();
-      // Clear unsaved changes
-      setState(() {
-        unsavedBanners.clear();
-        _hasUnsavedChanges = false;
-      });
-
-      // Refresh banners to get the updated list with proper IDs
-      await refreshBanners();
-      if (dropdownValue.toLowerCase() == 'yes') {
-        await _sendToDisplay();
-      }
-      if (mounted) {
-        SnackBarHelper.presentSuccessSnackBar(context, 'All changes saved successfully', 3);
-      }
-    } catch (e) {
-      setState(() => isLoading = false);
-      if (mounted) {
-        SnackBarHelper.presentErrorSnackBar(context, 'Error saving changes: ${e.toString()}');
       }
     }
   }
@@ -236,12 +135,12 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
     }
   }
 
-  void onDropdownChanged(String? newValue) {
+  void onDropdownChanged(String? newValue) async {
     if (newValue != null) {
       setState(() {
         dropdownValue = newValue;
-        _hasUnsavedChanges = true;
       });
+      await _updateCustomerDisplayActive();
     }
   }
 
@@ -273,13 +172,10 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
     try {
       await GetIt.instance<AppDatabase>().posParameterDao.update(docId: _posParameter!.docId, data: pos);
 
-      setState(() {
-        _hasUnsavedChanges = false;
-      });
-
       // Show success message
       if (mounted) {
         SnackBarHelper.presentSuccessSnackBar(context, 'Customer display setting updated successfully', 3);
+        await _updateCustomerDisplay();
       }
     } catch (e) {
       // Show error message
@@ -482,7 +378,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                               child: Center(
                                 child: Text(
                                   banner.path.length > 40
-                                      ? '...${banner.path.substring(40, banner.path.length)}'
+                                      ? '...${banner.path.substring(banner.path.length - 40)}'
                                       : banner.path,
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -531,15 +427,6 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                                                   updatedAt: DateTime.now(),
                                                 );
 
-                                                // Update the banner in the unsaved list if it exists
-                                                final unsavedIndex =
-                                                    unsavedBanners.indexWhere((b) => b.id == banner.id);
-                                                if (unsavedIndex != -1) {
-                                                  setState(() {
-                                                    unsavedBanners[unsavedIndex] = updatedBanner;
-                                                  });
-                                                }
-
                                                 // Update the banner in the appropriate list
                                                 setState(() {
                                                   if (banner.type == 1) {
@@ -547,13 +434,16 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                                                   } else {
                                                     smallBanners[index] = updatedBanner;
                                                   }
-                                                  _hasUnsavedChanges = true;
                                                 });
 
                                                 // Show success message
                                                 if (mounted) {
                                                   SnackBarHelper.presentSuccessSnackBar(
-                                                      context, 'Banner updated. Click Save to persist changes.', 3);
+                                                      context, 'Customer display setting updated successfully', 3);
+
+                                                  await GetIt.instance<AppDatabase>()
+                                                      .dualScreenDao
+                                                      .updateById(id: banner.id.toString(), data: updatedBanner);
                                                 }
                                               }
                                             },
@@ -605,27 +495,6 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
         title: const Text("Customer Display"),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                saveChanges();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              icon: const Icon(Icons.save, color: Colors.white),
-              label: const Text(
-                'Save',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
-        ],
       ),
       body: RefreshIndicator(
         onRefresh: refreshBanners,
