@@ -595,6 +595,40 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
                             Divider(height: 25),
                           ],
                         ),
+                        if (widget.printCloseShiftUsecaseParams.transactionsTopmt.isEmpty &&
+                            widget.printCloseShiftUsecaseParams.transactionsMOP.isEmpty)
+                          const TableRow(
+                            children: [
+                              Text(
+                                "No transactions happened on this shift",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: ProjectColors.primary,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                "",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: ProjectColors.primary,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                "",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: ProjectColors.primary,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+
                         ..._buildTableMOPRows(widget.printCloseShiftUsecaseParams.transactionsTopmt,
                             widget.printCloseShiftUsecaseParams.transactionsMOP),
                         const TableRow(
