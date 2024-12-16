@@ -39,6 +39,7 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
   POSParameterModel? posParameter;
   CashRegisterEntity? cashRegister;
   UserEntity? user;
+  bool isProcessingOpenShift = false;
 
   bool _showKeyboard = true;
   final TextEditingController _openValueController = TextEditingController();
@@ -338,6 +339,7 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
                                           onEditingComplete: () async {},
                                           controller: _openValueController,
                                           focusNode: _amountFocusNode,
+                                          autofocus: true,
                                           validator: (value) {
                                             if (value == null || value.isEmpty) {
                                               return 'Please enter a value';
@@ -418,79 +420,94 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
                                         padding: const EdgeInsets.fromLTRB(0, 0, 10, 10),
                                         child: CustomButton(
                                           padding: const EdgeInsets.all(0),
-                                          child: const Text("Open Shift"),
-                                          onTap: () async {
-                                            try {
-                                              if (!formKey.currentState!.validate()) return;
+                                          onTap: isProcessingOpenShift
+                                              ? null
+                                              : () async {
+                                                  try {
+                                                    setState(() {
+                                                      isProcessingOpenShift = true;
+                                                    });
+                                                    if (!formKey.currentState!.validate()) return;
 
-                                              final inputText = _openValueController.text.replaceAll(',', '');
-                                              final double inputValue = double.tryParse(inputText) ?? 0.0;
+                                                    final inputText = _openValueController.text.replaceAll(',', '');
+                                                    final double inputValue = double.tryParse(inputText) ?? 0.0;
 
-                                              final store = await GetIt.instance<AppDatabase>()
-                                                  .storeMasterDao
-                                                  .readByDocId(posParameter?.tostrId ?? "", null);
-                                              final storeCode = store!.storeCode;
-                                              final date = DateTime.now();
+                                                    final store = await GetIt.instance<AppDatabase>()
+                                                        .storeMasterDao
+                                                        .readByDocId(posParameter?.tostrId ?? "", null);
+                                                    final storeCode = store!.storeCode;
+                                                    final date = DateTime.now();
 
-                                              String formattedDate = DateFormat('yyMMddHHmmss').format(date);
-                                              final countShift = await GetIt.instance<AppDatabase>()
-                                                  .cashierBalanceTransactionDao
-                                                  .readByDate(date);
+                                                    String formattedDate = DateFormat('yyMMddHHmmss').format(date);
+                                                    final countShift = await GetIt.instance<AppDatabase>()
+                                                        .cashierBalanceTransactionDao
+                                                        .readByDate(date);
 
-                                              final number = ((countShift!.length) + 1).toString().padLeft(3, '0');
-                                              final docnum = '$storeCode-$formattedDate-$number-S';
+                                                    final number =
+                                                        ((countShift!.length) + 1).toString().padLeft(3, '0');
+                                                    final docnum = '$storeCode-$formattedDate-$number-S';
 
-                                              final shiftId = const Uuid().v4();
+                                                    final shiftId = const Uuid().v4();
 
-                                              final CashierBalanceTransactionModel shift =
-                                                  CashierBalanceTransactionModel(
-                                                docId: shiftId,
-                                                createDate: DateTime.now(),
-                                                updateDate: DateTime.now(),
-                                                tocsrId: cashRegister?.docId,
-                                                tousrId: user?.docId,
-                                                docNum: docnum,
-                                                openDate: DateTime.now(),
-                                                openTime: DateTime.now(),
-                                                calcDate: DateTime.utc(1970, 1, 1),
-                                                calcTime: DateTime.utc(1970, 1, 1),
-                                                closeDate: DateTime.utc(1970, 1, 1),
-                                                closeTime: DateTime.utc(1970, 1, 1),
-                                                timezone: "GMT+07",
-                                                openValue: inputValue,
-                                                calcValue: 0,
-                                                cashValue: 0,
-                                                closeValue: 0,
-                                                openedbyId: user?.docId,
-                                                closedbyId: "",
-                                                approvalStatus: 0,
-                                                refpos: shiftId,
-                                                syncToBos: null,
-                                                closedApproveById: null,
-                                              );
-                                              await _insertCashierBalanceTransaction(shift);
-                                              final CashierBalanceTransactionEntity? cashierBalanceTransactionEntity =
-                                                  await GetIt.instance<AppDatabase>()
-                                                      .cashierBalanceTransactionDao
-                                                      .readByDocId(shift.docId, null);
-                                              if (cashierBalanceTransactionEntity == null) throw "Open Shift Fail";
+                                                    final CashierBalanceTransactionModel shift =
+                                                        CashierBalanceTransactionModel(
+                                                      docId: shiftId,
+                                                      createDate: DateTime.now(),
+                                                      updateDate: DateTime.now(),
+                                                      tocsrId: cashRegister?.docId,
+                                                      tousrId: user?.docId,
+                                                      docNum: docnum,
+                                                      openDate: DateTime.now(),
+                                                      openTime: DateTime.now(),
+                                                      calcDate: DateTime.utc(1970, 1, 1),
+                                                      calcTime: DateTime.utc(1970, 1, 1),
+                                                      closeDate: DateTime.utc(1970, 1, 1),
+                                                      closeTime: DateTime.utc(1970, 1, 1),
+                                                      timezone: "GMT+07",
+                                                      openValue: inputValue,
+                                                      calcValue: 0,
+                                                      cashValue: 0,
+                                                      closeValue: 0,
+                                                      openedbyId: user?.docId,
+                                                      closedbyId: "",
+                                                      approvalStatus: 0,
+                                                      refpos: shiftId,
+                                                      syncToBos: null,
+                                                      closedApproveById: null,
+                                                    );
+                                                    await _insertCashierBalanceTransaction(shift);
+                                                    final CashierBalanceTransactionEntity?
+                                                        cashierBalanceTransactionEntity =
+                                                        await GetIt.instance<AppDatabase>()
+                                                            .cashierBalanceTransactionDao
+                                                            .readByDocId(shift.docId, null);
+                                                    if (cashierBalanceTransactionEntity == null)
+                                                      throw "Open Shift Fail";
 
-                                              final prefs = GetIt.instance<SharedPreferences>();
-                                              await prefs.setString('tcsr1Id', shift.docId);
-                                              await prefs.setBool('isOpen', true);
+                                                    final prefs = GetIt.instance<SharedPreferences>();
+                                                    await prefs.setString('tcsr1Id', shift.docId);
+                                                    await prefs.setBool('isOpen', true);
 
-                                              final printOpenShiftUsecase = GetIt.instance<PrintOpenShiftUsecase>();
-                                              await printOpenShiftUsecase.call(params: shift, printType: 1);
-                                              await GetIt.instance<OpenCashDrawerUseCase>().call();
+                                                    final printOpenShiftUsecase =
+                                                        GetIt.instance<PrintOpenShiftUsecase>();
+                                                    await printOpenShiftUsecase.call(params: shift, printType: 1);
+                                                    await GetIt.instance<OpenCashDrawerUseCase>().call();
 
-                                              context.pop(shift);
-                                            } catch (e) {
-                                              context.pop(null);
-                                              await prefs.setBool('isOpen', false);
-                                              await prefs.setString('tcsr1Id', "");
-                                              SnackBarHelper.presentErrorSnackBar(context, e.toString());
-                                            }
-                                          },
+                                                    context.pop(shift);
+                                                  } catch (e) {
+                                                    context.pop(null);
+                                                    await prefs.setBool('isOpen', false);
+                                                    await prefs.setString('tcsr1Id', "");
+                                                    SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                                                  }
+                                                },
+                                          child: isProcessingOpenShift
+                                              ? const SizedBox(
+                                                  height: 16,
+                                                  width: 16,
+                                                  child: CircularProgressIndicator(),
+                                                )
+                                              : const Text("Open Shift"),
                                         ),
                                       ),
                                     ),
