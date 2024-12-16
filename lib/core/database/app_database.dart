@@ -3281,6 +3281,7 @@ CREATE TABLE $tablePromoHargaSpecialHeader (
   ${PromoHargaSpesialHeaderFields.toitmId} text DEFAULT NULL,
   ${PromoHargaSpesialHeaderFields.promoType} int DEFAULT NULL,
   ${PromoHargaSpesialHeaderFields.form} varchar(1) NOT NULL,
+  ${PromoHargaSpesialHeaderFields.detailQtyValidation} int NOT NULL,
   $createdAtDefinition,
   CONSTRAINT `topsb_toitmId_fkey` FOREIGN KEY (`toitmId`) REFERENCES `toitm` (`docid`) ON DELETE SET NULL ON UPDATE CASCADE
 )
@@ -3912,6 +3913,11 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       // alter table tastr returnauthorization
       await db.execute(
           '''ALTER TABLE $tableAuthStore ADD COLUMN ${AuthStoreFields.returnauthorization} int NOT NULL DEFAULT '0' ''');
+    },
+    'from_version_7_to_version_8': (Database db) async {
+      // alter table topsb detailqtyvalidation
+      await db.execute(
+          '''ALTER TABLE $tablePromoHargaSpecialHeader ADD COLUMN ${PromoHargaSpesialHeaderFields.detailQtyValidation} int NOT NULL DEFAULT '1' ''');
     },
     'from_version_8_to_version_9': (Database db) async {
       // Create Table Promo Spesial Multi Item
