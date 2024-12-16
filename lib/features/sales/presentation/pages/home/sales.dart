@@ -75,7 +75,7 @@ class _SalesPageState extends State<SalesPage> {
   bool isEditingReceiptItemQty = false;
   bool isNewItemAdded = false;
   late int salesViewType;
-  bool isReturnableStore = false;
+  bool returnAuthorization = false;
 
   // States for handling current time
   late Timer _timer;
@@ -315,7 +315,7 @@ class _SalesPageState extends State<SalesPage> {
     final tostr = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos[0].tostrId!, null);
     if (tostr?.returnauthorization == 1) {
       setState(() {
-        isReturnableStore = true;
+        returnAuthorization = true;
       });
     }
   }
@@ -4261,8 +4261,10 @@ class _SalesPageState extends State<SalesPage> {
       }
 
       await Future.delayed(const Duration(milliseconds: 300), null);
-      final isAuthorized = await _showDialogReturn();
-      if (isAuthorized != true) throw "Return authorization failed";
+      if (returnAuthorization) {
+        final isAuthorized = await _showDialogReturn();
+        if (isAuthorized != true) throw "Return authorization failed";
+      }
       final ReceiptEntity receiptEntity = context.read<ReceiptCubit>().state;
 
       if (receiptEntity.promos != (receiptEntity.previousReceiptEntity?.promos ?? <PromotionsEntity>[])) {
