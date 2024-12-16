@@ -214,6 +214,7 @@ import 'package:pos_fe/features/sales/data/models/promo_package_valid_days.dart'
 import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_detail.dart';
+import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_default_valid_days.dart';
@@ -369,6 +370,25 @@ class AppDatabase {
         ${DualScreenFields.path} TEXT DEFAULT NULL,
         ${DualScreenFields.duration} INT DEFAULT NULL
         )
+      """;
+
+  static String createTopsm = """
+      CREATE TABLE $tablePromoSpesialMultiItemHeader (
+        `docid` TEXT PRIMARY KEY,
+        ${PromoSpesialMultiItemHeaderFields.createDate} datetime NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.updateDate} datetime DEFAULT NULL,
+        ${PromoSpesialMultiItemHeaderFields.promoCode} varchar(30) NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.description} varchar(200) NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.startDate} datetime NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.endDate} datetime NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.startTime} datetime NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.endTime} datetime NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.remarks} text,
+        ${PromoSpesialMultiItemHeaderFields.statusActive} int NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.condition} int NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.form} varchar(1) NOT NULL,
+        createdat TEXT DEFAULT CURRENT_TIMESTAMP
+      )
       """;
 
   static String createTpsm1 = """
@@ -3704,6 +3724,7 @@ CREATE TABLE $tableDuitkuVAAssignStore (
 
         await txn.execute(createTinv7);
         await txn.execute(createTobnr);
+        await txn.execute(createTopsm);
         await txn.execute(createTpsm1);
         await txn.execute(createTpsm2);
         await txn.execute(createTpsm4);
@@ -3880,6 +3901,7 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       await db.execute(
           '''ALTER TABLE $tableAuthStore ADD COLUMN ${AuthStoreFields.returnauthorization} int NOT NULL DEFAULT '0' ''');
       // Create Table Promo Spesial Multi Item
+      await db.execute(createTopsm);
       await db.execute(createTpsm1);
       await db.execute(createTpsm2);
       await db.execute(createTpsm4);
