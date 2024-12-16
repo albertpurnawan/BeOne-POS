@@ -93,6 +93,7 @@ import 'package:pos_fe/features/sales/domain/usecases/handle_promo_buy_x_get_y.d
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_special_price.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topdg.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topdi.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topsm.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_without_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
@@ -453,6 +454,8 @@ Future<void> initializeDependencies() async {
   // sl.registerSingletonWithDependencies<HandlePromoToprnUseCase>(
   //   () => HandlePromoToprnUseCase(sl(), sl(), sl()),
   // );
+  // topsm usecase
+  sl.registerSingleton<HandlePromoSpesialMultiItemUseCase>(HandlePromoSpesialMultiItemUseCase());
 
   sl.registerSingletonWithDependencies<CashierBalanceTransactionApi>(() => CashierBalanceTransactionApi(sl(), sl()),
       dependsOn: [SharedPreferences]);
