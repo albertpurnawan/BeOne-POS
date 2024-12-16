@@ -3043,7 +3043,7 @@ class _SalesPageState extends State<SalesPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        (state.rounding.roundToDouble().abs() != 0)
+                        (state.rounding.roundToDouble().abs() != 0 && state.rounding.roundToDouble().abs() < 1)
                             ? _noteChip((state.rounding).roundToDouble(), 1)
                             : const SizedBox.shrink(),
                         (state.downPayments != null &&
