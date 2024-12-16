@@ -3411,7 +3411,6 @@ class _FetchScreenState extends State<FetchScreen> {
         topsm = await GetIt.instance<AppDatabase>().promoSpesialMultiItemHeaderDao.readAll();
         for (final header in topsm) {
           if (header.statusActive != 1) continue;
-          log("header - $header");
           final DateTime endDateTime = DateTime(
             header.endDate.year,
             header.endDate.month,
@@ -3438,7 +3437,6 @@ class _FetchScreenState extends State<FetchScreen> {
 
           final isValid = dayProperties[today] == 1;
           if (isValid) {
-            log("HEREEEEE - ${header.docId} - ${header.description}");
             promos.add(PromotionsModel(
               docId: const Uuid().v4(),
               toitmId: null,
