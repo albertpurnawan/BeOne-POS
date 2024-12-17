@@ -25,7 +25,7 @@ class EmptyList extends StatelessWidget {
         //     color: Color.fromRGBO(195, 53, 53, 1),
         //     width: 4.0),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(5)),
-        color: Colors.white,
+        color: Colors.transparent,
       ),
       child: SingleChildScrollView(
         child: Column(
@@ -34,9 +34,7 @@ class EmptyList extends StatelessWidget {
             if (kIsWeb)
               Container(
                 width: double.infinity,
-                decoration: BoxDecoration(
-                    color: ProjectColors.primary.withOpacity(.1),
-                    shape: BoxShape.circle),
+                decoration: BoxDecoration(color: ProjectColors.primary.withOpacity(.1), shape: BoxShape.circle),
                 padding: const EdgeInsets.all(30),
                 child: SvgPicture.asset(imagePath, height: 120),
               )
@@ -44,9 +42,7 @@ class EmptyList extends StatelessWidget {
               SvgPicture.asset(imagePath, height: height ?? 150),
             const SizedBox(height: kIsWeb ? 20 : 10),
             Text(sentence,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                    height: 1.4, color: ProjectColors.lightBlack)),
+                textAlign: TextAlign.center, style: const TextStyle(height: 1.4, color: ProjectColors.lightBlack)),
             if (kIsWeb) const SizedBox(height: 100)
           ],
         ),
