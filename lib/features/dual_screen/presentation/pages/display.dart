@@ -198,6 +198,10 @@ class _DisplayPageState extends State<DisplayPage> {
             if (data.isNotEmpty) {
               setState(() {
                 dataMap['dualScreenModel'] = data;
+                _currentIndex = 0;
+                _currentIndex2 = 0;
+                _timer1?.cancel();
+                _timer2?.cancel();
               });
               await _loadBanners();
             } else {
@@ -1200,7 +1204,6 @@ class _DisplayPageState extends State<DisplayPage> {
 
   @override
   Widget build(BuildContext context) {
-    final cashier = _prefs?.getString('username');
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
