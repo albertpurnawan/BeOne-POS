@@ -198,6 +198,10 @@ class _DisplayPageState extends State<DisplayPage> {
             if (data.isNotEmpty) {
               setState(() {
                 dataMap['dualScreenModel'] = data;
+                _currentIndex = 0;
+                _currentIndex2 = 0;
+                _timer1?.cancel();
+                _timer2?.cancel();
               });
               await _loadBanners();
             } else {
@@ -257,67 +261,63 @@ class _DisplayPageState extends State<DisplayPage> {
               final dialog = showDialog(
                 context: context,
                 barrierDismissible: false,
-                builder: (context) => Positioned.fill(
-                  child: Center(
-                    child: AlertDialog(
-                      backgroundColor: Colors.white,
-                      surfaceTintColor: Colors.transparent,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                builder: (context) => AlertDialog(
+                  backgroundColor: Colors.white,
+                  surfaceTintColor: Colors.transparent,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                  ),
+                  title: ExcludeFocusTraversal(
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: ProjectColors.primary,
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                       ),
-                      title: ExcludeFocusTraversal(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: ProjectColors.primary,
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+                      padding: const EdgeInsets.fromLTRB(25, 5, 10, 5),
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Checkout',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
                           ),
-                          padding: const EdgeInsets.fromLTRB(25, 5, 10, 5),
-                          child: const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Checkout',
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        ],
                       ),
-                      titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                      contentPadding: const EdgeInsets.all(0),
-                      // ignore: unnecessary_null_comparison
-                      content: _DisplayCheckoutSuccessDialogContent(
-                        checkoutData: TransactionSuccessData,
-                        docNum: TransactionSuccessData['docNum'] ?? '',
-                        grandTotal: double.tryParse(TransactionSuccessData['grandTotal']?.toString() ?? '0') ?? 0.0,
-                        transDateTime: TransactionSuccessData['transDateTime'],
-                        mopSelections: TransactionSuccessData['mopSelections'] ?? [],
-                        totalPayment: TransactionSuccessData['totalPayment'] == null
-                            ? 0.0
-                            : _safeParseDouble(TransactionSuccessData['totalPayment'].toString()),
-                        changed: TransactionSuccessData['changed'] == null
-                            ? 0.0
-                            : _safeParseDouble(TransactionSuccessData['changed'].toString()),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              TransactionSuccessData['totalPayment'] = '-';
-                            });
-                          },
-                          child: const Text(
-                            'Close',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
                     ),
                   ),
+                  titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                  contentPadding: const EdgeInsets.all(0),
+                  // ignore: unnecessary_null_comparison
+                  content: _DisplayCheckoutSuccessDialogContent(
+                    checkoutData: TransactionSuccessData,
+                    docNum: TransactionSuccessData['docNum'] ?? '',
+                    grandTotal: double.tryParse(TransactionSuccessData['grandTotal']?.toString() ?? '0') ?? 0.0,
+                    transDateTime: TransactionSuccessData['transDateTime'],
+                    mopSelections: TransactionSuccessData['mopSelections'] ?? [],
+                    totalPayment: TransactionSuccessData['totalPayment'] == null
+                        ? 0.0
+                        : _safeParseDouble(TransactionSuccessData['totalPayment'].toString()),
+                    changed: TransactionSuccessData['changed'] == null
+                        ? 0.0
+                        : _safeParseDouble(TransactionSuccessData['changed'].toString()),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          TransactionSuccessData['totalPayment'] = '-';
+                        });
+                      },
+                      child: const Text(
+                        'Close',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
               );
             }
@@ -1200,7 +1200,6 @@ class _DisplayPageState extends State<DisplayPage> {
 
   @override
   Widget build(BuildContext context) {
-    final cashier = _prefs?.getString('username');
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
