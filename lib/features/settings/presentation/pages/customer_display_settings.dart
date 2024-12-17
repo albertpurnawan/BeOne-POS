@@ -416,6 +416,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
           ClipRRect(
             borderRadius: const BorderRadius.all(Radius.circular(8)),
             child: Container(
+              width: double.infinity,
               decoration: BoxDecoration(
                 border: Border.all(
                   color: const Color.fromARGB(255, 222, 220, 220),
@@ -423,29 +424,28 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Theme(
-                  data: Theme.of(context).copyWith(
-                    dividerTheme: DividerThemeData(
-                      color: const Color.fromARGB(255, 222, 220, 220),
-                      thickness: 1.0,
-                    ),
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  dividerTheme: DividerThemeData(
+                    color: const Color.fromARGB(255, 222, 220, 220),
+                    thickness: 1.0,
                   ),
-                  child: DataTable(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    headingRowHeight: 40,
-                    headingTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                    headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
-                    dataRowColor: MaterialStateProperty.all(const Color.fromARGB(255, 240, 240, 240)),
-                    columns: [
-                      DataColumn(
-                        label: Center(
+                ),
+                child: DataTable(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  headingRowHeight: 40,
+                  headingTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  headingRowColor: MaterialStateProperty.all(ProjectColors.primary),
+                  dataRowColor: MaterialStateProperty.all(const Color.fromARGB(255, 240, 240, 240)),
+                  columns: const [
+                    DataColumn(
+                      label: Expanded(
+                        child: Center(
                           child: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.03,
-                            child: const Text(
+                            // width: MediaQuery.of(context).size.width * 0.03,
+                            child: Text(
                               'Order',
                               style: TextStyle(color: Colors.white),
                               textAlign: TextAlign.center,
@@ -453,11 +453,13 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                           ),
                         ),
                       ),
-                      DataColumn(
-                        label: Center(
+                    ),
+                    DataColumn(
+                      label: Expanded(
+                        child: Center(
                           child: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.15,
-                            child: const Text(
+                            // width: MediaQuery.of(context).size.width * 0.15,
+                            child: Text(
                               'Description',
                               style: TextStyle(color: Colors.white),
                               textAlign: TextAlign.center,
@@ -465,11 +467,13 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                           ),
                         ),
                       ),
-                      DataColumn(
-                        label: Center(
+                    ),
+                    DataColumn(
+                      label: Expanded(
+                        child: Center(
                           child: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.28,
-                            child: const Text(
+                            // width: MediaQuery.of(context).size.width * 0.28,
+                            child: Text(
                               'Path',
                               style: TextStyle(color: Colors.white),
                               textAlign: TextAlign.center,
@@ -477,11 +481,13 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                           ),
                         ),
                       ),
-                      DataColumn(
-                        label: Center(
+                    ),
+                    DataColumn(
+                      label: Expanded(
+                        child: Center(
                           child: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.07,
-                            child: const Text(
+                            // width: MediaQuery.of(context).size.width * 0.07,
+                            child: Text(
                               'Duration (s)',
                               style: TextStyle(color: Colors.white),
                               textAlign: TextAlign.center,
@@ -489,11 +495,13 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                           ),
                         ),
                       ),
-                      DataColumn(
-                        label: Center(
+                    ),
+                    DataColumn(
+                      label: Expanded(
+                        child: Center(
                           child: SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.15,
-                            child: const Text(
+                            // width: MediaQuery.of(context).size.width * 0.15,
+                            child: Text(
                               'Actions',
                               style: TextStyle(color: Colors.white),
                               textAlign: TextAlign.center,
@@ -501,111 +509,111 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                           ),
                         ),
                       ),
-                    ],
-                    rows: banners.map((banner) {
-                      return DataRow(
-                        cells: [
-                          DataCell(SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.03,
-                              child: Center(child: Text(banner.order.toString())))),
-                          DataCell(SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.15,
-                              child: Center(child: Text(banner.description)))),
-                          DataCell(SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.28,
-                              child: Center(
-                                child: Text(
-                                  banner.path.length > 40
-                                      ? '...${banner.path.substring(banner.path.length - 40)}'
-                                      : banner.path,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ))),
-                          DataCell(SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.07,
-                              child: Center(child: Text(banner.duration.toString())))),
-                          DataCell(
-                            Center(
-                              child: SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.13,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.edit),
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) => BannerPopup(
-                                            title: 'Edit Banner',
-                                            type: banner.type,
-                                            order: banner.order,
-                                            description: banner.description,
-                                            path: banner.path,
-                                            duration: banner.duration.toString(),
-                                            onSave: (updatedData) async {
-                                              // Find the index of the banner in the appropriate list
-                                              final List<DualScreenModel> targetList =
-                                                  banner.type == 1 ? largeBanners : smallBanners;
+                    ),
+                  ],
+                  rows: banners.map((banner) {
+                    return DataRow(
+                      cells: [
+                        DataCell(SizedBox(
+                            // width: MediaQuery.of(context).size.width * 0.03,
+                            child: Center(child: Text(banner.order.toString())))),
+                        DataCell(SizedBox(
+                            // width: MediaQuery.of(context).size.width * 0.15,
+                            child: Center(child: Text(banner.description)))),
+                        DataCell(SizedBox(
+                            // width: MediaQuery.of(context).size.width * 0.28,
+                            child: Center(
+                          child: Text(
+                            banner.path.length > 40
+                                ? '...${banner.path.substring(banner.path.length - 40)}'
+                                : banner.path,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ))),
+                        DataCell(SizedBox(
+                            // width: MediaQuery.of(context).size.width * 0.07,
+                            child: Center(child: Text(banner.duration.toString())))),
+                        DataCell(
+                          Center(
+                            child: SizedBox(
+                              // width: MediaQuery.of(context).size.width * 0.13,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => BannerPopup(
+                                          title: 'Edit Banner',
+                                          type: banner.type,
+                                          order: banner.order,
+                                          description: banner.description,
+                                          path: banner.path,
+                                          duration: banner.duration.toString(),
+                                          onSave: (updatedData) async {
+                                            // Find the index of the banner in the appropriate list
+                                            final List<DualScreenModel> targetList =
+                                                banner.type == 1 ? largeBanners : smallBanners;
 
-                                              final index = targetList.indexWhere((b) => b.id == banner.id);
+                                            final index = targetList.indexWhere((b) => b.id == banner.id);
 
-                                              if (index != -1) {
-                                                // Create an updated banner model
-                                                final updatedBanner = <String, dynamic>{
-                                                  'id': banner.id,
-                                                  'description': updatedData['description'],
-                                                  'type': banner.type,
-                                                  'order': banner.order,
-                                                  'path': updatedData['path'],
-                                                  'duration': updatedData['duration'],
-                                                  'createdAt': banner.createdAt,
-                                                  'updatedAt': DateTime.now(),
-                                                };
+                                            if (index != -1) {
+                                              // Create an updated banner model
+                                              final updatedBanner = <String, dynamic>{
+                                                'id': banner.id,
+                                                'description': updatedData['description'],
+                                                'type': banner.type,
+                                                'order': banner.order,
+                                                'path': updatedData['path'],
+                                                'duration': updatedData['duration'],
+                                                'createdAt': banner.createdAt,
+                                                'updatedAt': DateTime.now(),
+                                              };
 
-                                                saveChanges(updatedBanner);
+                                              saveChanges(updatedBanner);
 
-                                                // Show success message
-                                                if (mounted) {
-                                                  SnackBarHelper.presentSuccessSnackBar(
-                                                      context, 'Customer display setting updated successfully', 3);
-                                                }
+                                              // Show success message
+                                              if (mounted) {
+                                                SnackBarHelper.presentSuccessSnackBar(
+                                                    context, 'Customer display setting updated successfully', 3);
                                               }
-                                            },
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      onPressed: () async {
-                                        final confirm = await showDialog<bool>(
-                                          context: context,
-                                          builder: (context) => const ConfirmationDialog(
-                                            primaryMsg: "Are you sure you want to delete this banner?",
-                                            secondaryMsg: "",
-                                            isProceedOnly: false,
-                                          ),
-                                        );
+                                            }
+                                          },
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete),
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => const ConfirmationDialog(
+                                          primaryMsg: "Are you sure you want to delete this banner?",
+                                          secondaryMsg: "",
+                                          isProceedOnly: false,
+                                        ),
+                                      );
 
-                                        if (confirm == true) {
-                                          await GetIt.instance<AppDatabase>().dualScreenDao.delete(banner.id);
-                                          await refreshBanners();
-                                          await _sendToDisplay();
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                ),
+                                      if (confirm == true) {
+                                        await GetIt.instance<AppDatabase>().dualScreenDao.delete(banner.id);
+                                        await refreshBanners();
+                                        await _sendToDisplay();
+                                      }
+                                    },
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                        ],
-                      );
-                    }).toList(),
-                  ),
+                        ),
+                      ],
+                    );
+                  }).toList(),
                 ),
               ),
             ),
