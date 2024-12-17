@@ -72,7 +72,7 @@ class PromoSpesialMultiItemDetailModel extends PromoSpesialMultiItemDetailEntity
   factory PromoSpesialMultiItemDetailModel.fromMapRemote(Map<String, dynamic> map) {
     return PromoSpesialMultiItemDetailModel.fromMap({
       ...map,
-      'topsmId': map['topsbdocid'] != null ? map['topsbdocid'] as String : null,
+      'topsmId': map['topsmdocid'] != null ? map['topsmdocid'] as String : null,
       'toitmId': map['toitmdocid'] != null ? map['toitmdocid'] as String : null,
       'qtyfrom': double.tryParse(map['qtyfrom'].toString()) ?? 0,
       'qtyto': double.tryParse(map['qtyto'].toString()) ?? 0,

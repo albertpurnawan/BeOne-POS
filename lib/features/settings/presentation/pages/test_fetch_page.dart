@@ -3421,25 +3421,28 @@ class _FetchScreenState extends State<FetchScreen> {
           );
           if (endDateTime.isBefore(now) || header.startDate.isAfter(now)) continue;
 
-          final tprn2 =
+          final tpsm1 =
+              await GetIt.instance<AppDatabase>().promoSpesialMultiItemDetailDao.readByTopsmId(header.docId, null);
+          log("tpsm1 - $tpsm1");
+          final tpsm2 =
               await GetIt.instance<AppDatabase>().promoSpesialMultiItemAssignStoreDao.readByTopsmId(header.docId, null);
-          if (tprn2 == null) continue;
+          if (tpsm2 == null) continue;
 
           final dayProperties = {
-            1: tprn2.day1,
-            2: tprn2.day2,
-            3: tprn2.day3,
-            4: tprn2.day4,
-            5: tprn2.day5,
-            6: tprn2.day6,
-            7: tprn2.day7,
+            1: tpsm2.day1,
+            2: tpsm2.day2,
+            3: tpsm2.day3,
+            4: tpsm2.day4,
+            5: tpsm2.day5,
+            6: tpsm2.day6,
+            7: tpsm2.day7,
           };
 
           final isValid = dayProperties[today] == 1;
           if (isValid) {
             promos.add(PromotionsModel(
               docId: const Uuid().v4(),
-              toitmId: null,
+              toitmId: tpsm1.toitmId,
               promoType: 201,
               promoId: header.docId,
               date: DateTime.now(),
