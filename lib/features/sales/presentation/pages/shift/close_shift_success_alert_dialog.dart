@@ -590,27 +590,70 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
                         ),
                         const TableRow(
                           children: [
-                            Divider(height: 1),
-                            Divider(height: 1),
-                            Divider(height: 1),
+                            Divider(height: 25),
+                            Divider(height: 25),
+                            Divider(height: 25),
                           ],
                         ),
+                        if (widget.printCloseShiftUsecaseParams.transactionsTopmt.isEmpty &&
+                            widget.printCloseShiftUsecaseParams.transactionsMOP.isEmpty)
+                          const TableRow(
+                            children: [
+                              Text(
+                                "No transactions happened on this shift",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: ProjectColors.primary,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                "",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: ProjectColors.primary,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                "",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: ProjectColors.primary,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+
                         ..._buildTableMOPRows(widget.printCloseShiftUsecaseParams.transactionsTopmt,
                             widget.printCloseShiftUsecaseParams.transactionsMOP),
                         const TableRow(
                           children: [
-                            Divider(height: 1),
-                            Divider(height: 1),
-                            Divider(height: 1),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 10),
+                              child: Divider(),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 10),
+                              child: Divider(),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 10),
+                              child: Divider(),
+                            ),
                           ],
                         ),
-                        const TableRow(
-                          children: [
-                            SizedBox(height: 16),
-                            SizedBox(height: 16),
-                            SizedBox(height: 16),
-                          ],
-                        ),
+                        // const TableRow(
+                        //   children: [
+                        //     SizedBox(height: 16),
+                        //     SizedBox(height: 16),
+                        //     SizedBox(height: 16),
+                        //   ],
+                        // ),
                         TableRow(
                           children: [
                             const Text(
@@ -766,27 +809,33 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
       final filteredTransactions =
           transactionsMOP.where((transaction) => transaction['topmtId'] == paymentType.docId).toList();
 
-      for (var transaction in filteredTransactions) {
+      filteredTransactions.asMap().forEach((index, transaction) {
         rows.add(
           TableRow(
             children: [
-              Text(
-                "   ${transaction['description']}",
-                style: const TextStyle(
-                  fontSize: 16,
+              Padding(
+                padding: const EdgeInsets.only(bottom: 1),
+                child: Text(
+                  "${transaction['description']}",
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
                 ),
               ),
               const SizedBox(width: 5),
-              Text(
-                Helpers.parseMoney(transaction['amount']),
-                style: const TextStyle(
-                  fontSize: 16,
+              Padding(
+                padding: EdgeInsets.only(bottom: (index == filteredTransactions.length - 1) ? 16 : 1),
+                child: Text(
+                  Helpers.parseMoney(transaction['amount']),
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ],
           ),
         );
-      }
+      });
     }
 
     return rows;

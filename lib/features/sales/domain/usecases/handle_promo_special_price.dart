@@ -1,6 +1,11 @@
+import 'dart:developer';
+
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/usecase.dart';
+import 'package:pos_fe/core/utilities/navigation_helper.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
@@ -34,6 +39,17 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
       final tpsb1 = await GetIt.instance<AppDatabase>().promoHargaSpesialBuyDao.readByTopsbId(promo.promoId!, null);
       final tpsb1s = await GetIt.instance<AppDatabase>().promoHargaSpesialBuyDao.readAllByTopsbId(promo.promoId!, null);
 
+      if (topsb == null) throw "Invalid 'Promo Harga Special' data [ERR:HPSR01]";
+      log("check berkelipatan ${topsb.detailQtyValidation == 0 && topsb.promoAlias == 1}");
+      if (topsb.detailQtyValidation == 0 && topsb.promoAlias == 1) {
+        throw "Invalid 'Promo Harga Special' data [ERR:HPSR02]";
+      }
+      if (tpsb1.qty != 1 && topsb.detailQtyValidation == 0) {
+        throw "Invalid 'Promo Harga Special' data [ERR:HPSR03]";
+      }
+
+      final double buyQty = topsb.detailQtyValidation == 1 ? tpsb1.qty : 0.001;
+
       // Recreate receipt
       for (var currentReceiptItem in params.receiptEntity.receiptItems) {
         // Handle item exist
@@ -48,10 +64,10 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
           // log("promo - $promoAlreadyApplied");
           if (!promoAlreadyApplied) {
             // check promo buy condition: quantity
-            if (currentReceiptItem.quantity >= tpsb1.qty) {
+            if (currentReceiptItem.quantity >= buyQty) {
               // log("Item Fulfilled Conditions");
 
-              if (topsb!.promoAlias == 1) {
+              if (topsb.promoAlias == 1) {
                 for (final el in tpsb1s) {
                   if (currentReceiptItem.quantity >= el.qty) {
                     discount = (currentReceiptItem.quantity * itemEntity.price) -
@@ -61,17 +77,25 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
                   }
                 }
               } else {
+                final double buyQty = topsb.detailQtyValidation == 1 ? tpsb1.qty : 0.001;
                 if (currentReceiptItem.quantity <= topsb.maxPurchaseTransaction) {
-                  int fullSets = (currentReceiptItem.quantity ~/ tpsb1.qty);
+                  int fullSets = (currentReceiptItem.quantity ~/ buyQty);
                   double remainderItems =
-                      (currentReceiptItem.quantity - ((currentReceiptItem.quantity / tpsb1.qty).floor() * tpsb1.qty));
-                  double expectedSubtotal = (fullSets * tpsb1.price * tpsb1.qty) + (remainderItems * itemEntity.price);
+                      (currentReceiptItem.quantity - ((currentReceiptItem.quantity / buyQty).floor() * buyQty));
+                  double expectedSubtotal = (fullSets * tpsb1.price * buyQty) + (remainderItems * itemEntity.price);
                   double actualTotalPrice = itemEntity.price * currentReceiptItem.quantity;
                   discount = actualTotalPrice - expectedSubtotal;
                   discountBeforeTax =
                       itemEntity.includeTax == 1 ? (discount * (100 / (100 + itemEntity.taxRate))) : discount;
-                } else if (currentReceiptItem.quantity > (topsb.maxPurchaseTransaction / tpsb1.qty)) {
-                  discount *= topsb.maxPurchaseTransaction;
+                } else if (currentReceiptItem.quantity > topsb.maxPurchaseTransaction) {
+                  int fullSets = (topsb.maxPurchaseTransaction ~/ buyQty);
+                  double remainderItems =
+                      (topsb.maxPurchaseTransaction - ((topsb.maxPurchaseTransaction / buyQty).floor() * buyQty));
+                  double expectedSubtotal = (fullSets * tpsb1.price * buyQty) + (remainderItems * itemEntity.price);
+                  double actualTotalPrice = itemEntity.price * topsb.maxPurchaseTransaction;
+                  discount = actualTotalPrice - expectedSubtotal;
+                  discountBeforeTax =
+                      itemEntity.includeTax == 1 ? (discount * (100 / (100 + itemEntity.taxRate))) : discount;
                 } else {
                   discount = 0;
                 }
@@ -126,16 +150,24 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
                 }
               }
             } else {
+              final double buyQty = topsb.detailQtyValidation == 1 ? tpsb1.qty : 0.001;
+
               if (currentReceiptItem.quantity <= topsb.maxPurchaseTransaction) {
-                int fullSets = (currentReceiptItem.quantity ~/ tpsb1.qty);
-                double remainderItems = (currentReceiptItem.quantity % tpsb1.qty);
-                double expectedSubtotal = (fullSets * tpsb1.price * tpsb1.qty) + (remainderItems * itemEntity.price);
+                int fullSets = (currentReceiptItem.quantity ~/ buyQty);
+                double remainderItems = (currentReceiptItem.quantity % buyQty);
+                double expectedSubtotal = (fullSets * tpsb1.price * buyQty) + (remainderItems * itemEntity.price);
                 double actualTotalPrice = itemEntity.price * currentReceiptItem.quantity;
                 discount = actualTotalPrice - expectedSubtotal;
                 discountBeforeTax =
                     itemEntity.includeTax == 1 ? (discount * (100 / (100 + itemEntity.taxRate))) : discount;
-              } else if (currentReceiptItem.quantity > (topsb.maxPurchaseTransaction / tpsb1.qty)) {
-                discount *= topsb.maxPurchaseTransaction;
+              } else if (currentReceiptItem.quantity > topsb.maxPurchaseTransaction) {
+                int fullSets = (topsb.maxPurchaseTransaction ~/ buyQty);
+                double remainderItems = (topsb.maxPurchaseTransaction % buyQty);
+                double expectedSubtotal = (fullSets * tpsb1.price * buyQty) + (remainderItems * itemEntity.price);
+                double actualTotalPrice = itemEntity.price * topsb.maxPurchaseTransaction;
+                discount = actualTotalPrice - expectedSubtotal;
+                discountBeforeTax =
+                    itemEntity.includeTax == 1 ? (discount * (100 / (100 + itemEntity.taxRate))) : discount;
               } else {
                 discount = 0;
               }
@@ -178,7 +210,7 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
         double discountBeforeTax = 0;
 
         // check the time of promo
-        if (quantity >= tpsb1.qty) {
+        if (quantity >= buyQty) {
           // Apply promo directly to itemWithPromo
           itemWithPromo = itemEntity.copyWith(
             price:
@@ -187,7 +219,7 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
           );
           // Calculate totals
           // log("New Receipt With Promo");
-          if (topsb!.promoAlias == 1) {
+          if (topsb.promoAlias == 1) {
             for (final el in tpsb1s) {
               if (quantity >= el.qty) {
                 discount =
@@ -197,16 +229,24 @@ class HandlePromoSpecialPriceUseCase implements UseCase<ReceiptEntity, HandlePro
               }
             }
           } else {
+            final double buyQty = topsb.detailQtyValidation == 1 ? tpsb1.qty : 0.001;
             if (quantity <= topsb.maxPurchaseTransaction) {
-              int fullSets = (quantity ~/ tpsb1.qty);
-              double remainderItems = (quantity % tpsb1.qty);
-              double expectedSubtotal = (fullSets * tpsb1.price * tpsb1.qty) + (remainderItems * itemEntity.price);
+              int fullSets = (quantity ~/ buyQty);
+              double remainderItems = (quantity - ((quantity / buyQty).floor() * buyQty));
+              double expectedSubtotal = (fullSets * tpsb1.price * buyQty) + (remainderItems * itemEntity.price);
               double actualTotalPrice = itemEntity.price * quantity;
               discount = actualTotalPrice - expectedSubtotal;
               discountBeforeTax =
                   itemEntity.includeTax == 1 ? (discount * (100 / (100 + itemEntity.taxRate))) : discount;
-            } else if (quantity > (topsb.maxPurchaseTransaction / tpsb1.qty)) {
-              discount *= topsb.maxPurchaseTransaction;
+            } else if (quantity > topsb.maxPurchaseTransaction) {
+              int fullSets = (topsb.maxPurchaseTransaction ~/ buyQty);
+              double remainderItems =
+                  (topsb.maxPurchaseTransaction - ((topsb.maxPurchaseTransaction / buyQty).floor() * buyQty));
+              double expectedSubtotal = (fullSets * tpsb1.price * buyQty) + (remainderItems * itemEntity.price);
+              double actualTotalPrice = itemEntity.price * topsb.maxPurchaseTransaction;
+              discount = actualTotalPrice - expectedSubtotal;
+              discountBeforeTax =
+                  itemEntity.includeTax == 1 ? (discount * (100 / (100 + itemEntity.taxRate))) : discount;
             } else {
               discount = 0;
             }

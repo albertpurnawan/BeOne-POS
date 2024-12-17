@@ -41,7 +41,7 @@ class _LoginDialogState extends State<LoginDialog> {
   void initState() {
     getDefaultKeyboardPOSParameter();
     super.initState();
-
+    _usernameFocusNode.requestFocus();
     _usernameFocusNode.addListener(() {
       setState(() {
         if (_usernameFocusNode.hasFocus) {
