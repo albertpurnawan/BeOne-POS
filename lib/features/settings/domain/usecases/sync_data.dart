@@ -2918,8 +2918,11 @@ Future<void> syncData() async {
         );
         if (endDateTime.isBefore(now) || header.startDate.isAfter(now)) continue;
 
+        final tpsm1 =
+            await GetIt.instance<AppDatabase>().promoSpesialMultiItemDetailDao.readAllByTopsmId(header.docId, null);
         final tpsm2 =
             await GetIt.instance<AppDatabase>().promoSpesialMultiItemAssignStoreDao.readByTopsmId(header.docId, null);
+
         if (tpsm2 == null) continue;
 
         final dayProperties = {
@@ -2934,19 +2937,26 @@ Future<void> syncData() async {
 
         final isValid = dayProperties[today] == 1;
         if (isValid) {
-          promos.add(PromotionsModel(
-            docId: const Uuid().v4(),
-            toitmId: null,
-            promoType: 201,
-            promoId: header.docId,
-            date: DateTime.now(),
-            startTime: header.startTime,
-            endTime: header.endTime,
-            tocrgId: null,
-            promoDescription: header.description,
-            tocatId: null,
-            remarks: header.remarks,
-          ));
+          for (var detail in tpsm1) {
+            final tpsm4 = await GetIt.instance<AppDatabase>()
+                .promoSpesialMultiItemCustomerGroupDao
+                .readByTopsmId(detail.topsmId ?? "", null);
+            for (var custGroup in tpsm4) {
+              promos.add(PromotionsModel(
+                docId: const Uuid().v4(),
+                toitmId: detail.toitmId,
+                promoType: 201,
+                promoId: header.docId,
+                date: DateTime.now(),
+                startTime: header.startTime,
+                endTime: header.endTime,
+                tocrgId: custGroup.tocrgId,
+                promoDescription: header.description,
+                tocatId: null,
+                remarks: header.remarks,
+              ));
+            }
+          }
         }
       }
 
