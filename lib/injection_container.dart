@@ -57,11 +57,13 @@ import 'package:pos_fe/features/sales/domain/usecases/apply_manual_rounding.dart
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdg.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdi.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_toprn.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topsm.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdg_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdi_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_toprn_applicability.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_promo_topsm_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_voucher.dart';
 import 'package:pos_fe/features/sales/domain/usecases/create_promos.dart';
@@ -84,6 +86,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart' as
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdg_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdi_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_toprn_header_and_detail.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_promo_topsm_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_return_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
@@ -455,7 +458,15 @@ Future<void> initializeDependencies() async {
   //   () => HandlePromoToprnUseCase(sl(), sl(), sl()),
   // );
   // topsm usecase
+  sl.registerSingleton<GetPromoTopSmHeaderAndDetailUseCase>(GetPromoTopSmHeaderAndDetailUseCase());
+  sl.registerSingletonWithDependencies<CheckPromoTopsmApplicabilityUseCase>(
+      () => CheckPromoTopsmApplicabilityUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingleton<ApplyTopsmUseCase>(ApplyTopsmUseCase());
   sl.registerSingleton<HandlePromoSpesialMultiItemUseCase>(HandlePromoSpesialMultiItemUseCase());
+  // sl.registerSingletonWithDependencies<HandlePromoSpesialMultiItemUseCase>(
+  //     () => HandlePromoSpesialMultiItemUseCase(sl(), sl(), sl(), sl()),
+  //     dependsOn: [CheckPromoTopdgApplicabilityUseCase]);
 
   sl.registerSingletonWithDependencies<CashierBalanceTransactionApi>(() => CashierBalanceTransactionApi(sl(), sl()),
       dependsOn: [SharedPreferences]);

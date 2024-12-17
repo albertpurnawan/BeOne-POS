@@ -2918,8 +2918,6 @@ Future<void> syncData() async {
         );
         if (endDateTime.isBefore(now) || header.startDate.isAfter(now)) continue;
 
-        final tpsm1 =
-            await GetIt.instance<AppDatabase>().promoSpesialMultiItemDetailDao.readByTopsmId(header.docId, null);
         final tpsm2 =
             await GetIt.instance<AppDatabase>().promoSpesialMultiItemAssignStoreDao.readByTopsmId(header.docId, null);
         if (tpsm2 == null) continue;
@@ -2938,7 +2936,7 @@ Future<void> syncData() async {
         if (isValid) {
           promos.add(PromotionsModel(
             docId: const Uuid().v4(),
-            toitmId: tpsm1.toitmId,
+            toitmId: null,
             promoType: 201,
             promoId: header.docId,
             date: DateTime.now(),
