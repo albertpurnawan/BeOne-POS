@@ -1318,7 +1318,8 @@ class _DisplayPageState extends State<DisplayPage> {
                                         duration: const Duration(milliseconds: 150),
                                         syncDuration: const Duration(milliseconds: 150),
                                         alignment: Alignment.center,
-                                        fit: BoxFit.fill,
+                                        fit: BoxFit.fitWidth,
+                                        width: double.infinity,
                                       )
                                     : Container(
                                         color: Colors.grey, // Placeholder color
