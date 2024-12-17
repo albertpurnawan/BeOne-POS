@@ -870,13 +870,12 @@ class _DisplayPageState extends State<DisplayPage> {
     if (!mounted || largeBanners.isEmpty) return;
     print('_currentIndex: ' + _currentIndex.toString());
     setState(() {
-      int nextIndex = largeBanners[_currentIndex].order - 1;
-      print('nextIndex: ' + nextIndex.toString());
+      int nextIndex = (_currentIndex + 1) % largeBanners.length;
 
-      if (nextIndex < largeBanners.length - 1) {
-        _currentIndex = nextIndex + 1;
-      } else {
+      if (nextIndex == 0) {
         _currentIndex = 0;
+      } else {
+        _currentIndex = nextIndex;
       }
     });
     _timer1?.cancel();
