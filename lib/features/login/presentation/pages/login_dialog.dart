@@ -26,7 +26,7 @@ class LoginDialog extends StatefulWidget {
 class _LoginDialogState extends State<LoginDialog> {
   final formKey = GlobalKey<FormState>();
   bool _hidePassword = true;
-  bool showKeyboard = true;
+  bool showKeyboard = false;
   TextEditingController _activeController = TextEditingController();
   FocusNode _activeFocusNode = FocusNode();
   final TextEditingController _usernameController = TextEditingController();
