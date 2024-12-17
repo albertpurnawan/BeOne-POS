@@ -342,6 +342,9 @@ class _OpenShiftDialogState extends State<OpenShiftDialog> {
                                           autofocus: true,
                                           validator: (value) {
                                             if (value == null || value.isEmpty) {
+                                              setState(() {
+                                                isProcessingOpenShift = false;
+                                              });
                                               return 'Please enter a value';
                                             }
                                             return null;

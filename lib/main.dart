@@ -140,24 +140,22 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+class _MyAppState extends State<MyApp> with WindowListener {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    windowManager.addListener(this);
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    windowManager.removeListener(this);
     super.dispose();
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.detached) {
-      _showCloseConfirmationDialog();
-    }
+  onWindowClose() {
+    _showCloseConfirmationDialog();
   }
 
   Future<void> _showCloseConfirmationDialog() async {
@@ -275,5 +273,6 @@ Future<void> _configureMainWindow() async {
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.show();
     await windowManager.maximize();
+    await windowManager.setPreventClose(true);
   });
 }

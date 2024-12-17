@@ -3570,25 +3570,79 @@ class _SalesPageState extends State<SalesPage> {
                             width: 5,
                           ),
                           Expanded(
-                            flex: 2,
                             child: SizedBox.expand(
                               child: FilledButton(
                                 onPressed: () {
-                                  setState(() {
-                                    if (!_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
-                                      _newReceiptItemCodeFocusNode.requestFocus();
-                                      _textEditingControllerNewReceiptItemCode.text = "00";
-                                    } else if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
-                                      _textEditingControllerNewReceiptItemCode.text += "00";
-                                    }
-                                  });
+                                  if (!isEditingNewReceiptItemCode &&
+                                      !isEditingNewReceiptItemQty &&
+                                      !isUpdatingReceiptItemQty) {
+                                    // log("numpadnumbutton 1");
+
+                                    _textEditingControllerNewReceiptItemCode.text = ".";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemCodeFocusNode.requestFocus());
+                                  } else if (isEditingNewReceiptItemCode) {
+                                    // log("numpadnumbutton 2");
+
+                                    _textEditingControllerNewReceiptItemCode.text += ".";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemCodeFocusNode.requestFocus());
+                                  } else if (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty) {
+                                    // log("numpadnumbutton 3");
+
+                                    _textEditingControllerNewReceiptItemQuantity.text += ".";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemQuantityFocusNode.requestFocus());
+                                  }
+                                },
+                                style: FilledButton.styleFrom(
+                                    elevation: 5,
+                                    backgroundColor: const Color.fromRGBO(48, 48, 48, 1),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                                child: const FittedBox(
+                                  child: Text(
+                                    ".",
+                                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Expanded(
+                            child: SizedBox.expand(
+                              child: FilledButton(
+                                onPressed: () {
+                                  if (!isEditingNewReceiptItemCode &&
+                                      !isEditingNewReceiptItemQty &&
+                                      !isUpdatingReceiptItemQty) {
+                                    // log("numpadnumbutton 1");
+
+                                    _textEditingControllerNewReceiptItemCode.text = "-";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemCodeFocusNode.requestFocus());
+                                  } else if (isEditingNewReceiptItemCode) {
+                                    // log("numpadnumbutton 2");
+
+                                    _textEditingControllerNewReceiptItemCode.text += "-";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemCodeFocusNode.requestFocus());
+                                  } else if (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty) {
+                                    // log("numpadnumbutton 3");
+
+                                    _textEditingControllerNewReceiptItemQuantity.text += "-";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemQuantityFocusNode.requestFocus());
+                                  }
                                 },
                                 style: FilledButton.styleFrom(
                                     elevation: 5,
                                     backgroundColor: const Color.fromRGBO(48, 48, 48, 1),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                                 child: const Text(
-                                  "00",
+                                  "-",
                                   style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
                                 ),
                               ),
@@ -3614,17 +3668,48 @@ class _SalesPageState extends State<SalesPage> {
                             child: SizedBox.expand(
                               child: FilledButton(
                                 onPressed: () {
-                                  if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
+                                  // if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
+                                  //   final currentLength = _textEditingControllerNewReceiptItemCode.text.length;
+                                  //   if (currentLength == 0) return;
+                                  //   _textEditingControllerNewReceiptItemCode.text =
+                                  //       _textEditingControllerNewReceiptItemCode.text.substring(0, currentLength - 1);
+                                  // } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
+                                  //   final currentLength = _textEditingControllerNewReceiptItemQuantity.text.length;
+                                  //   if (currentLength == 0) return;
+                                  //   _textEditingControllerNewReceiptItemQuantity.text =
+                                  //       _textEditingControllerNewReceiptItemQuantity.text
+                                  //           .substring(0, currentLength - 1);
+                                  // }
+
+                                  // setState(() {});
+
+                                  if (!isEditingNewReceiptItemCode &&
+                                      !isEditingNewReceiptItemQty &&
+                                      !isUpdatingReceiptItemQty) {
+                                    // log("numpadnumbutton 1");
+
+                                    _textEditingControllerNewReceiptItemCode.text = "";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemCodeFocusNode.requestFocus());
+                                  } else if (isEditingNewReceiptItemCode) {
+                                    // log("numpadnumbutton 2");
+
                                     final currentLength = _textEditingControllerNewReceiptItemCode.text.length;
                                     if (currentLength == 0) return;
                                     _textEditingControllerNewReceiptItemCode.text =
                                         _textEditingControllerNewReceiptItemCode.text.substring(0, currentLength - 1);
-                                  } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemCodeFocusNode.requestFocus());
+                                  } else if (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty) {
+                                    // log("numpadnumbutton 3");
+
                                     final currentLength = _textEditingControllerNewReceiptItemQuantity.text.length;
                                     if (currentLength == 0) return;
                                     _textEditingControllerNewReceiptItemQuantity.text =
                                         _textEditingControllerNewReceiptItemQuantity.text
                                             .substring(0, currentLength - 1);
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemQuantityFocusNode.requestFocus());
                                   }
                                 },
                                 style: FilledButton.styleFrom(
@@ -3647,11 +3732,37 @@ class _SalesPageState extends State<SalesPage> {
                             child: SizedBox.expand(
                               child: FilledButton(
                                 onPressed: () {
-                                  if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
-                                    _textEditingControllerNewReceiptItemCode.text = "";
-                                  } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
-                                    _textEditingControllerNewReceiptItemQuantity.text = "";
-                                  }
+                                  // if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
+                                  //   _textEditingControllerNewReceiptItemCode.text = "";
+                                  //   _newReceiptItemCodeFocusNode.requestFocus();
+                                  // } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
+                                  //   _textEditingControllerNewReceiptItemQuantity.text = "";
+                                  //   _newReceiptItemQuantityFocusNode.requestFocus();
+                                  // }
+                                  // setState(() {});
+                                  setState(() {
+                                    if (!isEditingNewReceiptItemCode &&
+                                        !isEditingNewReceiptItemQty &&
+                                        !isUpdatingReceiptItemQty) {
+                                      // log("numpadnumbutton 1");
+
+                                      _textEditingControllerNewReceiptItemCode.text = "";
+                                      Future.delayed(const Duration(milliseconds: 20),
+                                          () => _newReceiptItemCodeFocusNode.requestFocus());
+                                    } else if (isEditingNewReceiptItemCode) {
+                                      // log("numpadnumbutton 2");
+
+                                      _textEditingControllerNewReceiptItemCode.text = "";
+                                      Future.delayed(const Duration(milliseconds: 20),
+                                          () => _newReceiptItemCodeFocusNode.requestFocus());
+                                    } else if (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty) {
+                                      // log("numpadnumbutton 3");
+
+                                      _textEditingControllerNewReceiptItemQuantity.text = "";
+                                      Future.delayed(const Duration(milliseconds: 20),
+                                          () => _newReceiptItemQuantityFocusNode.requestFocus());
+                                    }
+                                  });
                                 },
                                 style: FilledButton.styleFrom(
                                     elevation: 5,
@@ -3723,6 +3834,7 @@ class _SalesPageState extends State<SalesPage> {
                                     () => _newReceiptItemCodeFocusNode.requestFocus());
                               });
                             }
+                            setState(() {});
                           },
                           style: FilledButton.styleFrom(
                               padding: const EdgeInsets.all(3),
@@ -4311,14 +4423,15 @@ class _SalesPageState extends State<SalesPage> {
       final double calculatedTotalDiscount = items.fold(
           0.0, (sum, item) => sum + double.parse(item['discount'].toString().replaceAll(RegExp(r'[^0-9.]'), '')));
 
-      final double calculatedGrandTotal = items.fold(0.0, (sum, item) => sum + item['total']);
+      final double pureGrandTotal =
+          state.receiptItems.fold(0.0, (sum, item) => sum + item.sellingPrice * item.quantity);
 
       final Map<String, dynamic> data = {
         'docNum': state.docNum,
         'customerName': state.customerEntity?.custName ?? 'NON MEMBER',
         'items': items,
-        'totalDiscount': Helpers.parseMoney(calculatedTotalDiscount.round()),
-        'grandTotal': Helpers.parseMoney(calculatedGrandTotal.round()),
+        'totalDiscount': Helpers.parseMoney(pureGrandTotal - state.grandTotal),
+        'grandTotal': Helpers.parseMoney(state.grandTotal),
       };
 
       final jsonData = jsonEncode(data);

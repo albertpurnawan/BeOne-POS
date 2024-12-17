@@ -13,6 +13,7 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
+import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
@@ -845,140 +846,150 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: List.generate(transactionsTopmt.length, (index) {
-                    List<List<dynamic>> tableData = [];
-
-                    final filteredTransactions = transactionsMOP.where((transaction) {
-                      return transaction['topmtId'] == transactionsTopmt[index].docId;
-                    }).toList();
-
-                    if (filteredTransactions.isNotEmpty) {
-                      double totalAmount = filteredTransactions.fold(0, (sum, transaction) {
-                        return sum + (transaction['amount'] ?? 0);
-                      });
-
-                      tableData = filteredTransactions
-                          .asMap()
-                          .map((i, transaction) {
-                            return MapEntry(i, [
-                              (i + 1).toString(),
-                              transaction['description'] ?? '',
-                              Helpers.parseMoney(transaction['amount']),
-                            ]);
-                          })
-                          .values
-                          .toList();
-
-                      tableData.add([
-                        '',
-                        'Total',
-                        Helpers.parseMoney(totalAmount),
-                      ]);
-                    }
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            transactionsTopmt[index].description,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                            textAlign: TextAlign.start,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 5),
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.all(Radius.circular(8)),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: const Color.fromARGB(255, 222, 220, 220),
-                                    width: 1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      // Table Header
-                                      Container(
-                                        decoration: const BoxDecoration(
-                                          color: ProjectColors.primary,
-                                        ),
-                                        child: Row(
-                                          children: tableHeader.map((header) {
-                                            return Container(
-                                              width: 275,
-                                              height: 30,
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                header,
-                                                textAlign: TextAlign.center,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        ),
-                                      ),
-                                      // Table Data
-                                      Column(
-                                        children: tableData.map((row) {
-                                          bool isLastRow = row == tableData.last;
-                                          return Row(
-                                            children: row.map<Widget>((cell) {
-                                              return Container(
-                                                decoration: BoxDecoration(
-                                                  border: const Border.symmetric(
-                                                    horizontal: BorderSide(
-                                                      width: 0.5,
-                                                      color: Color.fromARGB(255, 222, 220, 220),
-                                                    ),
-                                                  ),
-                                                  color: isLastRow
-                                                      ? const Color.fromARGB(255, 220, 220, 220)
-                                                      : Colors.transparent,
-                                                ),
-                                                width: 275,
-                                                height: 40,
-                                                alignment: Alignment.center,
-                                                child: Text(
-                                                  cell.toString(),
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    fontWeight: isLastRow ? FontWeight.bold : FontWeight.w500,
-                                                  ),
-                                                ),
-                                              );
-                                            }).toList(),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+            (transactionsTopmt.isEmpty && transactionsMOP.isEmpty)
+                ? const Expanded(
+                    child: Center(
+                      child: EmptyList(
+                        imagePath: "assets/images/empty-search.svg",
+                        sentence: "No transactions happened on this shift, yet...",
+                        height: 200,
                       ),
-                    );
-                  }),
-                ),
-              ),
-            ),
+                    ),
+                  )
+                : Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: List.generate(transactionsTopmt.length, (index) {
+                          List<List<dynamic>> tableData = [];
+
+                          final filteredTransactions = transactionsMOP.where((transaction) {
+                            return transaction['topmtId'] == transactionsTopmt[index].docId;
+                          }).toList();
+
+                          if (filteredTransactions.isNotEmpty) {
+                            double totalAmount = filteredTransactions.fold(0, (sum, transaction) {
+                              return sum + (transaction['amount'] ?? 0);
+                            });
+
+                            tableData = filteredTransactions
+                                .asMap()
+                                .map((i, transaction) {
+                                  return MapEntry(i, [
+                                    (i + 1).toString(),
+                                    transaction['description'] ?? '',
+                                    Helpers.parseMoney(transaction['amount']),
+                                  ]);
+                                })
+                                .values
+                                .toList();
+
+                            tableData.add([
+                              '',
+                              'Total',
+                              Helpers.parseMoney(totalAmount),
+                            ]);
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  transactionsTopmt[index].description,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  textAlign: TextAlign.start,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 5),
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: const Color.fromARGB(255, 222, 220, 220),
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            // Table Header
+                                            Container(
+                                              decoration: const BoxDecoration(
+                                                color: ProjectColors.primary,
+                                              ),
+                                              child: Row(
+                                                children: tableHeader.map((header) {
+                                                  return Container(
+                                                    width: 275,
+                                                    height: 30,
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                      header,
+                                                      textAlign: TextAlign.center,
+                                                      style: const TextStyle(
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ),
+                                            // Table Data
+                                            Column(
+                                              children: tableData.map((row) {
+                                                bool isLastRow = row == tableData.last;
+                                                return Row(
+                                                  children: row.map<Widget>((cell) {
+                                                    return Container(
+                                                      decoration: BoxDecoration(
+                                                        border: const Border.symmetric(
+                                                          horizontal: BorderSide(
+                                                            width: 0.5,
+                                                            color: Color.fromARGB(255, 222, 220, 220),
+                                                          ),
+                                                        ),
+                                                        color: isLastRow
+                                                            ? const Color.fromARGB(255, 220, 220, 220)
+                                                            : Colors.transparent,
+                                                      ),
+                                                      width: 275,
+                                                      height: 40,
+                                                      alignment: Alignment.center,
+                                                      child: Text(
+                                                        cell.toString(),
+                                                        textAlign: TextAlign.center,
+                                                        style: TextStyle(
+                                                          fontWeight: isLastRow ? FontWeight.bold : FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
           ],
         ),
         const SizedBox(

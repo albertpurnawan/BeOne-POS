@@ -205,8 +205,11 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
         );
 
         // Save the new banner to the database
-        await GetIt.instance<AppDatabase>().dualScreenDao.create(data: newBanner);
-
+        await GetIt.instance<AppDatabase>().dualScreenDao.create(data: newBanner).then((_) async {
+          if (dropdownValue.toLowerCase() == 'yes') {
+            await _sendToDisplay();
+          }
+        });
         if (mounted) {
           SnackBarHelper.presentSuccessSnackBar(context, 'Banner added successfully', 3);
         }
@@ -225,7 +228,12 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
 
         await GetIt.instance<AppDatabase>()
             .dualScreenDao
-            .updateById(id: existingBanner.id.toString(), data: updatedBanner);
+            .updateById(id: existingBanner.id.toString(), data: updatedBanner)
+            .then((_) async {
+          if (dropdownValue.toLowerCase() == 'yes') {
+            await _sendToDisplay();
+          }
+        });
 
         if (mounted) {
           SnackBarHelper.presentSuccessSnackBar(context, 'Banner updated successfully', 3);
@@ -236,12 +244,6 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
       await refreshBanners();
 
       // Additional logic if needed
-      print(dropdownValue.toLowerCase());
-
-      if (dropdownValue.toLowerCase() == 'yes') {
-        await _sendToDisplay();
-        print("masuk");
-      }
     } catch (e) {
       setState(() => isLoading = false);
       if (mounted) {
@@ -265,7 +267,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
       final windowId = windows[0];
       final data = await GetIt.instance<AppDatabase>().dualScreenDao.readAll();
       final jsonData = jsonEncode(data);
-      final sendingData = await sendData(windowId, jsonData, 'updateBannerData', 'checkout');
+      final sendingData = await sendData(windowId, jsonData, 'updateBannerData', 'settings');
     } catch (e, stackTrace) {
       debugPrint('Error sending data to display: $e');
       debugPrint(stackTrace.toString());
@@ -393,7 +395,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                   builder: (context) => BannerPopup(
                     title: 'Add $title',
                     type: title.toLowerCase().contains('large') ? 1 : 2,
-                    order: banners.isEmpty ? 1 : banners.last.order + 1,
+                    order: (banners.isEmpty ? 1 : banners.last.order + 1).toString(),
                     onSave: saveChanges,
                   ),
                 );
@@ -550,7 +552,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                                         builder: (context) => BannerPopup(
                                           title: 'Edit Banner',
                                           type: banner.type,
-                                          order: banner.order,
+                                          order: banner.order.toString(),
                                           description: banner.description,
                                           path: banner.path,
                                           duration: banner.duration.toString(),
@@ -567,7 +569,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
                                                 'id': banner.id,
                                                 'description': updatedData['description'],
                                                 'type': banner.type,
-                                                'order': banner.order,
+                                                'order': updatedData['order'],
                                                 'path': updatedData['path'],
                                                 'duration': updatedData['duration'],
                                                 'createdAt': banner.createdAt,
@@ -683,7 +685,7 @@ class _CustomerDisplayState extends State<CustomerDisplay> {
 class BannerPopup extends StatefulWidget {
   final String title;
   final int? type;
-  final int? order;
+  final String? order;
   final String? description;
   final String? path;
   final String? duration;
@@ -705,11 +707,15 @@ class BannerPopup extends StatefulWidget {
 }
 
 class _BannerPopupState extends State<BannerPopup> {
+  late bool isSelecting = false;
+
+  late TextEditingController orderController;
   late TextEditingController descriptionController;
   late TextEditingController pathController;
   late TextEditingController durationController;
   final _formKey = GlobalKey<FormState>();
 
+  final FocusNode orderFocusNode = FocusNode();
   final FocusNode descriptionFocusNode = FocusNode();
   final FocusNode pathFocusNode = FocusNode();
   final FocusNode durationFocusNode = FocusNode();
@@ -724,10 +730,20 @@ class _BannerPopupState extends State<BannerPopup> {
   void initState() {
     getDefaultKeyboardPOSParameter();
     super.initState();
+    orderController = TextEditingController(text: widget.order ?? '');
     descriptionController = TextEditingController(text: widget.description ?? '');
     pathController = TextEditingController(text: widget.path ?? '');
     durationController = TextEditingController(text: widget.duration ?? '');
 
+    orderFocusNode.addListener(() {
+      if (orderFocusNode.hasFocus) {
+        setState(() {
+          _activeController = orderController;
+          currentNumericMode = false;
+          _activeFocusNode = orderFocusNode;
+        });
+      }
+    });
     descriptionFocusNode.addListener(() {
       if (descriptionFocusNode.hasFocus) {
         setState(() {
@@ -759,6 +775,7 @@ class _BannerPopupState extends State<BannerPopup> {
 
   @override
   void dispose() {
+    orderController.dispose();
     descriptionController.dispose();
     pathController.dispose();
     durationController.dispose();
@@ -784,6 +801,12 @@ class _BannerPopupState extends State<BannerPopup> {
   }
 
   bool validateForm() {
+    if (orderController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Order is required')),
+      );
+      return false;
+    }
     if (descriptionController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Description is required')),
@@ -819,7 +842,7 @@ class _BannerPopupState extends State<BannerPopup> {
       await widget.onSave({
         'description': descriptionController.text,
         'type': widget.type,
-        'order': widget.order,
+        'order': int.parse(orderController.text),
         'path': pathController.text,
         'duration': int.parse(durationController.text),
       });
@@ -831,16 +854,20 @@ class _BannerPopupState extends State<BannerPopup> {
 
   Future<void> pickFile() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.any,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4'],
-        allowMultiple: false,
-      );
+      if (!isSelecting) {
+        isSelecting = true;
+        FilePickerResult? result = await FilePicker.platform.pickFiles(
+          type: FileType.any,
+          allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4'],
+          allowMultiple: false,
+        );
+        isSelecting = false;
 
-      if (result != null) {
-        setState(() {
-          pathController.text = result.files.single.path ?? '';
-        });
+        if (result != null) {
+          setState(() {
+            pathController.text = result.files.single.path ?? '';
+          });
+        }
       }
     } catch (e) {
       // Handle any errors that occur during file picking
@@ -908,6 +935,24 @@ class _BannerPopupState extends State<BannerPopup> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          // For Order Field
+                          TextFormField(
+                            controller: orderController,
+                            focusNode: orderFocusNode,
+                            decoration: const InputDecoration(
+                              labelText: 'Order',
+                              border: OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.none,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Order is required';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 12),
+
                           // Description Field
                           TextFormField(
                             controller: descriptionController,

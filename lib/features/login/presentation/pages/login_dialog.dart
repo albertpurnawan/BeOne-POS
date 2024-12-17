@@ -12,6 +12,8 @@ import 'package:pos_fe/features/login/domain/entities/user_auth_entity.dart';
 import 'package:pos_fe/features/login/domain/usecase/login.dart';
 import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift.dart';
 import 'package:pos_fe/features/sales/presentation/pages/shift/open_shift_success_alert_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,7 +28,7 @@ class LoginDialog extends StatefulWidget {
 class _LoginDialogState extends State<LoginDialog> {
   final formKey = GlobalKey<FormState>();
   bool _hidePassword = true;
-  bool showKeyboard = true;
+  bool showKeyboard = false;
   TextEditingController _activeController = TextEditingController();
   FocusNode _activeFocusNode = FocusNode();
   final TextEditingController _usernameController = TextEditingController();
@@ -37,8 +39,9 @@ class _LoginDialogState extends State<LoginDialog> {
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
-
+    _usernameFocusNode.requestFocus();
     _usernameFocusNode.addListener(() {
       setState(() {
         if (_usernameFocusNode.hasFocus) {
@@ -65,6 +68,20 @@ class _LoginDialogState extends State<LoginDialog> {
     _passwordFocusNode.dispose();
     _showPassButtonFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   @override

@@ -120,7 +120,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity impleme
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       promoType: map['promoType'] != null ? map['promoType'] as int : null,
       form: map['form'] as String,
-      detailQtyValidation: map['detailqtyvalidation'] as int,
+      detailQtyValidation: map['detailqtyvalidation'] != null ? map['detailqtyvalidation'] as int : 1,
     );
   }
 

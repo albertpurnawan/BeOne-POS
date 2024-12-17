@@ -509,10 +509,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
       };
 
       final jsonData = jsonEncode(data);
-      debugPrint("Sending data to display from checkout2: $jsonData");
-      final sendingData = await sendData(windowId, jsonData, 'updateTransactionSuccess', 'Checkout');
-
-      debugPrint("Send result: $sendingData");
+      await sendData(windowId, jsonData, 'updateTransactionSuccess', 'Checkout');
     } catch (e, stackTrace) {
       print('Error send data to client display from sales: $e');
       print('Stacktrace: $stackTrace');
@@ -706,8 +703,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     };
 
     final jsonData = jsonEncode(data);
-    debugPrint("Sending data to display from sales: $jsonData");
-    final sendingData = await sendData(windowId, jsonData, 'updateTransactionSuccessDone', 'Checkout');
+    await sendData(windowId, jsonData, 'updateTransactionSuccessDone', 'Checkout');
   }
 
   @override
@@ -1971,7 +1967,6 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
       }
       final windowId = windows[0];
       final state = context.read<ReceiptCubit>().state;
-      debugPrint('state checkout: ${state.changed}');
       final Map<String, dynamic> data = {
         'totalPayment': state.totalPayment == null ? 0 : Helpers.parseMoney(state.totalPayment!.round()),
         'changed': state.changed == null
@@ -1980,10 +1975,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
       };
 
       final jsonData = jsonEncode(data);
-      debugPrint("Sending data to display from checkout: $jsonData");
       final sendingData = await sendData(windowId, jsonData, 'updateCheckoutData', 'Checkout');
-
-      debugPrint("Send result: $sendingData");
     } catch (e, stackTrace) {
       print('Error send data to client display from checkout: $e');
     }
