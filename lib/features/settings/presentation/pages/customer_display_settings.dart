@@ -707,6 +707,8 @@ class BannerPopup extends StatefulWidget {
 }
 
 class _BannerPopupState extends State<BannerPopup> {
+  late bool isSelecting = false;
+
   late TextEditingController orderController;
   late TextEditingController descriptionController;
   late TextEditingController pathController;
@@ -852,16 +854,20 @@ class _BannerPopupState extends State<BannerPopup> {
 
   Future<void> pickFile() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.any,
-        allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4'],
-        allowMultiple: false,
-      );
+      if (!isSelecting) {
+        isSelecting = true;
+        FilePickerResult? result = await FilePicker.platform.pickFiles(
+          type: FileType.any,
+          allowedExtensions: ['jpg', 'jpeg', 'png', 'mp4'],
+          allowMultiple: false,
+        );
+        isSelecting = false;
 
-      if (result != null) {
-        setState(() {
-          pathController.text = result.files.single.path ?? '';
-        });
+        if (result != null) {
+          setState(() {
+            pathController.text = result.files.single.path ?? '';
+          });
+        }
       }
     } catch (e) {
       // Handle any errors that occur during file picking
