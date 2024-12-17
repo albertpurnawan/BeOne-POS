@@ -79,7 +79,9 @@ class HandlePromoSpesialMultiItemUseCase implements UseCase<ReceiptEntity, Handl
               sellingPrice: receiptItem.sellingPrice,
               totalAmount: receiptItem.totalAmount,
               totalSellBarcode: receiptItem.totalSellBarcode,
-              promos: (discountBeforeTax != 0) ? [promo.copyWith(discAmount: discountBeforeTax)] : [],
+              promos: (discountBeforeTax != 0)
+                  ? [promo.copyWith(discAmount: discountBeforeTax)]
+                  : [], // change this with ...
               discAmount: discountBeforeTax,
             ));
           } else {
@@ -90,7 +92,7 @@ class HandlePromoSpesialMultiItemUseCase implements UseCase<ReceiptEntity, Handl
         // condition == 0
         bool allItemsExist = tpsm1s.every(
           (promoItem) => receiptEntity.receiptItems.any(
-            (receiptItem) => receiptItem.itemEntity.toitmId == promoItem.toitmId,
+            (receiptItem) => receiptItem.itemEntity.toitmId == promoItem.toitmId, // validate qty here
           ),
         );
 
@@ -106,21 +108,50 @@ class HandlePromoSpesialMultiItemUseCase implements UseCase<ReceiptEntity, Handl
                 : null;
 
             if (promoItem != null) {
-              if (quantity >= tpsm1s.first.qtyFrom && quantity <= tpsm1s.first.qtyTo) {}
-              double discount =
-                  (receiptItem.quantity * receiptItem.itemEntity.price) - (promoItem.price * receiptItem.quantity);
+              double discount = 0;
+              double discountBeforeTax = 0;
+              if (quantity >= promoItem.qtyFrom && quantity <= promoItem.qtyTo) {
+                discount = (quantity * receiptItem.itemEntity.price) - (promoItem.price * quantity);
+                discountBeforeTax = receiptItem.itemEntity.includeTax == 1
+                    ? (discount * (100 / (100 + receiptItem.itemEntity.taxRate)))
+                    : discount;
+              } else if (quantity > promoItem.qtyTo) {
+                int fullSets = (promoItem.qtyTo ~/ 1);
+                double remainderItems = (promoItem.qtyTo - ((promoItem.qtyTo / 1).floor() * 1));
+                double expectedSubtotal =
+                    (fullSets * promoItem.price * 1) + (remainderItems * receiptItem.itemEntity.price);
+                double actualTotalPrice = receiptItem.itemEntity.price * promoItem.qtyTo;
+                discount = actualTotalPrice - expectedSubtotal;
+                discountBeforeTax = receiptItem.itemEntity.includeTax == 1
+                    ? (discount * (100 / (100 + receiptItem.itemEntity.taxRate)))
+                    : discount;
+              } else {
+                discount = 0;
+                discountBeforeTax = 0;
+              }
 
-              double discountBeforeTax = receiptItem.itemEntity.includeTax == 1
-                  ? (discount * (100 / (100 + receiptItem.itemEntity.taxRate)))
-                  : discount;
+              final double priceQty = receiptItem.itemEntity.price * receiptItem.quantity;
+              receiptItem.totalSellBarcode = priceQty;
+              receiptItem.totalGross = receiptItem.itemEntity.includeTax == 1
+                  ? (priceQty * (100 / (100 + receiptItem.itemEntity.taxRate)))
+                  : priceQty;
+              receiptItem.taxAmount =
+                  (receiptItem.totalGross - discountBeforeTax) * (receiptItem.itemEntity.taxRate / 100);
+              receiptItem.totalAmount = receiptItem.totalGross - discountBeforeTax + receiptItem.taxAmount;
 
-              newReceiptItems.add(
-                receiptItem.copyWith(
-                  discAmount: discountBeforeTax,
-                  promos: [promo.copyWith(discAmount: discountBeforeTax)],
-                  totalAmount: receiptItem.totalAmount - discountBeforeTax,
-                ),
-              );
+              newReceiptItems.add(ReceiptItemEntity(
+                quantity: receiptItem.quantity,
+                totalGross: receiptItem.totalGross,
+                itemEntity: receiptItem.itemEntity,
+                taxAmount: receiptItem.taxAmount,
+                sellingPrice: receiptItem.sellingPrice,
+                totalAmount: receiptItem.totalAmount,
+                totalSellBarcode: receiptItem.totalSellBarcode,
+                promos: (discountBeforeTax != 0)
+                    ? [promo.copyWith(discAmount: discountBeforeTax)]
+                    : [], // change this with ...
+                discAmount: discountBeforeTax,
+              ));
             } else {
               newReceiptItems.add(receiptItem);
             }
