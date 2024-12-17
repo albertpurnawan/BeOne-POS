@@ -4423,14 +4423,15 @@ class _SalesPageState extends State<SalesPage> {
       final double calculatedTotalDiscount = items.fold(
           0.0, (sum, item) => sum + double.parse(item['discount'].toString().replaceAll(RegExp(r'[^0-9.]'), '')));
 
-      final double calculatedGrandTotal = items.fold(0.0, (sum, item) => sum + item['total']);
+      final double pureGrandTotal =
+          state.receiptItems.fold(0.0, (sum, item) => sum + item.sellingPrice * item.quantity);
 
       final Map<String, dynamic> data = {
         'docNum': state.docNum,
         'customerName': state.customerEntity?.custName ?? 'NON MEMBER',
         'items': items,
-        'totalDiscount': Helpers.parseMoney(calculatedTotalDiscount.round()),
-        'grandTotal': Helpers.parseMoney(calculatedGrandTotal.round()),
+        'totalDiscount': Helpers.parseMoney(pureGrandTotal - state.grandTotal),
+        'grandTotal': Helpers.parseMoney(state.grandTotal),
       };
 
       final jsonData = jsonEncode(data);
