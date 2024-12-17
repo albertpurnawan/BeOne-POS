@@ -868,7 +868,6 @@ class _DisplayPageState extends State<DisplayPage> {
 
   void _moveToNextItem() {
     if (!mounted || largeBanners.isEmpty) return;
-    print('_currentIndex: ' + _currentIndex.toString());
     setState(() {
       int nextIndex = (_currentIndex + 1) % largeBanners.length;
 
@@ -887,7 +886,6 @@ class _DisplayPageState extends State<DisplayPage> {
 
   void _moveToNextItem2() {
     if (!mounted || smallBanners.isEmpty) return;
-
     int nextIndex2 = (_currentIndex2 + 1) % smallBanners.length;
 
     if (nextIndex2 == 0) {
