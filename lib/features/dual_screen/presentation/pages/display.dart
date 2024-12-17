@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:image_fade/image_fade.dart';
 import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -39,7 +40,6 @@ class _DisplayPageState extends State<DisplayPage> {
   List<DualScreenModel> smallBannersLocal = [];
   List<DualScreenModel> largeBanners = [];
   List<DualScreenModel> smallBanners = [];
-  Map<String, VideoPlayerController?> videoControllers = {};
   Map<String, bool> videoDownloading = {};
   Map<String, String> localVideoPaths = {};
   bool isLoading = true;
@@ -52,7 +52,7 @@ class _DisplayPageState extends State<DisplayPage> {
   VideoPlayerController? _videoControllerSmall;
   bool _isLargeVideoInitialized = false;
   bool _isSmallVideoInitialized = false;
-
+  final PageController _pageController = PageController(initialPage: 0);
   final dio = Dio();
   SharedPreferences? _prefs;
   late Map<String, dynamic> dataMap;
@@ -115,14 +115,10 @@ class _DisplayPageState extends State<DisplayPage> {
           ..sort((a, b) => a.order.compareTo(b.order));
         smallBannersLocal = allBanners.where((banner) => banner.type == 2 && !banner.path.contains('http')).toList()
           ..sort((a, b) => a.order.compareTo(b.order));
-
-        isLoading = false;
       });
     } catch (e, stackTrace) {
       print('Error: $e');
       print('Stacktrace: $stackTrace');
-
-      setState(() => isLoading = false);
 
       if (mounted) {
         // More informative error message
@@ -808,6 +804,7 @@ class _DisplayPageState extends State<DisplayPage> {
           ..sort((a, b) => a.order.compareTo(b.order));
         this.largeBanners = downloadedLargeBanners;
         this.smallBanners = downloadedSmallBanners;
+        isLoading = false;
       });
       _startTimers();
     } catch (e) {
@@ -854,37 +851,70 @@ class _DisplayPageState extends State<DisplayPage> {
     _timer1?.cancel();
     _timer2?.cancel();
     if (largeBanners.isNotEmpty) {
-      // Only start timer if current banner is not a video
-      if (!_isVideoFile(largeBanners[_currentIndex].path)) {
-        _timer1 = Timer.periodic(Duration(seconds: largeBanners[_currentIndex].duration), (timer) {
-          if (!mounted) return;
-          _moveToNextItem();
-        });
-      }
+      _timer1 = Timer.periodic(Duration(seconds: largeBanners[_currentIndex].duration), (timer) {
+        if (!mounted) return;
+        _moveToNextItem();
+      });
     }
 
     if (smallBanners.isNotEmpty) {
       // Only start timer if current banner is not a video
-      if (!_isVideoFile(smallBanners[_currentIndex2].path)) {
-        _timer2 = Timer.periodic(Duration(seconds: smallBanners[_currentIndex2].duration), (timer) {
-          if (!mounted) return;
-          _moveToNextItem2();
-        });
-      }
+      _timer2 = Timer.periodic(Duration(seconds: smallBanners[_currentIndex2].duration), (timer) {
+        if (!mounted) return;
+        _moveToNextItem2();
+      });
     }
   }
 
   void _moveToNextItem() {
     if (!mounted || largeBanners.isEmpty) return;
+    print('_currentIndex: ' + _currentIndex.toString());
     setState(() {
-      _currentIndex = (_currentIndex + 1) % largeBanners.length;
+      int nextIndex = largeBanners[_currentIndex].order - 1;
+      print('nextIndex: ' + nextIndex.toString());
+
+      if (nextIndex < largeBanners.length - 1) {
+        _currentIndex = nextIndex + 1;
+      } else {
+        _currentIndex = 0;
+      }
+    });
+    _timer1?.cancel();
+    _timer1 = Timer.periodic(Duration(seconds: largeBanners[_currentIndex].duration), (timer) {
+      if (!mounted) return;
+      _moveToNextItem();
     });
   }
 
   void _moveToNextItem2() {
     if (!mounted || smallBanners.isEmpty) return;
+
+    int nextIndex2 = (_currentIndex2 + 1) % smallBanners.length;
+
+    if (nextIndex2 == 0) {
+      _pageController.animateToPage(
+        0,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.linearToEaseOut,
+      );
+      setState(() {
+        _currentIndex2 = 0;
+      });
+    } else {
+      _pageController.nextPage(
+        duration: Duration(milliseconds: 300),
+        curve: Curves.linearToEaseOut,
+      );
+    }
+
     setState(() {
-      _currentIndex2 = (_currentIndex2 + 1) % smallBanners.length;
+      _currentIndex2 = nextIndex2;
+    });
+
+    _timer2?.cancel();
+    _timer2 = Timer(Duration(seconds: smallBanners[_currentIndex2].duration), () {
+      if (!mounted) return;
+      _moveToNextItem2();
     });
   }
 
@@ -907,14 +937,13 @@ class _DisplayPageState extends State<DisplayPage> {
       await controller.initialize();
       controller.play();
 
-      // Add video completion listener
       controller.addListener(() {
         if (controller.value.position >= controller.value.duration) {
           if (isLarge) {
-            _timer1?.cancel(); // Cancel the timer for large banner
+            _timer1?.cancel();
             _moveToNextItem();
           } else {
-            _timer2?.cancel(); // Cancel the timer for small banner
+            _timer2?.cancel();
             _moveToNextItem2();
           }
         }
@@ -932,50 +961,15 @@ class _DisplayPageState extends State<DisplayPage> {
       if (isLarge) {
         _isLargeVideoInitialized = false;
         _timer1?.cancel();
-        // Move to next large banner
-        setState(() {
-          _currentIndex = (_currentIndex + 1) % largeBanners.length;
-        });
       } else {
         _isSmallVideoInitialized = false;
         _timer2?.cancel();
-        // Move to next small banner
-        setState(() {
-          _currentIndex2 = (_currentIndex2 + 1) % smallBanners.length;
-        });
       }
-    }
-  }
-
-  Future<Widget> _buildLargeBannerMedia(DualScreenModel banner) async {
-    if (_isVideoFile(banner.path)) {
-      await _initializeVideoController(banner.path, true);
-
-      if (_isLargeVideoInitialized && _videoControllerLarge != null) {
-        return AspectRatio(
-          aspectRatio: _videoControllerLarge!.value.aspectRatio,
-          child: VideoPlayer(_videoControllerLarge!),
-        );
-      } else {
-        // Move to next banner if video failed to initialize
-        _moveToNextItem();
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      }
-    } else {
-      return Image.file(
-        File(banner.path),
-        fit: BoxFit.cover,
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-      );
     }
   }
 
   Widget _buildSmallBannerMedia(DualScreenModel banner) {
     if (_isVideoFile(banner.path)) {
-      // Initialize video if not already done
       if (!_isSmallVideoInitialized) {
         _initializeVideoController(banner.path, false);
       }
@@ -986,14 +980,14 @@ class _DisplayPageState extends State<DisplayPage> {
           child: VideoPlayer(_videoControllerSmall!),
         );
       } else {
-        // Move to next banner if video failed to initialize
         _moveToNextItem2();
         return const Center(child: CircularProgressIndicator());
       }
     } else {
       return Image.file(
         File(banner.path),
-        fit: BoxFit.contain,
+        fit: BoxFit.fitWidth,
+        width: double.infinity,
       );
     }
   }
@@ -1311,50 +1305,74 @@ class _DisplayPageState extends State<DisplayPage> {
                     children: [
                       Expanded(
                         flex: 7,
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 1000),
-                          transitionBuilder: (Widget child, Animation<double> animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            );
-                          },
-                          child: FutureBuilder<Widget>(
-                            future: largeBanners.isNotEmpty
-                                ? _buildLargeBannerMedia(
-                                    largeBanners[_currentIndex],
-                                  )
-                                : Future.value(const Center(
+                        child: LayoutBuilder(
+                          builder: (BuildContext context, BoxConstraints constraints) {
+                            double height = constraints.maxHeight;
+                            double width = constraints.maxWidth;
+
+                            return isLoading
+                                ? const Center(
                                     child: CircularProgressIndicator(),
-                                  )),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                return snapshot.data!;
-                              }
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            },
-                          ),
+                                  )
+                                : largeBanners.isNotEmpty
+                                    ? ImageFade(
+                                        image: FileImage(
+                                          File(largeBanners[_currentIndex].path),
+                                        ),
+                                        duration: const Duration(milliseconds: 150),
+                                        syncDuration: const Duration(milliseconds: 150),
+                                        alignment: Alignment.center,
+                                        fit: BoxFit.fill,
+                                      )
+                                    : Container(
+                                        color: Colors.grey, // Placeholder color
+                                        child: Center(
+                                          child: Text(
+                                            '$width X $height', // Placeholder text
+                                            style: TextStyle(color: Colors.white, fontSize: 20),
+                                          ),
+                                        ),
+                                      );
+                          },
                         ),
                       ),
                       const SizedBox(height: 8),
                       Expanded(
                         flex: 3,
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: CarouselSlider(
-                            options: CarouselOptions(
-                              // height: double.infinity,
-                              viewportFraction: 0.8,
-                              autoPlay: true,
-                              autoPlayInterval: const Duration(seconds: 3),
-                              autoPlayAnimationDuration: const Duration(milliseconds: 800),
-                              autoPlayCurve: Curves.fastOutSlowIn,
-                              pauseAutoPlayOnTouch: true,
-                            ),
-                            items: smallBanners.map((banner) => _buildSmallBannerMedia(banner)).toList(),
-                          ),
+                        child: LayoutBuilder(
+                          builder: (BuildContext context, BoxConstraints constraints) {
+                            double height = constraints.maxHeight;
+                            double width = constraints.maxWidth;
+
+                            return isLoading
+                                ? const Center(
+                                    child: CircularProgressIndicator(),
+                                  )
+                                : smallBanners.isNotEmpty
+                                    ? Container(
+                                        width: MediaQuery.of(context).size.width,
+                                        height: MediaQuery.of(context).size.height,
+                                        child: PageView.builder(
+                                          physics: const BouncingScrollPhysics(),
+                                          pageSnapping: true,
+                                          controller: _pageController,
+                                          itemCount: smallBanners.length,
+                                          padEnds: true,
+                                          itemBuilder: (context, index) {
+                                            return _buildSmallBannerMedia(smallBanners[index]); // Use the correct index
+                                          },
+                                        ),
+                                      )
+                                    : Container(
+                                        color: Colors.grey, // Placeholder color
+                                        child: Center(
+                                          child: Text(
+                                            '$width X $height', // Placeholder text
+                                            style: TextStyle(color: Colors.white, fontSize: 20),
+                                          ),
+                                        ),
+                                      );
+                          },
                         ),
                       )
                     ],
