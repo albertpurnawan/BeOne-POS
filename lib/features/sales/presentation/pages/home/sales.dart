@@ -3578,23 +3578,19 @@ class _SalesPageState extends State<SalesPage> {
                                       !isUpdatingReceiptItemQty) {
                                     // log("numpadnumbutton 1");
 
-                                    _textEditingControllerNewReceiptItemCode.text = "00";
+                                    _textEditingControllerNewReceiptItemCode.text = ".";
                                     Future.delayed(const Duration(milliseconds: 20),
                                         () => _newReceiptItemCodeFocusNode.requestFocus());
                                   } else if (isEditingNewReceiptItemCode) {
                                     // log("numpadnumbutton 2");
 
-                                    final currentLength = _textEditingControllerNewReceiptItemCode.text.length;
-                                    if (currentLength == 0) return;
-                                    _textEditingControllerNewReceiptItemCode.text += "00";
+                                    _textEditingControllerNewReceiptItemCode.text += ".";
                                     Future.delayed(const Duration(milliseconds: 20),
                                         () => _newReceiptItemCodeFocusNode.requestFocus());
                                   } else if (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty) {
                                     // log("numpadnumbutton 3");
 
-                                    final currentLength = _textEditingControllerNewReceiptItemQuantity.text.length;
-                                    if (currentLength == 0) return;
-                                    _textEditingControllerNewReceiptItemQuantity.text += "00";
+                                    _textEditingControllerNewReceiptItemQuantity.text += ".";
                                     Future.delayed(const Duration(milliseconds: 20),
                                         () => _newReceiptItemQuantityFocusNode.requestFocus());
                                   }
@@ -3603,9 +3599,11 @@ class _SalesPageState extends State<SalesPage> {
                                     elevation: 5,
                                     backgroundColor: const Color.fromRGBO(48, 48, 48, 1),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                                child: const Text(
-                                  "00",
-                                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                                child: const FittedBox(
+                                  child: Text(
+                                    ".",
+                                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                                  ),
                                 ),
                               ),
                             ),
