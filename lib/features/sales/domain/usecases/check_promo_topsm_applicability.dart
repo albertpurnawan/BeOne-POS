@@ -82,15 +82,14 @@ class CheckPromoTopsmApplicabilityUseCase implements UseCase<bool, CheckPromoTop
         },
       ];
 
-      // Validations for jumlah jual
+      // Validations for quantity
       final List<Function> quantityValidation = [
         () async {
-          // Check if all tpsm1 items have a corresponding receiptItem that fulfills the quantity
           bool allItemsFulfilled = tpsm1.every((ruleItem) {
             return receiptEntity.receiptItems.any((receiptItem) =>
                 ruleItem.toitmId == receiptItem.itemEntity.toitmId &&
-                ruleItem.qtyFrom <= receiptItem.quantity &&
-                ruleItem.qtyTo >= receiptItem.quantity);
+                ((ruleItem.qtyFrom <= receiptItem.quantity && ruleItem.qtyTo >= receiptItem.quantity) ||
+                    receiptItem.quantity > ruleItem.qtyTo));
           });
 
           // Validation for condition == 1
@@ -104,8 +103,8 @@ class CheckPromoTopsmApplicabilityUseCase implements UseCase<bool, CheckPromoTop
             for (final receiptItem in receiptEntity.receiptItems) {
               if (tpsm1.any((element) =>
                   element.toitmId == receiptItem.itemEntity.toitmId &&
-                  element.qtyFrom <= receiptItem.quantity &&
-                  element.qtyTo >= receiptItem.quantity)) {
+                  (element.qtyFrom <= receiptItem.quantity &&
+                      (element.qtyTo >= receiptItem.quantity || receiptItem.quantity > element.qtyTo)))) {
                 uniqueToitmId.add(receiptItem.itemEntity.toitmId);
               }
             }
@@ -117,7 +116,6 @@ class CheckPromoTopsmApplicabilityUseCase implements UseCase<bool, CheckPromoTop
         },
       ];
 
-      // Generate final validations
       final List<Function> finalValidations = switch (topsm.condition) {
         0 => generalValidations + quantityValidation,
         1 => generalValidations + quantityValidation,
@@ -129,12 +127,9 @@ class CheckPromoTopsmApplicabilityUseCase implements UseCase<bool, CheckPromoTop
         return isApplicable;
       }
 
-      // Run validations
-      // int counter = 0;
       for (final validation in finalValidations) {
         // log(counter.toString());
         // log("--- validation ---");
-        // counter += 1;
         if (!isApplicable) break;
         try {
           await validation();
@@ -143,7 +138,6 @@ class CheckPromoTopsmApplicabilityUseCase implements UseCase<bool, CheckPromoTop
         }
       }
 
-      // Return validation result
       return isApplicable;
     } catch (e) {
       rethrow;

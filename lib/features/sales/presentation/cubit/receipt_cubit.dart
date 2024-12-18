@@ -136,7 +136,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   Future<void> addUpdateReceiptItems(AddUpdateReceiptItemsParams params) async {
     try {
-      dev.log("state b4 - ${state.previousReceiptEntity}");
+      // dev.log("state b4 - ${state.previousReceiptEntity}");
       // Validate params
       if (params.context == null) {
         throw "Params invalid";
@@ -996,6 +996,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             }
           }
         }
+        dev.log("newReceipt - ${newReceipt.promos}");
       }
 
       // Handle coupon

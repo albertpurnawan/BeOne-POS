@@ -463,7 +463,9 @@ Future<void> initializeDependencies() async {
       () => CheckPromoTopsmApplicabilityUseCase(sl()),
       dependsOn: [AppDatabase]);
   sl.registerSingleton<ApplyTopsmUseCase>(ApplyTopsmUseCase());
-  sl.registerSingleton<HandlePromoSpesialMultiItemUseCase>(HandlePromoSpesialMultiItemUseCase());
+  sl.registerSingletonWithDependencies<HandlePromoSpesialMultiItemUseCase>(
+      () => HandlePromoSpesialMultiItemUseCase(sl(), sl(), sl(), sl()),
+      dependsOn: [CheckPromoTopdiApplicabilityUseCase]);
   // sl.registerSingletonWithDependencies<HandlePromoSpesialMultiItemUseCase>(
   //     () => HandlePromoSpesialMultiItemUseCase(sl(), sl(), sl(), sl()),
   //     dependsOn: [CheckPromoTopdgApplicabilityUseCase]);
