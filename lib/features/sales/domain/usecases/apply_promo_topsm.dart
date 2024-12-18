@@ -1,5 +1,4 @@
 import 'package:pos_fe/core/usecases/usecase.dart';
-import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_spesial_multi_item_detail.dart';
 import 'package:pos_fe/features/sales/domain/entities/promo_spesial_multi_item_header.dart';
@@ -19,13 +18,6 @@ class ApplyTopsmUseCase implements UseCase<ReceiptEntity, ApplyPromoTopsmUseCase
       final PromoSpesialMultiItemHeaderEntity topsm = params.topsmHeaderAndDetail.topsm;
       final List<PromoSpesialMultiItemDetailEntity> tpsm1s = params.topsmHeaderAndDetail.tpsm1;
       final ReceiptEntity receiptEntity = params.handlePromosUseCaseParams.receiptEntity;
-
-      // Split items into applicable and non-applicable groups
-      final SplitListResult<ReceiptItemEntity> splitListResult = Helpers.splitList<ReceiptItemEntity>(
-          receiptEntity.receiptItems, (p0) => tpsm1s.where((e) => e.toitmId == p0.itemEntity.toitmId).isNotEmpty);
-
-      final List<ReceiptItemEntity> receiptItemsWithinGroup = splitListResult.trueResult;
-      final List<ReceiptItemEntity> otherReceiptItems = splitListResult.falseResult;
 
       final List<ReceiptItemEntity> newReceiptItems = [];
 

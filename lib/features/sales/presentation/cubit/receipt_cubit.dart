@@ -996,7 +996,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
             }
           }
         }
-        dev.log("newReceipt - ${newReceipt.promos}");
       }
 
       // Handle coupon
