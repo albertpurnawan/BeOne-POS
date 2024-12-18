@@ -317,11 +317,9 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                   docnum: widget.docnum,
                   lineDiscountParameters: lineDiscountInputs,
                 ));
-        await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
-        if (isAuthorized == true) context.pop(true);
-      } else {
-        await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
-        context.pop(true);
+        if (isAuthorized == true) {
+          await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
+        }
       }
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
