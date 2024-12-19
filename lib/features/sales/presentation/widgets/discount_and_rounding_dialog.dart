@@ -265,7 +265,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     }
   }
 
-  Future<void> onSubmit() async {
+  Future<void> onSubmit(BuildContext childContext) async {
     try {
       if (_textEditorHeaderDiscountAmountController.text == "-") {
         context.pop();
@@ -317,14 +317,13 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                   docnum: widget.docnum,
                   lineDiscountParameters: lineDiscountInputs,
                 ));
-        await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
-        if (isAuthorized == true) context.pop(true);
-      } else {
-        await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
-        context.pop(true);
+        if (isAuthorized == null) return;
+        if (isAuthorized != true) throw "Unauthorized";
       }
+      await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
+      context.pop(true);
     } catch (e) {
-      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+      SnackBarHelper.presentErrorSnackBar(childContext, e.toString());
     }
   }
 
@@ -391,7 +390,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
             onKeyEvent: (node, event) {
               if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
               if (event.physicalKey == PhysicalKeyboardKey.f12) {
-                onSubmit();
+                onSubmit(childContext);
                 return KeyEventResult.handled;
               } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
                 context.pop();
@@ -490,7 +489,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ...(isHeaderDiscount ? _buildHeaderDiscount(context) : _buildLineDiscounts(context)),
+                    ...(isHeaderDiscount ? _buildHeaderDiscount(childContext) : _buildLineDiscounts(context)),
                     const SizedBox(
                       height: 15,
                     ),
@@ -712,7 +711,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                               backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
                               overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
                           onPressed: () async {
-                            await onSubmit();
+                            await onSubmit(childContext);
                           },
                           child: Center(
                             child: RichText(
@@ -833,7 +832,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                     focusNode: _discountPercentFocusNode,
                     controller: _textEditorHeaderDiscountPercentController,
                     keyboardType: TextInputType.none,
-                    onFieldSubmitted: (value) async => await onSubmit(),
+                    onFieldSubmitted: (value) async => await onSubmit(context),
                     onChanged: (value) {
                       final cleanValue = value.replaceAll('%', '');
                       if (cleanValue.isNotEmpty) {
@@ -871,7 +870,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                     focusNode: _discountFocusNode,
                     controller: _textEditorHeaderDiscountAmountController,
                     keyboardType: TextInputType.none,
-                    onFieldSubmitted: (value) async => await onSubmit(),
+                    onFieldSubmitted: (value) async => await onSubmit(context),
                     onChanged: (value) {
                       if (value.isNotEmpty) {
                         final amount = double.tryParse(value.replaceAll(',', '')) ?? 0;
