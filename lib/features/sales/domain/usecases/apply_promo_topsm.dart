@@ -35,25 +35,36 @@ class ApplyTopsmUseCase implements UseCase<ReceiptEntity, ApplyPromoTopsmUseCase
             final itemEntity = receiptItem.itemEntity;
             final quantity = receiptItem.quantity;
             double discount = 0;
-            double discValue = 0;
+
+            final promoPrice = itemEntity.includeTax == 1
+                ? (matchingPromo.price * (100 / (100 + itemEntity.taxRate)))
+                : matchingPromo.price;
 
             if (quantity >= matchingPromo.qtyFrom && quantity <= matchingPromo.qtyTo) {
-              discount = (quantity * itemEntity.price) - (matchingPromo.price * quantity);
-              discValue = itemEntity.includeTax == 1 ? (discount * (100 / (100 + itemEntity.taxRate))) : discount;
+              discount = (quantity * itemEntity.dpp) - (promoPrice * quantity);
             } else if (quantity > matchingPromo.qtyTo) {
               int fullSets = (matchingPromo.qtyTo ~/ 1);
               double remainderItems = quantity - matchingPromo.qtyTo;
-              double expectedSubtotal = (fullSets * matchingPromo.price) + (remainderItems * itemEntity.price);
+              double expectedSubtotal = (fullSets * promoPrice) + (remainderItems * itemEntity.price);
               double actualTotalPrice = itemEntity.price * quantity;
               discount = actualTotalPrice - expectedSubtotal;
-              discValue = itemEntity.includeTax == 1 ? (discount * (100 / (100 + itemEntity.taxRate))) : discount;
             }
 
-            final double thisDiscAmount =
-                receiptItem.discAmount == null ? discValue : (receiptItem.totalGross - discValue);
+            final double discValuePctg = discount / (receiptItem.totalGross - (receiptEntity.discHeaderPromo ?? 0));
+            double thisDiscAmount = receiptItem.discAmount == null
+                ? (discValuePctg * receiptItem.totalGross)
+                : (discValuePctg * (receiptItem.totalGross - (receiptItem.discAmount ?? 0)));
+            double discAmount = receiptItem.discAmount == null
+                ? (discValuePctg * receiptItem.totalGross)
+                : receiptItem.discAmount! + (discValuePctg * (receiptItem.totalGross - (receiptItem.discAmount ?? 0)));
+
+            if (matchingPromo.price * quantity > quantity * itemEntity.dpp) {
+              discAmount = 0;
+              thisDiscAmount = 0;
+            }
 
             newReceiptItems.add(ReceiptHelper.updateReceiptItemAggregateFields(receiptItem
-              ..discAmount = discValue
+              ..discAmount = discAmount
               ..promos = [
                 ...receiptItem.promos,
                 params.handlePromosUseCaseParams.promo!.copyWith(discAmount: thisDiscAmount)
@@ -88,29 +99,24 @@ class ApplyTopsmUseCase implements UseCase<ReceiptEntity, ApplyPromoTopsmUseCase
             if (promoItem != null) {
               final quantity = receiptItem.quantity;
               double discount = 0;
-              double discValue = 0;
+              final promoPrice = receiptItem.itemEntity.includeTax == 1
+                  ? (promoItem.price * (100 / (100 + receiptItem.itemEntity.taxRate)))
+                  : promoItem.price;
 
               if (quantity >= promoItem.qtyFrom && quantity <= promoItem.qtyTo) {
-                discount = (quantity * receiptItem.itemEntity.price) - (promoItem.price * quantity);
-                discValue = receiptItem.itemEntity.includeTax == 1
-                    ? (discount * (100 / (100 + receiptItem.itemEntity.taxRate)))
-                    : discount;
+                discount = (quantity * receiptItem.itemEntity.price) - (promoPrice * quantity);
               } else if (quantity > promoItem.qtyTo) {
                 int fullSets = (promoItem.qtyTo ~/ 1);
                 double remainderItems = (promoItem.qtyTo - ((promoItem.qtyTo / 1).floor() * 1));
-                double expectedSubtotal =
-                    (fullSets * promoItem.price * 1) + (remainderItems * receiptItem.itemEntity.price);
+                double expectedSubtotal = (fullSets * promoPrice) + (remainderItems * receiptItem.itemEntity.price);
                 double actualTotalPrice = receiptItem.itemEntity.price * promoItem.qtyTo;
                 discount = actualTotalPrice - expectedSubtotal;
-                discValue = receiptItem.itemEntity.includeTax == 1
-                    ? (discount * (100 / (100 + receiptItem.itemEntity.taxRate)))
-                    : discount;
               }
               final double thisDiscAmount =
-                  receiptItem.discAmount == null ? discValue : (receiptItem.totalGross - discValue);
+                  receiptItem.discAmount == null ? discount : (receiptItem.totalGross - discount);
 
               newReceiptItems.add(ReceiptHelper.updateReceiptItemAggregateFields(receiptItem
-                ..discAmount = discValue
+                ..discAmount = discount
                 ..promos = [
                   ...receiptItem.promos,
                   params.handlePromosUseCaseParams.promo!.copyWith(discAmount: thisDiscAmount)

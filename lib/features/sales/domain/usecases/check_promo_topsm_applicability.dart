@@ -86,10 +86,13 @@ class CheckPromoTopsmApplicabilityUseCase implements UseCase<bool, CheckPromoTop
       final List<Function> quantityValidation = [
         () async {
           bool allItemsFulfilled = tpsm1.every((ruleItem) {
-            return receiptEntity.receiptItems.any((receiptItem) =>
-                ruleItem.toitmId == receiptItem.itemEntity.toitmId &&
-                ((ruleItem.qtyFrom <= receiptItem.quantity && ruleItem.qtyTo >= receiptItem.quantity) ||
-                    receiptItem.quantity > ruleItem.qtyTo));
+            return receiptEntity.receiptItems.any((receiptItem) {
+              final bool checkPriceDiscount = (receiptItem.quantity * ruleItem.price) < receiptItem.totalAmount;
+              return ruleItem.toitmId == receiptItem.itemEntity.toitmId &&
+                  ((ruleItem.qtyFrom <= receiptItem.quantity && ruleItem.qtyTo >= receiptItem.quantity) ||
+                      receiptItem.quantity > ruleItem.qtyTo) &&
+                  checkPriceDiscount;
+            });
           });
 
           // Validation for condition == 1
@@ -107,8 +110,16 @@ class CheckPromoTopsmApplicabilityUseCase implements UseCase<bool, CheckPromoTop
                       (element.qtyTo >= receiptItem.quantity || receiptItem.quantity > element.qtyTo)))) {
                 uniqueToitmId.add(receiptItem.itemEntity.toitmId);
               }
+              // if (tpsm1.any((element) {
+              //   final bool checkPriceDiscount = (receiptItem.quantity * element.price) < receiptItem.totalAmount;
+              //   return element.toitmId == receiptItem.itemEntity.toitmId &&
+              //       (element.qtyFrom <= receiptItem.quantity &&
+              //           (element.qtyTo >= receiptItem.quantity || receiptItem.quantity > element.qtyTo)) &&
+              //       checkPriceDiscount;
+              // })) {
+              //   uniqueToitmId.add(receiptItem.itemEntity.toitmId);
+              // }
             }
-
             if (uniqueToitmId.isEmpty) {
               return isApplicable = false;
             }
