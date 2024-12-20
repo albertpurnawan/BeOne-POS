@@ -831,7 +831,7 @@ class _SalesPageState extends State<SalesPage> {
                                           )),
                                           Expanded(
                                               // DiscountUI
-                                              child: promo.discAmount == null || promo.discAmount == 0
+                                              child: promo.discAmount == null
                                                   ? const SizedBox.shrink()
                                                   : Text(
                                                       (e.itemEntity.includeTax == 1)
