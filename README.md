@@ -10,9 +10,11 @@ A cross-platform POS app, integrated with BOS Retail and microservices that supp
 ## Run
 ### Debug
 1. On VSCode, choose Run > Run Without Debugging
+2. Choose desired platform if prompted
 ### Release
-1. Run flutter build windows
-2. Open the app
+1. Run `flutter build windows` for Windows or `flutter build apk` for Android 
+2. Install the app (for Android)
+3. Open the app
 
 ## VSCode
 ### Extensions
