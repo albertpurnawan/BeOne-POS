@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
@@ -212,7 +210,6 @@ class CustomKeyboardLayoutKeys extends VirtualKeyboardLayoutKeys {
 
   @override
   List<List> getLanguage(int index) {
-    log("isShiftEnabled- $isShiftEnabled");
     switch (defaultLayouts[index]) {
       case VirtualKeyboardDefaultLayouts.English:
         return isShiftEnabled ? _defaultShiftLayout : _defaultEnglishLayout;

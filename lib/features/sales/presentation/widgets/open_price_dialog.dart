@@ -137,10 +137,14 @@ class _OpenPriceDialogState extends State<OpenPriceDialog> {
                     hintText: "Enter Price",
                     hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
                     border: OutlineInputBorder(),
-                    prefixIcon: Icon(
-                      Icons.payments_outlined,
-                      size: 24,
+                    prefix: SizedBox(
+                      width: 24,
+                      child: Icon(
+                        Icons.payments_outlined,
+                        size: 24,
+                      ),
                     ),
+                    suffix: SizedBox(width: 24),
                   ),
                 ),
                 (_showKeyboard)

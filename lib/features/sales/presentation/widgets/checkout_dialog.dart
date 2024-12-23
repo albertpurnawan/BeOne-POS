@@ -2153,7 +2153,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          (receipt.rounding.roundToDouble().abs() != 0.0)
+                                          (receipt.rounding.roundToDouble().abs() != 0 &&
+                                                  receipt.rounding.roundToDouble().abs() < 1)
                                               ? _noteChip((receipt.rounding).roundToDouble(), 1)
                                               : const SizedBox.shrink(),
                                           (receipt.downPayments != null &&
