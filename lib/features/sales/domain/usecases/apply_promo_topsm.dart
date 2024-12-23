@@ -45,8 +45,8 @@ class ApplyTopsmUseCase implements UseCase<ReceiptEntity, ApplyPromoTopsmUseCase
             } else if (quantity > matchingPromo.qtyTo) {
               int fullSets = (matchingPromo.qtyTo ~/ 1);
               double remainderItems = quantity - matchingPromo.qtyTo;
-              double expectedSubtotal = (fullSets * promoPrice) + (remainderItems * itemEntity.price);
-              double actualTotalPrice = itemEntity.price * quantity;
+              double expectedSubtotal = (fullSets * promoPrice) + (remainderItems * itemEntity.dpp);
+              double actualTotalPrice = itemEntity.dpp * quantity;
               discount = actualTotalPrice - expectedSubtotal;
             }
 
@@ -104,12 +104,12 @@ class ApplyTopsmUseCase implements UseCase<ReceiptEntity, ApplyPromoTopsmUseCase
                   : promoItem.price;
 
               if (quantity >= promoItem.qtyFrom && quantity <= promoItem.qtyTo) {
-                discount = (quantity * receiptItem.itemEntity.price) - (promoPrice * quantity);
+                discount = (quantity * receiptItem.itemEntity.dpp) - (promoPrice * quantity);
               } else if (quantity > promoItem.qtyTo) {
                 int fullSets = (promoItem.qtyTo ~/ 1);
                 double remainderItems = (promoItem.qtyTo - ((promoItem.qtyTo / 1).floor() * 1));
-                double expectedSubtotal = (fullSets * promoPrice) + (remainderItems * receiptItem.itemEntity.price);
-                double actualTotalPrice = receiptItem.itemEntity.price * promoItem.qtyTo;
+                double expectedSubtotal = (fullSets * promoPrice) + (remainderItems * receiptItem.itemEntity.dpp);
+                double actualTotalPrice = receiptItem.itemEntity.dpp * promoItem.qtyTo;
                 discount = actualTotalPrice - expectedSubtotal;
               }
               final double thisDiscAmount =
