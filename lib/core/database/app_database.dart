@@ -79,6 +79,10 @@ import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_b
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_customer_group_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_get_condition_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promo_multi_item_header_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_spesial_multi_item_assign_store_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_spesial_multi_item_customer_group_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_spesial_multi_item_detail_dao.dart';
+import 'package:pos_fe/features/sales/data/data_sources/local/promo_spesial_multi_item_header_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/promotions_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/province_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/queued_invoice_detail_dao.dart';
@@ -211,6 +215,10 @@ import 'package:pos_fe/features/sales/data/models/promo_package_customer_group.d
 import 'package:pos_fe/features/sales/data/models/promo_package_default_valid_days.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_package_valid_days.dart';
+import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_detail.dart';
+import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_header.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_assign_store.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/promo_voucher_default_valid_days.dart';
@@ -236,7 +244,7 @@ import 'package:pos_fe/features/settings/data/models/receipt_content.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
-  final int databaseVersion = 8;
+  final int databaseVersion = 9;
   final _databaseName = "pos_fe.db";
 
   Database? _database;
@@ -329,6 +337,10 @@ class AppDatabase {
   late CampaignDao campaignDao;
   late DownPaymentItemsDao downPaymentItemsDao;
   late DualScreenDao dualScreenDao;
+  late PromoSpesialMultiItemHeaderDao promoSpesialMultiItemHeaderDao;
+  late PromoSpesialMultiItemDetailDao promoSpesialMultiItemDetailDao;
+  late PromoSpesialMultiItemAssignStoreDao promoSpesialMultiItemAssignStoreDao;
+  late PromoSpesialMultiItemCustomerGroupDao promoSpesialMultiItemCustomerGroupDao;
 
   static String createTinv7 = """
         CREATE TABLE $tableDownPaymentItem (
@@ -366,6 +378,72 @@ class AppDatabase {
         ${DualScreenFields.path} TEXT DEFAULT NULL,
         ${DualScreenFields.duration} INT DEFAULT NULL
         )
+      """;
+
+  static String createTopsm = """
+      CREATE TABLE $tablePromoSpesialMultiItemHeader (
+        `docid` TEXT PRIMARY KEY,
+        ${PromoSpesialMultiItemHeaderFields.createDate} datetime NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.updateDate} datetime DEFAULT NULL,
+        ${PromoSpesialMultiItemHeaderFields.promoCode} varchar(30) NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.description} varchar(200) NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.startDate} datetime NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.endDate} datetime NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.startTime} datetime NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.endTime} datetime NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.remarks} text,
+        ${PromoSpesialMultiItemHeaderFields.statusActive} int NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.condition} int NOT NULL,
+        ${PromoSpesialMultiItemHeaderFields.form} varchar(1) NOT NULL,
+        createdat TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+      """;
+
+  static String createTpsm1 = """
+      CREATE TABLE $tablePromoSpesialMultiItemDetail (
+        `docid` TEXT PRIMARY KEY,
+        ${PromoSpesialMultiItemDetailFields.createDate} datetime NOT NULL,
+        ${PromoSpesialMultiItemDetailFields.updateDate} datetime DEFAULT NULL,
+        ${PromoSpesialMultiItemDetailFields.topsmId} text DEFAULT NULL,
+        ${PromoSpesialMultiItemDetailFields.toitmId} text DEFAULT NULL,
+        ${PromoSpesialMultiItemDetailFields.qtyFrom} double NOT NULL,
+        ${PromoSpesialMultiItemDetailFields.qtyTo} double NOT NULL,
+        ${PromoSpesialMultiItemDetailFields.price} double NOT NULL,
+        ${PromoSpesialMultiItemDetailFields.form} varchar(1) NOT NULL,
+        createdat TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+      """;
+
+  static String createTpsm2 = """
+      CREATE TABLE $tablePromoSpesialMultiItemAssignStore (
+        `docid` TEXT PRIMARY KEY,
+        ${PromoSpesialMultiItemAssignStoreFields.createDate} datetime NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.updateDate} datetime DEFAULT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.topsmId} text DEFAULT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.tostrId} text DEFAULT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.holiday} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day1} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day2} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day3} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day4} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day5} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day6} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.day7} int NOT NULL,
+        ${PromoSpesialMultiItemAssignStoreFields.form} varchar(1) NOT NULL,
+        createdat TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+      """;
+
+  static String createTpsm4 = """
+      CREATE TABLE $tablePromoSpesialMultiItemCustomerGroup (
+        `docid` TEXT PRIMARY KEY,
+        ${PromoSpesialMultiItemCustomerGroupFields.createDate} datetime NOT NULL,
+        ${PromoSpesialMultiItemCustomerGroupFields.updateDate} datetime DEFAULT NULL,
+        ${PromoSpesialMultiItemCustomerGroupFields.topsmId} text DEFAULT NULL,
+        ${PromoSpesialMultiItemCustomerGroupFields.tocrgId} text DEFAULT NULL,
+        ${PromoSpesialMultiItemCustomerGroupFields.form} varchar(1) NOT NULL,
+        createdat TEXT DEFAULT CURRENT_TIMESTAMP
+      )
       """;
 
   AppDatabase._init();
@@ -495,6 +573,10 @@ PRAGMA foreign_keys = ON;
     campaignDao = CampaignDao(_database!);
     downPaymentItemsDao = DownPaymentItemsDao(_database!);
     dualScreenDao = DualScreenDao(_database!);
+    promoSpesialMultiItemHeaderDao = PromoSpesialMultiItemHeaderDao(_database!);
+    promoSpesialMultiItemDetailDao = PromoSpesialMultiItemDetailDao(_database!);
+    promoSpesialMultiItemAssignStoreDao = PromoSpesialMultiItemAssignStoreDao(_database!);
+    promoSpesialMultiItemCustomerGroupDao = PromoSpesialMultiItemCustomerGroupDao(_database!);
 
     await receiptContentDao.deleteAll();
     await receiptContentDao.bulkCreate(
@@ -3655,6 +3737,10 @@ CREATE TABLE $tableDuitkuVAAssignStore (
 
         await txn.execute(createTinv7);
         await txn.execute(createTobnr);
+        await txn.execute(createTopsm);
+        await txn.execute(createTpsm1);
+        await txn.execute(createTpsm2);
+        await txn.execute(createTpsm4);
       });
     } catch (e) {
       log(e.toString());
@@ -3832,6 +3918,13 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       // alter table topsb detailqtyvalidation
       await db.execute(
           '''ALTER TABLE $tablePromoHargaSpecialHeader ADD COLUMN ${PromoHargaSpesialHeaderFields.detailQtyValidation} int NOT NULL DEFAULT '1' ''');
+    },
+    'from_version_8_to_version_9': (Database db) async {
+      // Create Table Promo Spesial Multi Item
+      await db.execute(createTopsm);
+      await db.execute(createTpsm1);
+      await db.execute(createTpsm2);
+      await db.execute(createTpsm4);
     },
   };
 
