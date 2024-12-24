@@ -25,20 +25,18 @@ class ApplyTopsmUseCase implements UseCase<ReceiptEntity, ApplyPromoTopsmUseCase
         for (final receiptItem in receiptEntity.receiptItems) {
           final matchingPromo = tpsm1s
                   .where(
-                    (tpsm1) => tpsm1.toitmId == receiptItem.itemEntity.toitmId,
+                    (tpsm1) => tpsm1.toitmId == receiptItem.itemEntity.toitmId && tpsm1.topsmId == topsm.docId,
                   )
                   .isNotEmpty
-              ? tpsm1s.firstWhere((tpsm1) => tpsm1.toitmId == receiptItem.itemEntity.toitmId)
+              ? tpsm1s.firstWhere(
+                  (tpsm1) => tpsm1.toitmId == receiptItem.itemEntity.toitmId && tpsm1.topsmId == topsm.docId)
               : null;
-
           if (matchingPromo != null) {
             final itemEntity = receiptItem.itemEntity;
             final quantity = receiptItem.quantity;
             double discount = 0;
 
-            final promoPrice = itemEntity.includeTax == 1
-                ? (matchingPromo.price * (100 / (100 + itemEntity.taxRate)))
-                : matchingPromo.price;
+            final promoPrice = (matchingPromo.price * (100 / (100 + itemEntity.taxRate)));
 
             if (quantity >= matchingPromo.qtyFrom && quantity <= matchingPromo.qtyTo) {
               discount = (quantity * itemEntity.dpp) - (promoPrice * quantity);
@@ -50,30 +48,20 @@ class ApplyTopsmUseCase implements UseCase<ReceiptEntity, ApplyPromoTopsmUseCase
               discount = actualTotalPrice - expectedSubtotal;
             }
 
-            final double discValuePctg = discount / (receiptItem.totalGross - (receiptEntity.discHeaderPromo ?? 0));
-            double thisDiscAmount = receiptItem.discAmount == null
-                ? (discValuePctg * receiptItem.totalGross)
-                : (discValuePctg * (receiptItem.totalGross - (receiptItem.discAmount ?? 0)));
-            double discAmount = receiptItem.discAmount == null
-                ? (discValuePctg * receiptItem.totalGross)
-                : receiptItem.discAmount! + (discValuePctg * (receiptItem.totalGross - (receiptItem.discAmount ?? 0)));
-
             if (matchingPromo.price * quantity > quantity * itemEntity.dpp) {
-              discAmount = 0;
-              thisDiscAmount = 0;
+              discount = 0;
             }
 
             newReceiptItems.add(ReceiptHelper.updateReceiptItemAggregateFields(receiptItem
-              ..discAmount = discAmount
+              ..discAmount = discount
               ..promos = [
-                ...receiptItem.promos,
-                params.handlePromosUseCaseParams.promo!.copyWith(discAmount: thisDiscAmount)
+                ...receiptItem.promos.where((element) => element.promoType != 201),
+                params.handlePromosUseCaseParams.promo!.copyWith(discAmount: discount)
               ]));
           } else {
             newReceiptItems.add(receiptItem);
           }
         }
-
         return receiptEntity.copyWith(
           receiptItems: newReceiptItems,
           promos: [...receiptEntity.promos, params.handlePromosUseCaseParams.promo!],
@@ -112,14 +100,15 @@ class ApplyTopsmUseCase implements UseCase<ReceiptEntity, ApplyPromoTopsmUseCase
                 double actualTotalPrice = receiptItem.itemEntity.dpp * promoItem.qtyTo;
                 discount = actualTotalPrice - expectedSubtotal;
               }
-              final double thisDiscAmount =
-                  receiptItem.discAmount == null ? discount : (receiptItem.totalGross - discount);
+              if (promoItem.price * quantity > quantity * receiptItem.itemEntity.dpp) {
+                discount = 0;
+              }
 
               newReceiptItems.add(ReceiptHelper.updateReceiptItemAggregateFields(receiptItem
                 ..discAmount = discount
                 ..promos = [
                   ...receiptItem.promos,
-                  params.handlePromosUseCaseParams.promo!.copyWith(discAmount: thisDiscAmount)
+                  params.handlePromosUseCaseParams.promo!.copyWith(discAmount: discount)
                 ]));
             } else {
               newReceiptItems.add(receiptItem);
@@ -131,7 +120,6 @@ class ApplyTopsmUseCase implements UseCase<ReceiptEntity, ApplyPromoTopsmUseCase
           );
         }
       }
-
       return receiptEntity.copyWith();
     } catch (e) {
       rethrow;
