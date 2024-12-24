@@ -831,7 +831,7 @@ class _SalesPageState extends State<SalesPage> {
                                           )),
                                           Expanded(
                                               // DiscountUI
-                                              child: promo.discAmount == null || promo.discAmount == 0
+                                              child: promo.discAmount == null
                                                   ? const SizedBox.shrink()
                                                   : Text(
                                                       (e.itemEntity.includeTax == 1)
@@ -2982,7 +2982,7 @@ class _SalesPageState extends State<SalesPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        (state.rounding.roundToDouble().abs() != 0)
+                        (state.rounding.roundToDouble().abs() != 0 && state.rounding.roundToDouble().abs() < 1)
                             ? _noteChip((state.rounding).roundToDouble(), 1)
                             : const SizedBox.shrink(),
                         (state.downPayments != null &&
@@ -4416,22 +4416,19 @@ class _SalesPageState extends State<SalesPage> {
           'name': item.itemEntity.itemName,
           'quantity': item.quantity.toInt(),
           'discount': Helpers.parseMoney(totalDiscount.round()),
-          'total': item.totalAmount,
+          'total': item.totalAmount.round(),
         };
       }).toList();
 
-      final double calculatedTotalDiscount = items.fold(
-          0.0, (sum, item) => sum + double.parse(item['discount'].toString().replaceAll(RegExp(r'[^0-9.]'), '')));
-
-      final double pureGrandTotal =
+      final double grandTotalWoDiscount =
           state.receiptItems.fold(0.0, (sum, item) => sum + item.sellingPrice * item.quantity);
 
       final Map<String, dynamic> data = {
         'docNum': state.docNum,
         'customerName': state.customerEntity?.custName ?? 'NON MEMBER',
         'items': items,
-        'totalDiscount': Helpers.parseMoney(pureGrandTotal - state.grandTotal),
-        'grandTotal': Helpers.parseMoney(state.grandTotal),
+        'totalDiscount': Helpers.parseMoney((grandTotalWoDiscount - state.grandTotal).round()),
+        'grandTotal': Helpers.parseMoney(state.grandTotal.round()),
       };
 
       final jsonData = jsonEncode(data);

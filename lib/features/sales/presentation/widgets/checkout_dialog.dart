@@ -657,6 +657,28 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
     } catch (e) {}
   }
 
+  Future<void> resetReceiptMopCustomerDisplay({bool isReset = false}) async {
+    try {
+      if (await GetIt.instance<GetPosParameterUseCase>().call() != null &&
+          (await GetIt.instance<GetPosParameterUseCase>().call())!.customerDisplayActive == 0) {
+        return;
+      }
+      final windows = await DesktopMultiWindow.getAllSubWindowIds();
+      if (windows.isEmpty) {
+        debugPrint('No display window found');
+        return;
+      }
+      final windowId = windows[0];
+      final state = context.read<ReceiptCubit>().state;
+      final Map<String, dynamic> data = {'totalPayment': 0, 'changed': 0};
+
+      final jsonData = jsonEncode(data);
+      final sendingData = await sendData(windowId, jsonData, 'updateCheckoutData', 'Checkout');
+    } catch (e, stackTrace) {
+      print('Error send data to client display from checkout: $e');
+    }
+  }
+
   @override
   void initState() {
     getDefaultKeyboardPOSParameter();
@@ -716,7 +738,7 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
           onKeyEvent: (node, event) {
             if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
 
-            if (event.physicalKey == PhysicalKeyboardKey.f12 && !isCharged) {
+            if (event.physicalKey == PhysicalKeyboardKey.f12 && !isCharged && !isCharging) {
               charge();
               return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.f12 && isCharged) {
@@ -726,19 +748,20 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
 
               handleCheckoutSuccessOnCustomerDisplay();
               return KeyEventResult.handled;
-            } else if (event.physicalKey == PhysicalKeyboardKey.escape && !isCharged) {
+            } else if (event.physicalKey == PhysicalKeyboardKey.escape && !isCharged && !isCharging) {
               context.pop();
+              resetReceiptMopCustomerDisplay();
               return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && node.hasPrimaryFocus) {
               node.nextFocus();
               return KeyEventResult.handled;
-            } else if (event.physicalKey == PhysicalKeyboardKey.f4 && !isCharged) {
+            } else if (event.physicalKey == PhysicalKeyboardKey.f4 && !isCharged && !isCharging) {
               manualRounding(RoundingMode.down);
               return KeyEventResult.handled;
-            } else if (event.physicalKey == PhysicalKeyboardKey.f5 && !isCharged) {
+            } else if (event.physicalKey == PhysicalKeyboardKey.f5 && !isCharged && !isCharging) {
               showRoundUpDialog(childContext);
               return KeyEventResult.handled;
-            } else if (event.physicalKey == PhysicalKeyboardKey.f6 && !isCharged) {
+            } else if (event.physicalKey == PhysicalKeyboardKey.f6 && !isCharged && !isCharging) {
               showDiscountAndRoundingDialog(childContext);
               setState(() {
                 _isRoundedUp = false;
@@ -746,13 +769,13 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                 _originalValue = null;
               });
               return KeyEventResult.handled;
-            } else if (event.physicalKey == PhysicalKeyboardKey.f7 && !isCharged) {
+            } else if (event.physicalKey == PhysicalKeyboardKey.f7 && !isCharged && !isCharging) {
               showAppliedPromotions().then((value) => _focusScopeNode.requestFocus());
               return KeyEventResult.handled;
-            } else if (event.physicalKey == PhysicalKeyboardKey.f8 && !isCharged) {
+            } else if (event.physicalKey == PhysicalKeyboardKey.f8 && !isCharged && !isCharging) {
               printDraftBill();
               return KeyEventResult.handled;
-            } else if (event.physicalKey == PhysicalKeyboardKey.f9 && !isCharged) {
+            } else if (event.physicalKey == PhysicalKeyboardKey.f9 && !isCharged && !isCharging) {
               toggleMultiMOPs();
               return KeyEventResult.handled;
             }
@@ -1225,6 +1248,8 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
                                     if (!isProceed) return;
                                   }
 
+                                  await resetReceiptMopCustomerDisplay();
+
                                   try {
                                     final String cashierName =
                                         GetIt.instance<SharedPreferences>().getString("username") ?? "";
@@ -1412,6 +1437,7 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
     _grandTotalSubs = context.read<ReceiptCubit>().stream.listen((event) {
       checkAndHandleZeroGrandTotal();
     });
+    updateReceiptMopCustomerDisplay();
     setState(() {
       _showKeyboardContent = widget.showKeyboard;
       _keyboardNumeric = widget.keyboardNumeric;
@@ -1954,7 +1980,10 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
 
   void updateReceiptMop() async {
     context.read<ReceiptCubit>().updateMopSelection(mopSelectionEntities: _values.map((e) => e.copyWith()).toList());
+    await updateReceiptMopCustomerDisplay();
+  }
 
+  Future<void> updateReceiptMopCustomerDisplay({bool isReset = false}) async {
     try {
       if (await GetIt.instance<GetPosParameterUseCase>().call() != null &&
           (await GetIt.instance<GetPosParameterUseCase>().call())!.customerDisplayActive == 0) {
@@ -1968,10 +1997,12 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
       final windowId = windows[0];
       final state = context.read<ReceiptCubit>().state;
       final Map<String, dynamic> data = {
-        'totalPayment': state.totalPayment == null ? 0 : Helpers.parseMoney(state.totalPayment!.round()),
-        'changed': state.changed == null
+        'totalPayment': state.totalPayment == null || isReset ? 0 : Helpers.parseMoney(state.totalPayment!.round()),
+        'changed': state.changed == null || isReset
             ? 0
-            : Helpers.parseMoney(voucherIsExceedPurchase ? 0 : (state.totalPayment ?? 0) - state.grandTotal)
+            : state.totalPayment == 0
+                ? 0
+                : Helpers.parseMoney(voucherIsExceedPurchase ? 0 : (state.totalPayment ?? 0) - state.grandTotal)
       };
 
       final jsonData = jsonEncode(data);
@@ -2122,7 +2153,8 @@ class _CheckoutDialogContentState extends State<CheckoutDialogContent> {
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          (receipt.rounding.roundToDouble().abs() != 0.0)
+                                          (receipt.rounding.roundToDouble().abs() != 0 &&
+                                                  receipt.rounding.roundToDouble().abs() < 1)
                                               ? _noteChip((receipt.rounding).roundToDouble(), 1)
                                               : const SizedBox.shrink(),
                                           (receipt.downPayments != null &&

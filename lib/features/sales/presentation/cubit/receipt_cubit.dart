@@ -45,6 +45,7 @@ import 'package:pos_fe/features/sales/domain/usecases/handle_promo_buy_x_get_y.d
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_special_price.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topdg.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topdi.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topsm.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_without_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
@@ -88,6 +89,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
   final ApplyPromoToprnUseCase _applyPromoToprnUseCase;
   final ApplyManualRoundingUseCase _applyManualRoundingDownUseCase;
   final ApplyManualRoundingUseCase _applyManualRoundingUpUseCase;
+  final HandlePromoSpesialMultiItemUseCase _handlePromoSpesialMultiItemUseCase;
 
   ReceiptCubit(
     this._getItemByBarcodeUseCase,
@@ -116,6 +118,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
     this._applyPromoToprnUseCase,
     this._applyManualRoundingDownUseCase,
     this._applyManualRoundingUpUseCase,
+    this._handlePromoSpesialMultiItemUseCase,
   ) : super(ReceiptEntity(
             docNum: "-",
             receiptItems: [],
@@ -133,7 +136,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
 
   Future<void> addUpdateReceiptItems(AddUpdateReceiptItemsParams params) async {
     try {
-      dev.log("state b4 - ${state.previousReceiptEntity}");
+      // dev.log("state b4 - ${state.previousReceiptEntity}");
       // Validate params
       if (params.context == null) {
         throw "Params invalid";
@@ -227,7 +230,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           ItemFields.barcode: params.barcode ?? params.itemEntity?.barcode,
           ItemFields.toplnId: storeMasterEntity!.toplnId
         });
-        dev.log("itemEntity - $itemEntity");
       }
       if (itemEntity == null) throw "Item not found";
 
@@ -316,6 +318,7 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                   SnackBarHelper.presentErrorSnackBar(params.context, e.toString());
                   continue;
                 }
+
               default:
                 break;
             }
@@ -333,9 +336,6 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
       newReceipt = await _recalculateReceiptUseCase.call(params: newReceipt);
 
       emit(newReceipt.copyWith(previousReceiptEntity: null, rounding: 0));
-      dev.log("state - ${state.previousReceiptEntity}");
-      dev.log("round - ${newReceipt.previousReceiptEntity}");
-      dev.log("newReceipt - ${newReceipt.discHeaderManual}");
     } catch (e, s) {
       dev.log(s.toString());
       rethrow;
@@ -977,6 +977,14 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                 // Discount Item (Group)
                 case 204:
                   newReceipt = await _handlePromoTopdgUseCase.call(
+                      params: HandlePromosUseCaseParams(
+                    receiptItemEntity: receiptItem,
+                    receiptEntity: newReceipt,
+                    promo: availablePromo,
+                  ));
+                case 201:
+                  // dev.log("CASE 201");
+                  newReceipt = await _handlePromoSpesialMultiItemUseCase.call(
                       params: HandlePromosUseCaseParams(
                     receiptItemEntity: receiptItem,
                     receiptEntity: newReceipt,
