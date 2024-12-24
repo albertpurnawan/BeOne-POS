@@ -1,12 +1,14 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/features/dual_screen/presentation/pages/display.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_manual_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_toprn.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
@@ -30,6 +32,7 @@ import 'package:pos_fe/features/sales/domain/usecases/handle_promo_buy_x_get_y.d
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_special_price.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topdg.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topdi.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topsm.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_without_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
@@ -50,9 +53,11 @@ import 'package:pos_fe/features/settings/domain/usecases/scheduler.dart';
 import 'package:pos_fe/injection_container.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:window_manager/window_manager.dart';
 
-void main() async {
+void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+
   if (Platform.isWindows || Platform.isLinux) {
     // Initialize FFI
     sqfliteFfiInit();
@@ -60,6 +65,46 @@ void main() async {
     // await hotKeyManager.unregister(
     //     HotKey(key: LogicalKeyboardKey.f10, scope: HotKeyScope.system));
   }
+
+  // Set options for the main window
+
+  if (args.isNotEmpty) {
+    try {
+      final windowArgs = args.first;
+
+      if (windowArgs == 'multi_window') {
+        final windowId = int.parse(args[1]);
+        final argument = args[2].isEmpty;
+
+        // Create a separate router for the second window
+        final secondWindowRouter = GoRouter(
+          initialLocation: '/dualScreen',
+          routes: [
+            GoRoute(
+              path: '/dualScreen',
+              builder: (context, state) => DisplayPage(
+                windowController: WindowController.fromWindowId(windowId),
+                args: {
+                  'data': args[2].toString(),
+                },
+              ),
+            ),
+          ],
+        );
+
+        runApp(
+          MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            routerConfig: secondWindowRouter,
+          ),
+        );
+        return;
+      }
+    } catch (e) {
+      print('Error parsing window arguments: $e');
+    }
+  }
+
   await initializeDependencies();
   await GetIt.instance.allReady();
   // await FirstRunManager.checkFirstRun();
@@ -84,18 +129,54 @@ void main() async {
     // if (kReleaseMode) exit(1);
   };
   runApp(const MyApp());
+
+  _configureMainWindow();
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WindowListener {
+  @override
+  void initState() {
+    super.initState();
+    windowManager.addListener(this);
+  }
+
+  @override
+  void dispose() {
+    windowManager.removeListener(this);
+    super.dispose();
+  }
+
+  @override
+  onWindowClose() {
+    _showCloseConfirmationDialog();
+  }
+
+  Future<void> _showCloseConfirmationDialog() async {
+    try {
+      final windows = await DesktopMultiWindow.getAllSubWindowIds();
+      SharedPreferences? prefs = await SharedPreferences.getInstance();
+
+      await Future.forEach(windows, (windowId) async {
+        final controller = WindowController.fromWindowId(windowId);
+        await controller.close();
+        await prefs.setBool("isCustomerDisplayActive", false);
+      });
+    } catch (e) {
+      debugPrint('Error Closing Window: $e');
+    } finally {
+      exit(0);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // print((GetIt.instance<AppDatabase>().currencyDao.readAll()).toString());
-    // GetIt.instance<AppDatabase>()
-    //     .itemCategoryDao
-    //     .bulkCreate(tocat.map((e) => ItemCategoryModel.fromMap(e)).toList());
-
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: Color.fromARGB(255, 169, 0, 0),
         statusBarBrightness: Brightness.light,
@@ -138,6 +219,7 @@ class MyApp extends StatelessWidget {
                       GetIt.instance<ApplyPromoToprnUseCase>(),
                       GetIt.instance<ApplyManualRoundingUseCase>(instanceName: 'roundingDown'),
                       GetIt.instance<ApplyManualRoundingUseCase>(instanceName: 'roundingUp'),
+                      GetIt.instance<HandlePromoSpesialMultiItemUseCase>(),
                     )),
             BlocProvider<CustomersCubit>(create: (context) => CustomersCubit(GetIt.instance<GetCustomersUseCase>())),
             BlocProvider<MopSelectionsCubit>(
@@ -160,14 +242,11 @@ class MyApp extends StatelessWidget {
                       child: Image.asset(
                         "assets/images/ruby_pos.png",
                         width: MediaQuery.of(context).size.width * 0.4,
-                        // color: const Color(0xFFD42627),
                       ),
                     ),
                   );
                 }
 
-                final str = snapshot.data!;
-                debugPrint(str);
                 return MaterialApp.router(
                   title: 'RubyPOS',
                   debugShowCheckedModeBanner: false,
@@ -181,4 +260,19 @@ class MyApp extends StatelessWidget {
               }),
         ));
   }
+}
+
+Future<void> _configureMainWindow() async {
+  await windowManager.ensureInitialized();
+  WindowOptions windowOptions = const WindowOptions(
+    center: true,
+    backgroundColor: Colors.transparent,
+    fullScreen: false,
+    skipTaskbar: false,
+  );
+  windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.show();
+    await windowManager.maximize();
+    await windowManager.setPreventClose(true);
+  });
 }

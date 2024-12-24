@@ -24,6 +24,7 @@ class PromoHargaSpesialHeaderFields {
     toitmId,
     promoType,
     form,
+    detailQtyValidation,
   ];
 
   static const String docId = "docid";
@@ -45,10 +46,10 @@ class PromoHargaSpesialHeaderFields {
   static const String toitmId = "toitmId";
   static const String promoType = "promotype";
   static const String form = "form";
+  static const String detailQtyValidation = "detailqtyvalidation";
 }
 
-class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
-    implements BaseModel {
+class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity implements BaseModel {
   PromoHargaSpesialHeaderModel({
     required super.docId,
     required super.createDate,
@@ -69,6 +70,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
     required super.toitmId,
     required super.promoType,
     required super.form,
+    required super.detailQtyValidation,
   });
 
   @override
@@ -93,6 +95,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
       'toitmId': toitmId,
       'promotype': promoType,
       'form': form,
+      'detailqtyvalidation': detailQtyValidation,
     };
   }
 
@@ -100,9 +103,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
     return PromoHargaSpesialHeaderModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String).toLocal(),
-      updateDate: map['updatedate'] != null
-          ? DateTime.parse(map['updatedate'] as String).toLocal()
-          : null,
+      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String).toLocal() : null,
       promoCode: map['promocode'] as String,
       description: map['description'] as String,
       startDate: DateTime.parse(map['startdate'] as String).toLocal(),
@@ -119,6 +120,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
       toitmId: map['toitmId'] != null ? map['toitmId'] as String : null,
       promoType: map['promoType'] != null ? map['promoType'] as int : null,
       form: map['form'] as String,
+      detailQtyValidation: map['detailqtyvalidation'] != null ? map['detailqtyvalidation'] as int : 1,
     );
   }
 
@@ -129,8 +131,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
     });
   }
 
-  factory PromoHargaSpesialHeaderModel.fromEntity(
-      PromoHargaSpesialHeaderEntity entity) {
+  factory PromoHargaSpesialHeaderModel.fromEntity(PromoHargaSpesialHeaderEntity entity) {
     return PromoHargaSpesialHeaderModel(
       docId: entity.docId,
       createDate: entity.createDate,
@@ -151,6 +152,7 @@ class PromoHargaSpesialHeaderModel extends PromoHargaSpesialHeaderEntity
       toitmId: entity.toitmId,
       promoType: entity.promoType,
       form: entity.form,
+      detailQtyValidation: entity.detailQtyValidation,
     );
   }
 }

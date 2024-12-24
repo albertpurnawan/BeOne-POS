@@ -3,9 +3,14 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/employees_cubit.dart';
 
 class SelectEmployee extends StatefulWidget {
@@ -19,13 +24,36 @@ class _SelectEmployeeState extends State<SelectEmployee> {
   EmployeeEntity? radioValue;
   EmployeeEntity? selectedEmployee;
   final FocusNode _employeeInputFocusNode = FocusNode();
-  late final TextEditingController _employeeTextController = TextEditingController();
+  final FocusNode _keyboardFocusNode = FocusNode();
+  final TextEditingController _employeeTextController = TextEditingController();
+  bool _showKeyboard = true;
+
+  @override
+  void initState() {
+    getDefaultKeyboardPOSParameter();
+    super.initState();
+  }
 
   @override
   void dispose() {
     _employeeInputFocusNode.dispose();
+    _keyboardFocusNode.dispose();
     _employeeTextController.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   @override
@@ -72,10 +100,35 @@ class _SelectEmployeeState extends State<SelectEmployee> {
             color: ProjectColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-          child: const Text(
-            'Select Employee',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Select Employee',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                  borderRadius: const BorderRadius.all(Radius.circular(360)),
+                ),
+                child: IconButton(
+                  focusColor: const Color.fromARGB(255, 110, 0, 0),
+                  focusNode: _keyboardFocusNode,
+                  icon: Icon(
+                    _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _showKeyboard = !_showKeyboard;
+                    });
+                  },
+                  tooltip: 'Toggle Keyboard',
+                ),
+              ),
+            ],
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -90,7 +143,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
           ),
           child: StatefulBuilder(builder: (context, setState) {
             return SizedBox(
-              width: 350,
+              width: MediaQuery.of(context).size.width * 0.5,
               child: Column(
                 children: [
                   const SizedBox(
@@ -99,23 +152,31 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: TextField(
+                      controller: _employeeTextController,
                       onSubmitted: (value) {
                         context.read<EmployeesCubit>().getEmployees(searchKeyword: value);
                         _employeeInputFocusNode.requestFocus();
                       },
                       autofocus: true,
                       focusNode: _employeeInputFocusNode,
-                      decoration: const InputDecoration(
-                        suffixIcon: Icon(
-                          Icons.search,
-                          size: 16,
+                      decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          icon: const Icon(
+                            Icons.search,
+                            size: 16,
+                          ),
+                          onPressed: () {
+                            context.read<EmployeesCubit>().getEmployees(searchKeyword: _employeeTextController.text);
+                            _employeeInputFocusNode.requestFocus();
+                          },
                         ),
                         hintText: "Enter employee's name",
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           fontSize: 16,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
+                      keyboardType: TextInputType.none,
                     ),
                   ),
                   const SizedBox(
@@ -157,7 +218,26 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                             }));
                       },
                     ),
-                  )
+                  ),
+                  (_showKeyboard)
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: KeyboardWidget(
+                            controller: _employeeTextController,
+                            isNumericMode: false,
+                            customLayoutKeys: true,
+                            onSubmit: () {
+                              _employeeTextController.text = _employeeTextController.text.trimRight();
+                              context.read<EmployeesCubit>().getEmployees(searchKeyword: _employeeTextController.text);
+                              _employeeInputFocusNode.requestFocus();
+                            },
+                            focusNodeAndTextController: FocusNodeAndTextController(
+                              focusNode: _employeeInputFocusNode,
+                              textEditingController: _employeeTextController,
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
                 ],
               ),
             );
@@ -198,9 +278,7 @@ class _SelectEmployeeState extends State<SelectEmployee> {
                   ),
                 ),
               )),
-              const SizedBox(
-                width: 10,
-              ),
+              const SizedBox(width: 10),
               Expanded(
                 child: TextButton(
                     style: ButtonStyle(

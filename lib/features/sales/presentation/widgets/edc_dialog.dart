@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/campaign.dart';
 import 'package:pos_fe/features/sales/domain/entities/credit_card.dart';
 import 'package:pos_fe/features/sales/domain/entities/edc_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_campaign_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/select_card_type.dart';
@@ -47,6 +49,11 @@ class _EDCDialogState extends State<EDCDialog> {
   final TextEditingController _cardHolderController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _refNumberController = TextEditingController();
+  final FocusNode _cardNumber1FocusNode = FocusNode();
+  final FocusNode _cardNumber2FocusNode = FocusNode();
+  final FocusNode _cardHolderFocusNode = FocusNode();
+  final FocusNode _amountFocusNode = FocusNode();
+  final FocusNode _refNumberFocusNode = FocusNode();
   bool isCredit = false;
   List<MopSelectionEntity> mopList = [];
   List<MopSelectionEntity> mopsSelected = [];
@@ -62,40 +69,66 @@ class _EDCDialogState extends State<EDCDialog> {
   String errMsg = "Invalid amount";
   String edcMachine = "";
 
-  late final _focusNodeAmount = FocusNode(
-    onKeyEvent: (node, event) {
-      if (event.runtimeType == KeyUpEvent) {
-        return KeyEventResult.handled;
-      }
-
-      if (event.physicalKey == PhysicalKeyboardKey.f12) {
-        final double mopAmount = Helpers.revertMoneyToDecimalFormat(_amountController.text);
-        if (mopAmount > widget.max) {
-          setState(() {
-            isErr = true;
-            errMsg = "Invalid amount";
-          });
-
-          return KeyEventResult.handled;
-        }
-        context.pop(mopAmount);
-        return KeyEventResult.handled;
-      } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
-        Navigator.of(context).pop();
-        return KeyEventResult.handled;
-      }
-
-      return KeyEventResult.ignored;
-    },
-  );
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool _currentNumericMode = false;
+  TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
+    super.initState();
     fetchMOP();
     currentAmount = widget.max;
     mopsSelected.addAll(widget.values);
     edcMachine = widget.mopSelectionEntity.edcDesc ?? "";
-    super.initState();
+
+    _cardNumber1FocusNode.addListener(() {
+      if (_cardNumber1FocusNode.hasFocus) {
+        setState(() {
+          _activeController = _cardNumber1Controller;
+          _activeFocusNode = _cardNumber1FocusNode;
+          _currentNumericMode = true;
+        });
+      }
+    });
+    _cardNumber2FocusNode.addListener(() {
+      if (_cardNumber2FocusNode.hasFocus) {
+        setState(() {
+          _activeController = _cardNumber2Controller;
+          _activeFocusNode = _cardNumber2FocusNode;
+          _currentNumericMode = true;
+        });
+      }
+    });
+    _cardHolderFocusNode.addListener(() {
+      if (_cardHolderFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _cardHolderController;
+          _activeFocusNode = _cardHolderFocusNode;
+          _currentNumericMode = false;
+        });
+      }
+    });
+    _refNumberFocusNode.addListener(() {
+      if (_refNumberFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _refNumberController;
+          _activeFocusNode = _refNumberFocusNode;
+          _currentNumericMode = false;
+        });
+      }
+    });
+    _amountFocusNode.addListener(() {
+      if (_amountFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _amountController;
+          _activeFocusNode = _amountFocusNode;
+          _currentNumericMode = true;
+        });
+      }
+    });
   }
 
   @override
@@ -105,7 +138,28 @@ class _EDCDialogState extends State<EDCDialog> {
     _cardHolderController.dispose();
     _amountController.dispose();
     _refNumberController.dispose();
+    _cardNumber1FocusNode.dispose();
+    _cardNumber2FocusNode.dispose();
+    _cardHolderFocusNode.dispose();
+    _amountFocusNode.dispose();
+    _refNumberFocusNode.dispose();
+    _keyboardFocusNode.dispose();
+    _activeController.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<void> fetchMOP() async {
@@ -117,8 +171,6 @@ class _EDCDialogState extends State<EDCDialog> {
       mopList.addAll(tpmt1List);
     });
   }
-
-  Future<void> removeMOP() async {}
 
   @override
   Widget build(BuildContext parentContext) {
@@ -151,10 +203,36 @@ class _EDCDialogState extends State<EDCDialog> {
                   color: ProjectColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-                child: Text(
-                  edcMachine,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
+                padding: const EdgeInsets.fromLTRB(25, 5, 10, 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      edcMachine,
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                        borderRadius: const BorderRadius.all(Radius.circular(360)),
+                      ),
+                      child: IconButton(
+                        // key: _iconButtonKey,
+                        focusColor: const Color.fromARGB(255, 110, 0, 0),
+                        focusNode: _keyboardFocusNode,
+                        icon: Icon(
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showKeyboard = !_showKeyboard;
+                          });
+                        },
+                        tooltip: 'Toggle Keyboard',
+                      ),
+                    ),
+                  ],
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -382,9 +460,10 @@ class _EDCDialogState extends State<EDCDialog> {
                                             child: Padding(
                                               padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
                                               child: TextFormField(
+                                                focusNode: _cardNumber1FocusNode,
                                                 controller: _cardNumber1Controller,
                                                 textAlign: TextAlign.center,
-                                                keyboardType: TextInputType.number,
+                                                keyboardType: TextInputType.none,
                                                 style: const TextStyle(fontSize: 18),
                                                 decoration: const InputDecoration(
                                                   contentPadding: EdgeInsets.all(2),
@@ -418,9 +497,10 @@ class _EDCDialogState extends State<EDCDialog> {
                                             child: Padding(
                                               padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
                                               child: TextFormField(
+                                                focusNode: _cardNumber2FocusNode,
                                                 controller: _cardNumber2Controller,
                                                 textAlign: TextAlign.center,
-                                                keyboardType: TextInputType.number,
+                                                keyboardType: TextInputType.none,
                                                 style: const TextStyle(fontSize: 18),
                                                 decoration: const InputDecoration(
                                                   contentPadding: EdgeInsets.all(2),
@@ -461,8 +541,10 @@ class _EDCDialogState extends State<EDCDialog> {
                                             child: Padding(
                                               padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
                                               child: TextFormField(
+                                                focusNode: _cardHolderFocusNode,
                                                 controller: _cardHolderController,
                                                 textAlign: TextAlign.left,
+                                                keyboardType: TextInputType.none,
                                                 style: const TextStyle(fontSize: 18),
                                                 decoration: const InputDecoration(
                                                   contentPadding: EdgeInsets.all(10),
@@ -557,8 +639,10 @@ class _EDCDialogState extends State<EDCDialog> {
                                             child: Padding(
                                               padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
                                               child: TextFormField(
+                                                focusNode: _refNumberFocusNode,
                                                 controller: _refNumberController,
                                                 textAlign: TextAlign.left,
+                                                keyboardType: TextInputType.none,
                                                 style: const TextStyle(fontSize: 18),
                                                 decoration: const InputDecoration(
                                                   contentPadding: EdgeInsets.all(10),
@@ -595,15 +679,15 @@ class _EDCDialogState extends State<EDCDialog> {
                                             child: Padding(
                                               padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
                                               child: TextFormField(
-                                                focusNode: _focusNodeAmount,
+                                                focusNode: _amountFocusNode,
                                                 controller: _amountController,
                                                 textAlign: TextAlign.left,
-                                                keyboardType: TextInputType.number,
+                                                keyboardType: TextInputType.none,
                                                 inputFormatters: [MoneyInputFormatter()],
                                                 style: const TextStyle(fontSize: 18),
                                                 decoration: InputDecoration(
                                                   contentPadding: const EdgeInsets.all(10),
-                                                  hintText: "$currentAmount",
+                                                  hintText: Helpers.parseMoney(currentAmount!),
                                                   hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
                                                   border: const OutlineInputBorder(
                                                       borderRadius: BorderRadius.all(Radius.circular(5))),
@@ -643,7 +727,22 @@ class _EDCDialogState extends State<EDCDialog> {
                               ),
                             ),
                           ],
-                        )
+                        ),
+                        (_showKeyboard)
+                            ? Padding(
+                                padding: const EdgeInsets.only(top: 20),
+                                child: KeyboardWidget(
+                                  controller: _activeController,
+                                  isNumericMode: _currentNumericMode,
+                                  customLayoutKeys: true,
+                                  focusNodeAndTextController: FocusNodeAndTextController(
+                                    focusNode: _activeFocusNode,
+                                    textEditingController: _activeController,
+                                  ),
+                                  textFormatter: (_amountFocusNode.hasFocus) ? MoneyInputFormatter() : null,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
                       ],
                     ),
                   ),

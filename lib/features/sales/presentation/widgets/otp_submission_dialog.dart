@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
@@ -21,9 +22,10 @@ import 'package:uuid/uuid.dart';
 
 class OTPSubmissionDialog extends StatefulWidget {
   final String requester;
-  final double? amount;
+  final String subject;
+  final String body;
 
-  const OTPSubmissionDialog({super.key, required this.requester, this.amount});
+  const OTPSubmissionDialog({super.key, required this.requester, required this.subject, required this.body});
 
   @override
   State<OTPSubmissionDialog> createState() => _OTPSubmissionDialogState();
@@ -38,14 +40,28 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
   bool _isSendingOTP = false;
   bool _isOTPClicked = false;
   bool _isOTPSent = false;
-  late FocusNode _otpFocusNode;
+  final List<FocusNode> _otpFocusNodes = List.generate(6, (_) => FocusNode());
+
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+  String currentFocusedField = '';
+  int _focusedIndex = 0;
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
-    _otpFocusNode = FocusNode();
     _startTimer();
-    _otpFocusNode.requestFocus();
+    _otpFocusNodes[0].requestFocus();
+    for (int i = 0; i < _otpFocusNodes.length; i++) {
+      _otpFocusNodes[i].addListener(() {
+        if (_otpFocusNodes[i].hasFocus) {
+          setState(() {
+            _focusedIndex = i;
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -54,43 +70,30 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
     for (var controller in _otpControllers) {
       controller.dispose();
     }
-    _otpFocusNode.dispose();
+    _keyboardFocusNode.dispose();
+    for (int i = 0; i < _otpFocusNodes.length; i++) {
+      _otpFocusNodes[i].dispose();
+    }
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<void> resendOTP() async {
     try {
-      final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
-      if (topos == null) throw "Failed to retrieve POS Parameter";
-
-      final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
-      if (store == null) throw "Failed to retrieve Store Master";
-
-      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
-      if (cashierMachine == null) throw "Failed to retrieve Cash Register";
-
-      final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-      final userId = prefs.getString('tousrId') ?? "";
-      final employeeId = prefs.getString('tohemId') ?? "";
-      final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
-      if (user == null) throw "User Not Found";
-      final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
-
-      // final Map<String, String> payload = {
-      //   "Store Name": store.storeName,
-      //   "Cash Register Id": (cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description,
-      //   "Cashier Name": employee?.empName ?? user.username,
-      // };
-
-      final String body = '''
-    Approval For: Zero or Negative Transaction,
-    Store Name: ${store.storeName},
-    Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
-    Cashier Name: ${employee?.empName ?? user.username},
-''';
-
-      final String subject = "OTP RUBY POS Zero/Negative Transaction - [${store.storeCode}]";
-      await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
+      await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, widget.subject, widget.body);
 
       setState(() {
         _isOTPSent = true;
@@ -209,7 +212,7 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                   _isOTPClicked = true;
                   _isSendingOTP = true;
                   _isOTPSent = false;
-                  _otpFocusNode.requestFocus();
+                  _otpFocusNodes[0].requestFocus();
 
                   for (int i = 0; i < 6; i++) {
                     _otpControllers[i].text = "";
@@ -236,10 +239,35 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                   color: ProjectColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-                child: const Text(
-                  'OTP Confirmation',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'OTP Confirmation',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                        borderRadius: const BorderRadius.all(Radius.circular(360)),
+                      ),
+                      child: IconButton(
+                        focusColor: const Color.fromARGB(255, 110, 0, 0),
+                        focusNode: _keyboardFocusNode,
+                        icon: Icon(
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showKeyboard = !_showKeyboard;
+                          });
+                        },
+                        tooltip: 'Toggle Keyboard',
+                      ),
+                    ),
+                  ],
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -264,11 +292,11 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                                 width: 60,
                                 margin: const EdgeInsets.symmetric(horizontal: 5),
                                 child: TextField(
-                                  focusNode: index == 0 ? _otpFocusNode : null,
+                                  focusNode: _otpFocusNodes[index],
                                   controller: _otpControllers[index],
                                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
                                   maxLength: 1,
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.none,
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     fontSize: 30,
@@ -320,7 +348,7 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                                           _isOTPClicked = true;
                                           _isSendingOTP = true;
                                           _isOTPSent = false;
-                                          _otpFocusNode.requestFocus();
+                                          _otpFocusNodes[0].requestFocus();
 
                                           for (int i = 0; i < 6; i++) {
                                             _otpControllers[i].text = "";
@@ -373,6 +401,39 @@ class _OTPSubmissionDialogState extends State<OTPSubmissionDialog> {
                                     child: CircularProgressIndicator(),
                                   ),
                           ],
+                          const SizedBox(height: 10),
+                          (_showKeyboard)
+                              ? KeyboardWidget(
+                                  controller: _otpControllers[_focusedIndex],
+                                  isNumericMode: true,
+                                  customLayoutKeys: true,
+                                  focusNodeAndTextController: FocusNodeAndTextController(
+                                    focusNode: _otpFocusNodes[_focusedIndex],
+                                    textEditingController: _otpControllers[_focusedIndex],
+                                  ),
+                                  onChanged: () async {
+                                    String text = _otpControllers[_focusedIndex].text;
+
+                                    if (text.isNotEmpty && _focusedIndex < 5) {
+                                      _otpFocusNodes[_focusedIndex + 1].requestFocus();
+                                    } else if (text.isNotEmpty && _focusedIndex == 5) {
+                                      _updateOtpCode();
+                                      await onSubmit(parentContext, childContext, _otpCode, widget.requester);
+                                    }
+                                  },
+                                  onChangedBackspace: () {
+                                    String text = _otpControllers[_focusedIndex].text;
+                                    if (text.isNotEmpty) {
+                                      text = text.substring(0, text.length - 1);
+                                      _otpControllers[_focusedIndex].text = text;
+                                    }
+
+                                    if (text.isEmpty && _focusedIndex > 0) {
+                                      _otpFocusNodes[_focusedIndex - 1].requestFocus();
+                                    }
+                                  },
+                                )
+                              : const SizedBox.shrink(),
                         ],
                       ),
                     ),

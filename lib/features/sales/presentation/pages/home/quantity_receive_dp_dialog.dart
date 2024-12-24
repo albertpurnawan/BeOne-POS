@@ -2,10 +2,15 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 
 class QuantityReceiveDPDialog extends StatefulWidget {
   const QuantityReceiveDPDialog({super.key, required this.quantity});
@@ -42,8 +47,15 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
     },
   );
 
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool _isDropdownShown = false;
+  bool _showKeyboard = true;
+  bool _currentNumericMode = true;
+  final GlobalKey _iconButtonKey = GlobalKey();
+
   @override
   initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     _textEditingControllerQuantity.text = Helpers.cleanDecimal(widget.quantity, 1);
   }
@@ -51,10 +63,91 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
   @override
   void dispose() {
     _textEditingControllerQuantity.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
   }
 
-  // void _check
+  void _toggleKeyboard() {
+    if (_isDropdownShown) {
+      setState(() {
+        _showKeyboard = !_showKeyboard;
+      });
+    } else {
+      _showDropdown();
+    }
+  }
+
+  void _showDropdown() async {
+    final RenderBox renderBox = _iconButtonKey.currentContext!.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+
+    await showMenu(
+      context: context,
+      surfaceTintColor: Colors.transparent,
+      color: const Color.fromARGB(255, 245, 245, 245),
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy + renderBox.size.height,
+        offset.dx + renderBox.size.width,
+        offset.dy,
+      ),
+      items: [
+        const PopupMenuItem(
+          value: "Alphanumeric",
+          child: Text("Alphanumeric"),
+        ),
+        const PopupMenuItem(
+          value: "Numeric",
+          child: Text("Numeric"),
+        ),
+        const PopupMenuItem(
+          value: "Off",
+          child: Text("Off"),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        switch (value) {
+          case 'Off':
+            setState(() {
+              _showKeyboard = false;
+            });
+            break;
+          case 'Alphanumeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = false;
+            });
+            break;
+          case 'Numeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = true;
+            });
+            break;
+          default:
+            setState(() {
+              _showKeyboard = true;
+            });
+            break;
+        }
+      }
+    });
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,10 +160,34 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
           color: ProjectColors.primary,
           borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
         ),
-        padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-        child: const Text(
-          'Input Quantity',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+        padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Input Quantity',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                borderRadius: const BorderRadius.all(Radius.circular(360)),
+              ),
+              child: IconButton(
+                key: _iconButtonKey,
+                focusColor: const Color.fromARGB(255, 110, 0, 0),
+                focusNode: _keyboardFocusNode,
+                icon: Icon(
+                  _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  _toggleKeyboard();
+                },
+                tooltip: 'Toggle Keyboard',
+              ),
+            ),
+          ],
         ),
       ),
       titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -87,7 +204,7 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
                 controller: _textEditingControllerQuantity,
                 autofocus: true,
                 inputFormatters: [MoneyInputFormatter()],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 24),
                 onEditingComplete: () {
@@ -128,6 +245,21 @@ class _QuantityReceiveDPDialogState extends State<QuantityReceiveDPDialog> {
                       fontStyle: FontStyle.italic,
                       fontWeight: FontWeight.w700,
                       color: ProjectColors.swatch,
+                    ),
+                  )
+                : const SizedBox.shrink(),
+            (_showKeyboard)
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(40, 10, 40, 5),
+                    child: KeyboardWidget(
+                      controller: _textEditingControllerQuantity,
+                      isNumericMode: _currentNumericMode,
+                      customLayoutKeys: true,
+                      focusNodeAndTextController: FocusNodeAndTextController(
+                        focusNode: _focusNodeQuantity,
+                        textEditingController: _textEditingControllerQuantity,
+                      ),
+                      textFormatter: _currentNumericMode ? MoneyInputFormatter() : NegativeMoneyInputFormatter(),
                     ),
                   )
                 : const SizedBox.shrink(),

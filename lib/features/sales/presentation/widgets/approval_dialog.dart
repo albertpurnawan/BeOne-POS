@@ -10,7 +10,9 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
+import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
@@ -19,14 +21,30 @@ import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/otp_submission_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class ApprovalDialog extends StatefulWidget {
-  final ApprovalType approvalType;
-  final double? discount;
-  const ApprovalDialog({Key? key, this.approvalType = ApprovalType.general, this.discount}) : super(key: key);
+  final ApprovalType? approvalType;
+  final double? initialGrandTotal;
+  final double? finalGrandTotal;
+  final double? discountValue;
+  final String? docnum;
+  final double? returnQty;
+  final double? returnAmount;
+  final List<LineDiscountParameter>? lineDiscountParameters;
+  const ApprovalDialog(
+      {super.key,
+      this.approvalType,
+      this.initialGrandTotal,
+      this.finalGrandTotal,
+      this.discountValue,
+      this.docnum,
+      this.lineDiscountParameters,
+      this.returnQty,
+      this.returnAmount});
 
   @override
   State<ApprovalDialog> createState() => _ApprovalDialogState();
@@ -34,31 +52,85 @@ class ApprovalDialog extends StatefulWidget {
 
 class _ApprovalDialogState extends State<ApprovalDialog> {
   final _formKey = GlobalKey<FormState>();
-  final usernameController = TextEditingController();
-  final passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
   final _usernameFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
   bool _obscureText = true;
   bool _isOTPClicked = false;
   bool _isSendingOTP = false;
 
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+  TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
+  late String remarks;
+  late String category;
+  late String subject;
+  late String body;
+  late String tastrField;
+  String dialogPrefix = "";
+
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
+    modularApprovalandOTP(widget.approvalType);
     super.initState();
+    _usernameFocusNode.addListener(() {
+      if (_usernameFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _usernameController;
+          _activeFocusNode = _usernameFocusNode;
+        });
+      }
+    });
+    _passwordFocusNode.addListener(() {
+      if (_passwordFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _passwordController;
+          _activeFocusNode = _passwordFocusNode;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _usernameFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _keyboardFocusNode.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<String> checkPassword(String username, String password) async {
     String hashedPassword = md5.convert(utf8.encode(password)).toString();
     String check = "";
-    String category = "nonpositivetrx";
-
     final UserModel? user = await GetIt.instance<AppDatabase>().userDao.readByUsername(username, null);
 
     if (user != null) {
-      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, category, null);
+      final tastr = await GetIt.instance<AppDatabase>().authStoreDao.readByTousrId(user.docId, tastrField, null);
 
       if (tastr != null && tastr.tousrdocid == user.docId) {
         if (tastr.statusActive != 1) {
+          check = "Unauthorized";
+        } else if (tastr.returnauthorization != 1) {
           check = "Unauthorized";
         } else if (user.password == hashedPassword) {
           check = "Success";
@@ -77,7 +149,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
-    String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
+    String passwordCorrect = await checkPassword(_usernameController.text, _passwordController.text);
     if (passwordCorrect == "Success") {
       await updateReceiptApprovals(childContext);
       parentContext.pop(true);
@@ -89,7 +161,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
   }
 
   Future<void> updateReceiptApprovals(BuildContext context) async {
-    final user = await GetIt.instance<AppDatabase>().userDao.readByUsername(usernameController.text, null);
+    final user = await GetIt.instance<AppDatabase>().userDao.readByUsername(_usernameController.text, null);
     final receiptCubit = context.read<ReceiptCubit>();
 
     final approval = ApprovalInvoiceModel(
@@ -98,45 +170,14 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
       updateDate: null,
       toinvId: receiptCubit.state.docNum,
       tousrId: user!.docId,
-      remarks: "Approval Transaction 0",
-      category: "002 - Transaction 0",
+      remarks: remarks,
+      category: category,
     );
     context.read<ReceiptCubit>().updateApprovals(approval);
   }
 
   Future<String> createOTP() async {
     try {
-      final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
-      if (topos == null) throw "Failed to retrieve POS Parameter";
-
-      final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
-      if (store == null) throw "Failed to retrieve Store Master";
-
-      final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
-      if (cashierMachine == null) throw "Failed to retrieve Cash Register";
-
-      final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
-      final userId = prefs.getString('tousrId') ?? "";
-      final employeeId = prefs.getString('tohemId') ?? "";
-      final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
-      if (user == null) throw "User Not Found";
-      final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
-
-      // final Map<String, String> payload = {
-      //   "Store Name": store.storeName,
-      //   "Cash Register Id": (cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description,
-      //   "Cashier Name": employee?.empName ?? user.username,
-      // };
-
-      final String body = '''
-    Approval For: Zero or Negative Transaction,
-    Store Name: ${store.storeName},
-    Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
-    Cashier Name: ${employee?.empName ?? user.username},
-''';
-
-      final String subject = "OTP RUBY POS Zero or Negative Transaction - [${store.storeCode}]";
-
       final response = await GetIt.instance<OTPServiceAPi>().createSendOTP(context, null, subject, body);
       return response['Requester'];
     } catch (e) {
@@ -162,6 +203,8 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
           barrierDismissible: false,
           builder: (context) => OTPSubmissionDialog(
             requester: value,
+            subject: subject,
+            body: body,
           ),
         );
       });
@@ -174,9 +217,94 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  Future<void> modularApprovalandOTP(type) async {
+    final POSParameterEntity? topos = await GetIt.instance<GetPosParameterUseCase>().call();
+    if (topos == null) throw "Failed to retrieve POS Parameter";
+
+    final StoreMasterEntity? store = await GetIt.instance<GetStoreMasterUseCase>().call(params: topos.tostrId);
+    if (store == null) throw "Failed to retrieve Store Master";
+
+    final cashierMachine = await GetIt.instance<AppDatabase>().cashRegisterDao.readByDocId(topos.tocsrId!, null);
+    if (cashierMachine == null) throw "Failed to retrieve Cash Register";
+
+    final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
+    final userId = prefs.getString('tousrId') ?? "";
+    final employeeId = prefs.getString('tohemId') ?? "";
+    final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
+    if (user == null) throw "User Not Found";
+
+    final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
+
+    if (type == ApprovalType.discount) {
+      final double lineDiscountsTotal = widget.lineDiscountParameters!
+          .fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount);
+      final int appliedLineDiscountsCount =
+          widget.lineDiscountParameters!.where((element) => element.lineDiscountAmount != 0).length;
+      final String lineDiscountsString = widget.lineDiscountParameters!
+          .where((element) => element.lineDiscountAmount != 0)
+          .map((e) =>
+              "${e.receiptItemEntity.itemEntity.barcode} - ${e.receiptItemEntity.itemEntity.itemName}\n      Qty. ${Helpers.cleanDecimal(e.receiptItemEntity.quantity, 5)}\n      Total Amount: ${Helpers.parseMoney(e.receiptItemEntity.totalAmount)}\n      Discount: ${Helpers.parseMoney(e.lineDiscountAmount)}\n      Final Total Amount: ${Helpers.parseMoney(e.receiptItemEntity.totalAmount - e.lineDiscountAmount)}")
+          .join(",\n\n      ");
+
+      setState(() {
+        remarks =
+            "Header Discount: ${Helpers.parseMoney(widget.discountValue as num)}; Line Discounts: ${Helpers.parseMoney(lineDiscountsTotal)} ($appliedLineDiscountsCount item(s))";
+        category = "001 - Discount & Rounding";
+        subject = "OTP RUBY POS Discount or Rounding - [${store.storeCode}]";
+
+        body = '''
+          Approval For: Discount or Rounding,
+          Store Name: ${store.storeName},
+          Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
+          Cashier Name: ${employee?.empName ?? user.username},
+          Header Discount: ${Helpers.parseMoney(widget.discountValue as num)},
+          Line Discounts:
+            $lineDiscountsString
+          ,
+          Total Line Discounts: ${Helpers.parseMoney(lineDiscountsTotal)},
+          Final Grand Total: ${Helpers.parseMoney(widget.finalGrandTotal as num)},
+        ''';
+
+        tastrField = 'discandround';
+        dialogPrefix = "Discount";
+      });
+    } else if (type == ApprovalType.returnItem) {
+      setState(() {
+        remarks =
+            "Return Qty.: ${widget.returnQty.toString()} Return Amount: ${Helpers.parseMoney(widget.returnAmount ?? 0)}";
+        category = "003 - Return Transaction";
+        subject = "OTP RUBY POS Return Transaction - [${store.storeCode}]";
+
+        body = '''
+          Approval For: Return Transaction,
+          Store Name: ${store.storeName},
+          Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
+          Cashier Name: ${employee?.empName ?? user.username},
+          Return Qty: ${widget.returnQty.toString()},
+          Return Amount:
+            ${Helpers.parseMoney(widget.returnAmount ?? 0)}
+        ''';
+
+        tastrField = 'returnauthorization';
+        dialogPrefix = 'Return';
+      });
+    } else if (type == ApprovalType.zeroTransaction) {
+      setState(() {
+        remarks = "Approval Transaction 0";
+        category = "002 - Transaction 0";
+        body = '''
+          Approval For: Zero or Negative Transaction,
+          Store Name: ${store.storeName},
+          Cash Register Id: ${(cashierMachine.description == "") ? cashierMachine.idKassa! : cashierMachine.description},
+          Cashier Name: ${employee?.empName ?? user.username},
+        ''';
+
+        subject = "OTP RUBY POS Zero or Negative Transaction - [${store.storeCode}]";
+
+        tastrField = 'nonpositivetrx';
+        dialogPrefix = "Zero Transaction";
+      });
+    }
   }
 
   @override
@@ -212,10 +340,35 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                   color: ProjectColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
-                child: const Text(
-                  'Approval',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${dialogPrefix + " "}Approval',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                        borderRadius: const BorderRadius.all(Radius.circular(360)),
+                      ),
+                      child: IconButton(
+                        focusColor: const Color.fromARGB(255, 110, 0, 0),
+                        focusNode: _keyboardFocusNode,
+                        icon: Icon(
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showKeyboard = !_showKeyboard;
+                          });
+                        },
+                        tooltip: 'Toggle Keyboard',
+                      ),
+                    ),
+                  ],
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -234,9 +387,9 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                             width: MediaQuery.of(childContext).size.width * 0.5,
                             child: TextFormField(
                               focusNode: _usernameFocusNode,
-                              controller: usernameController,
+                              controller: _usernameController,
                               autofocus: true,
-                              keyboardType: TextInputType.text,
+                              keyboardType: TextInputType.none,
                               onFieldSubmitted: (value) async => await onSubmit(childContext, parentContext),
                               validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
                               textAlign: TextAlign.left,
@@ -256,10 +409,11 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                           SizedBox(
                             width: MediaQuery.of(childContext).size.width * 0.5,
                             child: TextFormField(
-                              controller: passwordController,
+                              focusNode: _passwordFocusNode,
+                              controller: _passwordController,
                               obscureText: _obscureText,
                               autofocus: true,
-                              keyboardType: TextInputType.text,
+                              keyboardType: TextInputType.none,
                               onFieldSubmitted: (value) async {
                                 await onSubmit(childContext, parentContext);
                               },
@@ -330,7 +484,22 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
                                 ),
                             ],
                           ),
-                          const SizedBox(height: 30),
+                          const SizedBox(height: 10),
+                          (_showKeyboard)
+                              ? SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.5,
+                                  child: KeyboardWidget(
+                                    controller: _activeController,
+                                    isNumericMode: false,
+                                    customLayoutKeys: true,
+                                    focusNodeAndTextController: FocusNodeAndTextController(
+                                      focusNode: _activeFocusNode,
+                                      textEditingController: _activeController,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                          const SizedBox(height: 10),
                           Row(
                             children: [
                               Expanded(
@@ -410,7 +579,7 @@ class _ApprovalDialogState extends State<ApprovalDialog> {
 }
 
 enum ApprovalType {
-  headerDiscount,
+  discount,
   zeroTransaction,
 
   closeShift,
@@ -418,4 +587,5 @@ enum ApprovalType {
   resetDatabase,
 
   general,
+  returnItem,
 }

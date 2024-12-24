@@ -7,13 +7,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
-
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
@@ -22,6 +20,8 @@ import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class OTPInputDialog extends StatefulWidget {
   final double initialGrandTotal;
@@ -32,14 +32,14 @@ class OTPInputDialog extends StatefulWidget {
   final List<LineDiscountParameter> lineDiscountParameters;
 
   const OTPInputDialog({
-    Key? key,
+    super.key,
     required this.initialGrandTotal,
     required this.finalGrandTotal,
     required this.discountValue,
     required this.requester,
     required this.docnum,
     required this.lineDiscountParameters,
-  }) : super(key: key);
+  });
 
   @override
   State<OTPInputDialog> createState() => _OTPInputDialogState();
@@ -54,14 +54,28 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
   bool _isSendingOTP = false;
   bool _isOTPClicked = false;
   bool _isOTPSent = false;
-  late FocusNode _otpFocusNode;
+  final List<FocusNode> _otpFocusNodes = List.generate(6, (_) => FocusNode());
+
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+  String currentFocusedField = '';
+  int _focusedIndex = 0;
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
-    _otpFocusNode = FocusNode();
     _startTimer();
-    _otpFocusNode.requestFocus();
+    _otpFocusNodes[0].requestFocus();
+    for (int i = 0; i < _otpFocusNodes.length; i++) {
+      _otpFocusNodes[i].addListener(() {
+        if (_otpFocusNodes[i].hasFocus) {
+          setState(() {
+            _focusedIndex = i;
+          });
+        }
+      });
+    }
   }
 
   @override
@@ -70,8 +84,25 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
     for (var controller in _otpControllers) {
       controller.dispose();
     }
-    _otpFocusNode.dispose();
+    _keyboardFocusNode.dispose();
+    for (int i = 0; i < _otpFocusNodes.length; i++) {
+      _otpFocusNodes[i].dispose();
+    }
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<void> resendOTP() async {
@@ -90,8 +121,6 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
     final user = await GetIt.instance<AppDatabase>().userDao.readByDocId(userId, null);
     if (user == null) throw "User Not Found";
     final employee = await GetIt.instance<AppDatabase>().employeeDao.readByDocId(employeeId, null);
-
-    final receipt = context.read<ReceiptCubit>().state;
 
     // final Map<String, String> payload = {
     //   "Store Name": store.storeName,
@@ -254,7 +283,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                   _isOTPClicked = true;
                   _isSendingOTP = true;
                   _isOTPSent = false;
-                  _otpFocusNode.requestFocus();
+                  _otpFocusNodes[0].requestFocus();
 
                   for (int i = 0; i < 6; i++) {
                     _otpControllers[i].text = "";
@@ -281,10 +310,35 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                   color: ProjectColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-                child: const Text(
-                  'OTP Confirmation',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'OTP Confirmation',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                        borderRadius: const BorderRadius.all(Radius.circular(360)),
+                      ),
+                      child: IconButton(
+                        focusColor: const Color.fromARGB(255, 110, 0, 0),
+                        focusNode: _keyboardFocusNode,
+                        icon: Icon(
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showKeyboard = !_showKeyboard;
+                          });
+                        },
+                        tooltip: 'Toggle Keyboard',
+                      ),
+                    ),
+                  ],
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -308,11 +362,11 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                               width: 60,
                               margin: const EdgeInsets.symmetric(horizontal: 5),
                               child: TextField(
-                                focusNode: index == 0 ? _otpFocusNode : null,
+                                focusNode: _otpFocusNodes[index],
                                 controller: _otpControllers[index],
                                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
                                 maxLength: 1,
-                                keyboardType: TextInputType.number,
+                                keyboardType: TextInputType.none,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   fontSize: 30,
@@ -364,7 +418,7 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                                         _isOTPClicked = true;
                                         _isSendingOTP = true;
                                         _isOTPSent = false;
-                                        _otpFocusNode.requestFocus();
+                                        _otpFocusNodes[0].requestFocus();
 
                                         for (int i = 0; i < 6; i++) {
                                           _otpControllers[i].text = "";
@@ -417,6 +471,39 @@ class _OTPInputDialogState extends State<OTPInputDialog> {
                                   child: CircularProgressIndicator(),
                                 ),
                         ],
+                        const SizedBox(height: 10),
+                        (_showKeyboard)
+                            ? KeyboardWidget(
+                                controller: _otpControllers[_focusedIndex],
+                                isNumericMode: true,
+                                customLayoutKeys: true,
+                                focusNodeAndTextController: FocusNodeAndTextController(
+                                  focusNode: _otpFocusNodes[_focusedIndex],
+                                  textEditingController: _otpControllers[_focusedIndex],
+                                ),
+                                onChanged: () async {
+                                  String text = _otpControllers[_focusedIndex].text;
+
+                                  if (text.isNotEmpty && _focusedIndex < 5) {
+                                    _otpFocusNodes[_focusedIndex + 1].requestFocus();
+                                  } else if (text.isNotEmpty && _focusedIndex == 5) {
+                                    _updateOtpCode();
+                                    await onSubmit(parentContext, childContext, _otpCode, widget.requester);
+                                  }
+                                },
+                                onChangedBackspace: () {
+                                  String text = _otpControllers[_focusedIndex].text;
+                                  if (text.isNotEmpty) {
+                                    text = text.substring(0, text.length - 1);
+                                    _otpControllers[_focusedIndex].text = text;
+                                  }
+
+                                  if (text.isEmpty && _focusedIndex > 0) {
+                                    _otpFocusNodes[_focusedIndex - 1].requestFocus();
+                                  }
+                                },
+                              )
+                            : const SizedBox.shrink(),
                       ],
                     ),
                   ),

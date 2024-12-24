@@ -13,10 +13,13 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/navigation_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/custom_button.dart';
+import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/features/home/domain/usecases/logout.dart';
 import 'package:pos_fe/features/sales/data/models/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_header.dart';
+import 'package:pos_fe/features/sales/data/models/means_of_payment.dart';
 import 'package:pos_fe/features/sales/data/models/money_denomination.dart';
+import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/user.dart';
@@ -30,10 +33,29 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/cashier_balanc
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-class CloseShiftScreen extends StatelessWidget {
+class CloseShiftScreen extends StatefulWidget {
   final String shiftId;
   final String? username;
-  const CloseShiftScreen({Key? key, required this.shiftId, this.username}) : super(key: key);
+  const CloseShiftScreen({super.key, required this.shiftId, this.username});
+
+  @override
+  State<CloseShiftScreen> createState() => CloseShiftScreenState();
+}
+
+class CloseShiftScreenState extends State<CloseShiftScreen> {
+  bool _showKeyboard = false;
+  final FocusNode _keyboardFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _keyboardFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,41 +65,45 @@ class CloseShiftScreen extends StatelessWidget {
         title: const Text('Close Shift'),
         backgroundColor: ProjectColors.primary,
         foregroundColor: Colors.white,
-      ),
-      body: ShaderMask(
-        shaderCallback: (Rect rect) {
-          return const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color.fromARGB(134, 234, 234, 234),
-              Color.fromARGB(43, 234, 234, 234),
-              Colors.transparent,
-              Colors.transparent,
-              Color.fromARGB(43, 234, 234, 234),
-              Color.fromARGB(134, 234, 234, 234),
-            ],
-            stops: [0.0, 0.04, 0.07, 0.93, 0.96, 1.0], // 10% purple, 80% transparent, 10% purple
-          ).createShader(rect);
-        },
-        blendMode: BlendMode.dstOut,
-        // padding: EdgeInsets.symmetric(vertical: 20),
-        // width: double.infinity,
-        child: SingleChildScrollView(
-          // clipBehavior: Clip.antiAliasWithSaveLayer,
-          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 40),
-          child: SizedBox(
-            width: double.infinity,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 10),
-                CloseShiftForm(
-                  shiftId: shiftId,
-                  username: username ?? "",
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            child: Container(
+              decoration: BoxDecoration(
+                color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                borderRadius: const BorderRadius.all(Radius.circular(360)),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                  color: Colors.white,
                 ),
-              ],
+                onPressed: () {
+                  setState(() {
+                    _showKeyboard = !_showKeyboard;
+                  });
+                },
+                tooltip: 'Toggle Keyboard',
+              ),
             ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        // clipBehavior: Clip.antiAliasWithSaveLayer,
+        padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.2, vertical: 40),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 10),
+              CloseShiftForm(
+                shiftId: widget.shiftId,
+                username: widget.username ?? "",
+                showKeyboard: _showKeyboard,
+              ),
+            ],
           ),
         ),
       ),
@@ -88,7 +114,8 @@ class CloseShiftScreen extends StatelessWidget {
 class CloseShiftForm extends StatefulWidget {
   final String shiftId;
   final String? username;
-  const CloseShiftForm({Key? key, required this.shiftId, this.username}) : super(key: key);
+  final bool? showKeyboard;
+  const CloseShiftForm({super.key, required this.shiftId, this.username, this.showKeyboard});
 
   @override
   State<CloseShiftForm> createState() => _CloseShiftFormState();
@@ -98,6 +125,10 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   late final String shiftId = widget.shiftId;
   CashierBalanceTransactionModel? activeShift;
   late List<InvoiceHeaderModel?> transactions = [];
+  late List<InvoiceHeaderModel?> transactionsReturn = [];
+  late List<dynamic> transactionsMOP = [];
+  late List<PaymentTypeModel> transactionsTopmt = [];
+  late List<MeansOfPaymentModel> transactionsTpmt1 = [];
   final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   String totalCashAmount = '0';
   String totalNonCash = '0';
@@ -114,6 +145,9 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
   UserEntity? openShiftApproverUser;
   EmployeeEntity? openShiftApproverEmployee;
   bool isPrinting = false;
+
+  final tableHeader = ["No", "Means of Payment", "Amount"];
+  List<dynamic> tableData = [];
 
   @override
   void initState() {
@@ -133,6 +167,7 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
     await fetchOpenShiftApprover();
     await fetchCloseShiftApprover();
     await checkLastShiftId();
+    await fetchMOPByInvoice();
   }
 
   Future<void> fetchCloseShiftApprover() async {
@@ -194,7 +229,6 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
 
   Future<void> checkLastShiftId() async {
     final lastShift = await GetIt.instance<AppDatabase>().cashierBalanceTransactionDao.readLastValue();
-    log("lastShift - $checkLastShift");
     if (lastShift!.docId == activeShift!.docId) {
       setState(() {
         checkLastShift = true;
@@ -204,14 +238,24 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
         checkLastShift = false;
       });
     }
-    log("lastShift 2 - $checkLastShift");
   }
-
-  Future<void> backupDatabase() async {}
 
   Future<void> fetchInvoices() async {
     final transaction = await GetIt.instance<AppDatabase>().invoiceHeaderDao.readByShift(shiftId);
-    log("transaction - $transaction");
+
+    for (var i = 0; i < transaction.length; i++) {
+      final tinv1s =
+          await GetIt.instance<AppDatabase>().invoiceDetailDao.readByToinvId(transaction[i].docId ?? "", null);
+      if (tinv1s.isNotEmpty) {
+        for (var j = 0; j < tinv1s.length; j++) {
+          if (tinv1s[j].refpos3 != null && tinv1s[j].refpos3 != "") {
+            setState(() {
+              transactionsReturn.add(transaction[i]);
+            });
+          }
+        }
+      }
+    }
     setState(() {
       transactions = transaction;
     });
@@ -252,10 +296,10 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
       );
 
       final fetched = await GetIt.instance<AppDatabase>().payMeansDao.readByTpmt3BetweenDate(start, end);
-      log("fetched - $fetched");
       for (final mop in fetched!) {
-        if ((mop['topmtDesc'] != 'TUNAI')) {
-          if ((mop['topmtDesc'] == 'VOUCHER')) {
+        String mopStringUp = mop['topmtDesc'].toString().toUpperCase();
+        if ((mopStringUp != 'TUNAI')) {
+          if ((mopStringUp == 'VOUCHER')) {
             totalVoucher += mop['totalamount'];
           } else {
             nonCash += mop['totalamount'];
@@ -316,6 +360,86 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
         }
       }
     }
+  }
+
+  Future<void> fetchMOPByInvoice() async {
+    for (var i = 0; i < transactions.length; i++) {
+      final payMean =
+          await GetIt.instance<AppDatabase>().payMeansDao.readByToinvShowTopmt(transactions[i]!.docId.toString());
+      if (payMean != null && payMean.isNotEmpty) {
+        for (var j = 0; j < payMean.length; j++) {
+          transactionsMOP.add(payMean[j]);
+        }
+      }
+    }
+    for (var i = 0; i < transactionsMOP.length; i++) {
+      final tpmt3 = await GetIt.instance<AppDatabase>().mopByStoreDao.readByDocId(transactionsMOP[i]["tpmt3Id"], null);
+      if (tpmt3 == null) throw "Failed retrieve tpmt3";
+      final tpmt1 = await GetIt.instance<AppDatabase>().meansOfPaymentDao.readByDocId(tpmt3.tpmt1Id ?? "", null);
+      if (tpmt1 == null) throw "Failed retrieve tpmt1";
+      final topmt = await GetIt.instance<AppDatabase>().paymentTypeDao.readByDocId(tpmt1.topmtId ?? "", null);
+      if (topmt == null) throw "Failed retrieve topmt";
+      transactionsTopmt.add(topmt);
+      transactionsTpmt1.add(tpmt1);
+    }
+
+    setState(() {
+      transactionsTopmt = transactionsTopmt
+          .fold<Map<String, PaymentTypeModel>>({}, (map, transaction) {
+            map[transaction.docId] = transaction;
+            return map;
+          })
+          .values
+          .toList()
+        ..sort((a, b) => a.payTypeCode.compareTo(b.payTypeCode));
+
+      transactionsTpmt1 = transactionsTpmt1
+          .fold<Map<String, MeansOfPaymentModel>>({}, (map, transaction) {
+            map[transaction.docId] = transaction;
+            return map;
+          })
+          .values
+          .toList();
+
+      transactionsMOP = transactionsMOP
+          .fold<Map<String, dynamic>>({}, (map, transaction) {
+            String tpmt1Id = transaction['tpmt1Id'];
+
+            if (map.containsKey(tpmt1Id)) {
+              map[tpmt1Id]['amount'] += transaction['amount'];
+              map[tpmt1Id]['docids'].add(transaction['docid']);
+              map[tpmt1Id]['createdat'] = transaction['createdat'];
+              map[tpmt1Id]['description'] = transaction['description'];
+              map[tpmt1Id]['topmtId'] = transaction['topmtId'];
+            } else {
+              map[tpmt1Id] = {
+                'tpmt1Id': tpmt1Id,
+                'amount': transaction['amount'],
+                'docids': [transaction['docid']],
+                'createdat': transaction['createdat'],
+                'description': transaction['description'],
+                'paytypecode': transaction['paytypecode'],
+                'topmtId': transaction['topmtId'],
+              };
+            }
+            return map;
+          })
+          .values
+          .toList()
+        ..sort((a, b) => a['paytypecode'].compareTo(b['paytypecode']));
+
+      tableData = transactionsMOP
+          .asMap()
+          .map((index, transaction) {
+            return MapEntry(index, [
+              (index + 1).toString(),
+              transaction['description'] ?? '',
+              Helpers.parseMoney(transaction['amount']),
+            ]);
+          })
+          .values
+          .toList();
+    });
   }
 
   @override
@@ -645,7 +769,231 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           ],
         ),
         const SizedBox(
+          height: 10,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Invoice Count (All)",
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                transactions.length.toString(),
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(
+              child: Text(
+                "Invoice Count (Return)",
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+            Expanded(
+              child: Text(
+                transactionsReturn.length.toString(),
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
           height: 30,
+        ),
+        const Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Expanded(
+              child: Text(
+                "MOP Details",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+                textAlign: TextAlign.start,
+              ),
+            ),
+          ],
+        ),
+        const Divider(
+          height: 20,
+          color: Colors.grey,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            (transactionsTopmt.isEmpty && transactionsMOP.isEmpty)
+                ? const Expanded(
+                    child: Center(
+                      child: EmptyList(
+                        imagePath: "assets/images/empty-search.svg",
+                        sentence: "No transactions happened on this shift, yet...",
+                        height: 200,
+                      ),
+                    ),
+                  )
+                : Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: List.generate(transactionsTopmt.length, (index) {
+                          List<List<dynamic>> tableData = [];
+
+                          final filteredTransactions = transactionsMOP.where((transaction) {
+                            return transaction['topmtId'] == transactionsTopmt[index].docId;
+                          }).toList();
+
+                          if (filteredTransactions.isNotEmpty) {
+                            double totalAmount = filteredTransactions.fold(0, (sum, transaction) {
+                              return sum + (transaction['amount'] ?? 0);
+                            });
+
+                            tableData = filteredTransactions
+                                .asMap()
+                                .map((i, transaction) {
+                                  return MapEntry(i, [
+                                    (i + 1).toString(),
+                                    transaction['description'] ?? '',
+                                    Helpers.parseMoney(transaction['amount']),
+                                  ]);
+                                })
+                                .values
+                                .toList();
+
+                            tableData.add([
+                              '',
+                              'Total',
+                              Helpers.parseMoney(totalAmount),
+                            ]);
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  transactionsTopmt[index].description,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                  textAlign: TextAlign.start,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 5),
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: const Color.fromARGB(255, 222, 220, 220),
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            // Table Header
+                                            Container(
+                                              decoration: const BoxDecoration(
+                                                color: ProjectColors.primary,
+                                              ),
+                                              child: Row(
+                                                children: tableHeader.map((header) {
+                                                  return Container(
+                                                    width: 275,
+                                                    height: 30,
+                                                    alignment: Alignment.center,
+                                                    child: Text(
+                                                      header,
+                                                      textAlign: TextAlign.center,
+                                                      style: const TextStyle(
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  );
+                                                }).toList(),
+                                              ),
+                                            ),
+                                            // Table Data
+                                            Column(
+                                              children: tableData.map((row) {
+                                                bool isLastRow = row == tableData.last;
+                                                return Row(
+                                                  children: row.map<Widget>((cell) {
+                                                    return Container(
+                                                      decoration: BoxDecoration(
+                                                        border: const Border.symmetric(
+                                                          horizontal: BorderSide(
+                                                            width: 0.5,
+                                                            color: Color.fromARGB(255, 222, 220, 220),
+                                                          ),
+                                                        ),
+                                                        color: isLastRow
+                                                            ? const Color.fromARGB(255, 220, 220, 220)
+                                                            : Colors.transparent,
+                                                      ),
+                                                      width: 275,
+                                                      height: 40,
+                                                      alignment: Alignment.center,
+                                                      child: Text(
+                                                        cell.toString(),
+                                                        textAlign: TextAlign.center,
+                                                        style: TextStyle(
+                                                          fontWeight: isLastRow ? FontWeight.bold : FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
+          ],
+        ),
+        const SizedBox(
+          height: 20,
         ),
         const Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -667,7 +1015,10 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
           height: 20,
           color: Colors.grey,
         ),
-        CalculateCash(setTotal: updateTotalCash),
+        CalculateCash(
+          setTotal: updateTotalCash,
+          showKeyboard: widget.showKeyboard,
+        ),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -847,15 +1198,20 @@ class _CloseShiftFormState extends State<CloseShiftForm> {
                     throw "Close shift failed, current shift not found";
                   }
                   final PrintCloseShiftUsecaseParams printCloseShiftUsecaseParams = PrintCloseShiftUsecaseParams(
-                      cashierBalanceTransactionEntity: cashierBalanceTransactionEntity,
-                      totalCashSales: Helpers.revertMoneyToDecimalFormat(totalCashAmount),
-                      expectedCash: Helpers.revertMoneyToDecimalFormat(expectedCash),
-                      totalNonCashSales: Helpers.revertMoneyToDecimalFormat(totalNonCash),
-                      totalSales: Helpers.revertMoneyToDecimalFormat(totalSales),
-                      cashReceived: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
-                      difference: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
-                          Helpers.revertMoneyToDecimalFormat(expectedCash),
-                      approverName: closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "");
+                    cashierBalanceTransactionEntity: cashierBalanceTransactionEntity,
+                    totalCashSales: Helpers.revertMoneyToDecimalFormat(totalCashAmount),
+                    expectedCash: Helpers.revertMoneyToDecimalFormat(expectedCash),
+                    totalNonCashSales: Helpers.revertMoneyToDecimalFormat(totalNonCash),
+                    totalSales: Helpers.revertMoneyToDecimalFormat(totalSales),
+                    cashReceived: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash),
+                    difference: Helpers.revertMoneyToDecimalFormat(calculatedTotalCash) -
+                        Helpers.revertMoneyToDecimalFormat(expectedCash),
+                    approverName: closeShiftApproverEmployee?.empName ?? closeShiftApproverUser?.username ?? "",
+                    transactions: transactions.length,
+                    transactionsReturn: transactionsReturn.length,
+                    transactionsTopmt: transactionsTopmt,
+                    transactionsMOP: transactionsMOP,
+                  );
                   try {
                     GetIt.instance<PrintCloseShiftUsecase>().call(params: printCloseShiftUsecaseParams, printType: 1);
                   } catch (e) {

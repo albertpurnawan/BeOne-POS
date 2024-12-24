@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
-import 'package:pos_fe/core/widgets/field_label.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 
 class InputLineDiscountDialog extends StatefulWidget {
   final ReceiptItemEntity receiptItemEntity;
@@ -27,15 +29,149 @@ class InputLineDiscountDialog extends StatefulWidget {
 }
 
 class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
-  final FocusNode _inputReturnedQtyFocusNode = FocusNode();
+  final FocusNode _inputAmountFocusNode = FocusNode();
+  final FocusNode _inputPercentFocusNode = FocusNode();
 
-  final TextEditingController _inputReturnedQtyEditingController = TextEditingController();
+  final TextEditingController _inputAmountController = TextEditingController();
+  final TextEditingController _inputPercentController = TextEditingController();
+
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool _showKeyboard = true;
+
+  bool _currentNumericMode = true;
+  bool _isDropdownShown = false;
+  final GlobalKey _iconButtonKey = GlobalKey();
+  TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
-    // TODO: implement initState
+    getDefaultKeyboardPOSParameter();
     super.initState();
-    _inputReturnedQtyEditingController.text = Helpers.parseMoney(widget.lineDiscount);
+    _inputPercentFocusNode.requestFocus();
+    _inputAmountController.text = Helpers.parseMoney(widget.lineDiscount);
+    if (widget.lineDiscount != 0) {
+      final percentage = (widget.lineDiscount / widget.receiptItemEntity.totalAmount * 100).abs();
+      _inputPercentController.text = percentage.toStringAsFixed(2);
+    }
+    _inputPercentFocusNode.addListener(() {
+      if (_inputPercentFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _inputPercentController;
+          _activeFocusNode = _inputPercentFocusNode;
+        });
+      }
+    });
+    _inputAmountFocusNode.addListener(() {
+      if (_inputAmountFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _inputAmountController;
+          _activeFocusNode = _inputAmountFocusNode;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _inputAmountController.dispose();
+    _inputPercentController.dispose();
+    _inputAmountFocusNode.dispose();
+    _inputPercentFocusNode.dispose();
+    _keyboardFocusNode.dispose();
+    super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
+  }
+
+  void _toggleKeyboard() {
+    if (_isDropdownShown) {
+      setState(() {
+        _showKeyboard = !_showKeyboard;
+      });
+    } else {
+      _showDropdown();
+    }
+  }
+
+  void _showDropdown() async {
+    final RenderBox renderBox = _iconButtonKey.currentContext!.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+
+    await showMenu(
+      context: context,
+      surfaceTintColor: Colors.transparent,
+      color: const Color.fromARGB(255, 245, 245, 245),
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy + renderBox.size.height,
+        offset.dx + renderBox.size.width,
+        offset.dy,
+      ),
+      items: [
+        const PopupMenuItem(
+          value: "Alphanumeric",
+          child: Text("Alphanumeric"),
+        ),
+        const PopupMenuItem(
+          value: "Numeric",
+          child: Text("Numeric"),
+        ),
+        const PopupMenuItem(
+          value: "Off",
+          child: Text("Off"),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        switch (value) {
+          case 'Off':
+            setState(() {
+              _showKeyboard = false;
+            });
+            break;
+          case 'Alphanumeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = false;
+            });
+            break;
+          case 'Numeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = true;
+            });
+            break;
+          default:
+            setState(() {
+              _showKeyboard = true;
+            });
+            break;
+        }
+      }
+    });
+  }
+
+  void _saveLineDiscount({double? amount}) {
+    try {
+      final double lineDiscountAmount = amount ?? Helpers.revertMoneyToDecimalFormatDouble(_inputAmountController.text);
+      if (lineDiscountAmount < widget.min || lineDiscountAmount > widget.max) throw "Invalid amount";
+      context.pop(lineDiscountAmount);
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
   }
 
   @override
@@ -73,304 +209,407 @@ class _InputLineDiscountDialogState extends State<InputLineDiscountDialog> {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
               ),
               const Spacer(),
-              ExcludeFocus(
-                  child: InkWell(
-                onTap: () => _saveLineDiscount(amount: 0),
-                child: const Icon(
-                  Icons.delete_outline_rounded,
-                  color: Colors.white,
-                ),
-              ))
+              Row(
+                children: [
+                  ExcludeFocus(
+                      child: InkWell(
+                    onTap: () => _saveLineDiscount(amount: 0),
+                    child: const Icon(
+                      Icons.delete_outline_rounded,
+                      color: Colors.white,
+                    ),
+                  )),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(360)),
+                    ),
+                    child: IconButton(
+                      focusColor: const Color.fromARGB(255, 110, 0, 0),
+                      focusNode: _keyboardFocusNode,
+                      key: _iconButtonKey,
+                      icon: Icon(
+                        _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        _toggleKeyboard();
+                      },
+                      tooltip: 'Toggle Keyboard',
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        contentPadding: const EdgeInsets.all(0),
-        content: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: SizedBox(
-            width: 400,
-            // constraints: BoxConstraints(
-            //   maxHeight: MediaQuery.of(context).size.height * 0.6,
-            // ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          children: [
-                            FieldLabel(
-                              label: "Amount",
-                              child: TextField(
-                                onSubmitted: (_) => _saveLineDiscount(),
-                                onChanged: (value) => setState(() {}),
-                                autofocus: true,
-                                inputFormatters: [NegativeMoneyInputFormatter()],
-                                keyboardType: TextInputType.number,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 66, 66, 66)),
-                                controller: _inputReturnedQtyEditingController,
-                                focusNode: _inputReturnedQtyFocusNode,
-                                decoration: const InputDecoration(
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.all(10),
-                                  border: OutlineInputBorder(),
-
-                                  // suffixIcon: Container(
-                                  //   padding: const EdgeInsets.all(10),
-                                  //   width: 80,
-                                  //   height: 50,
-                                  //   child: OutlinedButton(
-                                  //     focusNode: FocusNode(skipTraversal: true),
-                                  //     style: OutlinedButton.styleFrom(
-                                  //       backgroundColor: ProjectColors.primary,
-                                  //       padding: const EdgeInsets.all(5),
-                                  //       foregroundColor: Colors.white,
-                                  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-                                  //     ),
-                                  //     onPressed: () async {},
-                                  //     child: Row(
-                                  //       mainAxisAlignment: MainAxisAlignment.center,
-                                  //       children: [
-                                  //         RichText(
-                                  //           textAlign: TextAlign.center,
-                                  //           text: const TextSpan(
-                                  //             children: [
-                                  //               TextSpan(
-                                  //                 text: "Check",
-                                  //                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-                                  //               ),
-                                  //             ],
-                                  //             style: TextStyle(height: 1, fontSize: 10),
-                                  //           ),
-                                  //           overflow: TextOverflow.clip,
-                                  //         ),
-                                  //       ],
-                                  //     ),
-                                  //   ),
-                                  // ),
-                                ),
-                              ),
+        contentPadding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+        content: Container(
+          width: MediaQuery.of(context).size.width * 0.4,
+          color: Colors.white,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Discount Percentage'),
+                          TextFormField(
+                            focusNode: _inputPercentFocusNode,
+                            controller: _inputPercentController,
+                            keyboardType: TextInputType.none,
+                            onFieldSubmitted: (_) => _saveLineDiscount(),
+                            // onTap: () {
+                            //   setState(() {
+                            //     _activeController = _inputPercentController;
+                            //     _activeFocusNode = _inputPercentFocusNode;
+                            //   });
+                            // },
+                            onChanged: (value) {
+                              final cleanValue = value.replaceAll('%', '');
+                              if (cleanValue.isNotEmpty) {
+                                final percentage = double.tryParse(cleanValue) ?? 0;
+                                final amount = (widget.receiptItemEntity.totalAmount * percentage / 100);
+                                _inputAmountController.text = Helpers.parseMoney(amount);
+                              } else {
+                                _inputAmountController.text = '';
+                              }
+                              setState(() {});
+                            },
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'^\-?\d*\.?\d{0,3}%?$')),
+                            ],
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 24),
+                            decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(10),
+                                hintText: "e.g. 10",
+                                hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+                                border: OutlineInputBorder(),
+                                suffixText: '%'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('Discount Amount'),
+                          TextFormField(
+                            focusNode: _inputAmountFocusNode,
+                            controller: _inputAmountController,
+                            keyboardType: TextInputType.none,
+                            onChanged: (value) {
+                              if (value.isNotEmpty) {
+                                final amount = double.tryParse(value.replaceAll(',', '')) ?? 0;
+                                final percentage = (amount / widget.receiptItemEntity.totalAmount * 100).abs();
+                                _inputPercentController.text = percentage.toStringAsFixed(2);
+                              } else {
+                                _inputPercentController.text = '';
+                              }
+                              setState(() {});
+                            },
+                            autofocus: true,
+                            inputFormatters: [NegativeMoneyInputFormatter()],
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 24),
+                            onFieldSubmitted: (_) => _saveLineDiscount(),
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.all(10),
+                              hintText: "e.g. 100,000",
+                              hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+                              border: OutlineInputBorder(),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(color: ProjectColors.background, borderRadius: BorderRadius.circular(5)),
+                  child: Table(
+                    // defaultColumnWidth: IntrinsicColumnWidth(),
+                    columnWidths: const {0: FixedColumnWidth(150), 1: FlexColumnWidth()},
+                    children: [
+                      TableRow(
+                        children: [
+                          const TableCell(
+                            child: Text(
+                              "Barcode",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              widget.receiptItemEntity.itemEntity.barcode,
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const TableCell(
+                            child: Text(
+                              "Name",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              widget.receiptItemEntity.itemEntity.itemName,
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const TableCell(
+                            child: Text(
+                              "Quantity",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              Helpers.cleanDecimal(widget.receiptItemEntity.quantity, 3),
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const TableCell(
+                            child: Text(
+                              "Initial Total Amt (Tax Inc.)",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              Helpers.parseMoney(widget.receiptItemEntity.totalAmount.round()),
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const TableCell(
+                            child: Text(
+                              "Line Disc.",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              _inputAmountController.text == "" ? "0" : _inputAmountController.text,
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const TableRow(
+                        children: [
+                          TableCell(
+                              child: SizedBox(
+                            height: 10,
+                          )),
+                          TableCell(
+                              child: SizedBox(
+                            height: 10,
+                          )),
+                        ],
+                      ),
+                      TableRow(
+                        children: [
+                          const TableCell(
+                            child: Text(
+                              "Total Amt. (Tax Inc.)",
+                              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ),
+                          TableCell(
+                            child: Text(
+                              Helpers.parseMoney((widget.receiptItemEntity.totalAmount -
+                                      Helpers.revertMoneyToDecimalFormatDouble(_inputAmountController.text))
+                                  .round()),
+                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 10),
+              ),
+              if (_showKeyboard)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(color: ProjectColors.background, borderRadius: BorderRadius.circular(5)),
-                    child: Table(
-                      // defaultColumnWidth: IntrinsicColumnWidth(),
-                      columnWidths: const {0: FixedColumnWidth(150), 1: FlexColumnWidth()},
-                      children: [
-                        TableRow(
-                          children: [
-                            const TableCell(
-                              child: Text(
-                                "Barcode",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ),
-                            TableCell(
-                              child: Text(
-                                widget.receiptItemEntity.itemEntity.barcode,
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ),
-                        TableRow(
-                          children: [
-                            const TableCell(
-                              child: Text(
-                                "Name",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ),
-                            TableCell(
-                              child: Text(
-                                widget.receiptItemEntity.itemEntity.itemName,
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ),
-                        TableRow(
-                          children: [
-                            const TableCell(
-                              child: Text(
-                                "Quantity",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ),
-                            TableCell(
-                              child: Text(
-                                Helpers.cleanDecimal(widget.receiptItemEntity.quantity, 3),
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ),
-                        TableRow(
-                          children: [
-                            const TableCell(
-                              child: Text(
-                                "Initial Total Amt (Tax Inc.)",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ),
-                            TableCell(
-                              child: Text(
-                                Helpers.parseMoney(widget.receiptItemEntity.totalAmount.round()),
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ),
-                        TableRow(
-                          children: [
-                            const TableCell(
-                              child: Text(
-                                "Line Disc.",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                            ),
-                            TableCell(
-                              child: Text(
-                                _inputReturnedQtyEditingController.text == ""
-                                    ? "0"
-                                    : _inputReturnedQtyEditingController.text,
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const TableRow(
-                          children: [
-                            TableCell(
-                                child: SizedBox(
-                              height: 10,
-                            )),
-                            TableCell(
-                                child: SizedBox(
-                              height: 10,
-                            )),
-                          ],
-                        ),
-                        TableRow(
-                          children: [
-                            const TableCell(
-                              child: Text(
-                                "Total Amt. (Tax Inc.)",
-                                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-                              ),
-                            ),
-                            TableCell(
-                              child: Text(
-                                Helpers.parseMoney((widget.receiptItemEntity.totalAmount -
-                                        Helpers.revertMoneyToDecimalFormatDouble(
-                                            _inputReturnedQtyEditingController.text))
-                                    .round()),
-                                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                  padding: const EdgeInsets.fromLTRB(15, 5, 15, 0),
+                  child: KeyboardWidget(
+                    controller: _activeController,
+                    isNumericMode: _currentNumericMode,
+                    customLayoutKeys: true,
+                    height: 175,
+                    focusNodeAndTextController: FocusNodeAndTextController(
+                      focusNode: _activeFocusNode,
+                      textEditingController: _activeController,
                     ),
+                    onChanged: () {
+                      String text = _activeController.text;
+                      TextSelection currentSelection = _activeController.selection;
+                      int cursorPosition = currentSelection.start;
+                      if (_activeController == _inputAmountController) {
+                        TextEditingValue formattedValue = NegativeMoneyInputFormatter().formatEditUpdate(
+                          TextEditingValue(
+                            text: text,
+                            selection: TextSelection.collapsed(offset: cursorPosition),
+                          ),
+                          TextEditingValue(
+                            text: text,
+                            selection: TextSelection.collapsed(offset: cursorPosition),
+                          ),
+                        );
+
+                        _activeController.text = formattedValue.text;
+                        _activeController.selection = formattedValue.selection;
+
+                        // Update percentage
+                        if (formattedValue.text.isNotEmpty) {
+                          final amount = double.tryParse(formattedValue.text.replaceAll(',', '')) ?? 0;
+                          final percentage = (amount / widget.receiptItemEntity.totalAmount * 100).abs();
+                          _inputPercentController.text = percentage.toStringAsFixed(2);
+                        } else {
+                          _inputPercentController.text = '';
+                        }
+                      } else if (_activeController == _inputPercentController) {
+                        // Handle percentage input with decimal formatting
+                        if (text.isEmpty || RegExp(r'^\-?\d*\.?\d{0,3}$').hasMatch(text.replaceAll('%', ''))) {
+                          // Remove % if present for processing
+                          final cleanText = text.replaceAll('%', '');
+
+                          // Add % back when setting the text
+                          _activeController.text = cleanText.isEmpty ? '' : '$cleanText%';
+                          _activeController.selection = TextSelection.collapsed(offset: cleanText.length);
+
+                          // Update amount
+                          if (cleanText.isNotEmpty) {
+                            final percentage = double.tryParse(cleanText) ?? 0;
+                            final amount = (widget.receiptItemEntity.totalAmount * percentage / 100);
+                            _inputAmountController.text = Helpers.parseMoney(amount);
+                          } else {
+                            _inputAmountController.text = '';
+                          }
+                        }
+                      }
+                    },
+                    textFormatter: (_activeFocusNode == _inputAmountFocusNode) ? NegativeMoneyInputFormatter() : null,
                   ),
                 ),
-              ],
-            ),
+            ],
           ),
         ),
-        actionsPadding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
         actions: [
           Row(
             children: [
               Expanded(
-                  child: TextButton(
-                style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
-                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                    overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Center(
-                  child: RichText(
-                    text: const TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "Cancel",
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        TextSpan(
-                          text: "  (Esc)",
-                          style: TextStyle(fontWeight: FontWeight.w300),
-                        ),
-                      ],
-                      style: TextStyle(color: ProjectColors.primary),
+                child: TextButton(
+                  style: ButtonStyle(
+                    shape: MaterialStatePropertyAll(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        side: const BorderSide(color: ProjectColors.primary),
+                      ),
                     ),
-                    overflow: TextOverflow.clip,
+                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                    overlayColor: MaterialStateColor.resolveWith(
+                      (states) => ProjectColors.primary.withOpacity(.2),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Center(
+                    child: RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Cancel",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          TextSpan(
+                            text: "  (Esc)",
+                            style: TextStyle(fontWeight: FontWeight.w300),
+                          ),
+                        ],
+                        style: TextStyle(color: ProjectColors.primary),
+                      ),
+                      overflow: TextOverflow.clip,
+                    ),
                   ),
                 ),
-              )),
+              ),
               const SizedBox(width: 10),
               Expanded(
-                  child: TextButton(
-                style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                      side: const BorderSide(color: ProjectColors.primary),
-                    )),
-                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                onPressed: () => _saveLineDiscount(),
-                child: Center(
-                  child: RichText(
-                    text: const TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "Save",
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        TextSpan(
-                          text: "  (Enter)",
-                          style: TextStyle(fontWeight: FontWeight.w300),
-                        ),
-                      ],
+                child: TextButton(
+                  style: ButtonStyle(
+                    shape: MaterialStatePropertyAll(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        side: const BorderSide(color: ProjectColors.primary),
+                      ),
                     ),
-                    overflow: TextOverflow.clip,
+                    backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                    overlayColor: MaterialStateColor.resolveWith(
+                      (states) => Colors.white.withOpacity(.2),
+                    ),
+                  ),
+                  onPressed: () => _saveLineDiscount(),
+                  child: Center(
+                    child: RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Save",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          TextSpan(
+                            text: "  (Enter)",
+                            style: TextStyle(fontWeight: FontWeight.w300),
+                          ),
+                        ],
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      overflow: TextOverflow.clip,
+                    ),
                   ),
                 ),
-              )),
+              ),
             ],
           ),
         ],
       ),
     );
-  }
-
-  void _saveLineDiscount({double? amount}) {
-    try {
-      final double lineDiscountAmount =
-          amount ?? Helpers.revertMoneyToDecimalFormatDouble(_inputReturnedQtyEditingController.text);
-      if (lineDiscountAmount < widget.min || lineDiscountAmount > widget.max) throw "Invalid amount";
-      context.pop(lineDiscountAmount);
-    } catch (e) {
-      SnackBarHelper.presentErrorSnackBar(context, e.toString());
-    }
   }
 }

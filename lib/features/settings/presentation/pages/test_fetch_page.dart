@@ -69,6 +69,10 @@ import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_assign_sto
 import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_buy.dart';
 import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_customer_group.dart';
 import 'package:pos_fe/features/sales/data/models/promo_harga_spesial_header.dart';
+import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_assign_store.dart';
+import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_customer_group.dart';
+import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_detail.dart';
+import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_header.dart';
 import 'package:pos_fe/features/sales/data/models/promotions.dart';
 import 'package:pos_fe/features/sales/data/models/province.dart';
 import 'package:pos_fe/features/sales/data/models/store_master.dart';
@@ -138,6 +142,10 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/promo_harga_sp
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_harga_spesial_buy_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_harga_spesial_customer_group_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_harga_spesial_header_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_spesial_multi_item_assign_store_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_spesial_multi_item_customer_group_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_spesial_multi_item_detail_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_spesial_multi_item_header_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/province_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/store_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/tax_masters_service.dart';
@@ -171,7 +179,7 @@ class _FetchScreenState extends State<FetchScreen> {
   String errorMessage = '';
   double syncProgress = 0.0;
   int totalData = 0;
-  int totalTable = 64;
+  int totalTable = 68;
   bool checkSync = false;
   DateTime? startSyncFrom;
 
@@ -261,6 +269,10 @@ class _FetchScreenState extends State<FetchScreen> {
     late List<EDCModel> tpmt4;
     late List<BankIssuerModel> tpmt5;
     late List<CampaignModel> tpmt6;
+    late List<PromoSpesialMultiItemHeaderModel> topsm;
+    late List<PromoSpesialMultiItemDetailModel> tpsm1;
+    late List<PromoSpesialMultiItemAssignStoreModel> tpsm2;
+    late List<PromoSpesialMultiItemCustomerGroupModel> tpsm4;
 
     bool checkSync = prefs.getBool('isSyncing') ?? false;
     log("Synching data...");
@@ -2873,7 +2885,174 @@ class _FetchScreenState extends State<FetchScreen> {
               await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
               rethrow;
             }
-          }
+          },
+          () async {
+            try {
+              final topsmDb = await GetIt.instance<AppDatabase>().promoSpesialMultiItemHeaderDao.readAll();
+              if (topsmDb.isNotEmpty) {
+                final topsmDbMap = {for (var datum in topsmDb) datum.docId: datum};
+
+                topsm = await GetIt.instance<PromoSpesialMultiItemHeaderApi>().fetchData(utcLastSync);
+                for (final datumBos in topsm) {
+                  final datumDb = topsmDbMap[datumBos.docId];
+
+                  if (datumDb != null) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
+                      await GetIt.instance<AppDatabase>()
+                          .promoSpesialMultiItemHeaderDao
+                          .update(docId: datumDb.docId, data: datumBos);
+                    }
+                  } else {
+                    await GetIt.instance<AppDatabase>().promoSpesialMultiItemHeaderDao.create(data: datumBos);
+                  }
+                }
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              } else {
+                topsm = await GetIt.instance<PromoSpesialMultiItemHeaderApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoSpesialMultiItemHeaderDao.bulkCreate(data: topsm);
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              }
+            } catch (e) {
+              final logErr = LogErrorModel(
+                  docId: const Uuid().v4(),
+                  createDate: DateTime.now(),
+                  updateDate: DateTime.now(),
+                  processInfo: "ManualSync: Topsm",
+                  description: e.toString());
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
+              rethrow;
+            }
+          },
+          () async {
+            try {
+              final tpsm1Db = await GetIt.instance<AppDatabase>().promoSpesialMultiItemDetailDao.readAll();
+
+              if (tpsm1Db.isNotEmpty) {
+                final tpsm1DbMap = {for (var datum in tpsm1Db) datum.docId: datum};
+
+                tpsm1 = await GetIt.instance<PromoSpesialMultiItemDetailApi>().fetchData(utcLastSync);
+                for (final datumBos in tpsm1) {
+                  final datumDb = tpsm1DbMap[datumBos.docId];
+
+                  if (datumDb != null) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
+                      await GetIt.instance<AppDatabase>()
+                          .promoSpesialMultiItemDetailDao
+                          .update(docId: datumDb.docId, data: datumBos);
+                    }
+                  } else {
+                    await GetIt.instance<AppDatabase>().promoSpesialMultiItemDetailDao.create(data: datumBos);
+                  }
+                }
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              } else {
+                tpsm1 = await GetIt.instance<PromoSpesialMultiItemDetailApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoSpesialMultiItemDetailDao.bulkCreate(data: tpsm1);
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              }
+            } catch (e) {
+              final logErr = LogErrorModel(
+                  docId: const Uuid().v4(),
+                  createDate: DateTime.now(),
+                  updateDate: DateTime.now(),
+                  processInfo: "ManualSync: Tpsm1",
+                  description: e.toString());
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
+              rethrow;
+            }
+          },
+          () async {
+            try {
+              final tpsm2Db = await GetIt.instance<AppDatabase>().promoSpesialMultiItemAssignStoreDao.readAll();
+
+              if (tpsm2Db.isNotEmpty) {
+                final tpsm2DbMap = {for (var datum in tpsm2Db) datum.docId: datum};
+
+                tpsm2 = await GetIt.instance<PromoSpesialMultiItemAssignStoreApi>().fetchData(utcLastSync);
+                for (final datumBos in tpsm2) {
+                  final datumDb = tpsm2DbMap[datumBos.docId];
+
+                  if (datumDb != null) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
+                      await GetIt.instance<AppDatabase>()
+                          .promoSpesialMultiItemAssignStoreDao
+                          .update(docId: datumDb.docId, data: datumBos);
+                    }
+                  } else {
+                    await GetIt.instance<AppDatabase>().promoSpesialMultiItemAssignStoreDao.create(data: datumBos);
+                  }
+                }
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              } else {
+                tpsm2 = await GetIt.instance<PromoSpesialMultiItemAssignStoreApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoSpesialMultiItemAssignStoreDao.bulkCreate(data: tpsm2);
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              }
+            } catch (e) {
+              final logErr = LogErrorModel(
+                  docId: const Uuid().v4(),
+                  createDate: DateTime.now(),
+                  updateDate: DateTime.now(),
+                  processInfo: "ManualSync: Tpsm2",
+                  description: e.toString());
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
+              rethrow;
+            }
+          },
+          () async {
+            try {
+              final tpsm4Db = await GetIt.instance<AppDatabase>().promoSpesialMultiItemCustomerGroupDao.readAll();
+
+              if (tpsm4Db.isNotEmpty) {
+                final tpsm4DbMap = {for (var datum in tpsm4Db) datum.docId: datum};
+
+                tpsm4 = await GetIt.instance<PromoSpesialMultiItemCustomerGroupApi>().fetchData(utcLastSync);
+                for (final datumBos in tpsm4) {
+                  final datumDb = tpsm4DbMap[datumBos.docId];
+
+                  if (datumDb != null) {
+                    if (datumBos.form == "U" && (datumBos.updateDate?.isAfter(DateTime.parse(utcLastSync)) ?? false)) {
+                      await GetIt.instance<AppDatabase>()
+                          .promoSpesialMultiItemCustomerGroupDao
+                          .update(docId: datumDb.docId, data: datumBos);
+                    }
+                  } else {
+                    await GetIt.instance<AppDatabase>().promoSpesialMultiItemCustomerGroupDao.create(data: datumBos);
+                  }
+                }
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              } else {
+                tpsm4 = await GetIt.instance<PromoSpesialMultiItemCustomerGroupApi>().fetchData("2000-01-01 00:00:00");
+                await GetIt.instance<AppDatabase>().promoSpesialMultiItemCustomerGroupDao.bulkCreate(data: tpsm4);
+                setState(() {
+                  syncProgress += 1 / totalTable;
+                });
+              }
+            } catch (e) {
+              final logErr = LogErrorModel(
+                  docId: const Uuid().v4(),
+                  createDate: DateTime.now(),
+                  updateDate: DateTime.now(),
+                  processInfo: "ManualSync: Tpsm4",
+                  description: e.toString());
+              await GetIt.instance<AppDatabase>().logErrorDao.create(data: logErr);
+              rethrow;
+            }
+          },
         ];
         // ------------------- END OF FETCHING FUNCTIONS-------------------
 
@@ -2893,18 +3072,19 @@ class _FetchScreenState extends State<FetchScreen> {
         final strName = store?.storeName;
 
         POSParameterModel toposData = POSParameterModel(
-          docId: toposId,
-          createDate: singleTopos.createDate,
-          updateDate: singleTopos.updateDate,
-          gtentId: singleTopos.gtentId,
-          tostrId: singleTopos.tostrId,
-          storeName: strName,
-          tocsrId: singleTopos.tocsrId,
-          baseUrl: singleTopos.baseUrl,
-          usernameAdmin: singleTopos.usernameAdmin,
-          passwordAdmin: singleTopos.passwordAdmin,
-          lastSync: (isComplete) ? nextSyncDate : singleTopos.lastSync,
-        );
+            docId: toposId,
+            createDate: singleTopos.createDate,
+            updateDate: singleTopos.updateDate,
+            gtentId: singleTopos.gtentId,
+            tostrId: singleTopos.tostrId,
+            storeName: strName,
+            tocsrId: singleTopos.tocsrId,
+            baseUrl: singleTopos.baseUrl,
+            usernameAdmin: singleTopos.usernameAdmin,
+            passwordAdmin: singleTopos.passwordAdmin,
+            lastSync: (isComplete) ? nextSyncDate : singleTopos.lastSync,
+            defaultShowKeyboard: singleTopos.defaultShowKeyboard,
+            customerDisplayActive: singleTopos.customerDisplayActive);
 
         if (isComplete) await GetIt.instance<AppDatabase>().posParameterDao.update(docId: toposId, data: toposData);
 
@@ -3228,6 +3408,61 @@ class _FetchScreenState extends State<FetchScreen> {
           }
         }
 
+        topsm = await GetIt.instance<AppDatabase>().promoSpesialMultiItemHeaderDao.readAll();
+        for (final header in topsm) {
+          if (header.statusActive != 1) continue;
+          final DateTime endDateTime = DateTime(
+            header.endDate.year,
+            header.endDate.month,
+            header.endDate.day,
+            23,
+            59,
+            59,
+          );
+          if (endDateTime.isBefore(now) || header.startDate.isAfter(now)) continue;
+
+          final tpsm1 =
+              await GetIt.instance<AppDatabase>().promoSpesialMultiItemDetailDao.readAllByTopsmId(header.docId, null);
+          final tpsm2 =
+              await GetIt.instance<AppDatabase>().promoSpesialMultiItemAssignStoreDao.readByTopsmId(header.docId, null);
+
+          if (tpsm2 == null) continue;
+
+          final dayProperties = {
+            1: tpsm2.day1,
+            2: tpsm2.day2,
+            3: tpsm2.day3,
+            4: tpsm2.day4,
+            5: tpsm2.day5,
+            6: tpsm2.day6,
+            7: tpsm2.day7,
+          };
+
+          final isValid = dayProperties[today] == 1;
+          if (isValid) {
+            for (var detail in tpsm1) {
+              final tpsm4 = await GetIt.instance<AppDatabase>()
+                  .promoSpesialMultiItemCustomerGroupDao
+                  .readByTopsmId(detail.topsmId ?? "", null);
+              for (var custGroup in tpsm4) {
+                promos.add(PromotionsModel(
+                  docId: const Uuid().v4(),
+                  toitmId: detail.toitmId,
+                  promoType: 201,
+                  promoId: header.docId,
+                  date: DateTime.now(),
+                  startTime: header.startTime,
+                  endTime: header.endTime,
+                  tocrgId: custGroup.tocrgId,
+                  promoDescription: header.description,
+                  tocatId: null,
+                  remarks: header.remarks,
+                ));
+              }
+            }
+          }
+        }
+
         await GetIt.instance<AppDatabase>().promosDao.deletePromos();
 
         await GetIt.instance<AppDatabase>().promosDao.bulkCreate(data: promos);
@@ -3295,7 +3530,11 @@ class _FetchScreenState extends State<FetchScreen> {
             tpmt6.length +
             toprn.length +
             tprn2.length +
-            tprn4.length;
+            tprn4.length +
+            topsm.length +
+            tpsm1.length +
+            tpsm2.length +
+            tpsm4.length;
 
         // REFRESH TABLE ITEMS
         await GetIt.instance<AppDatabase>().refreshItemsTable();
