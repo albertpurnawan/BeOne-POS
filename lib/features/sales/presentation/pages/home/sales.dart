@@ -1,8 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +19,7 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
 import 'package:pos_fe/core/widgets/scroll_widget.dart';
+import 'package:pos_fe/features/dual_screen/services/send_data_window_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
 import 'package:pos_fe/features/sales/domain/entities/down_payment_entity.dart';
@@ -26,6 +29,7 @@ import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/promotions.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_down_payment.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/customers_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
@@ -33,6 +37,7 @@ import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/down_payment_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/invoice_details_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/pages/home/item_details_dialog.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_coupons_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/item_search_dialog.dart';
@@ -70,6 +75,7 @@ class _SalesPageState extends State<SalesPage> {
   bool isEditingReceiptItemQty = false;
   bool isNewItemAdded = false;
   late int salesViewType;
+  bool returnAuthorization = false;
 
   // States for handling current time
   late Timer _timer;
@@ -111,7 +117,8 @@ class _SalesPageState extends State<SalesPage> {
         scrollToReceiptItemByIndex(indexIsSelect[0]);
 
         return KeyEventResult.skipRemainingHandlers;
-      } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && indexIsSelect[0] < state.receiptItems.length) {
+      } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
+          indexIsSelect[0] < state.receiptItems.length - 1) {
         if (indexIsSelect[1] == 0) return KeyEventResult.skipRemainingHandlers;
         setState(() {
           indexIsSelect = [indexIsSelect[0] + 1, 1];
@@ -265,8 +272,8 @@ class _SalesPageState extends State<SalesPage> {
   String? lastSync;
   bool changeColor = false;
 
-  // Check Customer
-  bool isMember = false;
+  // Check Item "DP" on Store
+  bool itemDPAvailable = true;
 
   // =================================================
   //             [END] Variables
@@ -297,22 +304,20 @@ class _SalesPageState extends State<SalesPage> {
     countTotalShifts();
     getLastSync();
     checkIsSyncing();
+    _validateReturnableStore();
 
     // Start Check Member
-    checkReceiptWithMember(context.read<ReceiptCubit>().state);
+    // checkReceiptWithMember(context.read<ReceiptCubit>().state);
   }
 
-  @override
-  void dispose() {
-    _timer.cancel();
-    _scrollControllerMain.dispose();
-    _scrollControllerReceiptItems.dispose();
-    _scrollControllerReceiptSummary.dispose();
-    _newReceiptItemCodeFocusNode.dispose();
-    _newReceiptItemQuantityFocusNode.dispose();
-    _textEditingControllerNewReceiptItemCode.dispose();
-    _textEditingControllerNewReceiptItemQuantity.dispose();
-    super.dispose();
+  Future<void> _validateReturnableStore() async {
+    final topos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
+    final tostr = await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(topos[0].tostrId!, null);
+    if (tostr?.returnauthorization == 1) {
+      setState(() {
+        returnAuthorization = true;
+      });
+    }
   }
 
   Future<void> checkIsSyncing() async {
@@ -366,11 +371,29 @@ class _SalesPageState extends State<SalesPage> {
     }
   }
 
-  Future<void> checkReceiptWithMember(ReceiptEntity receipt) async {
+  bool get isMember {
+    final ReceiptEntity state = context.read<ReceiptCubit>().state;
+    return ((state.customerEntity != null) && (state.customerEntity!.custCode != '99'));
+  }
+
+  Future<void> checkItemDPAvailability() async {
+    final dp = await GetIt.instance<GetDownPaymentUseCase>().call();
     setState(() {
-      isMember = ((receipt.customerEntity != null) && (receipt.customerEntity!.custCode != '99'));
-      log("isMember = $isMember");
+      itemDPAvailable = (dp != null) ? true : false;
     });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    _scrollControllerMain.dispose();
+    _scrollControllerReceiptItems.dispose();
+    _scrollControllerReceiptSummary.dispose();
+    _newReceiptItemCodeFocusNode.dispose();
+    _newReceiptItemQuantityFocusNode.dispose();
+    _textEditingControllerNewReceiptItemCode.dispose();
+    _textEditingControllerNewReceiptItemQuantity.dispose();
+    super.dispose();
   }
 
   @override
@@ -640,6 +663,9 @@ class _SalesPageState extends State<SalesPage> {
   // =================================================
 
   Widget _receiptItemsList() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _sendToDisplay();
+    });
     return BlocBuilder<ReceiptCubit, ReceiptEntity>(
       builder: (context, state) {
         return Expanded(
@@ -805,7 +831,7 @@ class _SalesPageState extends State<SalesPage> {
                                           )),
                                           Expanded(
                                               // DiscountUI
-                                              child: promo.discAmount == null || promo.discAmount == 0
+                                              child: promo.discAmount == null
                                                   ? const SizedBox.shrink()
                                                   : Text(
                                                       (e.itemEntity.includeTax == 1)
@@ -2091,11 +2117,17 @@ class _SalesPageState extends State<SalesPage> {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () async {
+                            await checkItemDPAvailability();
                             if (!isMember) {
                               SnackBarHelper.presentErrorSnackBar(context,
                                   "Please select the customer first, only customer with membership can use Down Payment");
                               return;
                             }
+                            // if (!itemDPAvailable) {
+                            //   SnackBarHelper.presentErrorSnackBar(
+                            //       context, "Item Down Payment not found for this store");
+                            //   return;
+                            // }
 
                             if (mounted) {
                               await showDialog(
@@ -2176,23 +2208,8 @@ class _SalesPageState extends State<SalesPage> {
                         child: TapRegion(
                           groupId: 1,
                           child: OutlinedButton(
-                            onPressed: (indexIsSelect[1] == 0 ||
-                                    context
-                                            .read<ReceiptCubit>()
-                                            .state
-                                            .receiptItems[indexIsSelect[0]]
-                                            .itemEntity
-                                            .itemCode ==
-                                        '99' ||
-                                    context
-                                            .read<ReceiptCubit>()
-                                            .state
-                                            .receiptItems[indexIsSelect[0]]
-                                            .itemEntity
-                                            .itemCode ==
-                                        '08700000002')
-                                ? null
-                                : () {
+                            onPressed: _isItemAttributesEnable
+                                ? () {
                                     context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]];
                                     showDialog(
                                       context: context,
@@ -2209,29 +2226,15 @@ class _SalesPageState extends State<SalesPage> {
                                         _newReceiptItemCodeFocusNode.requestFocus();
                                       });
                                     });
-                                  },
+                                  }
+                                : null,
                             style: OutlinedButton.styleFrom(
                               elevation: 5,
                               shadowColor: Colors.black87,
                               padding: const EdgeInsets.fromLTRB(10, 3, 10, 3),
                               foregroundColor: Colors.white,
-                              backgroundColor: (indexIsSelect[1] == 0 ||
-                                      context
-                                              .read<ReceiptCubit>()
-                                              .state
-                                              .receiptItems[indexIsSelect[0]]
-                                              .itemEntity
-                                              .itemCode ==
-                                          '99' ||
-                                      context
-                                              .read<ReceiptCubit>()
-                                              .state
-                                              .receiptItems[indexIsSelect[0]]
-                                              .itemEntity
-                                              .itemCode ==
-                                          '08700000002')
-                                  ? ProjectColors.lightBlack
-                                  : ProjectColors.primary,
+                              backgroundColor:
+                                  _isItemAttributesEnable ? ProjectColors.primary : ProjectColors.lightBlack,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(5),
                               ),
@@ -2252,23 +2255,7 @@ class _SalesPageState extends State<SalesPage> {
                                             style: TextStyle(
                                                 fontWeight: FontWeight.w300,
                                                 fontSize: 14,
-                                                color: (indexIsSelect[1] == 0 ||
-                                                        context
-                                                                .read<ReceiptCubit>()
-                                                                .state
-                                                                .receiptItems[indexIsSelect[0]]
-                                                                .itemEntity
-                                                                .itemCode ==
-                                                            '99' ||
-                                                        context
-                                                                .read<ReceiptCubit>()
-                                                                .state
-                                                                .receiptItems[indexIsSelect[0]]
-                                                                .itemEntity
-                                                                .itemCode ==
-                                                            '08700000002')
-                                                    ? Colors.grey
-                                                    : Colors.white),
+                                                color: _isItemAttributesEnable ? Colors.white : Colors.grey),
                                           ),
                                         ],
                                       ),
@@ -2286,23 +2273,7 @@ class _SalesPageState extends State<SalesPage> {
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 14,
-                                                  color: (indexIsSelect[1] == 0 ||
-                                                          context
-                                                                  .read<ReceiptCubit>()
-                                                                  .state
-                                                                  .receiptItems[indexIsSelect[0]]
-                                                                  .itemEntity
-                                                                  .itemCode ==
-                                                              '99' ||
-                                                          context
-                                                                  .read<ReceiptCubit>()
-                                                                  .state
-                                                                  .receiptItems[indexIsSelect[0]]
-                                                                  .itemEntity
-                                                                  .itemCode ==
-                                                              '08700000002')
-                                                      ? Colors.grey
-                                                      : Colors.white),
+                                                  color: _isItemAttributesEnable ? Colors.white : Colors.grey),
                                             ),
                                           ],
                                         ),
@@ -2382,7 +2353,7 @@ class _SalesPageState extends State<SalesPage> {
                                     alignment: Alignment.bottomLeft,
                                     child: RichText(
                                       textAlign: TextAlign.left,
-                                      text: const TextSpan(
+                                      text: TextSpan(
                                         children: [
                                           TextSpan(
                                             text: "Return",
@@ -2549,7 +2520,7 @@ class _SalesPageState extends State<SalesPage> {
                               _newReceiptItemCodeFocusNode.requestFocus();
                             });
                           });
-                          await checkReceiptWithMember(context.read<ReceiptCubit>().state);
+                          // await checkReceiptWithMember(context.read<ReceiptCubit>().state);
                         },
                         style: OutlinedButton.styleFrom(
                           elevation: 5,
@@ -2653,7 +2624,7 @@ class _SalesPageState extends State<SalesPage> {
                           // isMember = false;
                           _newReceiptItemCodeFocusNode.requestFocus();
                         });
-                        await checkReceiptWithMember(context.read<ReceiptCubit>().state);
+                        // await checkReceiptWithMember(context.read<ReceiptCubit>().state);
                       },
                       style: OutlinedButton.styleFrom(
                         elevation: 5,
@@ -3011,7 +2982,7 @@ class _SalesPageState extends State<SalesPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        (state.rounding.roundToDouble().abs() != 0)
+                        (state.rounding.roundToDouble().abs() != 0 && state.rounding.roundToDouble().abs() < 1)
                             ? _noteChip((state.rounding).roundToDouble(), 1)
                             : const SizedBox.shrink(),
                         (state.downPayments != null &&
@@ -3282,7 +3253,7 @@ class _SalesPageState extends State<SalesPage> {
                           context.read<CustomersCubit>().clearCustomers();
                           isEditingNewReceiptItemCode = true;
                           _newReceiptItemCodeFocusNode.requestFocus();
-                          checkReceiptWithMember(context.read<ReceiptCubit>().state);
+                          // checkReceiptWithMember(context.read<ReceiptCubit>().state);
                         }));
                   },
                   style: OutlinedButton.styleFrom(
@@ -3599,25 +3570,79 @@ class _SalesPageState extends State<SalesPage> {
                             width: 5,
                           ),
                           Expanded(
-                            flex: 2,
                             child: SizedBox.expand(
                               child: FilledButton(
                                 onPressed: () {
-                                  setState(() {
-                                    if (!_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
-                                      _newReceiptItemCodeFocusNode.requestFocus();
-                                      _textEditingControllerNewReceiptItemCode.text = "00";
-                                    } else if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
-                                      _textEditingControllerNewReceiptItemCode.text += "00";
-                                    }
-                                  });
+                                  if (!isEditingNewReceiptItemCode &&
+                                      !isEditingNewReceiptItemQty &&
+                                      !isUpdatingReceiptItemQty) {
+                                    // log("numpadnumbutton 1");
+
+                                    _textEditingControllerNewReceiptItemCode.text = ".";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemCodeFocusNode.requestFocus());
+                                  } else if (isEditingNewReceiptItemCode) {
+                                    // log("numpadnumbutton 2");
+
+                                    _textEditingControllerNewReceiptItemCode.text += ".";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemCodeFocusNode.requestFocus());
+                                  } else if (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty) {
+                                    // log("numpadnumbutton 3");
+
+                                    _textEditingControllerNewReceiptItemQuantity.text += ".";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemQuantityFocusNode.requestFocus());
+                                  }
+                                },
+                                style: FilledButton.styleFrom(
+                                    elevation: 5,
+                                    backgroundColor: const Color.fromRGBO(48, 48, 48, 1),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+                                child: const FittedBox(
+                                  child: Text(
+                                    ".",
+                                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Expanded(
+                            child: SizedBox.expand(
+                              child: FilledButton(
+                                onPressed: () {
+                                  if (!isEditingNewReceiptItemCode &&
+                                      !isEditingNewReceiptItemQty &&
+                                      !isUpdatingReceiptItemQty) {
+                                    // log("numpadnumbutton 1");
+
+                                    _textEditingControllerNewReceiptItemCode.text = "-";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemCodeFocusNode.requestFocus());
+                                  } else if (isEditingNewReceiptItemCode) {
+                                    // log("numpadnumbutton 2");
+
+                                    _textEditingControllerNewReceiptItemCode.text += "-";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemCodeFocusNode.requestFocus());
+                                  } else if (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty) {
+                                    // log("numpadnumbutton 3");
+
+                                    _textEditingControllerNewReceiptItemQuantity.text += "-";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemQuantityFocusNode.requestFocus());
+                                  }
                                 },
                                 style: FilledButton.styleFrom(
                                     elevation: 5,
                                     backgroundColor: const Color.fromRGBO(48, 48, 48, 1),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
                                 child: const Text(
-                                  "00",
+                                  "-",
                                   style: TextStyle(fontSize: 32, fontWeight: FontWeight.w700),
                                 ),
                               ),
@@ -3643,17 +3668,48 @@ class _SalesPageState extends State<SalesPage> {
                             child: SizedBox.expand(
                               child: FilledButton(
                                 onPressed: () {
-                                  if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
+                                  // if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
+                                  //   final currentLength = _textEditingControllerNewReceiptItemCode.text.length;
+                                  //   if (currentLength == 0) return;
+                                  //   _textEditingControllerNewReceiptItemCode.text =
+                                  //       _textEditingControllerNewReceiptItemCode.text.substring(0, currentLength - 1);
+                                  // } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
+                                  //   final currentLength = _textEditingControllerNewReceiptItemQuantity.text.length;
+                                  //   if (currentLength == 0) return;
+                                  //   _textEditingControllerNewReceiptItemQuantity.text =
+                                  //       _textEditingControllerNewReceiptItemQuantity.text
+                                  //           .substring(0, currentLength - 1);
+                                  // }
+
+                                  // setState(() {});
+
+                                  if (!isEditingNewReceiptItemCode &&
+                                      !isEditingNewReceiptItemQty &&
+                                      !isUpdatingReceiptItemQty) {
+                                    // log("numpadnumbutton 1");
+
+                                    _textEditingControllerNewReceiptItemCode.text = "";
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemCodeFocusNode.requestFocus());
+                                  } else if (isEditingNewReceiptItemCode) {
+                                    // log("numpadnumbutton 2");
+
                                     final currentLength = _textEditingControllerNewReceiptItemCode.text.length;
                                     if (currentLength == 0) return;
                                     _textEditingControllerNewReceiptItemCode.text =
                                         _textEditingControllerNewReceiptItemCode.text.substring(0, currentLength - 1);
-                                  } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemCodeFocusNode.requestFocus());
+                                  } else if (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty) {
+                                    // log("numpadnumbutton 3");
+
                                     final currentLength = _textEditingControllerNewReceiptItemQuantity.text.length;
                                     if (currentLength == 0) return;
                                     _textEditingControllerNewReceiptItemQuantity.text =
                                         _textEditingControllerNewReceiptItemQuantity.text
                                             .substring(0, currentLength - 1);
+                                    Future.delayed(const Duration(milliseconds: 20),
+                                        () => _newReceiptItemQuantityFocusNode.requestFocus());
                                   }
                                 },
                                 style: FilledButton.styleFrom(
@@ -3676,11 +3732,37 @@ class _SalesPageState extends State<SalesPage> {
                             child: SizedBox.expand(
                               child: FilledButton(
                                 onPressed: () {
-                                  if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
-                                    _textEditingControllerNewReceiptItemCode.text = "";
-                                  } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
-                                    _textEditingControllerNewReceiptItemQuantity.text = "";
-                                  }
+                                  // if (_newReceiptItemCodeFocusNode.hasPrimaryFocus) {
+                                  //   _textEditingControllerNewReceiptItemCode.text = "";
+                                  //   _newReceiptItemCodeFocusNode.requestFocus();
+                                  // } else if (_newReceiptItemQuantityFocusNode.hasPrimaryFocus) {
+                                  //   _textEditingControllerNewReceiptItemQuantity.text = "";
+                                  //   _newReceiptItemQuantityFocusNode.requestFocus();
+                                  // }
+                                  // setState(() {});
+                                  setState(() {
+                                    if (!isEditingNewReceiptItemCode &&
+                                        !isEditingNewReceiptItemQty &&
+                                        !isUpdatingReceiptItemQty) {
+                                      // log("numpadnumbutton 1");
+
+                                      _textEditingControllerNewReceiptItemCode.text = "";
+                                      Future.delayed(const Duration(milliseconds: 20),
+                                          () => _newReceiptItemCodeFocusNode.requestFocus());
+                                    } else if (isEditingNewReceiptItemCode) {
+                                      // log("numpadnumbutton 2");
+
+                                      _textEditingControllerNewReceiptItemCode.text = "";
+                                      Future.delayed(const Duration(milliseconds: 20),
+                                          () => _newReceiptItemCodeFocusNode.requestFocus());
+                                    } else if (isEditingNewReceiptItemQty || isUpdatingReceiptItemQty) {
+                                      // log("numpadnumbutton 3");
+
+                                      _textEditingControllerNewReceiptItemQuantity.text = "";
+                                      Future.delayed(const Duration(milliseconds: 20),
+                                          () => _newReceiptItemQuantityFocusNode.requestFocus());
+                                    }
+                                  });
                                 },
                                 style: FilledButton.styleFrom(
                                     elevation: 5,
@@ -3752,6 +3834,7 @@ class _SalesPageState extends State<SalesPage> {
                                     () => _newReceiptItemCodeFocusNode.requestFocus());
                               });
                             }
+                            setState(() {});
                           },
                           style: FilledButton.styleFrom(
                               padding: const EdgeInsets.all(3),
@@ -3831,7 +3914,7 @@ class _SalesPageState extends State<SalesPage> {
     bool isNumOnly,
     BuildContext context,
   ) async {
-    // log("Handle physical keyboard ${event.physicalKey}");
+    log("Handle physical keyboard ${event.physicalKey}");
     if (event.runtimeType == KeyUpEvent) return;
     if (textFieldFocusNode.hasPrimaryFocus) {
       if (event.character != null &&
@@ -3932,7 +4015,7 @@ class _SalesPageState extends State<SalesPage> {
               context.read<CustomersCubit>().clearCustomers();
               isEditingNewReceiptItemCode = true;
               _newReceiptItemCodeFocusNode.requestFocus();
-              checkReceiptWithMember(context.read<ReceiptCubit>().state);
+              // checkReceiptWithMember(context.read<ReceiptCubit>().state);
             }));
       } else if (event.physicalKey == (PhysicalKeyboardKey.f7)) {
         await removeItem();
@@ -3983,7 +4066,7 @@ class _SalesPageState extends State<SalesPage> {
           });
         });
         if (context.mounted) {
-          await checkReceiptWithMember(context.read<ReceiptCubit>().state);
+          // await checkReceiptWithMember(context.read<ReceiptCubit>().state);
         }
       } else if (event.physicalKey == (PhysicalKeyboardKey.f2)) {
         bool receiveDP = await checkItemDP();
@@ -4158,6 +4241,22 @@ class _SalesPageState extends State<SalesPage> {
   }
 
   Future<void> checkout() async {
+    final ReceiptEntity initialState = context.read<ReceiptCubit>().state;
+    final ReceiptEntity copyInitialState = initialState.copyWith(
+      receiptItems: initialState.receiptItems.map((e) => e.copyWith()).toList(),
+      previousReceiptEntity: initialState.previousReceiptEntity?.copyWith(
+        receiptItems: initialState.previousReceiptEntity?.receiptItems.map((e) => e.copyWith()).toList(),
+        previousReceiptEntity: null,
+      ),
+
+      // Reset MOP related fields
+      vouchers: [],
+      totalPayment: 0,
+      changed: 0,
+      totalVoucher: 0,
+      totalNonVoucher: 0,
+    )..mopSelections = [];
+
     try {
       if (context.read<ReceiptCubit>().state.receiptItems.isEmpty) {
         return SnackBarHelper.presentErrorSnackBar(context, "Receipt cannot be empty");
@@ -4205,7 +4304,7 @@ class _SalesPageState extends State<SalesPage> {
           }
         }
       } catch (e) {
-        return;
+        throw "There's an issue on Down Payment";
       }
 
       if (context.read<ReceiptCubit>().state.previousReceiptEntity == null) {
@@ -4213,10 +4312,11 @@ class _SalesPageState extends State<SalesPage> {
       }
 
       await Future.delayed(const Duration(milliseconds: 300), null);
-
+      if (returnAuthorization) {
+        final isAuthorized = await _showDialogReturn();
+        if (isAuthorized != true) throw "Return authorization failed";
+      }
       final ReceiptEntity receiptEntity = context.read<ReceiptCubit>().state;
-
-      log("currentLength ${receiptEntity.promos.length} previousLength ${receiptEntity.previousReceiptEntity?.promos.length}");
 
       if (receiptEntity.promos != (receiptEntity.previousReceiptEntity?.promos ?? <PromotionsEntity>[])) {
         await showDialog(
@@ -4227,18 +4327,32 @@ class _SalesPageState extends State<SalesPage> {
                 ));
       }
 
+      // Show CheckoutDialog and wait for it to complete
       await showDialog(context: context, barrierDismissible: false, builder: (context) => const CheckoutDialog())
           .then((value) {
-        setState(() {
-          isEditingNewReceiptItemCode = true;
-          _newReceiptItemCodeFocusNode.requestFocus();
-        });
+        if (mounted) {
+          // Check if the widget is still mounted
+          setState(() {
+            isEditingNewReceiptItemCode = true;
+            _newReceiptItemCodeFocusNode.requestFocus();
+          });
+        }
       });
+
+      // Delay for additional processing if needed
       Future.delayed(const Duration(milliseconds: 100)).then((_) {
-        checkReceiptWithMember(context.read<ReceiptCubit>().state);
+        if (mounted) {
+          // Check if the widget is still mounted
+          // checkReceiptWithMember(context.read<ReceiptCubit>().state);
+        }
       });
     } catch (e) {
       SnackBarHelper.presentErrorSnackBar(context, e.toString());
+      context.read<ReceiptCubit>().replaceState(copyInitialState);
+      setState(() {
+        isEditingNewReceiptItemCode = true;
+        _newReceiptItemCodeFocusNode.requestFocus();
+      });
     }
   }
 
@@ -4274,11 +4388,53 @@ class _SalesPageState extends State<SalesPage> {
 
       context.read<ReceiptCubit>().removeReceiptItem(receiptItemTarget, context);
     } catch (e) {
-      if (e is RangeError) {
-        SnackBarHelper.presentErrorSnackBar(context, "Please select Item to Remove");
-      } else {
-        SnackBarHelper.presentErrorSnackBar(context, e.toString());
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
+  }
+
+  void _sendToDisplay() async {
+    try {
+      if (await GetIt.instance<GetPosParameterUseCase>().call() != null &&
+          (await GetIt.instance<GetPosParameterUseCase>().call())!.customerDisplayActive == 0) {
+        return;
       }
+      final windows = await DesktopMultiWindow.getAllSubWindowIds();
+      if (windows.isEmpty) {
+        return;
+      }
+      final windowId = windows[0];
+      final state = context.read<ReceiptCubit>().state;
+      final List<Map<String, dynamic>> items = state.receiptItems.map((item) {
+        final totalDiscount = item.promos.fold(
+            0.0,
+            (sum, promo) =>
+                sum +
+                ((item.itemEntity.includeTax == 1)
+                    ? (-1 * promo.discAmount!) * ((100 + item.itemEntity.taxRate) / 100)
+                    : (-1 * promo.discAmount!)));
+        return {
+          'name': item.itemEntity.itemName,
+          'quantity': item.quantity.toInt(),
+          'discount': Helpers.parseMoney(totalDiscount.round()),
+          'total': item.totalAmount.round(),
+        };
+      }).toList();
+
+      final double grandTotalWoDiscount =
+          state.receiptItems.fold(0.0, (sum, item) => sum + item.sellingPrice * item.quantity);
+
+      final Map<String, dynamic> data = {
+        'docNum': state.docNum,
+        'customerName': state.customerEntity?.custName ?? 'NON MEMBER',
+        'items': items,
+        'totalDiscount': Helpers.parseMoney((grandTotalWoDiscount - state.grandTotal).round()),
+        'grandTotal': Helpers.parseMoney(state.grandTotal.round()),
+      };
+
+      final jsonData = jsonEncode(data);
+      final sendingData = await sendData(windowId, jsonData, 'updateSalesData', 'Sales');
+    } catch (e, stackTrace) {
+      print('Error send data to client display from sales: $e');
     }
   }
 
@@ -4306,6 +4462,14 @@ class _SalesPageState extends State<SalesPage> {
   // =================================================
   //             [END] Other Functions
   // =================================================
+
+  bool get _isItemAttributesEnable {
+    if (context.read<ReceiptCubit>().state.receiptItems.isEmpty) return false;
+    if (context.read<ReceiptCubit>().state.receiptItems.length - 1 < indexIsSelect[0]) return false;
+    return (indexIsSelect[1] == 1 &&
+        context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]].itemEntity.itemCode != '99' &&
+        context.read<ReceiptCubit>().state.receiptItems[indexIsSelect[0]].itemEntity.itemCode != '08700000002');
+  }
 
   Widget _noteChip(double amount, int type) {
     return Padding(
@@ -4359,5 +4523,34 @@ class _SalesPageState extends State<SalesPage> {
         receiptItems.any((item) => item.itemEntity.itemCode == "99" || item.itemEntity.itemCode == "08700000002");
 
     return hasPositiveQuantity && hasItemDP;
+  }
+
+  Future<bool> _showDialogReturn() async {
+    final receiptItems = context.read<ReceiptCubit>().state.receiptItems;
+    final approvals = context.read<ReceiptCubit>().state.approvals;
+    log(approvals.toString());
+    if (receiptItems.any((item) => item.refpos3 != null && item.refpos3 != "") && approvals == null) {
+      double totalQtyReturn = 0.0;
+      double totalAmountReturn = 0;
+      for (final item in receiptItems) {
+        if (item.refpos3 != null && item.refpos3 != "") {
+          totalQtyReturn += item.quantity.abs();
+          totalAmountReturn += item.totalAmount.abs();
+        }
+      }
+
+      final bool? isAuthorized = await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => ApprovalDialog(
+              approvalType: ApprovalType.returnItem, returnQty: totalQtyReturn, returnAmount: totalAmountReturn));
+      if (isAuthorized == true) {
+        return true;
+      }
+
+      throw "Return authorization failed";
+    }
+
+    return true;
   }
 }

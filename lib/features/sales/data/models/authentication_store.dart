@@ -17,6 +17,7 @@ class AuthStoreFields {
     closeShift,
     resetLocalDb,
     form,
+    returnauthorization,
   ];
   static const String docId = "docid";
   static const String createDate = "createdate";
@@ -30,6 +31,7 @@ class AuthStoreFields {
   static const String closeShift = "closeshift";
   static const String resetLocalDb = "resetlocaldb";
   static const String form = "form";
+  static const String returnauthorization = "returnauthorization";
 }
 
 class AuthStoreModel extends AuthStoreEntity implements BaseModel {
@@ -46,6 +48,7 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
     required super.closeShift,
     required super.resetLocalDb,
     required super.form,
+    required super.returnauthorization,
   });
 
   @override
@@ -63,6 +66,7 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
       'closeshift': closeShift,
       'resetlocaldb': resetLocalDb,
       'form': form,
+      'returnauthorization': returnauthorization,
     };
   }
 
@@ -70,7 +74,9 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
     return AuthStoreModel(
       docId: map['docid'] as String,
       createDate: DateTime.parse(map['createdate'] as String),
-      updateDate: map['updatedate'] != null ? DateTime.parse(map['updatedate'] as String) : null,
+      updateDate: map['updatedate'] != null
+          ? DateTime.parse(map['updatedate'] as String)
+          : null,
       tostrdocid: map['tostrdocid'] as String,
       tousrdocid: map['tousrdocid'] as String,
       statusActive: map['statusactive'] as int,
@@ -78,8 +84,10 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
       discAndRound: map['discandround'] as int,
       nonPositiveTrx: map['nonpositivetrx'] as int,
       closeShift: map['closeshift'] as int,
-      resetLocalDb: map['resetlocaldb'] != null ? map['resetlocaldb'] as int : 0,
+      resetLocalDb:
+          map['resetlocaldb'] != null ? map['resetlocaldb'] as int : 0,
       form: map['form'] as String,
+      returnauthorization: map['returnauthorization'] as int,
     );
   }
 
@@ -104,6 +112,7 @@ class AuthStoreModel extends AuthStoreEntity implements BaseModel {
       closeShift: entity.closeShift,
       resetLocalDb: entity.resetLocalDb,
       form: entity.form,
+      returnauthorization: entity.returnauthorization,
     );
   }
 }

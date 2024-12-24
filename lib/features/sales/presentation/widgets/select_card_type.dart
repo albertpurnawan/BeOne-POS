@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
+import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/credit_card.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/credit_card_cubit.dart';
 
 class SelectCardType extends StatefulWidget {
@@ -17,13 +22,36 @@ class _SelectCardTypeState extends State<SelectCardType> {
   CreditCardEntity? radioValue;
   CreditCardEntity? selectedCreditCard;
   final FocusNode _creditCardInputFocusNode = FocusNode();
-  late final TextEditingController _creditCardTextController = TextEditingController();
+  final FocusNode _keyboardFocusNode = FocusNode();
+  final TextEditingController _creditCardTextController = TextEditingController();
+  bool _showKeyboard = true;
+
+  @override
+  void initState() {
+    super.initState();
+    getDefaultKeyboardPOSParameter();
+  }
 
   @override
   void dispose() {
     _creditCardInputFocusNode.dispose();
     _creditCardTextController.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   @override
@@ -71,9 +99,34 @@ class _SelectCardTypeState extends State<SelectCardType> {
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
           padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-          child: const Text(
-            'Select Credit Card',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Select Credit Card',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                  borderRadius: const BorderRadius.all(Radius.circular(360)),
+                ),
+                child: IconButton(
+                  focusColor: const Color.fromARGB(255, 110, 0, 0),
+                  focusNode: _keyboardFocusNode,
+                  icon: Icon(
+                    _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _showKeyboard = !_showKeyboard;
+                    });
+                  },
+                  tooltip: 'Toggle Keyboard',
+                ),
+              ),
+            ],
           ),
         ),
         titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -88,7 +141,7 @@ class _SelectCardTypeState extends State<SelectCardType> {
           ),
           child: StatefulBuilder(builder: (context, setState) {
             return SizedBox(
-              width: 350,
+              width: MediaQuery.of(context).size.width * 0.5,
               child: Column(
                 children: [
                   const SizedBox(
@@ -103,17 +156,27 @@ class _SelectCardTypeState extends State<SelectCardType> {
                       },
                       autofocus: true,
                       focusNode: _creditCardInputFocusNode,
-                      decoration: const InputDecoration(
-                        suffixIcon: Icon(
-                          Icons.search,
-                          size: 16,
+                      controller: _creditCardTextController,
+                      decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                          icon: const Icon(
+                            Icons.search,
+                            size: 16,
+                          ),
+                          onPressed: () {
+                            context
+                                .read<CreditCardCubit>()
+                                .getCreditCards(searchKeyword: _creditCardTextController.text);
+                            _creditCardInputFocusNode.requestFocus();
+                          },
                         ),
                         hintText: "Search Card",
-                        hintStyle: TextStyle(
+                        hintStyle: const TextStyle(
                           fontSize: 16,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
+                      keyboardType: TextInputType.none,
                     ),
                   ),
                   const SizedBox(
@@ -155,7 +218,28 @@ class _SelectCardTypeState extends State<SelectCardType> {
                             }));
                       },
                     ),
-                  )
+                  ),
+                  (_showKeyboard)
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: KeyboardWidget(
+                            controller: _creditCardTextController,
+                            isNumericMode: false,
+                            customLayoutKeys: true,
+                            focusNodeAndTextController: FocusNodeAndTextController(
+                              focusNode: _creditCardInputFocusNode,
+                              textEditingController: _creditCardTextController,
+                            ),
+                            onSubmit: () {
+                              _creditCardTextController.text = _creditCardTextController.text.trimRight();
+                              context
+                                  .read<CreditCardCubit>()
+                                  .getCreditCards(searchKeyword: _creditCardTextController.text);
+                              _creditCardInputFocusNode.requestFocus();
+                            },
+                          ),
+                        )
+                      : const SizedBox.shrink(),
                 ],
               ),
             );

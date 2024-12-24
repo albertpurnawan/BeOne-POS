@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -8,10 +7,12 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/usecases/backup_database_usecase.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/data/models/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/settings/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/settings/presentation/pages/PLU_export_pages.dart';
 import 'package:pos_fe/features/settings/presentation/pages/characters_per_line_settings.dart';
+import 'package:pos_fe/features/settings/presentation/pages/customer_display_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/default_printer_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/paper_size_settings.dart';
 import 'package:pos_fe/features/settings/presentation/pages/test_fetch_page.dart';
@@ -32,25 +33,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int codeLength = 0;
   int qtyLength = 0;
   double qtyDivider = 0;
+  bool showHideKeyboard = false;
 
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
-    super.initState();
     getPosParameter();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void getPosParameter() async {
     _posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
-    setState(() {});
+    setState(() {
+      showHideKeyboard = (_posParameterEntity!.defaultShowKeyboard == 0) ? false : true;
+    });
   }
 
   Future<void> getScaleParameter() async {
     final store =
         await GetIt.instance<AppDatabase>().storeMasterDao.readByDocId(_posParameterEntity!.tostrId ?? "", null);
     if (store == null) throw "Failed retrieve Store";
-    log("scaleFlag  -$store");
     setState(() {
       scaleActive = store.scaleActive;
       scaleFlag = store.scaleFlag ?? "null";
@@ -60,10 +69,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
+  Future<void> updateShowHideVirtualKeyboard() async {
+    if (_posParameterEntity == null) throw "Failed retrieve POS Parameter";
+    final posParameter = _posParameterEntity!.copyWith(
+      updateDate: DateTime.now(),
+      defaultShowKeyboard: showHideKeyboard ? 1 : 0,
+    );
+    final dataPOS = POSParameterModel.fromEntity(posParameter);
+    await GetIt.instance<AppDatabase>().posParameterDao.update(
+          docId: posParameter.docId,
+          data: dataPOS,
+        );
   }
 
   @override
@@ -343,67 +359,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           const Divider(
                             height: 0,
                           ),
-                          // InkWell(
-                          //   onTap: () => {},
-                          //   child: Column(
-                          //     children: [
-                          //       SizedBox(
-                          //         height: 20,
-                          //       ),
-                          //       Row(
-                          //         mainAxisAlignment:
-                          //             MainAxisAlignment.spaceBetween,
-                          //         children: [
-                          //           Row(
-                          //             children: [
-                          //               SizedBox(
-                          //                 width: 5,
-                          //               ),
-                          //               Icon(Icons
-                          //                   .admin_panel_settings_outlined),
-                          //               SizedBox(
-                          //                 width: 30,
-                          //               ),
-                          //               Text(
-                          //                 "Role",
-                          //                 style: TextStyle(fontSize: 16),
-                          //               ),
-                          //             ],
-                          //           ),
-                          //           Row(
-                          //             children: [
-                          //               Text(
-                          //                 "Staff",
-                          //                 style: TextStyle(
-                          //                     fontWeight: FontWeight.w700,
-                          //                     color: Color.fromARGB(
-                          //                         255, 66, 66, 66),
-                          //                     fontSize: 16),
-                          //               ),
-                          //               // SizedBox(
-                          //               //   width: 15,
-                          //               // ),
-                          //               // Icon(
-                          //               //   Icons.navigate_next,
-                          //               //   color:
-                          //               //       Color.fromARGB(255, 66, 66, 66),
-                          //               // ),
-                          //               SizedBox(
-                          //                 width: 5,
-                          //               ),
-                          //             ],
-                          //           ),
-                          //         ],
-                          //       ),
-                          //       SizedBox(
-                          //         height: 20,
-                          //       ),
-                          //     ],
-                          //   ),
-                          // ),
-                          // Divider(
-                          //   height: 0,
-                          // ),
                         ],
                       ),
                       const SizedBox(
@@ -596,6 +551,93 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               ],
                             ),
+                          ),
+                          const Divider(
+                            height: 0,
+                          ),
+                          InkWell(
+                            onTap: () async {
+                              await showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) => const CustomerDisplay(),
+                              );
+                            },
+                            child: const Column(
+                              children: [
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Icon(
+                                          Icons.display_settings,
+                                          color: Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        SizedBox(
+                                          width: 30,
+                                        ),
+                                        Text(
+                                          "Customer Display",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 15,
+                                        ),
+                                        Icon(
+                                          Icons.navigate_next,
+                                          color: Color.fromARGB(255, 66, 66, 66),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                          const Divider(height: 0),
+                          SwitchListTile.adaptive(
+                            dense: true,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                            title: const Row(
+                              children: [
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Icon(
+                                  Icons.keyboard_alt_outlined,
+                                  color: Color.fromARGB(255, 66, 66, 66),
+                                ),
+                                SizedBox(
+                                  width: 30,
+                                ),
+                                Text(
+                                  "Show Virtual Keyboard",
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                            value: showHideKeyboard,
+                            onChanged: (bool? value) async {
+                              setState(() {
+                                showHideKeyboard = !showHideKeyboard;
+                              });
+                              await updateShowHideVirtualKeyboard();
+                            },
                           ),
                           const Divider(
                             height: 0,

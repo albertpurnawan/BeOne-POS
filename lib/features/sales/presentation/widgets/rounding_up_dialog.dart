@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_manual_rounding.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 
 class RoundingUpDialog extends StatefulWidget {
@@ -25,8 +29,12 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
 
   double initialGrandTotal = 0;
 
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool _showKeyboard = true;
+
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     final ReceiptEntity receiptEntity = context.read<ReceiptCubit>().state;
     initialGrandTotal = ((receiptEntity.grandTotal - receiptEntity.rounding)).roundToDouble();
@@ -40,7 +48,22 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
     _amountRoundUpFocusNode.dispose();
     _keyboardListenerFocusNode.dispose();
     _focusScopeWarningNode.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   double getSimulatedGrandTotal() {
@@ -131,12 +154,33 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                 color: ProjectColors.primary,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
               ),
-              padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
-              child: const Row(
+              padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     'Round Up ',
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(360)),
+                    ),
+                    child: IconButton(
+                      focusColor: const Color.fromARGB(255, 110, 0, 0),
+                      focusNode: _keyboardFocusNode,
+                      icon: Icon(
+                        _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showKeyboard = !_showKeyboard;
+                        });
+                      },
+                      tooltip: 'Toggle Keyboard',
+                    ),
                   ),
                 ],
               ),
@@ -144,7 +188,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
             titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
             contentPadding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
             content: Container(
-              width: MediaQuery.of(context).size.width * 0.4,
+              width: MediaQuery.of(context).size.width * 0.5,
               color: Colors.white,
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.6,
@@ -163,6 +207,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                       inputFormatters: [MoneyInputFormatter()],
                       textAlign: TextAlign.center,
                       style: const TextStyle(fontSize: 24),
+                      keyboardType: TextInputType.none,
                       decoration: const InputDecoration(
                           contentPadding: EdgeInsets.all(10),
                           hintText: "Enter Rounding Amount",
@@ -275,6 +320,21 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                       ),
                     ),
                   ),
+                  (_showKeyboard)
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                          child: KeyboardWidget(
+                            controller: _textEditorAmountRoundUpController,
+                            isNumericMode: true,
+                            customLayoutKeys: false,
+                            focusNodeAndTextController: FocusNodeAndTextController(
+                              focusNode: _amountRoundUpFocusNode,
+                              textEditingController: _textEditorAmountRoundUpController,
+                            ),
+                            textFormatter: MoneyInputFormatter(),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
                 ],
               ),
             ),
@@ -344,7 +404,7 @@ class _RoundingUpDialogState extends State<RoundingUpDialog> {
                 ],
               ),
             ],
-            actionsPadding: const EdgeInsets.all(10),
+            actionsPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
           ),
         ),
       );

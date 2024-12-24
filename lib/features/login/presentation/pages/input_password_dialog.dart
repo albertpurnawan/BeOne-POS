@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/usecases/restore_database_usecase.dart';
-import 'package:pos_fe/core/widgets/custom_input.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 
 class InputPasswordDialog extends StatefulWidget {
   const InputPasswordDialog({super.key});
@@ -16,19 +16,22 @@ class InputPasswordDialog extends StatefulWidget {
 
 class InputPasswordDialogState extends State<InputPasswordDialog> {
   final TextEditingController _passwordController = TextEditingController();
-  // final FocusNode _textFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
+  bool _showKeyboard = true;
+  bool _hidePassword = true;
+  final formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    // _textFocusNode.requestFocus();
+    _passwordFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
     _passwordController.dispose();
-    // _textFocusNode.dispose();
+    _passwordFocusNode.dispose();
     _keyboardListenerFocusNode.dispose();
     super.dispose();
   }
@@ -45,21 +48,6 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
               if (value.runtimeType == KeyUpEvent) return KeyEventResult.handled;
 
               if (value.physicalKey == PhysicalKeyboardKey.enter) {
-                // Handle Enter
-                // double input = Helpers.revertMoneyToDecimalFormat(_textEditorController.text);
-                // final ReceiptEntity state = context.read<ReceiptCubit>().state;
-                // if ((input > state.subtotal - (state.discAmount ?? 0)) || input <= 0) {
-                //   context.pop();
-                //   ErrorHandler.presentErrorSnackBar(context, "Invalid discount amount");
-                //   return KeyEventResult.handled;
-                // }
-                // showDialog(
-                //     context: context,
-                //     barrierDismissible: false,
-                //     builder: (context) => AuthInputDiscountDialog(
-                //           discountValue: input,
-                //           docnum: widget.docnum,
-                //         ));
                 return KeyEventResult.handled;
               } else if (value.physicalKey == PhysicalKeyboardKey.escape) {
                 context.pop();
@@ -79,16 +67,34 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
                   color: ProjectColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-                child: const Row(
+                padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       'Input Password',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w500,
                         color: Colors.white,
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                        borderRadius: const BorderRadius.all(Radius.circular(360)),
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showKeyboard = !_showKeyboard;
+                          });
+                        },
+                        tooltip: 'Toggle Keyboard',
                       ),
                     ),
                   ],
@@ -98,62 +104,96 @@ class InputPasswordDialogState extends State<InputPasswordDialog> {
               contentPadding: const EdgeInsets.all(0),
               content: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.5,
-                height: MediaQuery.of(context).size.height * 0.3,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 25),
-                  child: Column(
-                    children: [
-                      CustomInput(
-                        // focusNode: _textFocusNode,
-                        controller: _passwordController,
-                        label: "Password",
-                        hint: "Database Password",
-                        prefixIcon: const Icon(Icons.lock),
-                        validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
-                        type: CustomInputType.password,
-                      ),
-                      if (errorMessage != "")
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: Text(
-                            errorMessage,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      const SizedBox(height: 15),
-                      Container(
-                        padding: const EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          color: Colors.yellow.shade100,
-                          border: Border.all(
-                            color: Colors.yellow.shade700,
-                            width: 2.0,
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.warning,
-                              color: Colors.yellow.shade700,
-                              size: 26.0,
-                            ),
-                            const SizedBox(width: 10.0),
-                            const Text(
-                              "The app will close itself after the database is restored!",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 16,
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 25),
+                    child: Column(
+                      children: [
+                        Form(
+                          key: formKey,
+                          child: TextFormField(
+                            controller: _passwordController,
+                            focusNode: _passwordFocusNode,
+                            validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
+                            decoration: InputDecoration(
+                              labelText: "Password",
+                              hintText: "Database Password",
+                              hintStyle: const TextStyle(
                                 fontStyle: FontStyle.italic,
-                                fontWeight: FontWeight.w500,
+                              ),
+                              prefixIcon: const Icon(Icons.lock),
+                              border: const OutlineInputBorder(),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _hidePassword ? Icons.visibility : Icons.visibility_off,
+                                  color: Colors.grey,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _hidePassword = !_hidePassword;
+                                  });
+                                },
                               ),
                             ),
-                          ],
+                            keyboardType: TextInputType.none,
+                            obscureText: _hidePassword,
+                          ),
                         ),
-                      )
-                    ],
+                        if (errorMessage != "")
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: Text(
+                              errorMessage,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        const SizedBox(height: 15),
+                        Container(
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            color: Colors.yellow.shade100,
+                            border: Border.all(
+                              color: Colors.yellow.shade700,
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.warning,
+                                color: Colors.yellow.shade700,
+                                size: 26.0,
+                              ),
+                              const SizedBox(width: 10.0),
+                              const Text(
+                                "The app will close itself after the database is restored!",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        (_showKeyboard)
+                            ? KeyboardWidget(
+                                controller: _passwordController,
+                                isNumericMode: false,
+                                customLayoutKeys: true,
+                                focusNodeAndTextController: FocusNodeAndTextController(
+                                  focusNode: _passwordFocusNode,
+                                  textEditingController: _passwordController,
+                                ),
+                              )
+                            : const SizedBox.shrink(),
+                      ],
+                    ),
                   ),
                 ),
               ),

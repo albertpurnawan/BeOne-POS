@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CalculateCash extends StatefulWidget {
   final Function(Map<String, String>) setTotal;
+  final bool? showKeyboard;
 
-  const CalculateCash({super.key, required this.setTotal});
+  const CalculateCash({super.key, required this.setTotal, this.showKeyboard});
 
   @override
   State<CalculateCash> createState() => _CalculateCashState();
@@ -15,35 +17,51 @@ class CalculateCash extends StatefulWidget {
 
 class _CalculateCashState extends State<CalculateCash> {
   final int maxLength = 10;
-  late TextEditingController controller100k;
-  late TextEditingController controller50k;
-  late TextEditingController controller20k;
-  late TextEditingController controller10k;
-  late TextEditingController controller5k;
-  late TextEditingController controller2k;
-  late TextEditingController controller1k;
-  late TextEditingController controller1kC;
-  late TextEditingController controller500;
-  late TextEditingController controller200;
-  late TextEditingController controller100;
-  late TextEditingController controller50;
+  final TextEditingController controller100k = TextEditingController();
+  final TextEditingController controller50k = TextEditingController();
+  final TextEditingController controller20k = TextEditingController();
+  final TextEditingController controller10k = TextEditingController();
+  final TextEditingController controller5k = TextEditingController();
+  final TextEditingController controller2k = TextEditingController();
+  final TextEditingController controller1k = TextEditingController();
+  final TextEditingController controller500 = TextEditingController();
+  final TextEditingController controller200 = TextEditingController();
+  final TextEditingController controller100 = TextEditingController();
+  final TextEditingController controller50 = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
+  final FocusNode focusNode100k = FocusNode();
+  final FocusNode focusNode50k = FocusNode();
+  final FocusNode focusNode20k = FocusNode();
+  final FocusNode focusNode10k = FocusNode();
+  final FocusNode focusNode5k = FocusNode();
+  final FocusNode focusNode2k = FocusNode();
+  final FocusNode focusNode1k = FocusNode();
+  final FocusNode focusNode500 = FocusNode();
+  final FocusNode focusNode200 = FocusNode();
+  final FocusNode focusNode100 = FocusNode();
+  final FocusNode focusNode50 = FocusNode();
+
+  bool _showKeyboard = true;
+  TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    controller100k = TextEditingController();
-    controller50k = TextEditingController();
-    controller20k = TextEditingController();
-    controller10k = TextEditingController();
-    controller5k = TextEditingController();
-    controller2k = TextEditingController();
-    controller1k = TextEditingController();
-    controller500 = TextEditingController();
-    controller200 = TextEditingController();
-    controller100 = TextEditingController();
-    controller50 = TextEditingController();
+
     _changeTotalCash([]);
+
+    _setupFocusListener(focusNode100k, controller100k);
+    _setupFocusListener(focusNode50k, controller50k);
+    _setupFocusListener(focusNode20k, controller20k);
+    _setupFocusListener(focusNode10k, controller10k);
+    _setupFocusListener(focusNode5k, controller5k);
+    _setupFocusListener(focusNode2k, controller2k);
+    _setupFocusListener(focusNode1k, controller1k);
+    _setupFocusListener(focusNode500, controller500);
+    _setupFocusListener(focusNode200, controller200);
+    _setupFocusListener(focusNode100, controller100);
+    _setupFocusListener(focusNode50, controller50);
   }
 
   @override
@@ -59,7 +77,39 @@ class _CalculateCashState extends State<CalculateCash> {
     controller200.dispose();
     controller100.dispose();
     controller50.dispose();
+    focusNode100k.dispose();
+    focusNode50k.dispose();
+    focusNode20k.dispose();
+    focusNode10k.dispose();
+    focusNode5k.dispose();
+    focusNode2k.dispose();
+    focusNode1k.dispose();
+    focusNode500.dispose();
+    focusNode200.dispose();
+    focusNode100.dispose();
+    focusNode50.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(CalculateCash oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.showKeyboard != oldWidget.showKeyboard) {
+      setState(() {
+        _showKeyboard = widget.showKeyboard ?? false;
+      });
+    }
+  }
+
+  void _setupFocusListener(FocusNode focusNode, TextEditingController controller) {
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        setState(() {
+          _activeController = controller;
+          _activeFocusNode = focusNode;
+        });
+      }
+    });
   }
 
   void _changeTotalCash(List values) {
@@ -113,6 +163,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: focusNode100k,
                 controller: controller100k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -147,7 +198,7 @@ class _CalculateCashState extends State<CalculateCash> {
                 inputFormatters: [
                   LengthLimitingTextInputFormatter(maxLength),
                 ],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -183,6 +234,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: focusNode50k,
                 controller: controller50k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -215,7 +267,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -251,6 +303,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: focusNode20k,
                 controller: controller20k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -283,7 +336,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -319,6 +372,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: focusNode10k,
                 controller: controller10k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -351,7 +405,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -387,6 +441,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: focusNode5k,
                 controller: controller5k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -419,7 +474,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -455,6 +510,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: focusNode2k,
                 controller: controller2k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -487,7 +543,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -523,6 +579,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: focusNode1k,
                 controller: controller1k,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -555,7 +612,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -591,6 +648,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: focusNode500,
                 controller: controller500,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -623,7 +681,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -659,6 +717,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: focusNode200,
                 controller: controller200,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -691,7 +750,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -727,6 +786,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: focusNode100,
                 controller: controller100,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -759,7 +819,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -795,6 +855,7 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
             Expanded(
               child: TextFormField(
+                focusNode: focusNode50,
                 controller: controller50,
                 textInputAction: TextInputAction.next,
                 onChanged: (value) {
@@ -827,7 +888,7 @@ class _CalculateCashState extends State<CalculateCash> {
                   contentPadding: EdgeInsets.only(bottom: 8.0),
                 ),
                 inputFormatters: [LengthLimitingTextInputFormatter(maxLength)],
-                keyboardType: TextInputType.number,
+                keyboardType: TextInputType.none,
                 style: const TextStyle(
                   fontSize: 16,
                 ),
@@ -846,7 +907,88 @@ class _CalculateCashState extends State<CalculateCash> {
             ),
           ],
         ),
-        const SizedBox(height: 30),
+        const SizedBox(height: 20),
+        (_showKeyboard)
+            ? Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                child: KeyboardWidget(
+                  controller: _activeController,
+                  isNumericMode: true,
+                  customLayoutKeys: true,
+                  focusNodeAndTextController: FocusNodeAndTextController(
+                    focusNode: _activeFocusNode,
+                    textEditingController: _activeController,
+                  ),
+                  onChanged: () {
+                    // String text = _activeController.text;
+                    // TextSelection currentSelection = _activeController.selection;
+                    // int cursorPosition = currentSelection.start;
+                    // _activeController.text = text;
+                    // _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+                    setState(() {
+                      _changeTotalCash([
+                        total100k,
+                        total50k,
+                        total20k,
+                        total10k,
+                        total5k,
+                        total2k,
+                        total1k,
+                        total500,
+                        total200,
+                        total100,
+                        total50,
+                      ]);
+                    });
+                  },
+                  // onKeyPress: (key) async {
+                  //   String text = _activeController.text;
+                  //   TextSelection currentSelection = _activeController.selection;
+                  //   int cursorPosition = currentSelection.start;
+
+                  //   if (key.keyType == VirtualKeyboardKeyType.String) {
+                  //     String inputText = key.text ?? '';
+                  //     text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                  //     cursorPosition += inputText.length;
+
+                  //     _activeController.text = text;
+                  //     _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+                  //   } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                  //     switch (key.action) {
+                  //       case VirtualKeyboardKeyAction.Backspace:
+                  //         if (text.isNotEmpty && cursorPosition > 0) {
+                  //           text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                  //           cursorPosition -= 1;
+                  //         }
+                  //         break;
+
+                  //       default:
+                  //         break;
+                  //     }
+                  //   }
+
+                  //   _activeController.text = text;
+                  //   _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                  //   setState(() {
+                  //     _changeTotalCash([
+                  //       total100k,
+                  //       total50k,
+                  //       total20k,
+                  //       total10k,
+                  //       total5k,
+                  //       total2k,
+                  //       total1k,
+                  //       total500,
+                  //       total200,
+                  //       total100,
+                  //       total50,
+                  //     ]);
+                  //   });
+                  // },
+                ),
+              )
+            : const SizedBox.shrink(),
       ],
     );
   }

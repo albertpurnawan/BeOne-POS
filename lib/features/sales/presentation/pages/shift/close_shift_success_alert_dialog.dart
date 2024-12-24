@@ -7,6 +7,7 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/resources/error_handler.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
 import 'package:pos_fe/features/sales/domain/entities/cashier_balance_transaction.dart';
 import 'package:pos_fe/features/sales/domain/entities/store_master.dart';
@@ -18,10 +19,10 @@ import 'package:pos_fe/features/sales/domain/usecases/print_close_shift.dart';
 
 class CloseShiftSuccessAlertDialog extends StatefulWidget {
   const CloseShiftSuccessAlertDialog({
-    Key? key,
+    super.key,
     required this.closedShift,
     required this.printCloseShiftUsecaseParams,
-  }) : super(key: key);
+  });
 
   final CashierBalanceTransactionEntity closedShift;
   final PrintCloseShiftUsecaseParams printCloseShiftUsecaseParams;
@@ -75,7 +76,7 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
           color: ProjectColors.primary,
           borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
         ),
-        padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+        padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
         child: Row(
           children: [
             const Text(
@@ -104,14 +105,19 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
                         });
                         await GetIt.instance<PrintCloseShiftUsecase>().call(
                             params: PrintCloseShiftUsecaseParams(
-                                cashierBalanceTransactionEntity: widget.closedShift,
-                                totalCashSales: widget.printCloseShiftUsecaseParams.totalCashSales,
-                                expectedCash: widget.printCloseShiftUsecaseParams.expectedCash,
-                                totalNonCashSales: widget.printCloseShiftUsecaseParams.totalNonCashSales,
-                                totalSales: widget.printCloseShiftUsecaseParams.totalSales,
-                                cashReceived: widget.printCloseShiftUsecaseParams.cashReceived,
-                                difference: widget.printCloseShiftUsecaseParams.difference,
-                                approverName: widget.printCloseShiftUsecaseParams.approverName),
+                              cashierBalanceTransactionEntity: widget.closedShift,
+                              totalCashSales: widget.printCloseShiftUsecaseParams.totalCashSales,
+                              expectedCash: widget.printCloseShiftUsecaseParams.expectedCash,
+                              totalNonCashSales: widget.printCloseShiftUsecaseParams.totalNonCashSales,
+                              totalSales: widget.printCloseShiftUsecaseParams.totalSales,
+                              cashReceived: widget.printCloseShiftUsecaseParams.cashReceived,
+                              difference: widget.printCloseShiftUsecaseParams.difference,
+                              approverName: widget.printCloseShiftUsecaseParams.approverName,
+                              transactions: widget.printCloseShiftUsecaseParams.transactions,
+                              transactionsReturn: widget.printCloseShiftUsecaseParams.transactionsReturn,
+                              transactionsTopmt: widget.printCloseShiftUsecaseParams.transactionsTopmt,
+                              transactionsMOP: widget.printCloseShiftUsecaseParams.transactionsMOP,
+                            ),
                             printType: 2);
                         setState(() {
                           isPrinting = false;
@@ -505,17 +511,149 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
                             )
                           ],
                         ),
-                        const TableRow(children: [
-                          SizedBox(
-                            height: 16,
+                        const TableRow(
+                          children: [
+                            SizedBox(height: 16),
+                            SizedBox(height: 16),
+                            SizedBox(height: 16),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            const Text(
+                              "Invoice Count (All)",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              "${widget.printCloseShiftUsecaseParams.transactions}",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            )
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            const Text(
+                              "Invoice Count (Return)",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              "${widget.printCloseShiftUsecaseParams.transactionsReturn}",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            )
+                          ],
+                        ),
+                        const TableRow(
+                          children: [
+                            SizedBox(height: 16),
+                            SizedBox(height: 16),
+                            SizedBox(height: 16),
+                          ],
+                        ),
+                        const TableRow(
+                          children: [
+                            Text(
+                              "MOP Details",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              "",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            )
+                          ],
+                        ),
+                        const TableRow(
+                          children: [
+                            Divider(height: 25),
+                            Divider(height: 25),
+                            Divider(height: 25),
+                          ],
+                        ),
+                        if (widget.printCloseShiftUsecaseParams.transactionsTopmt.isEmpty &&
+                            widget.printCloseShiftUsecaseParams.transactionsMOP.isEmpty)
+                          const TableRow(
+                            children: [
+                              Text(
+                                "No transactions happened on this shift",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: ProjectColors.primary,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                "",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: ProjectColors.primary,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                "",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: ProjectColors.primary,
+                                  fontStyle: FontStyle.italic,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(
-                            height: 16,
-                          ),
-                          SizedBox(
-                            height: 16,
-                          ),
-                        ]),
+
+                        ..._buildTableMOPRows(widget.printCloseShiftUsecaseParams.transactionsTopmt,
+                            widget.printCloseShiftUsecaseParams.transactionsMOP),
+                        const TableRow(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 10),
+                              child: Divider(),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 10),
+                              child: Divider(),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 10),
+                              child: Divider(),
+                            ),
+                          ],
+                        ),
+                        // const TableRow(
+                        //   children: [
+                        //     SizedBox(height: 16),
+                        //     SizedBox(height: 16),
+                        //     SizedBox(height: 16),
+                        //   ],
+                        // ),
                         TableRow(
                           children: [
                             const Text(
@@ -646,5 +784,60 @@ class _CloseShiftSuccessAlertDialogState extends State<CloseShiftSuccessAlertDia
       ],
       actionsPadding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
     );
+  }
+
+  List<TableRow> _buildTableMOPRows(List<PaymentTypeModel> transactionsTopmt, List<dynamic> transactionsMOP) {
+    final rows = <TableRow>[];
+
+    for (var paymentType in transactionsTopmt) {
+      rows.add(
+        TableRow(
+          children: [
+            Text(
+              paymentType.description,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(width: 5),
+            const Text(""),
+          ],
+        ),
+      );
+
+      final filteredTransactions =
+          transactionsMOP.where((transaction) => transaction['topmtId'] == paymentType.docId).toList();
+
+      filteredTransactions.asMap().forEach((index, transaction) {
+        rows.add(
+          TableRow(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 1),
+                child: Text(
+                  "${transaction['description']}",
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 5),
+              Padding(
+                padding: EdgeInsets.only(bottom: (index == filteredTransactions.length - 1) ? 16 : 1),
+                child: Text(
+                  Helpers.parseMoney(transaction['amount']),
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      });
+    }
+
+    return rows;
   }
 }

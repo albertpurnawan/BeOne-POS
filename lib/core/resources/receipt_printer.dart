@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:image/image.dart' as img;
 import 'package:intl/intl.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
+import 'package:pos_fe/features/sales/data/models/payment_type.dart';
 import 'package:pos_fe/features/sales/domain/entities/employee.dart';
 import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/domain/entities/print_receipt_detail.dart';
@@ -1399,6 +1400,16 @@ class ReceiptPrinter {
     final int width11Length = WidthNLength.getLength(maxLength, 11);
     final int width12Length = WidthNLength.getLength(maxLength, 12);
 
+    printCloseShiftDetail.transactionsTopmt.sort((a, b) {
+      return a!.payTypeCode.compareTo(b!.payTypeCode);
+    });
+
+    Map<String, List> groupedTransactions = {};
+    for (var transaction in printCloseShiftDetail.transactionsMOP) {
+      groupedTransactions.putIfAbsent(transaction['paytypecode'], () => []);
+      groupedTransactions[transaction['paytypecode']]!.add(transaction);
+    }
+
     bytes += generator.text('Close Shift Success',
         styles: const PosStyles(
           align: PosAlign.center,
@@ -1543,6 +1554,69 @@ class ReceiptPrinter {
           styles: const PosStyles(align: PosAlign.left)),
     ]);
     bytes += generator.emptyLines(1);
+
+    bytes += generator.row([
+      PosColumn(
+          width: 5,
+          text: Helpers.alignLeftByAddingSpace('Invoice Count (All)', width5Length),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 7,
+          text: Helpers.alignLeftByAddingSpace(":  ${printCloseShiftDetail.transactions}", width7Length),
+          styles: const PosStyles(align: PosAlign.left)),
+    ]);
+    bytes += generator.row([
+      PosColumn(
+          width: 5,
+          text: Helpers.alignLeftByAddingSpace('Invoice Count (Return)', width5Length),
+          styles: const PosStyles(align: PosAlign.left)),
+      PosColumn(
+          width: 7,
+          text: Helpers.alignLeftByAddingSpace(":  ${printCloseShiftDetail.transactionsReturn}", width7Length),
+          styles: const PosStyles(align: PosAlign.left)),
+    ]);
+    bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
+    bytes += generator.text('MOP Details',
+        styles: const PosStyles(
+          align: PosAlign.center,
+          bold: true,
+        ));
+    for (PaymentTypeModel? paymentType in printCloseShiftDetail.transactionsTopmt) {
+      if (paymentType == null) throw "Failed to retrieve Payment Type";
+
+      String payTypeCode = paymentType.payTypeCode;
+      String description = paymentType.description.trim();
+
+      bytes += generator.text(description,
+          styles: const PosStyles(
+            align: PosAlign.left,
+            bold: true,
+          ));
+
+      if (groupedTransactions.containsKey(payTypeCode)) {
+        for (int i = 0; i < groupedTransactions[payTypeCode]!.length; i++) {
+          dynamic transaction = groupedTransactions[payTypeCode]![i];
+          String detailDescription = transaction['description']?.trim() ?? "Unknown";
+          String amount = Helpers.parseMoney(transaction['amount']);
+
+          bytes += generator.row([
+            PosColumn(
+              width: 5,
+              text: Helpers.alignLeftByAddingSpace(detailDescription, width5Length),
+              styles: const PosStyles(align: PosAlign.left),
+            ),
+            PosColumn(
+              width: 7,
+              text: Helpers.alignLeftByAddingSpace(":  $amount", width7Length),
+              styles: const PosStyles(align: PosAlign.left),
+            ),
+          ]);
+          bytes += generator.emptyLines(1);
+        }
+      }
+    }
+
+    bytes += generator.text(List.generate(width12Length, (_) => "-").join(""));
 
     bytes += generator.row([
       PosColumn(

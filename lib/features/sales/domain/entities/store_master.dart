@@ -83,6 +83,7 @@ class StoreMasterEntity {
   final int? scaleQuantityLength;
   final double? scaleQtyDivider;
   final String form;
+  final int? returnauthorization;
   // final String defaultTocusId;
 
   StoreMasterEntity({
@@ -167,6 +168,7 @@ class StoreMasterEntity {
     this.scaleQuantityLength,
     this.scaleQtyDivider,
     required this.form,
+    required this.returnauthorization,
     // required this.defaultTocusId,
   });
 
@@ -252,6 +254,7 @@ class StoreMasterEntity {
     int? scaleQuantityLength,
     double? scaleQtyDivider,
     String? form,
+    int? returnauthorization,
     // String? defaultTocusId,
   }) {
     return StoreMasterEntity(
@@ -321,7 +324,8 @@ class StoreMasterEntity {
       netzmeUrl: netzmeUrl ?? this.netzmeUrl,
       netzmeClientKey: netzmeClientKey ?? this.netzmeClientKey,
       netzmeClientSecret: netzmeClientSecret ?? this.netzmeClientSecret,
-      netzmeClientPrivateKey: netzmeClientPrivateKey ?? this.netzmeClientPrivateKey,
+      netzmeClientPrivateKey:
+          netzmeClientPrivateKey ?? this.netzmeClientPrivateKey,
       netzmeCustidMerchant: netzmeCustidMerchant ?? this.netzmeCustidMerchant,
       netzmeChannelId: netzmeChannelId ?? this.netzmeChannelId,
       minDiscount: minDiscount ?? this.minDiscount,
@@ -336,6 +340,7 @@ class StoreMasterEntity {
       scaleQuantityLength: scaleQuantityLength ?? this.scaleQuantityLength,
       scaleQtyDivider: scaleQtyDivider ?? this.scaleQtyDivider,
       form: form ?? this.form,
+      returnauthorization: returnauthorization ?? this.returnauthorization,
       // defaultTocusId: defaultTocusId ?? this.defaultTocusId,
     );
   }
@@ -423,6 +428,7 @@ class StoreMasterEntity {
       'scaleQuantityLength': scaleQuantityLength,
       'scaleQtyDivider': scaleQtyDivider,
       'form': form,
+      'returnauthorization': returnauthorization,
       // 'defaultTocusId': defaultTocusId,
     };
   }
@@ -431,7 +437,9 @@ class StoreMasterEntity {
     return StoreMasterEntity(
       docId: map['docId'] as String,
       createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int) : null,
+      updateDate: map['updateDate'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
+          : null,
       storeCode: map['storeCode'] as String,
       storeName: map['storeName'] as String,
       email: map['email'] as String,
@@ -450,7 +458,8 @@ class StoreMasterEntity {
       toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
       storePic: map['storePic'] as dynamic,
       tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
-      storeOpening: DateTime.fromMillisecondsSinceEpoch(map['storeOpening'] as int),
+      storeOpening:
+          DateTime.fromMillisecondsSinceEpoch(map['storeOpening'] as int),
       statusActive: map['statusActive'] as int,
       activated: map['activated'] as int,
       prefixDoc: map['prefixDoc'] != null ? map['prefixDoc'] as String : null,
@@ -464,21 +473,29 @@ class StoreMasterEntity {
       footer03: map['footer03'] != null ? map['footer03'] as String : null,
       footer04: map['footer04'] != null ? map['footer04'] as String : null,
       footer05: map['footer05'] != null ? map['footer05'] as String : null,
-      sellingTax: map['sellingTax'] != null ? map['sellingTax'] as double : null,
-      openingBalance: map['openingBalance'] != null ? map['openingBalance'] as double : null,
-      autoRounding: map['autoRounding'] != null ? map['autoRounding'] as int : null,
-      roundingValue: map['roundingValue'] != null ? map['roundingValue'] as double : null,
+      sellingTax:
+          map['sellingTax'] != null ? map['sellingTax'] as double : null,
+      openingBalance: map['openingBalance'] != null
+          ? map['openingBalance'] as double
+          : null,
+      autoRounding:
+          map['autoRounding'] != null ? map['autoRounding'] as int : null,
+      roundingValue:
+          map['roundingValue'] != null ? map['roundingValue'] as double : null,
       totalMinus: map['totalMinus'] != null ? map['totalMinus'] as int : null,
       totalZero: map['totalZero'] != null ? map['totalZero'] as int : null,
       holdStruck: map['holdStruck'] != null ? map['holdStruck'] as int : null,
       holdClose: map['holdClose'] != null ? map['holdClose'] as int : null,
-      autoPrintStruk: map['autoPrintStruk'] != null ? map['autoPrintStruk'] as int : null,
+      autoPrintStruk:
+          map['autoPrintStruk'] != null ? map['autoPrintStruk'] as int : null,
       barcode1: map['barcode1'] != null ? map['barcode1'] as String : null,
       barcode2: map['barcode2'] != null ? map['barcode2'] as int : null,
       barcode3: map['barcode3'] != null ? map['barcode3'] as int : null,
       barcode4: map['barcode4'] != null ? map['barcode4'] as int : null,
-      connectBack: map['connectBack'] != null ? map['connectBack'] as int : null,
-      maxUserKassa: map['maxUserKassa'] != null ? map['maxUserKassa'] as int : null,
+      connectBack:
+          map['connectBack'] != null ? map['connectBack'] as int : null,
+      maxUserKassa:
+          map['maxUserKassa'] != null ? map['maxUserKassa'] as int : null,
       stockLevel: map['stockLevel'] as double,
       minConst: map['minConst'] as double,
       maxConst: map['maxConst'] as double,
@@ -489,27 +506,52 @@ class StoreMasterEntity {
       mtxline02: map['mtxline02'] != null ? map['mtxline02'] as String : null,
       mtxline03: map['mtxline03'] != null ? map['mtxline03'] as String : null,
       mtxline04: map['mtxline04'] != null ? map['mtxline04'] as String : null,
-      salesViewType: map['salesViewType'] != null ? map['salesViewType'] as int : null,
-      otpChannel: map['otpChannel'] != null ? map['otpChannel'] as String : null,
+      salesViewType:
+          map['salesViewType'] != null ? map['salesViewType'] as int : null,
+      otpChannel:
+          map['otpChannel'] != null ? map['otpChannel'] as String : null,
       otpUrl: map['otpUrl'] != null ? map['otpUrl'] as String : null,
       netzmeUrl: map['netzmeUrl'] != null ? map['netzmeUrl'] as String : null,
-      netzmeClientKey: map['netzmeClientKey'] != null ? map['netzmeClientKey'] as String : null,
-      netzmeClientSecret: map['netzmeClientSecret'] != null ? map['netzmeClientSecret'] as String : null,
-      netzmeClientPrivateKey: map['netzmeClientPrivateKey'] != null ? map['netzmeClientPrivateKey'] as String : null,
-      netzmeCustidMerchant: map['netzmeCustidMerchant'] != null ? map['netzmeCustidMerchant'] as String : null,
-      netzmeChannelId: map['netzmeChannelId'] != null ? map['netzmeChannelId'] as String : null,
-      minDiscount: map['minDiscount'] != null ? map['minDiscount'] as int : null,
-      maxDiscount: map['maxDiscount'] != null ? map['maxDiscount'] as int : null,
+      netzmeClientKey: map['netzmeClientKey'] != null
+          ? map['netzmeClientKey'] as String
+          : null,
+      netzmeClientSecret: map['netzmeClientSecret'] != null
+          ? map['netzmeClientSecret'] as String
+          : null,
+      netzmeClientPrivateKey: map['netzmeClientPrivateKey'] != null
+          ? map['netzmeClientPrivateKey'] as String
+          : null,
+      netzmeCustidMerchant: map['netzmeCustidMerchant'] != null
+          ? map['netzmeCustidMerchant'] as String
+          : null,
+      netzmeChannelId: map['netzmeChannelId'] != null
+          ? map['netzmeChannelId'] as String
+          : null,
+      minDiscount:
+          map['minDiscount'] != null ? map['minDiscount'] as int : null,
+      maxDiscount:
+          map['maxDiscount'] != null ? map['maxDiscount'] as int : null,
       duitkuUrl: map['duitkuUrl'] != null ? map['duitkuUrl'] as String : null,
-      duitkuApiKey: map['duitkuApiKey'] != null ? map['duitkuApiKey'] as String : null,
-      duitkuMerchantCode: map['duitkuMerchantCode'] != null ? map['duitkuMerchantCode'] as String : null,
-      duitkuExpiryPeriod: map['duitkuExpiryPeriod'] != null ? map['duitkuExpiryPeriod'] as int : null,
+      duitkuApiKey:
+          map['duitkuApiKey'] != null ? map['duitkuApiKey'] as String : null,
+      duitkuMerchantCode: map['duitkuMerchantCode'] != null
+          ? map['duitkuMerchantCode'] as String
+          : null,
+      duitkuExpiryPeriod: map['duitkuExpiryPeriod'] != null
+          ? map['duitkuExpiryPeriod'] as int
+          : null,
       scaleActive: map['scaleActive'] as int,
       scaleFlag: map['scaleFlag'] != null ? map['scaleFlag'] as String : null,
-      scaleItemCodeLength: map['scaleItemCodeLength'] != null ? map['scaleItemCodeLength'] as int : null,
-      scaleQuantityLength: map['scaleQuantityLength'] != null ? map['scaleQuantityLength'] as int : null,
-      scaleQtyDivider: map['scaleQtyDivider'] != null ? map['scaleQtyDivider'] as double : null,
+      scaleItemCodeLength: map['scaleItemCodeLength'] != null
+          ? map['scaleItemCodeLength'] as int
+          : null,
+      scaleQtyDivider: map['scaleQtyDivider'] != null
+          ? map['scaleQtyDivider'] as double
+          : null,
       form: map['form'] as String,
+      returnauthorization: map['returnauthorization'] != null
+          ? map['returnauthorization'] as int
+          : null,
       // defaultTocusId: map['defaultTocusId'] != null ? map['defaultTocusId'] as String : "c2ee5bb8-9850-4014-b7bf-fd5492a60d84",
     );
   }
@@ -608,7 +650,8 @@ class StoreMasterEntity {
         other.scaleItemCodeLength == scaleItemCodeLength &&
         other.scaleQuantityLength == scaleQuantityLength &&
         other.scaleQtyDivider == scaleQtyDivider &&
-        other.form == form;
+        other.form == form &&
+        other.returnauthorization == returnauthorization;
   }
 
   @override
@@ -693,6 +736,7 @@ class StoreMasterEntity {
         scaleItemCodeLength.hashCode ^
         scaleQuantityLength.hashCode ^
         scaleQtyDivider.hashCode ^
-        form.hashCode;
+        form.hashCode ^
+        returnauthorization.hashCode;
   }
 }

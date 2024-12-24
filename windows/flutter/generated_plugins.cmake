@@ -4,10 +4,14 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
+  desktop_lifecycle
+  desktop_multi_window
+  desktop_window
   permission_handler_windows
-  sentry_flutter
+  screen_retriever_windows
   sqlite3_flutter_libs
   thermal_printer
+  window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

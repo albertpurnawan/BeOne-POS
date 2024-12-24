@@ -57,11 +57,13 @@ import 'package:pos_fe/features/sales/domain/usecases/apply_manual_rounding.dart
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdg.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topdi.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_promo_toprn.dart';
+import 'package:pos_fe/features/sales/domain/usecases/apply_promo_topsm.dart';
 import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_buy_x_get_y_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdg_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_topdi_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promo_toprn_applicability.dart';
+import 'package:pos_fe/features/sales/domain/usecases/check_promo_topsm_applicability.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/check_voucher.dart';
 import 'package:pos_fe/features/sales/domain/usecases/create_promos.dart';
@@ -84,6 +86,7 @@ import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart' as
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdg_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_topdi_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_promo_toprn_header_and_detail.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_promo_topsm_header_and_detail.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_queued_receipts.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_return_receipt.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
@@ -93,6 +96,7 @@ import 'package:pos_fe/features/sales/domain/usecases/handle_promo_buy_x_get_y.d
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_special_price.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topdg.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topdi.dart';
+import 'package:pos_fe/features/sales/domain/usecases/handle_promo_topsm.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/handle_without_promos.dart';
 import 'package:pos_fe/features/sales/domain/usecases/open_cash_drawer.dart';
@@ -169,6 +173,10 @@ import 'package:pos_fe/features/settings/data/data_sources/remote/promo_harga_sp
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_harga_spesial_buy_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_harga_spesial_customer_group_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/promo_harga_spesial_header_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_spesial_multi_item_assign_store_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_spesial_multi_item_customer_group_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_spesial_multi_item_detail_service.dart';
+import 'package:pos_fe/features/settings/data/data_sources/remote/promo_spesial_multi_item_header_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/province_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/store_masters_service.dart';
 import 'package:pos_fe/features/settings/data/data_sources/remote/tax_masters_service.dart';
@@ -297,6 +305,10 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<CheckStockApi>(CheckStockApi(sl()));
   sl.registerSingleton<DownPaymentApi>(DownPaymentApi(sl()));
   sl.registerSingleton<ReturnApi>(ReturnApi(sl()));
+  sl.registerSingleton<PromoSpesialMultiItemHeaderApi>(PromoSpesialMultiItemHeaderApi(sl()));
+  sl.registerSingleton<PromoSpesialMultiItemDetailApi>(PromoSpesialMultiItemDetailApi(sl()));
+  sl.registerSingleton<PromoSpesialMultiItemAssignStoreApi>(PromoSpesialMultiItemAssignStoreApi(sl()));
+  sl.registerSingleton<PromoSpesialMultiItemCustomerGroupApi>(PromoSpesialMultiItemCustomerGroupApi(sl()));
 
   /**
    * =================================
@@ -445,6 +457,18 @@ Future<void> initializeDependencies() async {
   // sl.registerSingletonWithDependencies<HandlePromoToprnUseCase>(
   //   () => HandlePromoToprnUseCase(sl(), sl(), sl()),
   // );
+  // topsm usecase
+  sl.registerSingleton<GetPromoTopSmHeaderAndDetailUseCase>(GetPromoTopSmHeaderAndDetailUseCase());
+  sl.registerSingletonWithDependencies<CheckPromoTopsmApplicabilityUseCase>(
+      () => CheckPromoTopsmApplicabilityUseCase(sl()),
+      dependsOn: [AppDatabase]);
+  sl.registerSingleton<ApplyTopsmUseCase>(ApplyTopsmUseCase());
+  sl.registerSingletonWithDependencies<HandlePromoSpesialMultiItemUseCase>(
+      () => HandlePromoSpesialMultiItemUseCase(sl(), sl(), sl(), sl()),
+      dependsOn: [CheckPromoTopdiApplicabilityUseCase]);
+  // sl.registerSingletonWithDependencies<HandlePromoSpesialMultiItemUseCase>(
+  //     () => HandlePromoSpesialMultiItemUseCase(sl(), sl(), sl(), sl()),
+  //     dependsOn: [CheckPromoTopdgApplicabilityUseCase]);
 
   sl.registerSingletonWithDependencies<CashierBalanceTransactionApi>(() => CashierBalanceTransactionApi(sl(), sl()),
       dependsOn: [SharedPreferences]);
@@ -475,6 +499,5 @@ Future<void> initializeDependencies() async {
    * END OF USECASES
    * =================================
    */
-
   return;
 }

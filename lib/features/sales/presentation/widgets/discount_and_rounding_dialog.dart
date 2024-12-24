@@ -12,6 +12,7 @@ import 'package:pos_fe/core/utilities/number_input_formatter.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
@@ -20,6 +21,7 @@ import 'package:pos_fe/features/sales/domain/usecases/apply_rounding.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:pos_fe/features/sales/presentation/widgets/approval_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/auth_input_discount_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/input_line_discount_dialog.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -36,10 +38,12 @@ class DiscountAndRoundingDialog extends StatefulWidget {
 }
 
 class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
-  final TextEditingController _textEditorHeaderDiscountController = TextEditingController();
+  final TextEditingController _textEditorHeaderDiscountAmountController = TextEditingController();
+  final TextEditingController _textEditorHeaderDiscountPercentController = TextEditingController();
   final TextEditingController _textEditorLineDiscountController = TextEditingController();
 
   final FocusNode _discountFocusNode = FocusNode();
+  final FocusNode _discountPercentFocusNode = FocusNode();
   final FocusNode _keyboardListenerFocusNode = FocusNode();
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
   final FocusScopeNode _focusScopeWarningNode = FocusScopeNode();
@@ -54,10 +58,20 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   List<LineDiscountParameter> searchedLineDiscountInputs = [];
   final FocusNode _searchLineDiscountFocusNode = FocusNode();
 
+  final FocusNode _keyboardFocusNode = FocusNode();
+  bool _showKeyboard = true;
+
+  bool _currentNumericMode = true;
+  bool _isDropdownShown = false;
+  final GlobalKey _iconButtonKey = GlobalKey();
+  TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
+
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
-
+    _discountPercentFocusNode.requestFocus();
     final ReceiptEntity state = context.read<ReceiptCubit>().state;
 
     initialGrandTotal = (state.grandTotal -
@@ -86,19 +100,141 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                 ((100 + e.itemEntity.taxRate) / 100)))
         .toList();
     searchedLineDiscountInputs = lineDiscountInputs;
-    _textEditorHeaderDiscountController.text = Helpers.parseMoney(state.discHeaderManual ?? 0);
+    _textEditorHeaderDiscountAmountController.text = Helpers.parseMoney(state.discHeaderManual ?? 0);
+
+    // Calculate and set the discount percentage
+    if ((state.discHeaderManual ?? 0) != 0) {
+      final percentage = ((state.discHeaderManual ?? 0) / initialGrandTotal * 100).abs();
+      _textEditorHeaderDiscountPercentController.text = percentage.toStringAsFixed(2);
+    }
+
     isManualRounded = widget.manualRounded;
     initialRounding = state.rounding.roundToDouble();
+
+    _discountPercentFocusNode.addListener(() {
+      if (_discountPercentFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _textEditorHeaderDiscountPercentController;
+          _activeFocusNode = _discountPercentFocusNode;
+        });
+      }
+    });
+    _discountFocusNode.addListener(() {
+      if (_discountFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _textEditorHeaderDiscountAmountController;
+          _activeFocusNode = _discountFocusNode;
+        });
+      }
+    });
+
+    _searchLineDiscountFocusNode.addListener(() {
+      if (_searchLineDiscountFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _textEditorLineDiscountController;
+          _activeFocusNode = _searchLineDiscountFocusNode;
+        });
+      }
+    });
+
+    _activeController = _textEditorHeaderDiscountPercentController;
+    _discountPercentFocusNode.requestFocus();
   }
 
   @override
   void dispose() {
-    _textEditorHeaderDiscountController.dispose();
+    _textEditorHeaderDiscountAmountController.dispose();
+    _textEditorHeaderDiscountPercentController.dispose();
     _discountFocusNode.dispose();
+    _discountPercentFocusNode.dispose();
     _keyboardListenerFocusNode.dispose();
     _focusScopeNode.dispose();
     _focusScopeWarningNode.dispose();
+    _keyboardFocusNode.dispose();
+    // _activeController.dispose();
     super.dispose();
+  }
+
+  void _toggleKeyboard() {
+    if (_isDropdownShown) {
+      setState(() {
+        _showKeyboard = !_showKeyboard;
+      });
+    } else {
+      _showDropdown();
+    }
+  }
+
+  void _showDropdown() async {
+    final RenderBox renderBox = _iconButtonKey.currentContext!.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+
+    await showMenu(
+      context: context,
+      surfaceTintColor: Colors.transparent,
+      color: const Color.fromARGB(255, 245, 245, 245),
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy + renderBox.size.height,
+        offset.dx + renderBox.size.width,
+        offset.dy,
+      ),
+      items: [
+        const PopupMenuItem(
+          value: "Alphanumeric",
+          child: Text("Alphanumeric"),
+        ),
+        const PopupMenuItem(
+          value: "Numeric",
+          child: Text("Numeric"),
+        ),
+        const PopupMenuItem(
+          value: "Off",
+          child: Text("Off"),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        switch (value) {
+          case 'Off':
+            setState(() {
+              _showKeyboard = false;
+            });
+            break;
+          case 'Alphanumeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = false;
+            });
+            break;
+          case 'Numeric':
+            setState(() {
+              _showKeyboard = true;
+              _currentNumericMode = true;
+            });
+            break;
+          default:
+            setState(() {
+              _showKeyboard = true;
+            });
+            break;
+        }
+      }
+    });
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   double getLineDiscountsTotal() {
@@ -117,7 +253,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   double getSimulatedGrandTotal() {
     try {
       final double simulatedGrandTotal = initialGrandTotal -
-          Helpers.revertMoneyToDecimalFormatDouble(_textEditorHeaderDiscountController.text) -
+          Helpers.revertMoneyToDecimalFormatDouble(_textEditorHeaderDiscountAmountController.text) -
           lineDiscountInputs.fold(0, (previousValue, element) => previousValue + element.lineDiscountAmount) +
           context.read<ReceiptCubit>().state.rounding;
 
@@ -129,13 +265,13 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     }
   }
 
-  Future<void> onSubmit() async {
+  Future<void> onSubmit(BuildContext childContext) async {
     try {
-      if (_textEditorHeaderDiscountController.text == "-") {
+      if (_textEditorHeaderDiscountAmountController.text == "-") {
         context.pop();
         throw "Invalid discount amount";
       }
-      double input = Helpers.revertMoneyToDecimalFormat(_textEditorHeaderDiscountController.text);
+      double input = Helpers.revertMoneyToDecimalFormat(_textEditorHeaderDiscountAmountController.text);
       final ReceiptEntity state = context.read<ReceiptCubit>().state;
       if (state.grandTotal < 0 && input != 0) {
         context.pop();
@@ -170,26 +306,29 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
       if (input < (storeMasterEntity.minDiscount ?? 0) ||
           input > (storeMasterEntity.maxDiscount ?? 0) ||
           lineDiscountInputs.any((element) => element.lineDiscountAmount != 0)) {
-        await showDialog(
+        final bool? isAuthorized = await showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) => AuthInputDiscountDialog(
+            builder: (context) => ApprovalDialog(
+                  approvalType: ApprovalType.discount,
                   initialGrandTotal: initialGrandTotal,
                   finalGrandTotal: getSimulatedGrandTotal(),
                   discountValue: input,
                   docnum: widget.docnum,
                   lineDiscountParameters: lineDiscountInputs,
                 ));
-      } else {
-        await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
-        context.pop(input);
+        if (isAuthorized == null) return;
+        if (isAuthorized != true) throw "Unauthorized";
       }
+      await context.read<ReceiptCubit>().updateTotalAmountFromDiscount(input, lineDiscountInputs);
+      context.pop(true);
     } catch (e) {
-      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+      SnackBarHelper.presentErrorSnackBar(childContext, e.toString());
     }
   }
 
   void _searchItemLineDiscount() {
+    log("_textEditorLineDiscountController.text - ${_textEditorLineDiscountController.text}");
     setState(() {
       searchedLineDiscountInputs = lineDiscountInputs
           .where((element) =>
@@ -200,16 +339,16 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
               element.receiptItemEntity.itemEntity.barcode
                   .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)))
           .toList();
-      log(lineDiscountInputs
-          .where((element) =>
-              element.receiptItemEntity.itemEntity.itemName
-                  .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)) ||
-              element.receiptItemEntity.itemEntity.itemCode
-                  .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)) ||
-              element.receiptItemEntity.itemEntity.barcode
-                  .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)))
-          .toList()
-          .toString());
+      // log(lineDiscountInputs
+      //     .where((element) =>
+      //         element.receiptItemEntity.itemEntity.itemName
+      //             .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)) ||
+      //         element.receiptItemEntity.itemEntity.itemCode
+      //             .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)) ||
+      //         element.receiptItemEntity.itemEntity.barcode
+      //             .contains(RegExp(_textEditorLineDiscountController.text, caseSensitive: false)))
+      //     .toList()
+      //     .toString());
       log(searchedLineDiscountInputs.toString());
     });
   }
@@ -228,8 +367,9 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
   void _resetHeaderDiscount() {
     try {
       setState(() {
-        _textEditorHeaderDiscountController.text = "0";
-        _discountFocusNode.requestFocus();
+        _textEditorHeaderDiscountAmountController.text = "0";
+        _textEditorHeaderDiscountPercentController.text = "0";
+        _discountPercentFocusNode.requestFocus();
       });
       SnackBarHelper.presentSuccessSnackBar(context, "Reset header discount success", null);
     } catch (e) {
@@ -250,7 +390,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
             onKeyEvent: (node, event) {
               if (event.runtimeType == KeyUpEvent) return KeyEventResult.handled;
               if (event.physicalKey == PhysicalKeyboardKey.f12) {
-                onSubmit();
+                onSubmit(childContext);
                 return KeyEventResult.handled;
               } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
                 context.pop();
@@ -268,7 +408,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                   color: ProjectColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                padding: const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                padding: const EdgeInsets.fromLTRB(25, 5, 10, 5),
                 child: Row(
                   children: [
                     const Text(
@@ -276,40 +416,64 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                       style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
                     ),
                     const Spacer(),
-                    ToggleSwitch(
-                      minHeight: 30,
-                      // minWidth: 80.0,
-                      cornerRadius: 5,
-                      animate: true,
-                      animationDuration: 400,
-                      curve: Curves.easeInOut,
-                      activeBgColors: const [
-                        [ProjectColors.green],
-                        [ProjectColors.green]
+                    Row(
+                      children: [
+                        ToggleSwitch(
+                          minHeight: 30,
+                          // minWidth: 80.0,
+                          cornerRadius: 5,
+                          animate: true,
+                          animationDuration: 400,
+                          curve: Curves.easeInOut,
+                          activeBgColors: const [
+                            [ProjectColors.green],
+                            [ProjectColors.green]
+                          ],
+                          activeFgColor: Colors.white,
+                          inactiveBgColor: const Color.fromARGB(255, 211, 211, 211),
+                          inactiveFgColor: ProjectColors.lightBlack,
+                          initialLabelIndex: isHeaderDiscount ? 0 : 1,
+                          totalSwitches: 2,
+                          labels: const ['Header', 'Line'],
+                          customTextStyles: const [
+                            TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                            TextStyle(fontSize: 12, fontWeight: FontWeight.w700)
+                          ],
+                          radiusStyle: true,
+                          onToggle: (index) {
+                            if (index == 0) {
+                              setState(() {
+                                isHeaderDiscount = true;
+                              });
+                            }
+                            if (index == 1) {
+                              setState(() {
+                                isHeaderDiscount = false;
+                              });
+                            }
+                          },
+                        ),
+                        const SizedBox(width: 5),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                            borderRadius: const BorderRadius.all(Radius.circular(360)),
+                          ),
+                          child: IconButton(
+                            key: _iconButtonKey,
+                            focusColor: const Color.fromARGB(255, 110, 0, 0),
+                            focusNode: _keyboardFocusNode,
+                            icon: Icon(
+                              _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              _toggleKeyboard();
+                            },
+                            tooltip: 'Toggle Keyboard',
+                          ),
+                        ),
                       ],
-                      activeFgColor: Colors.white,
-                      inactiveBgColor: const Color.fromARGB(255, 211, 211, 211),
-                      inactiveFgColor: ProjectColors.lightBlack,
-                      initialLabelIndex: isHeaderDiscount ? 0 : 1,
-                      totalSwitches: 2,
-                      labels: const ['Header', 'Line'],
-                      customTextStyles: const [
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-                        TextStyle(fontSize: 12, fontWeight: FontWeight.w700)
-                      ],
-                      radiusStyle: true,
-                      onToggle: (index) {
-                        if (index == 0) {
-                          setState(() {
-                            isHeaderDiscount = true;
-                          });
-                        }
-                        if (index == 1) {
-                          setState(() {
-                            isHeaderDiscount = false;
-                          });
-                        }
-                      },
                     ),
                   ],
                 ),
@@ -320,12 +484,12 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                 width: MediaQuery.of(context).size.width * 0.4,
                 color: Colors.white,
                 constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                  maxHeight: MediaQuery.of(context).size.height * 0.9,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    ...(isHeaderDiscount ? _buildHeaderDiscount(context) : _buildLineDiscounts(context)),
+                    ...(isHeaderDiscount ? _buildHeaderDiscount(childContext) : _buildLineDiscounts(context)),
                     const SizedBox(
                       height: 15,
                     ),
@@ -371,11 +535,11 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          _textEditorHeaderDiscountController.text == "" ||
-                                                  _textEditorHeaderDiscountController.text == "0" ||
-                                                  _textEditorHeaderDiscountController.text == "-"
+                                          _textEditorHeaderDiscountAmountController.text == "" ||
+                                                  _textEditorHeaderDiscountAmountController.text == "0" ||
+                                                  _textEditorHeaderDiscountAmountController.text == "-"
                                               ? "0"
-                                              : _textEditorHeaderDiscountController.text,
+                                              : _textEditorHeaderDiscountAmountController.text,
                                           textAlign: TextAlign.right,
                                           style: const TextStyle(fontSize: 14),
                                         ),
@@ -491,6 +655,12 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                         ),
                       ),
                     ),
+                    (_showKeyboard)
+                        ? Padding(
+                            padding: const EdgeInsets.fromLTRB(15, 5, 15, 0),
+                            child: _buildKeyboard(),
+                          )
+                        : const SizedBox.shrink(),
                   ],
                 ),
               ),
@@ -498,67 +668,69 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                 Row(
                   children: [
                     Expanded(
+                        flex: 1,
                         child: TextButton(
-                      style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(color: ProjectColors.primary))),
-                          backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                          overlayColor:
-                              MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Center(
-                        child: RichText(
-                          text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "Cancel",
-                                style: TextStyle(fontWeight: FontWeight.w600),
+                          style: ButtonStyle(
+                              shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                  side: const BorderSide(color: ProjectColors.primary))),
+                              backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                              overlayColor:
+                                  MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Center(
+                            child: RichText(
+                              text: const TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "Cancel",
+                                    style: TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                  TextSpan(
+                                    text: "  (Esc)",
+                                    style: TextStyle(fontWeight: FontWeight.w300),
+                                  ),
+                                ],
+                                style: TextStyle(color: ProjectColors.primary),
                               ),
-                              TextSpan(
-                                text: "  (Esc)",
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                            ],
-                            style: TextStyle(color: ProjectColors.primary),
+                              overflow: TextOverflow.clip,
+                            ),
                           ),
-                          overflow: TextOverflow.clip,
-                        ),
-                      ),
-                    )),
+                        )),
                     const SizedBox(width: 10),
                     Expanded(
+                        flex: 2,
                         child: TextButton(
-                      style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            side: const BorderSide(color: ProjectColors.primary),
-                          )),
-                          backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                      onPressed: () async {
-                        await onSubmit();
-                      },
-                      child: Center(
-                        child: RichText(
-                          text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "Save",
-                                style: TextStyle(fontWeight: FontWeight.w600),
+                          style: ButtonStyle(
+                              shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                                side: const BorderSide(color: ProjectColors.primary),
+                              )),
+                              backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                              overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                          onPressed: () async {
+                            await onSubmit(childContext);
+                          },
+                          child: Center(
+                            child: RichText(
+                              text: const TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "Save",
+                                    style: TextStyle(fontWeight: FontWeight.w600),
+                                  ),
+                                  TextSpan(
+                                    text: "  (F12)",
+                                    style: TextStyle(fontWeight: FontWeight.w300),
+                                  ),
+                                ],
                               ),
-                              TextSpan(
-                                text: "  (F12)",
-                                style: TextStyle(fontWeight: FontWeight.w300),
-                              ),
-                            ],
+                              overflow: TextOverflow.clip,
+                            ),
                           ),
-                          overflow: TextOverflow.clip,
-                        ),
-                      ),
-                    )),
+                        )),
                   ],
                 ),
               ],
@@ -570,31 +742,160 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
     );
   }
 
+  Widget _buildKeyboard() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+      child: KeyboardWidget(
+        controller: _activeController,
+        isNumericMode: _currentNumericMode,
+        customLayoutKeys: true,
+        height: 175,
+        focusNodeAndTextController: FocusNodeAndTextController(
+          focusNode: _activeFocusNode,
+          textEditingController: _activeController,
+        ),
+        onChanged: (_activeFocusNode == _searchLineDiscountFocusNode)
+            ? () {
+                try {
+                  _searchItemLineDiscount();
+                  _searchLineDiscountFocusNode.requestFocus();
+                } catch (e) {
+                  SnackBarHelper.presentErrorSnackBar(context, e.toString());
+                }
+              }
+            : () {
+                String text = _activeController.text;
+                TextSelection currentSelection = _activeController.selection;
+                int cursorPosition = currentSelection.start;
+                if (_activeController == _textEditorHeaderDiscountAmountController) {
+                  TextEditingValue formattedValue = NegativeMoneyInputFormatter().formatEditUpdate(
+                    TextEditingValue(
+                      text: text,
+                      selection: TextSelection.collapsed(offset: cursorPosition),
+                    ),
+                    TextEditingValue(
+                      text: text,
+                      selection: TextSelection.collapsed(offset: cursorPosition),
+                    ),
+                  );
+
+                  _activeController.text = formattedValue.text;
+                  _activeController.selection = formattedValue.selection;
+
+                  // Update percentage
+                  if (formattedValue.text.isNotEmpty) {
+                    final amount = double.tryParse(formattedValue.text.replaceAll(',', '')) ?? 0;
+                    final percentage = (amount / initialGrandTotal * 100).abs();
+                    _textEditorHeaderDiscountPercentController.text = percentage.toStringAsFixed(2);
+                  } else {
+                    _textEditorHeaderDiscountPercentController.text = '';
+                  }
+                } else if (_activeController == _textEditorHeaderDiscountPercentController) {
+                  // Handle percentage input with decimal formatting
+                  if (text.isEmpty || RegExp(r'^\-?\d*\.?\d{0,3}$').hasMatch(text.replaceAll('%', ''))) {
+                    // Remove % if present for processing
+                    final cleanText = text.replaceAll('%', '');
+
+                    // Add % back when setting the text
+                    _activeController.text = cleanText.isEmpty ? '' : '$cleanText%';
+                    _activeController.selection = TextSelection.collapsed(offset: cleanText.length);
+
+                    // Update amount
+                    if (cleanText.isNotEmpty) {
+                      final percentage = double.tryParse(cleanText) ?? 0;
+                      final amount = (initialGrandTotal * percentage / 100);
+                      _textEditorHeaderDiscountAmountController.text = Helpers.parseMoney(amount);
+                    } else {
+                      _textEditorHeaderDiscountAmountController.text = '';
+                    }
+                  }
+                }
+              },
+        textFormatter: (_activeFocusNode == _discountFocusNode) ? MoneyInputFormatter() : null,
+      ),
+    );
+  }
+
   List<Widget> _buildHeaderDiscount(BuildContext context) {
     return [
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: TextFormField(
-          focusNode: _discountFocusNode,
-          controller: _textEditorHeaderDiscountController,
-          onFieldSubmitted: (value) async => await onSubmit(),
-          onChanged: (value) => setState(() {}),
-          autofocus: true,
-          inputFormatters: [NegativeMoneyInputFormatter()],
-          textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 24),
-          decoration: const InputDecoration(
-              contentPadding: EdgeInsets.all(10),
-              hintText: "Enter Discount",
-              hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
-              border: OutlineInputBorder(),
-              prefixIcon: Icon(
-                Icons.discount_outlined,
-                size: 24,
+        child: Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Discount Percentage'),
+                  TextFormField(
+                    focusNode: _discountPercentFocusNode,
+                    controller: _textEditorHeaderDiscountPercentController,
+                    keyboardType: TextInputType.none,
+                    onFieldSubmitted: (value) async => await onSubmit(context),
+                    onChanged: (value) {
+                      final cleanValue = value.replaceAll('%', '');
+                      if (cleanValue.isNotEmpty) {
+                        final percentage = double.tryParse(cleanValue) ?? 0;
+                        final amount = (initialGrandTotal * percentage / 100);
+                        _textEditorHeaderDiscountAmountController.text = Helpers.parseMoney(amount);
+                      } else {
+                        _textEditorHeaderDiscountAmountController.text = '';
+                      }
+                      setState(() {});
+                    },
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^\-?\d*\.?\d{0,3}%?$')),
+                    ],
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 24),
+                    decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.all(10),
+                        hintText: "e.g. 10",
+                        hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+                        border: OutlineInputBorder(),
+                        suffixText: '%'),
+                  ),
+                ],
               ),
-              suffix: SizedBox(
-                width: 24,
-              )),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Discount Amount'),
+                  TextFormField(
+                    focusNode: _discountFocusNode,
+                    controller: _textEditorHeaderDiscountAmountController,
+                    keyboardType: TextInputType.none,
+                    onFieldSubmitted: (value) async => await onSubmit(context),
+                    onChanged: (value) {
+                      if (value.isNotEmpty) {
+                        final amount = double.tryParse(value.replaceAll(',', '')) ?? 0;
+                        final percentage = (amount / initialGrandTotal * 100).abs();
+                        _textEditorHeaderDiscountPercentController.text = percentage.toStringAsFixed(2);
+                      } else {
+                        _textEditorHeaderDiscountPercentController.text = '';
+                      }
+                      setState(() {});
+                    },
+                    autofocus: true,
+                    inputFormatters: [NegativeMoneyInputFormatter()],
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 24),
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.all(10),
+                      hintText: "e.g. 100,000",
+                      hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 24),
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     ];
@@ -608,6 +909,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
           textInputAction: TextInputAction.search,
           focusNode: _searchLineDiscountFocusNode,
           controller: _textEditorLineDiscountController,
+          keyboardType: TextInputType.none,
           onChanged: (value) {
             try {
               _searchItemLineDiscount();
@@ -701,6 +1003,8 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
                       setState(() {
                         e.lineDiscountAmount = lineDiscount;
                       });
+
+                      SnackBarHelper.presentSuccessSnackBar(context, "Line Discount saved", null);
                     } catch (e) {
                       SnackBarHelper.presentErrorSnackBar(context, e.toString());
                     }
@@ -1014,7 +1318,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
 
             onComplete();
             context.pop(true);
-            _discountFocusNode.requestFocus();
+            _discountPercentFocusNode.requestFocus();
           }
           return KeyEventResult.handled;
         } else if (event.physicalKey == PhysicalKeyboardKey.escape) {
@@ -1033,7 +1337,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
             color: ProjectColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
-          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+          padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
           child: const Text(
             'Caution',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
@@ -1076,36 +1380,34 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
           Row(
             children: [
               Expanded(
-                  flex: 1,
                   child: TextButton(
-                    style: ButtonStyle(
-                        shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            side: const BorderSide(color: ProjectColors.primary))),
-                        backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                        overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
-                    onPressed: () {
-                      context.pop(false);
-                    },
-                    child: Center(
-                      child: RichText(
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: "Cancel",
-                              style: TextStyle(fontWeight: FontWeight.w600),
-                            ),
-                            TextSpan(
-                              text: "  (Esc)",
-                              style: TextStyle(fontWeight: FontWeight.w300),
-                            ),
-                          ],
-                          style: TextStyle(color: ProjectColors.primary),
+                style: ButtonStyle(
+                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+                    backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                    overlayColor: MaterialStateColor.resolveWith((states) => Colors.black.withOpacity(.2))),
+                onPressed: () {
+                  context.pop(false);
+                },
+                child: Center(
+                  child: RichText(
+                    text: const TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Cancel",
+                          style: TextStyle(fontWeight: FontWeight.w600),
                         ),
-                        overflow: TextOverflow.clip,
-                      ),
+                        TextSpan(
+                          text: "  (Esc)",
+                          style: TextStyle(fontWeight: FontWeight.w300),
+                        ),
+                      ],
+                      style: TextStyle(color: ProjectColors.primary),
                     ),
-                  )),
+                    overflow: TextOverflow.clip,
+                  ),
+                ),
+              )),
               const SizedBox(
                 width: 10,
               ),
@@ -1126,7 +1428,7 @@ class _DiscountAndRoundingDialogState extends State<DiscountAndRoundingDialog> {
 
                     await onComplete();
                     context.pop(true);
-                    _discountFocusNode.requestFocus();
+                    _discountPercentFocusNode.requestFocus();
                   }
                 },
                 child: Center(

@@ -1,10 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:pos_fe/core/constants/route_constants.dart';
+import 'package:pos_fe/features/dual_screen/presentation/pages/display.dart';
 import 'package:pos_fe/features/home/presentation/pages/home.dart';
-import 'package:pos_fe/features/login/presentation/pages/login.dart';
+import 'package:pos_fe/features/login/presentation/pages/login_dialog.dart';
 import 'package:pos_fe/features/login/presentation/pages/welcome.dart';
 import 'package:pos_fe/features/mop_adjustment/presentation/pages/mop_adjustment_screen.dart';
 import 'package:pos_fe/features/reports/presentation/pages/check_stocks_screen.dart';
@@ -42,9 +43,7 @@ class AppRouter {
         path: "/login",
         pageBuilder: (context, state) {
           return const MaterialPage(
-            child: Scaffold(
-              body: LoginScreen(),
-            ),
+            child: LoginDialog(),
           );
         },
       ),
@@ -91,7 +90,11 @@ class AppRouter {
         path: "/shifts/close",
         pageBuilder: (context, state) {
           final Map<String, String> data = state.extra as Map<String, String>;
-          return MaterialPage(child: CloseShiftScreen(shiftId: data["shiftId"] as String, username: data["username"]));
+          return MaterialPage(
+              child: CloseShiftScreen(
+            shiftId: data["shiftId"] as String,
+            username: data["username"],
+          ));
         },
       ),
       GoRoute(
@@ -113,6 +116,22 @@ class AppRouter {
         path: "/checkStocks",
         pageBuilder: (context, state) {
           return const MaterialPage(child: CheckStockScreen());
+        },
+      ),
+      //Dual screen route
+      GoRoute(
+        name: RouteConstants.dualScreen,
+        path: "/dualScreen",
+        pageBuilder: (context, state) {
+          final args = state.extra as Map<String, dynamic>;
+          final windowController = args['windowController'] as WindowController;
+
+          return MaterialPage(
+            child: DisplayPage(
+              windowController: windowController,
+              args: args,
+            ),
+          );
         },
       ),
     ],

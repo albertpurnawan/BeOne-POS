@@ -739,6 +739,144 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
     ];
   }
 
+  List<Widget> _buildSpesialMultiItemDetails() {
+    final List<Widget> widgets = [
+      const Text(
+        "Spesial Multi Item",
+        style: TextStyle(fontWeight: FontWeight.w700, color: ProjectColors.primary, fontSize: 16),
+      ),
+      const SizedBox(
+        height: 15,
+      ),
+    ];
+
+    final List<PromotionsEntity> discountItemByItemPromos =
+        widget.receiptEntity.promos.where((element) => element.promoType == 201).toList();
+    if (discountItemByItemPromos.isEmpty) return [];
+
+    widgets.addAll([
+      const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 345,
+            child: Text(
+              "Description",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: ProjectColors.lightBlack,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 20,
+          ),
+          SizedBox(
+              width: 150,
+              child: Text("Discount",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: ProjectColors.lightBlack,
+                  ))),
+        ],
+      ),
+      const SizedBox(
+        height: 5,
+      )
+    ]);
+
+    double totalDisc = 0;
+
+    for (final discountItemByItemPromo in discountItemByItemPromos) {
+      final List<ReceiptItemEntity> appliedItems = widget.receiptEntity.receiptItems
+          .where((e1) => e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).isNotEmpty)
+          .toList();
+      if (appliedItems.isEmpty) break;
+      final double totalDiscByPromoId = appliedItems.map((e1) {
+        final double discAmount =
+            e1.promos.where((e2) => e2.promoId == discountItemByItemPromo.promoId).first.discAmount ?? 0;
+
+        return discAmount;
+      }).reduce((value, e3) => value + e3);
+
+      totalDisc += totalDiscByPromoId;
+      widgets.add(Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                  width: 345,
+                  child: Text(
+                    discountItemByItemPromo.promoDescription,
+                    style: const TextStyle(fontSize: 14),
+                  )),
+              const SizedBox(
+                width: 20,
+              ),
+              SizedBox(
+                  width: 150,
+                  child: Text(
+                    Helpers.parseMoney(totalDiscByPromoId.round()),
+                    style: const TextStyle(fontSize: 14),
+                  )),
+            ],
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+        ],
+      ));
+    }
+    widgets.add(Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(
+          height: 25,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(
+              height: 25,
+            ),
+            const SizedBox(
+                width: 345,
+                child: Text(
+                  "Total Discount",
+                  style: TextStyle(fontSize: 14),
+                )),
+            const SizedBox(
+              width: 20,
+            ),
+            SizedBox(
+                width: 150,
+                child: Text(
+                  Helpers.parseMoney(totalDisc.round()),
+                  style: const TextStyle(fontSize: 14),
+                )),
+          ],
+        ),
+        const SizedBox(
+          height: 5,
+        ),
+      ],
+    ));
+
+    return [
+      Padding(
+          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: widgets,
+          )),
+      const Divider(),
+    ];
+  }
+
   @override
   void initState() {
     super.initState();
@@ -793,7 +931,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
             color: ProjectColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
-          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+          padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
           child: const Text(
             'Promotion Check',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
@@ -951,6 +1089,10 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
                   height: 5,
                 ),
                 ..._buildDiscountItemByGroupDetails(),
+                const SizedBox(
+                  height: 5,
+                ),
+                ..._buildSpesialMultiItemDetails(),
               ],
             ),
           ),

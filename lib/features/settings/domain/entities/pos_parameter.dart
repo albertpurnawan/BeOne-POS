@@ -12,6 +12,7 @@ class POSParameterEntity {
   final String? toplnId;
   final String? tocsrId;
   final String? tovatId;
+  final int? customerDisplayActive;
 
   POSParameterEntity({
     required this.docId,
@@ -24,6 +25,7 @@ class POSParameterEntity {
     required this.toplnId,
     required this.tocsrId,
     required this.tovatId,
+    required this.customerDisplayActive,
   });
 
   POSParameterEntity copyWith({
@@ -37,19 +39,21 @@ class POSParameterEntity {
     String? toplnId,
     String? tocsrId,
     String? tovatId,
+    String? customerDisplayActive,
   }) {
     return POSParameterEntity(
-      docId: docId ?? this.docId,
-      createDate: createDate ?? this.createDate,
-      updateDate: updateDate ?? this.updateDate,
-      tostrId: tostrId ?? this.tostrId,
-      storeName: storeName ?? this.storeName,
-      tcurrId: tcurrId ?? this.tcurrId,
-      currCode: currCode ?? this.currCode,
-      toplnId: toplnId ?? this.toplnId,
-      tocsrId: tocsrId ?? this.tocsrId,
-      tovatId: tovatId ?? this.tovatId,
-    );
+        docId: docId ?? this.docId,
+        createDate: createDate ?? this.createDate,
+        updateDate: updateDate ?? this.updateDate,
+        tostrId: tostrId ?? this.tostrId,
+        storeName: storeName ?? this.storeName,
+        tcurrId: tcurrId ?? this.tcurrId,
+        currCode: currCode ?? this.currCode,
+        toplnId: toplnId ?? this.toplnId,
+        tocsrId: tocsrId ?? this.tocsrId,
+        tovatId: tovatId ?? this.tovatId,
+        customerDisplayActive: int.tryParse(
+            customerDisplayActive ?? this.customerDisplayActive.toString()));
   }
 
   Map<String, dynamic> toMap() {
@@ -64,24 +68,28 @@ class POSParameterEntity {
       'toplnId': toplnId,
       'tocsrId': tocsrId,
       'tovatId': tovatId,
+      'customerDisplayActive': customerDisplayActive
     };
   }
 
   factory POSParameterEntity.fromMap(Map<String, dynamic> map) {
     return POSParameterEntity(
-      docId: map['docId'] as String,
-      createDate: DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
-      updateDate: map['updateDate'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
-          : null,
-      tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
-      storeName: map['storeName'] as String,
-      tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
-      currCode: map['currCode'] as String,
-      toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
-      tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
-      tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
-    );
+        docId: map['docId'] as String,
+        createDate:
+            DateTime.fromMillisecondsSinceEpoch(map['createDate'] as int),
+        updateDate: map['updateDate'] != null
+            ? DateTime.fromMillisecondsSinceEpoch(map['updateDate'] as int)
+            : null,
+        tostrId: map['tostrId'] != null ? map['tostrId'] as String : null,
+        storeName: map['storeName'] as String,
+        tcurrId: map['tcurrId'] != null ? map['tcurrId'] as String : null,
+        currCode: map['currCode'] as String,
+        toplnId: map['toplnId'] != null ? map['toplnId'] as String : null,
+        tocsrId: map['tocsrId'] != null ? map['tocsrId'] as String : null,
+        tovatId: map['tovatId'] != null ? map['tovatId'] as String : null,
+        customerDisplayActive: map['customerDisplayActive'] != null
+            ? map['customerDisplayActive'] as int
+            : null);
   }
 
   String toJson() => json.encode(toMap());
@@ -107,7 +115,8 @@ class POSParameterEntity {
         other.currCode == currCode &&
         other.toplnId == toplnId &&
         other.tocsrId == tocsrId &&
-        other.tovatId == tovatId;
+        other.tovatId == tovatId &&
+        other.customerDisplayActive == customerDisplayActive;
   }
 
   @override
@@ -121,6 +130,7 @@ class POSParameterEntity {
         currCode.hashCode ^
         toplnId.hashCode ^
         tocsrId.hashCode ^
-        tovatId.hashCode;
+        tovatId.hashCode ^
+        customerDisplayActive.hashCode;
   }
 }

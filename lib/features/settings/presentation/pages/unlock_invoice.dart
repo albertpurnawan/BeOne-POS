@@ -12,6 +12,7 @@ import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/invoice_detail.dart';
@@ -38,6 +39,9 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   final prefs = GetIt.instance<SharedPreferences>();
   final _invoiceDocNumFocusNode = FocusNode();
   final _usernameFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  TextEditingController _activeController = TextEditingController();
+  FocusNode _activeFocusNode = FocusNode();
 
   List<InvoiceDetailModel>? invoiceFound;
   InvoiceDetailModel? selectedInvoice;
@@ -47,10 +51,43 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   bool _isSendingOTP = false;
   String fullDocnum = "";
 
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+  String currentFocusedField = '';
+
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     _invoiceDocNumFocusNode.requestFocus();
+
+    _invoiceDocNumFocusNode.addListener(() {
+      if (_invoiceDocNumFocusNode.hasFocus) {
+        setState(() {
+          currentFocusedField = 'invoice';
+          _activeController = _invoiceDocNumTextController;
+          _activeFocusNode = _invoiceDocNumFocusNode;
+        });
+      }
+    });
+    _usernameFocusNode.addListener(() {
+      if (_usernameFocusNode.hasFocus) {
+        setState(() {
+          currentFocusedField = 'username';
+          _activeController = _usernameController;
+          _activeFocusNode = _usernameFocusNode;
+        });
+      }
+    });
+    _passwordFocusNode.addListener(() {
+      if (_passwordFocusNode.hasFocus) {
+        setState(() {
+          currentFocusedField = 'password';
+          _activeController = _passwordController;
+          _activeFocusNode = _passwordFocusNode;
+        });
+      }
+    });
   }
 
   @override
@@ -60,7 +97,23 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
     _passwordController.dispose();
     _invoiceDocNumFocusNode.dispose();
     _usernameFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<List<InvoiceDetailModel>?> _searchInvoiceDetail(String docNum) async {
@@ -229,6 +282,20 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
 
   @override
   Widget build(BuildContext context) {
+    // switch (currentFocusedField) {
+    //   case 'invoice':
+    //     _activeController = _invoiceDocNumTextController;
+    //     break;
+    //   case 'username':
+    //     _activeController = _usernameController;
+    //     break;
+    //   case 'password':
+    //     _activeController = _passwordController;
+    //     break;
+    //   default:
+    //     _activeController = _invoiceDocNumTextController;
+    //     break;
+    // }
     return ScaffoldMessenger(child: Builder(builder: (childContext) {
       return Scaffold(
         backgroundColor: Colors.transparent,
@@ -263,10 +330,35 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                 color: ProjectColors.primary,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
               ),
-              padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
-              child: const Text(
-                'Unlock Invoice',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+              padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Unlock Invoice',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(360)),
+                    ),
+                    child: IconButton(
+                      focusColor: const Color.fromARGB(255, 110, 0, 0),
+                      focusNode: _keyboardFocusNode,
+                      icon: Icon(
+                        _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _showKeyboard = !_showKeyboard;
+                        });
+                      },
+                      tooltip: 'Toggle Keyboard',
+                    ),
+                  ),
+                ],
               ),
             ),
             titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -274,14 +366,14 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
             content: SingleChildScrollView(
               child: SizedBox(
                 width: MediaQuery.of(childContext).size.width * 0.6,
-                height: MediaQuery.of(childContext).size.height * 0.6,
+                height: MediaQuery.of(childContext).size.height * 0.8,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(30, 30, 30, 15),
+                  padding: const EdgeInsets.fromLTRB(30, 5, 30, 5),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       _inputInvoiceNumber(),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 5),
                       const Divider(),
                       if (!showInvoice)
                         Expanded(
@@ -291,8 +383,83 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                         SizedBox(
                           child: _unlockInvoice(childContext),
                         ),
-                      const SizedBox(height: 10),
-                      _actionButtons(childContext, context),
+                      (_showKeyboard)
+                          ? SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.5,
+                              child: KeyboardWidget(
+                                controller: _activeController,
+                                isNumericMode: false,
+                                customLayoutKeys: true,
+
+                                focusNodeAndTextController: FocusNodeAndTextController(
+                                  focusNode: _activeFocusNode,
+                                  textEditingController: _activeController,
+                                ),
+                                onSubmit: () async {
+                                  _activeController.text = _activeController.text.trimRight();
+                                  if (_activeController == _invoiceDocNumTextController) {
+                                    _invoiceDocNumFocusNode.unfocus();
+                                    final invoiceSearched =
+                                        await _searchInvoiceDetail(_invoiceDocNumTextController.text);
+                                    setState(() {
+                                      invoiceFound = invoiceSearched;
+                                      showInvoice = false;
+                                    });
+                                  }
+                                },
+                                // onKeyPress: (key) async {
+                                //   String text = _activeController.text;
+                                //   TextSelection currentSelection = _activeController.selection;
+                                //   int cursorPosition = currentSelection.start;
+
+                                //   if (key.keyType == VirtualKeyboardKeyType.String) {
+                                //     String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                //     text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                //     cursorPosition += inputText.length;
+                                //   } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                //     switch (key.action) {
+                                //       case VirtualKeyboardKeyAction.Backspace:
+                                //         if (text.isNotEmpty) {
+                                //           text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                //           cursorPosition -= 1;
+                                //         }
+                                //         break;
+                                //       case VirtualKeyboardKeyAction.Return:
+                                //         _activeController.text = _activeController.text.trimRight();
+                                //         if (_activeController == _invoiceDocNumTextController) {
+                                //           _invoiceDocNumFocusNode.unfocus();
+                                //           final invoiceSearched =
+                                //               await _searchInvoiceDetail(_invoiceDocNumTextController.text);
+                                //           setState(() {
+                                //             invoiceFound = invoiceSearched;
+                                //             showInvoice = false;
+                                //           });
+                                //         }
+                                //         break;
+                                //       case VirtualKeyboardKeyAction.Space:
+                                //         text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                //         cursorPosition += 1;
+                                //         break;
+                                //       case VirtualKeyboardKeyAction.Shift:
+                                //         _shiftEnabled = !_shiftEnabled;
+                                //         break;
+                                //       default:
+                                //         break;
+                                //     }
+                                //   }
+                                //   _activeController.text = text;
+                                //   _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                                //   setState(() {});
+                                // },
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                      const SizedBox(height: 5),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        child: _actionButtons(childContext, context),
+                      ),
                     ],
                   ),
                 ),
@@ -358,6 +525,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                           inputFormatters: [
                             LengthLimitingTextInputFormatter(30),
                           ],
+                          keyboardType: TextInputType.none,
                         ),
                       ),
                       const SizedBox(width: 15),
@@ -520,7 +688,7 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -542,24 +710,26 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(childContext).size.width * 0.5,
-                    child: TextFormField(
-                      focusNode: _usernameFocusNode,
-                      controller: _usernameController,
-                      keyboardType: TextInputType.text,
-                      onFieldSubmitted: (value) async => await onSubmit(childContext, context),
-                      validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(fontSize: 20),
-                      decoration: const InputDecoration(
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.23,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(childContext).size.width * 0.5,
+                      child: TextFormField(
+                        focusNode: _usernameFocusNode,
+                        controller: _usernameController,
+                        keyboardType: TextInputType.none,
+                        onFieldSubmitted: (value) async => await onSubmit(childContext, context),
+                        validator: (val) => val == null || val.isEmpty ? "Username is required" : null,
+                        textAlign: TextAlign.left,
+                        style: const TextStyle(fontSize: 20),
+                        decoration: const InputDecoration(
                           contentPadding: EdgeInsets.all(10),
                           hintText: "Username",
                           hintStyle: TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
@@ -567,87 +737,88 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                           prefixIcon: Icon(
                             Icons.person_4,
                             size: 20,
-                          )),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                  SizedBox(
-                    width: MediaQuery.of(childContext).size.width * 0.5,
-                    child: TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscureText,
-                      keyboardType: TextInputType.text,
-                      onFieldSubmitted: (value) async {
-                        await onSubmit(childContext, context);
-                      },
-                      validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(fontSize: 20),
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.all(10),
-                        hintText: "Password",
-                        hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
-                        border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(
-                          Icons.lock,
-                          size: 20,
+                          ),
                         ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscureText ? Icons.visibility : Icons.visibility_off,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    SizedBox(
+                      width: MediaQuery.of(childContext).size.width * 0.5,
+                      child: TextFormField(
+                        focusNode: _passwordFocusNode,
+                        controller: _passwordController,
+                        obscureText: _obscureText,
+                        keyboardType: TextInputType.none,
+                        onFieldSubmitted: (value) async {
+                          await onSubmit(childContext, context);
+                        },
+                        validator: (val) => val == null || val.isEmpty ? "Password is required" : null,
+                        textAlign: TextAlign.left,
+                        style: const TextStyle(fontSize: 20),
+                        decoration: InputDecoration(
+                          contentPadding: const EdgeInsets.all(10),
+                          hintText: "Password",
+                          hintStyle: const TextStyle(fontStyle: FontStyle.italic, fontSize: 20),
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(
+                            Icons.lock,
                             size: 20,
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _obscureText = !_obscureText;
-                            });
-                          },
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureText ? Icons.visibility_off : Icons.visibility,
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureText = !_obscureText;
+                              });
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 15),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: 'Use OTP Instead',
-                              style: TextStyle(
-                                color: _isOTPClicked ? Colors.grey : ProjectColors.lightBlack,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () async {
-                                  FocusScope.of(childContext).unfocus();
-                                  await handleOTP(childContext);
-                                },
-                            ),
-                            TextSpan(
-                              text: " (F11)",
-                              style: TextStyle(
+                    const SizedBox(height: 5),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Use OTP Instead',
+                                style: TextStyle(
                                   color: _isOTPClicked ? Colors.grey : ProjectColors.lightBlack,
+                                  fontWeight: FontWeight.w600,
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w300),
-                            ),
-                          ],
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () async {
+                                    FocusScope.of(childContext).unfocus();
+                                    await handleOTP(childContext);
+                                  },
+                              ),
+                              TextSpan(
+                                text: " (F11)",
+                                style: TextStyle(
+                                    color: _isOTPClicked ? Colors.grey : ProjectColors.lightBlack,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w300),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      if (_isSendingOTP)
-                        const SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: CircularProgressIndicator(),
-                        ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 10),
+                        if (_isSendingOTP)
+                          const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -657,75 +828,66 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
   }
 
   Widget _actionButtons(BuildContext childContext, BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.5,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 00, 0, 10),
-        child: Row(
-          children: [
-            Expanded(
-                child: TextButton(
-              style: ButtonStyle(
-                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
-                  backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
-                  overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
-              onPressed: () {
-                Navigator.of(childContext).pop();
-              },
-              child: Center(
-                child: RichText(
-                  text: const TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Cancel",
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                      TextSpan(
-                        text: "  (Esc)",
-                        style: TextStyle(fontWeight: FontWeight.w300),
-                      ),
-                    ],
-                    style: TextStyle(color: ProjectColors.primary),
-                  ),
-                  overflow: TextOverflow.clip,
-                ),
-              ),
-            )),
-            const SizedBox(width: 10),
-            showInvoice
-                ? Expanded(
-                    child: TextButton(
-                      style: ButtonStyle(
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                              side: const BorderSide(color: ProjectColors.primary))),
-                          backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
-                          overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
-                      onPressed: () async => await onSubmit(childContext, context),
-                      child: Center(
-                        child: RichText(
-                          text: const TextSpan(
-                            children: [
-                              TextSpan(
-                                text: "Confirm",
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              // TextSpan(
-                              //   text: "  (Enter)",
-                              //   style: TextStyle(fontWeight: FontWeight.w300),
-                              // ),
-                            ],
-                          ),
-                          overflow: TextOverflow.clip,
-                        ),
-                      ),
+    return Row(
+      children: [
+        Expanded(
+          child: TextButton(
+            style: ButtonStyle(
+                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5), side: const BorderSide(color: ProjectColors.primary))),
+                backgroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
+                overlayColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary.withOpacity(.2))),
+            onPressed: () {
+              Navigator.of(childContext).pop();
+            },
+            child: Center(
+              child: RichText(
+                text: const TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "Cancel",
+                      style: TextStyle(fontWeight: FontWeight.w600),
                     ),
-                  )
-                : const SizedBox.shrink(),
-          ],
+                    TextSpan(
+                      text: "  (Esc)",
+                      style: TextStyle(fontWeight: FontWeight.w300),
+                    ),
+                  ],
+                  style: TextStyle(color: ProjectColors.primary),
+                ),
+                overflow: TextOverflow.clip,
+              ),
+            ),
+          ),
         ),
-      ),
+        showInvoice ? const SizedBox(width: 10) : const SizedBox.shrink(),
+        showInvoice
+            ? Expanded(
+                child: TextButton(
+                  style: ButtonStyle(
+                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          side: const BorderSide(color: ProjectColors.primary))),
+                      backgroundColor: MaterialStateColor.resolveWith((states) => ProjectColors.primary),
+                      overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2))),
+                  onPressed: () async => await onSubmit(childContext, context),
+                  child: Center(
+                    child: RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Confirm",
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                      overflow: TextOverflow.clip,
+                    ),
+                  ),
+                ),
+              )
+            : const SizedBox.shrink(),
+      ],
     );
   }
 }
