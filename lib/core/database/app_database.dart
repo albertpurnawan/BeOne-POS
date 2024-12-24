@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:pos_fe/core/database/seeders_data/receiptcontents.dart';
+import 'package:pos_fe/features/dual_screen/data/datasources/dual_screen_dao.dart';
+import 'package:pos_fe/features/dual_screen/data/models/dual_screen.dart';
 import 'package:pos_fe/features/login/data/data_sources/local/user_auth_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/approval_invoice_dao.dart';
 import 'package:pos_fe/features/sales/data/data_sources/local/assign_price_member_per_store_dao.dart';
@@ -234,7 +236,7 @@ import 'package:pos_fe/features/settings/data/models/receipt_content.dart';
 import 'package:sqflite/sqflite.dart';
 
 class AppDatabase {
-  final int databaseVersion = 5;
+  final int databaseVersion = 6;
   final _databaseName = "pos_fe.db";
 
   Database? _database;
@@ -306,8 +308,7 @@ class AppDatabase {
   late PromoDiskonGroupItemBuyConditionDao promoDiskonGroupItemBuyConditionDao;
   late PromoDiskonGroupItemAssignStoreDao promoDiskonGroupItemAssignStoreDao;
   late PromoDiskonGroupItemGetConditionDao promoDiskonGroupItemGetConditionDao;
-  late PromoDiskonGroupItemCustomerGroupDao
-      promoDiskonGroupItemCustomerGroupDao;
+  late PromoDiskonGroupItemCustomerGroupDao promoDiskonGroupItemCustomerGroupDao;
   late PromoBuyXGetYHeaderDao promoBuyXGetYHeaderDao;
   late PromoBuyXGetYBuyConditionDao promoBuyXGetYBuyConditionDao;
   late PromoBuyXGetYAssignStoreDao promoBuyXGetYAssignStoreDao;
@@ -327,6 +328,7 @@ class AppDatabase {
   late BankIssuerDao bankIssuerDao;
   late CampaignDao campaignDao;
   late DownPaymentItemsDao downPaymentItemsDao;
+  late DualScreenDao dualScreenDao;
 
   static String createTinv7 = """
         CREATE TABLE $tableDownPaymentItem (
@@ -353,6 +355,19 @@ class AppDatabase {
         )
         """;
 
+  static String createTobnr = """
+      CREATE TABLE $tableDualScreen (
+        ${DualScreenFields.id} INT PRIMARY KEY ,
+        ${DualScreenFields.createdAt} datetime DEFAULT CURRENT_TIMESTAMP,
+        ${DualScreenFields.updatedAt} datetime DEFAULT CURRENT_TIMESTAMP,
+        ${DualScreenFields.description} text DEFAULT NULL,
+        ${DualScreenFields.type} INT DEFAULT NULL,
+        `${DualScreenFields.order}` INT DEFAULT NULL,
+        ${DualScreenFields.path} TEXT DEFAULT NULL,
+        ${DualScreenFields.duration} INT DEFAULT NULL
+        )
+      """;
+
   AppDatabase._init();
 
   Future<Database> getDB() async {
@@ -367,10 +382,7 @@ class AppDatabase {
     final path = join(dbPath, filePath);
     log(path);
     return await openDatabase(path,
-        version: databaseVersion,
-        onCreate: _createDB,
-        onConfigure: _onConfigure,
-        onUpgrade: _onUpgrade);
+        version: databaseVersion, onCreate: _createDB, onConfigure: _onConfigure, onUpgrade: _onUpgrade);
   }
 
   Future<void> emptyDb() async {
@@ -446,10 +458,8 @@ PRAGMA foreign_keys = ON;
     vouchersSelectionDao = VouchersSelectionDao(_database!);
     promoHargaSpesialHeaderDao = PromoHargaSpesialHeaderDao(_database!);
     promoHargaSpesialBuyDao = PromoHargaSpesialBuyDao(_database!);
-    promoHargaSpesialAssignStoreDao =
-        PromoHargaSpesialAssignStoreDao(_database!);
-    promoHargaSpesialCustomerGroupDao =
-        PromoHargaSpesialCustomerGroupDao(_database!);
+    promoHargaSpesialAssignStoreDao = PromoHargaSpesialAssignStoreDao(_database!);
+    promoHargaSpesialCustomerGroupDao = PromoHargaSpesialCustomerGroupDao(_database!);
     promoMultiItemHeaderDao = PromoMultiItemHeaderDao(_database!);
     promoMultiItemBuyConditionDao = PromoMultiItemBuyConditionDao(_database!);
     promoMultiItemAssignStoreDao = PromoMultiItemAssignStoreDao(_database!);
@@ -459,17 +469,12 @@ PRAGMA foreign_keys = ON;
     promoDiskonItemBuyConditionDao = PromoDiskonItemBuyConditionDao(_database!);
     promoDiskonItemAssignStoreDao = PromoDiskonItemAssignStoreDao(_database!);
     promoDiskonItemGetConditionDao = PromoDiskonItemGetConditionDao(_database!);
-    promoDiskonItemCustomerGroupDao =
-        PromoDiskonItemCustomerGroupDao(_database!);
+    promoDiskonItemCustomerGroupDao = PromoDiskonItemCustomerGroupDao(_database!);
     promoDiskonGroupItemHeaderDao = PromoDiskonGroupItemHeaderDao(_database!);
-    promoDiskonGroupItemBuyConditionDao =
-        PromoDiskonGroupItemBuyConditionDao(_database!);
-    promoDiskonGroupItemAssignStoreDao =
-        PromoDiskonGroupItemAssignStoreDao(_database!);
-    promoDiskonGroupItemGetConditionDao =
-        PromoDiskonGroupItemGetConditionDao(_database!);
-    promoDiskonGroupItemCustomerGroupDao =
-        PromoDiskonGroupItemCustomerGroupDao(_database!);
+    promoDiskonGroupItemBuyConditionDao = PromoDiskonGroupItemBuyConditionDao(_database!);
+    promoDiskonGroupItemAssignStoreDao = PromoDiskonGroupItemAssignStoreDao(_database!);
+    promoDiskonGroupItemGetConditionDao = PromoDiskonGroupItemGetConditionDao(_database!);
+    promoDiskonGroupItemCustomerGroupDao = PromoDiskonGroupItemCustomerGroupDao(_database!);
     promoBuyXGetYHeaderDao = PromoBuyXGetYHeaderDao(_database!);
     promoBuyXGetYBuyConditionDao = PromoBuyXGetYBuyConditionDao(_database!);
     promoBuyXGetYAssignStoreDao = PromoBuyXGetYAssignStoreDao(_database!);
@@ -489,6 +494,7 @@ PRAGMA foreign_keys = ON;
     bankIssuerDao = BankIssuerDao(_database!);
     campaignDao = CampaignDao(_database!);
     downPaymentItemsDao = DownPaymentItemsDao(_database!);
+    dualScreenDao = DualScreenDao(_database!);
 
     await receiptContentDao.deleteAll();
     await receiptContentDao.bulkCreate(
@@ -541,13 +547,11 @@ PRAGMA foreign_keys = ON;
   }
 
   Future<void> refreshItemsTable() async {
-    final List<POSParameterModel> posParameter =
-        await posParameterDao.readAll();
+    final List<POSParameterModel> posParameter = await posParameterDao.readAll();
     if (posParameter.isEmpty) return;
     if (posParameter[0].tostrId == null) return;
 
-    final StoreMasterModel? storeMaster =
-        await storeMasterDao.readByDocId(posParameter[0].tostrId!, null);
+    final StoreMasterModel? storeMaster = await storeMasterDao.readByDocId(posParameter[0].tostrId!, null);
     if (storeMaster == null) return;
     if (storeMaster.tcurrId == null) return;
 
@@ -570,8 +574,7 @@ INNER JOIN (
   ) as t ON t.tovatId = s.tovatId
 """;
     } else {
-      final TaxMasterModel? taxMaster =
-          await taxMasterDao.readByDocId(storeMaster.tovatId!, null);
+      final TaxMasterModel? taxMaster = await taxMasterDao.readByDocId(storeMaster.tovatId!, null);
       storeTovatId = taxMaster!.docId;
       storeTaxRate = taxMaster.rate;
     }
@@ -3004,9 +3007,11 @@ CREATE TABLE $tablePOSParameter (
   ${POSParameterFields.storeName} text DEFAULT NULL,
   ${POSParameterFields.tocsrId} text DEFAULT NULL,
   ${POSParameterFields.baseUrl} text DEFAULT NULL,
-  ${POSParameterFields.usernameAdmin} text DEFAULT NULL,
+  ${POSParameterFields.usernameAdmin} text DEFAULT NULL,  
   ${POSParameterFields.passwordAdmin} text DEFAULT NULL,
   ${POSParameterFields.lastSync} text DEFAULT NULL,
+  ${POSParameterFields.defaultShowKeyboard} int DEFAULT '0',
+  ${POSParameterFields.customerDisplayActive} int DEFAULT NULL,
   $createdAtDefinition
 )
 """);
@@ -3645,6 +3650,7 @@ CREATE TABLE $tableDuitkuVAAssignStore (
 """);
 
         await txn.execute(createTinv7);
+        await txn.execute(createTobnr);
       });
     } catch (e) {
       log(e.toString());
@@ -3694,77 +3700,53 @@ CREATE TABLE $tableDuitkuVAAssignStore (
 
   FutureOr<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     for (var migration = oldVersion; migration < newVersion; migration++) {
-      await _onUpgrades[
-          "from_version_${migration}_to_version_${migration + 1}"]!(db);
+      await _onUpgrades["from_version_${migration}_to_version_${migration + 1}"]!(db);
     }
   }
 
   final Map<String, Function> _onUpgrades = {
     'from_version_1_to_version_2': (Database db) async {
-      await db.execute(
-          '''ALTER TABLE $tablePromoCouponAssignStore ADD COLUMN day3 int NOT NULL''');
-      await db.execute(
-          '''ALTER TABLE $tablePromoCouponAssignStore ADD COLUMN day2_new int NOT NULL''');
-      await db.execute(
-          '''UPDATE $tablePromoCouponAssignStore SET day2_new = COALESCE(day2, 1)''');
-      await db.execute(
-          '''ALTER TABLE $tablePromoCouponAssignStore DROP COLUMN day2''');
-      await db.execute(
-          '''ALTER TABLE $tablePromoCouponAssignStore RENAME day2_new TO day2''');
-      await db.execute(
-          '''ALTER TABLE $tablePromoCouponAssignStore ADD COLUMN form varchar(1) NOT NULL''');
+      await db.execute('''ALTER TABLE $tablePromoCouponAssignStore ADD COLUMN day3 int NOT NULL''');
+      await db.execute('''ALTER TABLE $tablePromoCouponAssignStore ADD COLUMN day2_new int NOT NULL''');
+      await db.execute('''UPDATE $tablePromoCouponAssignStore SET day2_new = COALESCE(day2, 1)''');
+      await db.execute('''ALTER TABLE $tablePromoCouponAssignStore DROP COLUMN day2''');
+      await db.execute('''ALTER TABLE $tablePromoCouponAssignStore RENAME day2_new TO day2''');
+      await db.execute('''ALTER TABLE $tablePromoCouponAssignStore ADD COLUMN form varchar(1) NOT NULL''');
 
-      await db.execute(
-          '''ALTER TABLE $tablePromoCouponHeader ADD COLUMN istada int NOT NULL''');
-      await db.execute(
-          '''ALTER TABLE $tablePromoCouponHeader ADD COLUMN form varchar(1) NOT NULL''');
-      await db.execute(
-          '''ALTER TABLE $tablePromoCouponHeader ADD COLUMN temp double NOT NULL''');
-      await db.execute(
-          '''ALTER TABLE $tablePromoCouponHeader DROP COLUMN maxgeneraldisc''');
-      await db.execute(
-          '''ALTER TABLE $tablePromoCouponHeader RENAME temp TO maxgeneraldisc''');
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader ADD COLUMN istada int NOT NULL''');
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader ADD COLUMN form varchar(1) NOT NULL''');
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader ADD COLUMN temp double NOT NULL''');
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader DROP COLUMN maxgeneraldisc''');
+      await db.execute('''ALTER TABLE $tablePromoCouponHeader RENAME temp TO maxgeneraldisc''');
 
-      await db.execute(
-          '''ALTER TABLE $tablePromoCouponCustomerGroup ADD COLUMN form varchar(1) NOT NULL''');
+      await db.execute('''ALTER TABLE $tablePromoCouponCustomerGroup ADD COLUMN form varchar(1) NOT NULL''');
 
-      await db.execute(
-          '''ALTER TABLE $tableAuthStore ADD COLUMN discandround int DEFAULT 0''');
-      await db.execute(
-          '''ALTER TABLE $tableAuthStore ADD COLUMN nonpositivetrx int DEFAULT 0''');
-      await db.execute(
-          '''ALTER TABLE $tableAuthStore ADD COLUMN closeshift int DEFAULT 0''');
-      await db.execute(
-          '''ALTER TABLE $tableAuthStore ADD COLUMN resetlocaldb int DEFAULT 0''');
+      await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN discandround int DEFAULT 0''');
+      await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN nonpositivetrx int DEFAULT 0''');
+      await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN closeshift int DEFAULT 0''');
+      await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN resetlocaldb int DEFAULT 0''');
 
-      await db.execute(
-          '''ALTER TABLE $tableStoreMasters ADD COLUMN mindiscount int DEFAULT 0''');
-      await db.execute(
-          '''ALTER TABLE $tableStoreMasters ADD COLUMN maxdiscount int DEFAULT 0''');
+      await db.execute('''ALTER TABLE $tableStoreMasters ADD COLUMN mindiscount int DEFAULT 0''');
+      await db.execute('''ALTER TABLE $tableStoreMasters ADD COLUMN maxdiscount int DEFAULT 0''');
     },
     'from_version_2_to_version_3': (Database db) async {
       final result = await db.rawQuery(
         '''PRAGMA table_info($tableAuthStore)''',
       );
 
-      bool columnExists =
-          result.any((column) => column['name'] == 'resetlocaldb');
+      bool columnExists = result.any((column) => column['name'] == 'resetlocaldb');
 
       if (!columnExists) {
-        await db.execute(
-            '''ALTER TABLE $tableAuthStore ADD COLUMN temp int NOT NULL DEFAULT 0''');
+        await db.execute('''ALTER TABLE $tableAuthStore ADD COLUMN temp int NOT NULL DEFAULT 0''');
         await db.execute('''UPDATE $tableAuthStore SET temp = resetdb''');
         await db.execute('''ALTER TABLE $tableAuthStore DROP COLUMN resetdb''');
-        await db.execute(
-            '''ALTER TABLE $tableAuthStore RENAME temp TO resetlocaldb''');
+        await db.execute('''ALTER TABLE $tableAuthStore RENAME temp TO resetlocaldb''');
       }
     },
     'from_version_3_to_version_4': (Database db) async {
-      await db.execute(
-          '''ALTER TABLE $tableInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
+      await db.execute('''ALTER TABLE $tableInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
 
-      await db.execute(
-          '''ALTER TABLE $tableQueuedInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
+      await db.execute('''ALTER TABLE $tableQueuedInvoiceDetail ADD COLUMN refpos2 text DEFAULT NULL''');
 
       // add table duitkuVADetails
       await db.execute("""
@@ -3824,6 +3806,21 @@ CREATE TABLE $tableDuitkuVAAssignStore (
       await db.execute(
           '''ALTER TABLE $tableStoreMasters ADD COLUMN ${ItemMasterFields.scaleActive} tinyint NOT NULL DEFAULT '0' ''');
     },
+    'from_version_5_to_version_6': (Database db) async {
+      // create table banner
+      await db.execute(createTobnr);
+      // alter table topos showKeyboard
+      await db.execute(
+          '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.defaultShowKeyboard} int NOT NULL DEFAULT '0' ''');
+      // alter table topos showKeyboard
+      await db.execute(
+          '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.customerDisplayActive} int DEFAULT null ''');
+    },
+    'from_version_5_to_version_6': (Database db) async {
+      // alter table topos showKeyboard
+      await db.execute(
+          '''ALTER TABLE $tablePOSParameter ADD COLUMN ${POSParameterFields.defaultShowKeyboard} int NOT NULL DEFAULT '0' ''');
+    }
   };
 
   Future<void> close() async {

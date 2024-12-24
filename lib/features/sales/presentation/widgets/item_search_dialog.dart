@@ -3,14 +3,19 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/empty_list.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/domain/entities/item.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/items_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class ItemSearchDialog extends StatefulWidget {
   const ItemSearchDialog({super.key});
@@ -28,12 +33,56 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
   final TextEditingController _textEditingController = TextEditingController();
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
 
+  bool _shiftEnabled = false;
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    getDefaultKeyboardPOSParameter();
+    super.initState();
+  }
+
   @override
   void dispose() {
+    _keyboardFocusNode.dispose();
     _searchInputFocusNode.dispose();
     _scrollController.dispose();
     _textEditingController.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
+  }
+
+  Future<void> onSubmit() async {
+    try {
+      if (context.read<ReceiptCubit>().state.customerEntity == null) throw "Customer required";
+      await context.read<ItemsCubit>().getItems(
+          searchKeyword: _textEditingController.text,
+          customerEntity: context.read<ReceiptCubit>().state.customerEntity!);
+      _searchInputFocusNode.requestFocus();
+
+      if (_scrollController.hasClients) {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          _scrollController.animateTo(_scrollController.position.minScrollExtent,
+              duration: const Duration(milliseconds: 400), curve: Curves.fastOutSlowIn);
+        });
+      }
+    } catch (e) {
+      SnackBarHelper.presentErrorSnackBar(context, e.toString());
+    }
   }
 
   @override
@@ -86,9 +135,34 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
                 padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
-                child: const Text(
-                  'Item Search',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Item Search',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                        borderRadius: const BorderRadius.all(Radius.circular(360)),
+                      ),
+                      child: IconButton(
+                        focusColor: const Color.fromARGB(255, 110, 0, 0),
+                        focusNode: _keyboardFocusNode,
+                        icon: Icon(
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showKeyboard = !_showKeyboard;
+                          });
+                        },
+                        tooltip: 'Toggle Keyboard',
+                      ),
+                    ),
+                  ],
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -116,36 +190,20 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                         child: TextField(
                           textInputAction: TextInputAction.search,
                           controller: _textEditingController,
-                          onSubmitted: (value) {
-                            // log("value - $value");
-                            try {
-                              if (context.read<ReceiptCubit>().state.customerEntity == null) throw "Customer required";
-                              context.read<ItemsCubit>().getItems(
-                                  searchKeyword: value,
-                                  customerEntity: context.read<ReceiptCubit>().state.customerEntity!);
-                              _searchInputFocusNode.requestFocus();
-
-                              if (_scrollController.hasClients) {
-                                Future.delayed(const Duration(milliseconds: 300)).then((value) {
-                                  SchedulerBinding.instance.addPostFrameCallback((_) {
-                                    _scrollController.animateTo(_scrollController.position.minScrollExtent,
-                                        duration: const Duration(milliseconds: 400), curve: Curves.fastOutSlowIn);
-                                  });
-                                });
-                              }
-                            } catch (e) {
-                              SnackBarHelper.presentErrorSnackBar(context, e.toString());
-                            }
-                          },
+                          onSubmitted: (_) => onSubmit(),
                           autofocus: true,
                           focusNode: _searchInputFocusNode,
-                          decoration: const InputDecoration(
-                            suffixIcon: Icon(
-                              Icons.search,
-                              size: 16,
+                          decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                              icon: const Icon(
+                                Icons.search,
+                                size: 16,
+                              ),
+                              onPressed: () => onSubmit(),
                             ),
+
                             hintText: "Enter item name, code, or barcode",
-                            hintStyle: TextStyle(
+                            hintStyle: const TextStyle(
                               fontSize: 16,
                               fontStyle: FontStyle.italic,
                             ),
@@ -153,6 +211,7 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                             // contentPadding:
                             //     EdgeInsets.fromLTRB(0, 0, 0, 0),
                           ),
+                          keyboardType: TextInputType.none,
                         ),
                       ),
                       const SizedBox(
@@ -171,106 +230,195 @@ class _ItemSearchDialogState extends State<ItemSearchDialog> {
                                 sentence: "Tadaa.. There is nothing here!\nEnter any keyword to search.",
                               );
                             }
-                            return Scrollbar(
-                              controller: _scrollController,
-                              thickness: 4,
-                              radius: const Radius.circular(30),
-                              thumbVisibility: true,
-                              child: ListView.builder(
-                                  controller: _scrollController,
-                                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                                  itemCount: state.length,
-                                  itemBuilder: ((context, index) {
-                                    final ItemEntity itemEntity = state[index];
+                            return ListView.builder(
+                                controller: _scrollController,
+                                padding: const EdgeInsets.symmetric(horizontal: 15),
+                                itemCount: state.length,
+                                itemBuilder: ((context, index) {
+                                  final ItemEntity itemEntity = state[index];
 
-                                    return Column(
-                                      children: [
-                                        RadioListTile<ItemEntity>(
-                                            activeColor: ProjectColors.primary,
-                                            hoverColor: ProjectColors.primary,
-                                            // selected: index == radioValue,
-                                            selectedTileColor: ProjectColors.primary,
-                                            contentPadding: const EdgeInsets.symmetric(
-                                              horizontal: 15,
-                                            ),
-                                            controlAffinity: ListTileControlAffinity.trailing,
-                                            value: state[index],
-                                            groupValue: radioValue,
-                                            title: Text((itemEntity.shortName != "")
-                                                ? itemEntity.shortName ?? itemEntity.itemName
-                                                : itemEntity.itemName),
-                                            subtitle: SizedBox(
-                                              height: 25,
-                                              child: Row(
-                                                children: [
-                                                  SvgPicture.asset(
-                                                    "assets/images/inventory.svg",
-                                                    height: 18,
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 5,
-                                                  ),
-                                                  Text(
-                                                    itemEntity.itemCode,
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 20,
-                                                  ),
-                                                  SvgPicture.asset(
-                                                    "assets/images/barcode.svg",
-                                                    height: 20,
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 5,
-                                                  ),
-                                                  Text(
-                                                    itemEntity.barcode,
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 20,
-                                                  ),
-                                                  const Icon(
-                                                    Icons.sell_outlined,
-                                                    size: 20,
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 5,
-                                                  ),
-                                                  Text(
-                                                    "Rp ${Helpers.parseMoney(itemEntity.price.toInt())}",
-                                                    style: const TextStyle(
-                                                      fontSize: 18,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                ],
+                                  return Column(
+                                    children: [
+                                      RadioListTile<ItemEntity>(
+                                          activeColor: ProjectColors.primary,
+                                          hoverColor: ProjectColors.primary,
+                                          // selected: index == radioValue,
+                                          selectedTileColor: ProjectColors.primary,
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+                                          controlAffinity: ListTileControlAffinity.trailing,
+                                          value: state[index],
+                                          groupValue: radioValue,
+                                          dense: true,
+                                          visualDensity: VisualDensity.compact,
+                                          title: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                (itemEntity.shortName != "")
+                                                    ? itemEntity.shortName ?? itemEntity.itemName
+                                                    : itemEntity.itemName,
+                                                style: const TextStyle(fontSize: 14, height: 1),
                                               ),
-                                            ),
-                                            onChanged: (val) {
-                                              setState(() {
-                                                radioValue = val;
-                                              });
-                                            }),
-                                        const Divider(
-                                          height: 1,
-                                          thickness: 0.5,
-                                          color: Color.fromARGB(100, 118, 118, 118),
-                                        ),
-                                      ],
-                                    );
-                                  })),
-                            );
+                                              const SizedBox(height: 5),
+                                            ],
+                                          ),
+                                          subtitle: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              SvgPicture.asset(
+                                                "assets/images/inventory.svg",
+                                                height: 14,
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              Text(
+                                                itemEntity.itemCode,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  height: 1,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 20,
+                                              ),
+                                              SvgPicture.asset(
+                                                "assets/images/barcode.svg",
+                                                height: 14,
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              Text(
+                                                itemEntity.barcode,
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  height: 1,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 20,
+                                              ),
+                                              const Icon(
+                                                Icons.sell_outlined,
+                                                size: 14,
+                                              ),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              Text(
+                                                "Rp ${Helpers.parseMoney(itemEntity.price.toInt())}",
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  height: 1,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          onChanged: (val) {
+                                            setState(() {
+                                              radioValue = val;
+                                            });
+                                          }),
+                                      const SizedBox(height: 3),
+                                      const Divider(
+                                        height: 1,
+                                        thickness: 0.5,
+                                        color: Color.fromARGB(100, 118, 118, 118),
+                                      ),
+                                    ],
+                                  );
+                                }));
                           },
                         ),
-                      )
+                      ),
+                      const SizedBox(height: 10),
+                      (_showKeyboard)
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: KeyboardWidget(
+                                controller: _textEditingController,
+                                isNumericMode: false,
+                                customLayoutKeys: true,
+                                isShiftEnabled: _shiftEnabled,
+                                onKeyPress: (key) async {
+                                  String text = _textEditingController.text;
+                                  TextSelection currentSelection = _textEditingController.selection;
+                                  int cursorPosition = currentSelection.start;
+
+                                  if (key.keyType == VirtualKeyboardKeyType.String) {
+                                    String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                    text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                    cursorPosition += inputText.length;
+                                  } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                    switch (key.action) {
+                                      case VirtualKeyboardKeyAction.Backspace:
+                                        if (text.isNotEmpty) {
+                                          text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                          cursorPosition -= 1;
+                                        }
+                                        break;
+                                      case VirtualKeyboardKeyAction.Return:
+                                        _textEditingController.text = _textEditingController.text.trimRight();
+                                        await onSubmit();
+                                        break;
+                                      case VirtualKeyboardKeyAction.Space:
+                                        text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                        cursorPosition += 1;
+                                        break;
+                                      case VirtualKeyboardKeyAction.Shift:
+                                        _shiftEnabled = !_shiftEnabled;
+                                        break;
+                                      default:
+                                        break;
+                                    }
+                                  }
+                                  _textEditingController.text = text;
+                                  _textEditingController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                                  setState(() {});
+                                },
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                      // Container(
+                      //   color: Colors.white,
+                      //   padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      //   child: Container(
+                      //     decoration: BoxDecoration(
+                      //       borderRadius: BorderRadius.circular(5),
+                      //       color: const Color.fromARGB(255, 245, 245, 245),
+                      //     ),
+                      //     child: VirtualKeyboard(
+                      //       height: 200,
+                      //       //width: 500,
+                      //       textColor: ProjectColors.primary,
+                      //       fontSize: 16,
+                      //       textController: _textEditingController,
+                      //       //customLayoutKeys: _customLayoutKeys,
+                      //       defaultLayouts: [
+                      //         // VirtualKeyboardDefaultLayouts.Arabic,
+                      //         VirtualKeyboardDefaultLayouts.English
+                      //       ],
+
+                      //       //reverseLayout :true,
+                      //       type: VirtualKeyboardType.Alphanumeric,
+
+                      //       postKeyPress: (key) async {
+                      //         if (key.action == VirtualKeyboardKeyAction.Return) {
+                      //           _textEditingController.text = _textEditingController.text.trimRight();
+                      //           await onSubmit();
+                      //         }
+
+                      //         _searchInputFocusNode.requestFocus();
+                      //       },
+                      //     ),
+                      //   ),
+                      // )
                     ],
                   ),
                 ),

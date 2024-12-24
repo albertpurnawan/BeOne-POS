@@ -143,14 +143,13 @@ class DuitkuApi {
       if (params.isEmpty) {
         throw Exception("Duitku parameters must be available.");
       }
-
-      String url = "${params['url']}/invoice/$docnum";
+      String url = "http://110.239.68.248:7065/invoice/$docnum";
 
       final response = await _dio.get(
         url,
       );
 
-      log("response - ${response.data}");
+      // log("response - ${response.data}");
       return response.data;
     } catch (e) {
       handleError(e);

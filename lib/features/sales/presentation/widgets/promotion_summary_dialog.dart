@@ -793,7 +793,7 @@ class _PromotionSummaryDialogState extends State<PromotionSummaryDialog> {
             color: ProjectColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
-          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
+          padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
           child: const Text(
             'Promotion Check',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),

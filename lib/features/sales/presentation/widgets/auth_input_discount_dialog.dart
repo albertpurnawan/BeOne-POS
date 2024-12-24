@@ -10,13 +10,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
-
 import 'package:pos_fe/config/themes/project_colors.dart';
 import 'package:pos_fe/core/database/app_database.dart';
 import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/otp_service.dart';
 import 'package:pos_fe/features/sales/data/models/approval_invoice.dart';
 import 'package:pos_fe/features/sales/data/models/user.dart';
@@ -27,6 +25,9 @@ import 'package:pos_fe/features/sales/domain/usecases/get_store_master.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/discount_and_rounding_dialog.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/otp_input_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class AuthInputDiscountDialog extends StatefulWidget {
   final double initialGrandTotal;
@@ -49,9 +50,9 @@ class AuthInputDiscountDialog extends StatefulWidget {
 }
 
 class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
-  final formKey = GlobalKey<FormState>();
-  final usernameController = TextEditingController();
-  final passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
   final prefs = GetIt.instance<SharedPreferences>();
   final _usernameFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
@@ -59,9 +60,53 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
   bool _isOTPClicked = false;
   bool _isSendingOTP = false;
 
+  bool _shiftEnabled = false;
+  bool _showKeyboard = true;
+  final FocusNode _keyboardFocusNode = FocusNode();
+  TextEditingController _activeController = TextEditingController();
+
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
+    _usernameFocusNode.addListener(() {
+      if (_usernameFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _usernameController;
+        });
+      }
+    });
+    _passwordFocusNode.addListener(() {
+      if (_passwordFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _passwordController;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _usernameFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _keyboardFocusNode.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   Future<String> checkPassword(String username, String password) async {
@@ -93,8 +138,8 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
 
   Future<void> onSubmit(BuildContext childContext, BuildContext parentContext) async {
     FocusScope.of(context).unfocus();
-    if (!formKey.currentState!.validate()) return;
-    String passwordCorrect = await checkPassword(usernameController.text, passwordController.text);
+    if (!_formKey.currentState!.validate()) return;
+    String passwordCorrect = await checkPassword(_usernameController.text, _passwordController.text);
     if (passwordCorrect == "Success") {
       await updateReceiptApprovals(childContext);
       await childContext
@@ -110,7 +155,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
   }
 
   Future<void> updateReceiptApprovals(BuildContext context) async {
-    final user = await GetIt.instance<AppDatabase>().userDao.readByUsername(usernameController.text, null);
+    final user = await GetIt.instance<AppDatabase>().userDao.readByUsername(_usernameController.text, null);
     final receiptCubit = context.read<ReceiptCubit>();
 
     final double lineDiscountsTotal =
@@ -226,13 +271,6 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
   }
 
   @override
-  void dispose() {
-    _usernameFocusNode.dispose();
-    _passwordFocusNode.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext parentContext) {
     return ScaffoldMessenger(
       child: Builder(builder: (childContext) {
@@ -266,10 +304,35 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                   color: ProjectColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
                 ),
-                padding: const EdgeInsets.fromLTRB(25, 20, 25, 20),
-                child: const Text(
-                  'Header Discount Authorization',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Header Discount Authorization',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                        borderRadius: const BorderRadius.all(Radius.circular(360)),
+                      ),
+                      child: IconButton(
+                        focusColor: const Color.fromARGB(255, 110, 0, 0),
+                        focusNode: _keyboardFocusNode,
+                        icon: Icon(
+                          _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showKeyboard = !_showKeyboard;
+                          });
+                        },
+                        tooltip: 'Toggle Keyboard',
+                      ),
+                    ),
+                  ],
                 ),
               ),
               titlePadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -280,7 +343,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(30, 30, 30, 15),
                     child: Form(
-                      key: formKey,
+                      key: _formKey,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -288,9 +351,9 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                             width: MediaQuery.of(childContext).size.width * 0.5,
                             child: TextFormField(
                               focusNode: _usernameFocusNode,
-                              controller: usernameController,
+                              controller: _usernameController,
                               autofocus: true,
-                              keyboardType: TextInputType.text,
+                              keyboardType: TextInputType.none,
                               onFieldSubmitted: (value) async {
                                 _usernameFocusNode.unfocus();
                                 await onSubmit(childContext, parentContext);
@@ -314,10 +377,10 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                             width: MediaQuery.of(childContext).size.width * 0.5,
                             child: TextFormField(
                               focusNode: _passwordFocusNode,
-                              controller: passwordController,
+                              controller: _passwordController,
                               obscureText: _obscureText,
                               autofocus: false,
-                              keyboardType: TextInputType.text,
+                              keyboardType: TextInputType.none,
                               onFieldSubmitted: (value) async {
                                 _passwordFocusNode.unfocus();
                                 await onSubmit(childContext, parentContext);
@@ -336,7 +399,7 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                 ),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureText ? Icons.visibility : Icons.visibility_off,
+                                    _obscureText ? Icons.visibility_off : Icons.visibility,
                                     size: 20,
                                   ),
                                   onPressed: () {
@@ -389,7 +452,55 @@ class _AuthInputDiscountDialogState extends State<AuthInputDiscountDialog> {
                                 ),
                             ],
                           ),
-                          const SizedBox(height: 30),
+                          const SizedBox(height: 10),
+                          (_showKeyboard)
+                              ? SizedBox(
+                                  width: MediaQuery.of(context).size.width * 0.5,
+                                  child: KeyboardWidget(
+                                    controller: _activeController,
+                                    isNumericMode: false,
+                                    customLayoutKeys: true,
+                                    isShiftEnabled: _shiftEnabled,
+                                    onKeyPress: (key) async {
+                                      String text = _activeController.text;
+                                      TextSelection currentSelection = _activeController.selection;
+                                      int cursorPosition = currentSelection.start;
+
+                                      if (key.keyType == VirtualKeyboardKeyType.String) {
+                                        String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                                        text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                                        cursorPosition += inputText.length;
+                                      } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                                        switch (key.action) {
+                                          case VirtualKeyboardKeyAction.Backspace:
+                                            if (text.isNotEmpty) {
+                                              text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                              cursorPosition -= 1;
+                                            }
+                                            break;
+                                          case VirtualKeyboardKeyAction.Return:
+                                            _activeController.text = _activeController.text.trimRight();
+                                            break;
+                                          case VirtualKeyboardKeyAction.Space:
+                                            text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                            cursorPosition += 1;
+                                            break;
+                                          case VirtualKeyboardKeyAction.Shift:
+                                            _shiftEnabled = !_shiftEnabled;
+                                            break;
+                                          default:
+                                            break;
+                                        }
+                                      }
+                                      _activeController.text = text;
+                                      _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                                      setState(() {});
+                                    },
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                          const SizedBox(height: 10),
                           Row(
                             children: [
                               Expanded(

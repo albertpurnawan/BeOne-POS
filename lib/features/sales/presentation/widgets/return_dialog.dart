@@ -8,12 +8,16 @@ import 'package:pos_fe/core/utilities/helpers.dart';
 import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/core/widgets/field_label.dart';
+import 'package:pos_fe/features/login/presentation/pages/keyboard_widget.dart';
+import 'package:pos_fe/features/sales/domain/entities/pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/entities/receipt_item.dart';
 import 'package:pos_fe/features/sales/domain/entities/return_receipt.dart';
+import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/sales/domain/usecases/get_return_receipt.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/cubit/return_receipt_cubit.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/confirmation_dialog.dart';
+import 'package:virtual_keyboard_multi_language/virtual_keyboard_multi_language.dart';
 
 class ReturnDialog extends StatefulWidget {
   const ReturnDialog({super.key});
@@ -35,17 +39,45 @@ class _ReturnDialogState extends State<ReturnDialog> {
   final TextEditingController _searchReturnedItemsInputTextController = TextEditingController();
 
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
+  final FocusNode _keyboardFocusNode = FocusNode();
 
   ReturnReceiptEntity? returnReceiptEntity;
   List<ReceiptItemEntity> availableReceiptItems = [];
   List<ReceiptItemEntity> returnedReceiptItems = [];
 
   bool isFetching = false;
+  bool _showKeyboard = true;
+  bool _shiftEnabled = false;
+
+  TextEditingController _activeController = TextEditingController();
 
   @override
   void initState() {
+    getDefaultKeyboardPOSParameter();
     super.initState();
     initValues();
+
+    _invoiceNumberFocusNode.addListener(() {
+      if (_invoiceNumberFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _invoiceNumberController;
+        });
+      }
+    });
+    _searchAvailableItemsInputFocusNode.addListener(() {
+      if (_searchAvailableItemsInputFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _searchAvailableItemsInputTextController;
+        });
+      }
+    });
+    _searchReturnedItemsInputFocusNode.addListener(() {
+      if (_searchReturnedItemsInputFocusNode.hasFocus) {
+        setState(() {
+          _activeController = _searchReturnedItemsInputTextController;
+        });
+      }
+    });
   }
 
   @override
@@ -55,7 +87,22 @@ class _ReturnDialogState extends State<ReturnDialog> {
     _invoiceNumberController.dispose();
     _remarksFocusNode.dispose();
     _invoiceNumberFocusNode.dispose();
+    _keyboardFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> getDefaultKeyboardPOSParameter() async {
+    try {
+      final POSParameterEntity? posParameterEntity = await GetIt.instance<GetPosParameterUseCase>().call();
+      if (posParameterEntity == null) throw "Failed to retrieve POS Parameter";
+      setState(() {
+        _showKeyboard = (posParameterEntity.defaultShowKeyboard == 0) ? false : true;
+      });
+    } catch (e) {
+      if (mounted) {
+        SnackBarHelper.presentFailSnackBar(context, e.toString());
+      }
+    }
   }
 
   @override
@@ -90,14 +137,34 @@ class _ReturnDialogState extends State<ReturnDialog> {
             color: ProjectColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
-          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-          child: const Row(
+          padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Return',
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
               ),
-              Spacer(),
+              Container(
+                decoration: BoxDecoration(
+                  color: _showKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                  borderRadius: const BorderRadius.all(Radius.circular(360)),
+                ),
+                child: IconButton(
+                  focusColor: const Color.fromARGB(255, 110, 0, 0),
+                  focusNode: _keyboardFocusNode,
+                  icon: Icon(
+                    _showKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _showKeyboard = !_showKeyboard;
+                    });
+                  },
+                  tooltip: 'Toggle Keyboard',
+                ),
+              ),
             ],
           ),
         ),
@@ -109,7 +176,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
           width: MediaQuery.of(context).size.width * 0.6,
           // height: MediaQuery.of(context).size.height * 0.7,
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.6,
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -175,6 +242,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                                   ),
                                 ),
                               ),
+                              keyboardType: TextInputType.none,
                             ),
                           ),
                         ],
@@ -270,27 +338,77 @@ class _ReturnDialogState extends State<ReturnDialog> {
               if (returnReceiptEntity != null)
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(child: _buildAvailableItems()),
-                        const SizedBox(
-                          width: 30,
-                        ),
+                        const SizedBox(width: 30),
                         Expanded(
                           child: _buildReturnedItems(),
                         ),
                       ],
                     ),
                   ),
-                )
+                ),
+              (_showKeyboard)
+                  ? Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 5, 30, 0),
+                      child: KeyboardWidget(
+                        controller: _activeController,
+                        isNumericMode: false,
+                        customLayoutKeys: true,
+                        isShiftEnabled: _shiftEnabled,
+                        onKeyPress: (key) async {
+                          String text = _activeController.text;
+                          TextSelection currentSelection = _activeController.selection;
+                          int cursorPosition = currentSelection.start;
 
-              // SingleChildScrollView(
-              //     controller: _scrollController,
-              //     padding: const EdgeInsets.symmetric(horizontal: 30),
-              //     clipBehavior: Clip.antiAliasWithSaveLayer,
-              //     child: _buildReturnItems()),
+                          if (key.keyType == VirtualKeyboardKeyType.String) {
+                            String inputText = (_shiftEnabled ? key.capsText : key.text) ?? '';
+                            text = text.replaceRange(cursorPosition, cursorPosition, inputText);
+                            cursorPosition += inputText.length;
+                          } else if (key.keyType == VirtualKeyboardKeyType.Action) {
+                            switch (key.action) {
+                              case VirtualKeyboardKeyAction.Backspace:
+                                if (text.isNotEmpty) {
+                                  text = text.replaceRange(cursorPosition - 1, cursorPosition, '');
+                                  cursorPosition -= 1;
+                                }
+                                break;
+                              case VirtualKeyboardKeyAction.Return:
+                                if (_shiftEnabled) {
+                                  FocusScope.of(context).nextFocus();
+                                } else if (_activeController == _invoiceNumberController) {
+                                  _activeController.text = _activeController.text.trimRight();
+                                  await _fetchInvoiceByDocNum();
+                                } else if (_activeController == _searchAvailableItemsInputTextController) {
+                                  _searchAvailableItemsInputFocusNode.requestFocus();
+                                } else if (_activeController == _searchReturnedItemsInputTextController) {
+                                  _searchReturnedItemsInputFocusNode.requestFocus();
+                                } else {
+                                  null;
+                                }
+                                break;
+                              case VirtualKeyboardKeyAction.Space:
+                                text = text.replaceRange(cursorPosition, cursorPosition, ' ');
+                                cursorPosition += 1;
+                                break;
+                              case VirtualKeyboardKeyAction.Shift:
+                                _shiftEnabled = !_shiftEnabled;
+                                break;
+                              default:
+                                break;
+                            }
+                          }
+                          _activeController.text = text;
+                          _activeController.selection = TextSelection.collapsed(offset: cursorPosition);
+
+                          setState(() {});
+                        },
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             ],
           ),
         ),
@@ -451,9 +569,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
             ),
           ],
         ),
-        const SizedBox(
-          height: 5,
-        ),
+        const SizedBox(height: 5),
         Expanded(
           child: Container(
             decoration: BoxDecoration(
@@ -507,6 +623,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                     // contentPadding:
                     //     EdgeInsets.fromLTRB(0, 0, 0, 0),
                   ),
+                  keyboardType: TextInputType.none,
                 ),
               ),
               const SizedBox(
@@ -738,6 +855,7 @@ class _ReturnDialogState extends State<ReturnDialog> {
                     // contentPadding:
                     //     EdgeInsets.fromLTRB(0, 0, 0, 0),
                   ),
+                  keyboardType: TextInputType.none,
                 ),
               ),
               const SizedBox(
@@ -1002,6 +1120,10 @@ class InputReturnQuantityDialog extends StatelessWidget {
   final FocusNode _inputReturnedQtyFocusNode = FocusNode();
   final TextEditingController _inputReturnedQtyEditingController = TextEditingController();
 
+  final FocusNode _keyboardFocusNode = FocusNode();
+
+  final ValueNotifier<bool> _showReturnKeyboardNotifier = ValueNotifier<bool>(true);
+
   InputReturnQuantityDialog({super.key, required this.receiptItemEntity, required this.min});
 
   @override
@@ -1030,14 +1152,41 @@ class InputReturnQuantityDialog extends StatelessWidget {
             color: ProjectColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
           ),
-          padding: const EdgeInsets.fromLTRB(25, 10, 25, 10),
-          child: const Row(
+          padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Return Quantity',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.white),
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.white,
+                ),
               ),
-              Spacer(),
+              ValueListenableBuilder<bool>(
+                valueListenable: _showReturnKeyboardNotifier,
+                builder: (context, showReturnKeyboard, child) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: showReturnKeyboard ? const Color.fromARGB(255, 110, 0, 0) : ProjectColors.primary,
+                      borderRadius: const BorderRadius.all(Radius.circular(360)),
+                    ),
+                    child: IconButton(
+                      focusColor: const Color.fromARGB(255, 110, 0, 0),
+                      focusNode: _keyboardFocusNode,
+                      icon: Icon(
+                        showReturnKeyboard ? Icons.keyboard_hide_outlined : Icons.keyboard_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        _showReturnKeyboardNotifier.value = !showReturnKeyboard;
+                      },
+                      tooltip: 'Toggle Keyboard',
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -1066,7 +1215,7 @@ class InputReturnQuantityDialog extends StatelessWidget {
                                 onSubmitted: (_) => _saveQty(context),
                                 autofocus: true,
                                 // inputFormatters: [NumberInputFormatter()],
-                                keyboardType: TextInputType.number,
+                                keyboardType: TextInputType.none,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.w700, color: Color.fromARGB(255, 66, 66, 66)),
@@ -1180,6 +1329,22 @@ class InputReturnQuantityDialog extends StatelessWidget {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(30, 20, 30, 0),
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: _showReturnKeyboardNotifier,
+                    builder: (context, showReturnKeyboard, child) {
+                      return showReturnKeyboard
+                          ? KeyboardWidget(
+                              controller: _inputReturnedQtyEditingController,
+                              isNumericMode: true,
+                              customLayoutKeys: true,
+                            )
+                          : const SizedBox.shrink();
+                    },
+                  ),
+                ),
+
                 // const Padding(
                 //   padding: EdgeInsets.symmetric(horizontal: 30),
                 //   child: Row(
