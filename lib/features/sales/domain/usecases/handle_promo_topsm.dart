@@ -34,7 +34,7 @@ class HandlePromoSpesialMultiItemUseCase implements UseCase<ReceiptEntity, Handl
       // log(isApplicable.toString());
       if (!isApplicable) return params.receiptEntity;
 
-      // Apply promo (pctg and amount)
+      // Apply promo
       ReceiptEntity newReceipt = await _applyTopsmUseCase.call(
           params: ApplyPromoTopsmUseCaseParams(
               topsmHeaderAndDetail: topsmHeaderAndDetail, handlePromosUseCaseParams: params));
