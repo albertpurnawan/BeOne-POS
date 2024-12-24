@@ -13,6 +13,7 @@ import 'package:pos_fe/core/utilities/receipt_helper.dart';
 import 'package:pos_fe/core/utilities/snack_bar_helper.dart';
 import 'package:pos_fe/features/sales/data/data_sources/remote/invoice_service.dart';
 import 'package:pos_fe/features/sales/data/models/item.dart';
+import 'package:pos_fe/features/sales/data/models/promo_spesial_multi_item_detail.dart';
 import 'package:pos_fe/features/sales/domain/entities/approval_invoice.dart';
 import 'package:pos_fe/features/sales/domain/entities/cash_register.dart';
 import 'package:pos_fe/features/sales/domain/entities/customer.dart';
@@ -898,6 +899,22 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
           availablePromos = await _checkPromoUseCase(params: receiptItem.itemEntity.toitmId);
 
           if (availablePromos.isNotEmpty) {
+            final fillteredPromos = availablePromos.where((element) => element!.promoType == 201);
+            List<PromoSpesialMultiItemDetailModel> listTpsm1 = [];
+            if (fillteredPromos.length > 1) {
+              for (var promo in fillteredPromos) {
+                final tpsm1s = await GetIt.instance<AppDatabase>()
+                    .promoSpesialMultiItemDetailDao
+                    .readAllByTopsmId(promo!.promoId!, null);
+                listTpsm1.addAll(tpsm1s.where((element) => element.toitmId == receiptItem.itemEntity.toitmId));
+              }
+              final lowestPricePromo =
+                  listTpsm1.reduce((current, next) => (current.price) < (next.price) ? current : next);
+              final lowestPromo = availablePromos.where((element) =>
+                  element?.promoId == lowestPricePromo.topsmId && element?.toitmId == lowestPricePromo.toitmId);
+              availablePromos = availablePromos.where((element) => element?.promoType != 201).toList()
+                ..add(lowestPromo.first);
+            }
             for (final availablePromo in availablePromos) {
               if (skippedPromoIds.contains(availablePromo!.promoId)) continue;
               switch (availablePromo.promoType) {
