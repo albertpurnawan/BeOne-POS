@@ -17,7 +17,6 @@ import 'package:pos_fe/features/sales/domain/entities/mop_selection.dart';
 import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 
 class DisplayPage extends StatefulWidget {
   const DisplayPage({
@@ -887,6 +886,7 @@ class _DisplayPageState extends State<DisplayPage> {
   void _moveToNextItem2() {
     if (!mounted || smallBanners.isEmpty) return;
     int nextIndex2 = (_currentIndex2 + 1) % smallBanners.length;
+    print(nextIndex2);
 
     if (nextIndex2 == 0) {
       _pageController.animateToPage(
@@ -923,16 +923,23 @@ class _DisplayPageState extends State<DisplayPage> {
         if (_videoControllerLarge != null) {
           await _videoControllerLarge!.dispose();
         }
-        _videoControllerLarge = controller;
+        _videoControllerLarge = controller
+          ..initialize().then((_) {
+            setState(() {});
+          }).catchError((error) {
+            print('_videoControllerLarge error: $error');
+          });
       } else {
         if (_videoControllerSmall != null) {
           await _videoControllerSmall!.dispose();
         }
-        _videoControllerSmall = controller;
+        _videoControllerSmall = controller
+          ..initialize().then((_) {
+            setState(() {});
+          }).catchError((error) {
+            print('_videoControllerSmall error: $error');
+          });
       }
-
-      await controller.initialize();
-      controller.play();
 
       controller.addListener(() {
         if (controller.value.position >= controller.value.duration) {
@@ -965,28 +972,102 @@ class _DisplayPageState extends State<DisplayPage> {
     }
   }
 
-  Widget _buildSmallBannerMedia(DualScreenModel banner) {
-    if (_isVideoFile(banner.path)) {
-      if (!_isSmallVideoInitialized) {
-        _initializeVideoController(banner.path, false);
+  Widget _buildLargeBannerMedia(BoxConstraints constraints) {
+    double height = constraints.maxHeight;
+    double width = constraints.maxWidth;
+    if (largeBanners.isNotEmpty) {
+      if (_isVideoFile(largeBanners[_currentIndex].path)) {
+        if (!_isLargeVideoInitialized) {
+          _initializeVideoController(largeBanners[_currentIndex].path, true);
+        }
       }
-
-      if (_isSmallVideoInitialized && _videoControllerSmall != null) {
-        return AspectRatio(
-          aspectRatio: _videoControllerSmall!.value.aspectRatio,
-          child: VideoPlayer(_videoControllerSmall!),
-        );
-      } else {
-        _moveToNextItem2();
-        return const Center(child: CircularProgressIndicator());
-      }
-    } else {
-      return Image.file(
-        File(banner.path),
-        fit: BoxFit.fitWidth,
-        width: double.infinity,
-      );
     }
+
+    return isLoading
+        ? const Center(
+            child: CircularProgressIndicator(),
+          )
+        : largeBanners.isNotEmpty
+            ? Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: _isVideoFile(largeBanners[_currentIndex].path) &&
+                        _isLargeVideoInitialized &&
+                        _videoControllerLarge != null
+                    ? AspectRatio(
+                        aspectRatio: _videoControllerLarge!.value.aspectRatio,
+                        child: VideoPlayer(_videoControllerLarge!),
+                      )
+                    : ImageFade(
+                        image: FileImage(
+                          File(largeBanners[_currentIndex].path),
+                        ),
+                        duration: const Duration(milliseconds: 150),
+                        syncDuration: const Duration(milliseconds: 150),
+                        alignment: Alignment.center,
+                        fit: BoxFit.fitWidth,
+                        width: double.infinity,
+                      ))
+            : Container(
+                color: Colors.grey, // Placeholder color
+                child: Center(
+                  child: Text(
+                    '$width X $height', // Placeholder text
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                ),
+              );
+  }
+
+  Widget _buildSmallBannerMedia(BoxConstraints constraints) {
+    double height = constraints.maxHeight;
+    double width = constraints.maxWidth;
+    if (smallBanners.isNotEmpty) {
+      if (_isVideoFile(smallBanners[_currentIndex2].path)) {
+        if (!_isSmallVideoInitialized) {
+          _initializeVideoController(smallBanners[_currentIndex2].path, false);
+        }
+      }
+    }
+    return isLoading
+        ? const Center(
+            child: CircularProgressIndicator(),
+          )
+        : smallBanners.isNotEmpty
+            ? Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                child: PageView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  pageSnapping: true,
+                  controller: _pageController,
+                  itemCount: smallBanners.length,
+                  padEnds: true,
+                  itemBuilder: (context, index) {
+                    return _isVideoFile(smallBanners[_currentIndex2].path) &&
+                            _isSmallVideoInitialized &&
+                            _videoControllerSmall != null
+                        ? AspectRatio(
+                            aspectRatio: _videoControllerSmall!.value.aspectRatio,
+                            child: VideoPlayer(_videoControllerSmall!),
+                          )
+                        : Image.file(
+                            File(smallBanners[_currentIndex2].path),
+                            fit: BoxFit.fitWidth,
+                            width: double.infinity,
+                          );
+                  },
+                ),
+              )
+            : Container(
+                color: Colors.grey, // Placeholder color
+                child: Center(
+                  child: Text(
+                    '$width X $height', // Placeholder text
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                ),
+              );
   }
 
   @override
@@ -1303,33 +1384,7 @@ class _DisplayPageState extends State<DisplayPage> {
                         flex: 7,
                         child: LayoutBuilder(
                           builder: (BuildContext context, BoxConstraints constraints) {
-                            double height = constraints.maxHeight;
-                            double width = constraints.maxWidth;
-
-                            return isLoading
-                                ? const Center(
-                                    child: CircularProgressIndicator(),
-                                  )
-                                : largeBanners.isNotEmpty
-                                    ? ImageFade(
-                                        image: FileImage(
-                                          File(largeBanners[_currentIndex].path),
-                                        ),
-                                        duration: const Duration(milliseconds: 150),
-                                        syncDuration: const Duration(milliseconds: 150),
-                                        alignment: Alignment.center,
-                                        fit: BoxFit.fitWidth,
-                                        width: double.infinity,
-                                      )
-                                    : Container(
-                                        color: Colors.grey, // Placeholder color
-                                        child: Center(
-                                          child: Text(
-                                            '$width X $height', // Placeholder text
-                                            style: TextStyle(color: Colors.white, fontSize: 20),
-                                          ),
-                                        ),
-                                      );
+                            return _buildLargeBannerMedia(constraints);
                           },
                         ),
                       ),
@@ -1338,37 +1393,7 @@ class _DisplayPageState extends State<DisplayPage> {
                         flex: 3,
                         child: LayoutBuilder(
                           builder: (BuildContext context, BoxConstraints constraints) {
-                            double height = constraints.maxHeight;
-                            double width = constraints.maxWidth;
-
-                            return isLoading
-                                ? const Center(
-                                    child: CircularProgressIndicator(),
-                                  )
-                                : smallBanners.isNotEmpty
-                                    ? Container(
-                                        width: MediaQuery.of(context).size.width,
-                                        height: MediaQuery.of(context).size.height,
-                                        child: PageView.builder(
-                                          physics: const BouncingScrollPhysics(),
-                                          pageSnapping: true,
-                                          controller: _pageController,
-                                          itemCount: smallBanners.length,
-                                          padEnds: true,
-                                          itemBuilder: (context, index) {
-                                            return _buildSmallBannerMedia(smallBanners[index]); // Use the correct index
-                                          },
-                                        ),
-                                      )
-                                    : Container(
-                                        color: Colors.grey, // Placeholder color
-                                        child: Center(
-                                          child: Text(
-                                            '$width X $height', // Placeholder text
-                                            style: TextStyle(color: Colors.white, fontSize: 20),
-                                          ),
-                                        ),
-                                      );
+                            return _buildSmallBannerMedia(constraints);
                           },
                         ),
                       )
