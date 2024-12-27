@@ -78,6 +78,10 @@ class CheckBuyXGetYApplicabilityUseCase
 
             if (now.millisecondsSinceEpoch < startPromo.millisecondsSinceEpoch ||
                 now.millisecondsSinceEpoch > endPromo.millisecondsSinceEpoch) {
+              log("efefefeefqqw ${now.millisecondsSinceEpoch < startPromo.millisecondsSinceEpoch}");
+              log("knienifn ${now.millisecondsSinceEpoch > endPromo.millisecondsSinceEpoch}");
+              log("now ${now.millisecondsSinceEpoch}");
+              log("endPromo ${endPromo.millisecondsSinceEpoch}");
               return isApplicable = false;
             }
           } catch (e) {

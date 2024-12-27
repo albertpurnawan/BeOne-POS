@@ -171,7 +171,7 @@ class _MyAppState extends State<MyApp> with WindowListener {
     } catch (e) {
       debugPrint('Error Closing Window: $e');
     } finally {
-      exit(0);
+      windowManager.destroy();
     }
   }
 
