@@ -930,11 +930,12 @@ class ReceiptCubit extends Cubit<ReceiptEntity> {
                     promo: availablePromo,
                     returnItems: returnItems,
                   ));
-
+                  dev.log("103 checked - ${checkBuyXGetYApplicability.isApplicable}");
                   if (!checkBuyXGetYApplicability.isApplicable) break;
 
                   // Show Pop Up
                   List<PromoBuyXGetYGetConditionAndItemEntity> selectedConditionAndItemYs = [];
+                  dev.log("103 efevev");
                   for (int i = 0; i < checkBuyXGetYApplicability.availableApplyCount; i++) {
                     final List<PromoBuyXGetYGetConditionAndItemEntity> selectedConditionAndItemYsPerDialog =
                         (await showDialog<List<PromoBuyXGetYGetConditionAndItemEntity>>(

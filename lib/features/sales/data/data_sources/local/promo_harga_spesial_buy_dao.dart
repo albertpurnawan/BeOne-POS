@@ -70,19 +70,4 @@ class PromoHargaSpesialBuyDao extends BaseDao<PromoHargaSpesialBuyModel> {
 
     return result.map((map) => PromoHargaSpesialBuyModel.fromMap(map)).toList();
   }
-
-  Future<List<PromoHargaSpesialBuyModel>> readByToitmLastDate(String toitmId, Transaction? txn) async {
-    final result = await db.rawQuery('''
-      SELECT x0.*
-      FROM tpsb1 AS x0
-      INNER JOIN topsb AS x1 ON x0.topsbId = x1.docid
-      WHERE x1.toitmId = ?
-        AND x1.enddate = (
-          SELECT MAX(enddate)
-          FROM topsb
-          WHERE toitmId = ?
-        )
-    ''', [toitmId, toitmId]);
-    return result.map((row) => PromoHargaSpesialBuyModel.fromMap(row)).toList();
-  }
 }
