@@ -118,20 +118,20 @@ class _PLUExportScreenState extends State<PLUExportScreen> {
       } else {
         typeDiscount.add(2);
         final promoHeader =
-            await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readByToitmId(items[i].toitmId, null);
+            await GetIt.instance<AppDatabase>().promoHargaSpesialHeaderDao.readByDocId(promo.promoId ?? "", null);
         if (promoHeader != null) {
           disDate.add('${promoHeader.startDate}');
           endDate.add('${promoHeader.endDate}');
           limit1.add('0');
           final promoHarga =
-              await GetIt.instance<AppDatabase>().promoHargaSpesialBuyDao.readByToitmLastDate(items[i].toitmId, null);
+              await GetIt.instance<AppDatabase>().promoHargaSpesialBuyDao.readByTopsbId(promo.promoId ?? "", null);
           double limitPrice = 0;
           if (items[i].includeTax == 1) {
-            limitPrice = items[i].price - promoHarga.first.price;
+            limitPrice = items[i].price - promoHarga.price;
             limit2.add(limitPrice);
           } else {
             limitPrice = (items[i].price + (items[i].price * items[i].taxRate / 100)) -
-                (promoHarga.first.price + (promoHarga.first.price * items[i].taxRate / 100));
+                (promoHarga.price + (promoHarga.price * items[i].taxRate / 100));
 
             limit2.add(limitPrice);
           }
