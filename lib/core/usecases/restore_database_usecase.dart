@@ -81,7 +81,6 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
 
       if (backupFiles.isEmpty) {
         if (context.mounted) {
-          log("No backup files found in $backupFolder");
           SnackBarHelper.presentErrorSnackBar(context, "No backup files found.");
         }
         return;
