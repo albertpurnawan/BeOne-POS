@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
@@ -37,14 +36,15 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
           if (context.mounted) await PermissionHandler.requestStoragePermissions(context);
           final updatedStatus = await Permission.manageExternalStorage.status;
           if (!updatedStatus.isGranted) {
-            log("Permission still not granted. Cannot proceed with backup.");
+            if (context.mounted) {
+              SnackBarHelper.presentErrorSnackBar(context, "Permission still not granted. Cannot proceed with backup.");
+            }
             return;
           }
         }
       }
 
       if (context.mounted) {
-        log("Showing progress dialog");
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -59,11 +59,8 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
 
       Directory backupFolder;
       if (Platform.isWindows) {
-        final userProfile = Platform.environment['USERPROFILE'];
-        if (userProfile == null) {
-          throw Exception('Could not determine user profile directory');
-        }
-        final backupDir = p.join(userProfile, 'Documents', 'app', 'RubyPOS');
+        final appDir = File(Platform.resolvedExecutable).parent;
+        final backupDir = p.join(appDir.path, 'backup');
         backupFolder = Directory(backupDir);
       } else if (Platform.isAndroid) {
         const backupDir = "/storage/emulated/0";
@@ -87,7 +84,6 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
 
         for (var file in filesToDelete) {
           await file.delete();
-          log("Deleted old backup file: ${file.path}");
         }
       }
 
@@ -108,20 +104,16 @@ class BackupDatabaseUseCase implements UseCase<void, BackupDatabaseParams> {
       final zipFile = File(zipPath);
       await zipFile.writeAsBytes(bytes!);
 
-      log("Database backed up to $zipPath");
-
       if (context.mounted) {
         SnackBarHelper.presentSuccessSnackBar(context, "Database backed up at ${backupFolder.path}", 3);
       }
     } catch (e) {
-      log("Error backing up database: $e");
       if (context.mounted) {
         SnackBarHelper.presentErrorSnackBar(context, "Error backing up database: $e");
       }
       rethrow;
     } finally {
       if (context.mounted) {
-        log("Closing progress dialog");
         Navigator.of(context, rootNavigator: true).pop();
       }
     }
