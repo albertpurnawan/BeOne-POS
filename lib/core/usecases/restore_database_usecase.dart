@@ -43,7 +43,9 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
         if (context.mounted) await PermissionHandler.requestStoragePermissions(context);
         final updatedStatus = await Permission.manageExternalStorage.status;
         if (!updatedStatus.isGranted) {
-          log("Permission still not granted. Cannot proceed with restore.");
+          if (context.mounted) {
+            SnackBarHelper.presentErrorSnackBar(context, "Permission still not granted. Cannot proceed with backup.");
+          }
           return;
         }
       }
@@ -60,14 +62,9 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
 
       Directory backupFolder;
       if (Platform.isWindows) {
-        final userProfile = Platform.environment['USERPROFILE'];
-        if (userProfile == null) {
-          throw Exception('Could not determine user profile directory');
-        }
-        final backupDir = p.join(userProfile, 'Documents', 'app', 'RubyPOS');
+        final appDir = File(Platform.resolvedExecutable).parent;
+        final backupDir = p.join(appDir.path, 'backup');
         backupFolder = Directory(backupDir);
-        log("backupDir W - $backupDir");
-        log("backupFolder W - $backupFolder");
       } else if (Platform.isAndroid) {
         const backupDir = "/storage/emulated/0/RubyPOS";
         backupFolder = Directory(backupDir);
@@ -91,7 +88,6 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       }
 
       final mostRecentBackup = backupFiles.first;
-      log("Restoring from backup file: ${mostRecentBackup.path} to $path");
 
       final restoredPath = await compute(restoreDatabaseFucntion, {
         'backupFolderPath': backupFolder.path,
@@ -99,7 +95,6 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
         'path': path,
         'password': password,
       });
-      // Close the database connection
       await GetIt.instance<AppDatabase>().close();
 
       // Rename original file if it's not open by another process
@@ -108,7 +103,6 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
       try {
         await originalFile.rename(renamedOriginal);
       } catch (e) {
-        log("Failed to rename the original file. It may be in use.");
         if (context.mounted) {
           SnackBarHelper.presentErrorSnackBar(context, "Failed to rename the original file. It may be in use.");
         }
@@ -126,7 +120,6 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
 
           if (context.mounted) {
             Navigator.pop(context);
-            log("Database restored from $restoredPath");
             SnackBarHelper.presentSuccessSnackBar(context, "Database restored successfully!", 3);
           }
         } catch (e) {
@@ -134,7 +127,6 @@ class RestoreDatabaseUseCase implements UseCase<void, RestoreDatabaseParams> {
           await File(renamedOriginal).rename(path);
 
           if (context.mounted) {
-            log("Failed to restore the database. Reverting to the original.");
             SnackBarHelper.presentErrorSnackBar(context, "Failed to restore the database. Reverting to the original.");
           }
           rethrow;
