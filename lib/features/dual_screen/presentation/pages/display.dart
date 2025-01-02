@@ -18,6 +18,10 @@ import 'package:pos_fe/features/sales/presentation/widgets/checkout_dialog.dart'
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
 
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+}
+
 class DisplayPage extends StatefulWidget {
   const DisplayPage({
     super.key,
@@ -867,14 +871,16 @@ class _DisplayPageState extends State<DisplayPage> {
 
   void _moveToNextItem() {
     if (!mounted || largeBanners.isEmpty) return;
-    setState(() {
-      int nextIndex = (_currentIndex + 1) % largeBanners.length;
 
-      if (nextIndex == 0) {
-        _currentIndex = 0;
-      } else {
-        _currentIndex = nextIndex;
-      }
+    int nextIndex = (_currentIndex + 1) % largeBanners.length;
+    Future.delayed(Duration.zero, () {
+      setState(() {
+        if (nextIndex == 0) {
+          _currentIndex = 0;
+        } else {
+          _currentIndex = nextIndex;
+        }
+      });
     });
     _timer1?.cancel();
     _timer1 = Timer.periodic(Duration(seconds: largeBanners[_currentIndex].duration), (timer) {
@@ -886,7 +892,6 @@ class _DisplayPageState extends State<DisplayPage> {
   void _moveToNextItem2() {
     if (!mounted || smallBanners.isEmpty) return;
     int nextIndex2 = (_currentIndex2 + 1) % smallBanners.length;
-    print(nextIndex2);
 
     if (nextIndex2 == 0) {
       _pageController.animateToPage(
@@ -894,8 +899,10 @@ class _DisplayPageState extends State<DisplayPage> {
         duration: Duration(milliseconds: 300),
         curve: Curves.linearToEaseOut,
       );
-      setState(() {
-        _currentIndex2 = 0;
+      Future.delayed(Duration.zero, () {
+        setState(() {
+          _currentIndex2 = 0;
+        });
       });
     } else {
       _pageController.nextPage(
@@ -903,9 +910,10 @@ class _DisplayPageState extends State<DisplayPage> {
         curve: Curves.linearToEaseOut,
       );
     }
-
-    setState(() {
-      _currentIndex2 = nextIndex2;
+    Future.delayed(Duration.zero, () {
+      setState(() {
+        _currentIndex2 = nextIndex2;
+      });
     });
 
     _timer2?.cancel();
@@ -918,22 +926,36 @@ class _DisplayPageState extends State<DisplayPage> {
   Future<void> _initializeVideoController(String path, bool isLarge) async {
     try {
       final pathNormalized = path.replaceAll('\\', '\\\\');
-      final controller = VideoPlayerController.file(File(pathNormalized));
       if (isLarge) {
         if (_videoControllerLarge != null) {
           await _videoControllerLarge!.dispose();
         }
-        _videoControllerLarge = controller
-          ..initialize().then((_) {
-            setState(() {});
-          }).catchError((error) {
-            print('_videoControllerLarge error: $error');
+        _videoControllerLarge = VideoPlayerController.file(File(pathNormalized))
+          ..initialize().then((value) {
+            if (_videoControllerLarge!.value.isInitialized) {
+              _videoControllerLarge!.play();
+              setState(() {
+                _isLargeVideoInitialized = true;
+              });
+
+              _videoControllerLarge!.addListener(() {
+                if (_videoControllerLarge!.value.isCompleted) {
+                  log("ui: player completed, pos=${_videoControllerLarge!.value.position}");
+                }
+              });
+            } else {
+              log("Video file load failed");
+            }
+          }).catchError((e) {
+            log("controller.initialize() error occurs: $e");
           });
+
+        setState(() {});
       } else {
         if (_videoControllerSmall != null) {
           await _videoControllerSmall!.dispose();
         }
-        _videoControllerSmall = controller
+        _videoControllerSmall = VideoPlayerController.file(File(pathNormalized))
           ..initialize().then((_) {
             setState(() {});
           }).catchError((error) {
@@ -941,15 +963,17 @@ class _DisplayPageState extends State<DisplayPage> {
           });
       }
 
-      controller.addListener(() {
-        if (controller.value.position >= controller.value.duration) {
-          if (isLarge) {
-            _timer1?.cancel();
-            _moveToNextItem();
-          } else {
-            _timer2?.cancel();
-            _moveToNextItem2();
-          }
+      _videoControllerLarge!.addListener(() {
+        if (_videoControllerLarge!.value.position >= _videoControllerLarge!.value.duration) {
+          _timer1?.cancel();
+          _moveToNextItem();
+        }
+      });
+
+      _videoControllerSmall!.addListener(() {
+        if (_videoControllerSmall!.value.position >= _videoControllerSmall!.value.duration) {
+          _timer2?.cancel();
+          _moveToNextItem2();
         }
       });
 
@@ -964,9 +988,11 @@ class _DisplayPageState extends State<DisplayPage> {
       log("Error initializing video controller: $e");
       if (isLarge) {
         _isLargeVideoInitialized = false;
+        _moveToNextItem();
         _timer1?.cancel();
       } else {
         _isSmallVideoInitialized = false;
+        _moveToNextItem2();
         _timer2?.cancel();
       }
     }
@@ -975,6 +1001,7 @@ class _DisplayPageState extends State<DisplayPage> {
   Widget _buildLargeBannerMedia(BoxConstraints constraints) {
     double height = constraints.maxHeight;
     double width = constraints.maxWidth;
+
     if (largeBanners.isNotEmpty) {
       if (_isVideoFile(largeBanners[_currentIndex].path)) {
         if (!_isLargeVideoInitialized) {
@@ -982,7 +1009,6 @@ class _DisplayPageState extends State<DisplayPage> {
         }
       }
     }
-
     return isLoading
         ? const Center(
             child: CircularProgressIndicator(),
@@ -991,9 +1017,7 @@ class _DisplayPageState extends State<DisplayPage> {
             ? Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
-                child: _isVideoFile(largeBanners[_currentIndex].path) &&
-                        _isLargeVideoInitialized &&
-                        _videoControllerLarge != null
+                child: _isVideoFile(largeBanners[_currentIndex].path) && _videoControllerLarge != null
                     ? AspectRatio(
                         aspectRatio: _videoControllerLarge!.value.aspectRatio,
                         child: VideoPlayer(_videoControllerLarge!),
@@ -1009,10 +1033,10 @@ class _DisplayPageState extends State<DisplayPage> {
                         width: double.infinity,
                       ))
             : Container(
-                color: Colors.grey, // Placeholder color
+                color: Colors.grey,
                 child: Center(
                   child: Text(
-                    '$width X $height', // Placeholder text
+                    '$width X $height',
                     style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
                 ),
