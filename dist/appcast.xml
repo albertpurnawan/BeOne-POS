@@ -6,8 +6,8 @@
         <language>en</language>
         <item>
             <title>Version 1.0.17</title>
-            <sparkle:version>1.0.17</sparkle:version>
-            <sparkle:shortVersionString>1.0.17</sparkle:shortVersionString>
+            <sparkle:version>1.0.19</sparkle:version>
+            <sparkle:shortVersionString></sparkle:shortVersionString>
             <sparkle:releaseNotesLink>
                https://github.com/albertpurnawan/BeOne-POS/blob/feat/auto_updater/release_notes.html
             </sparkle:releaseNotesLink>

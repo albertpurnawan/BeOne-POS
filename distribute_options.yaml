@@ -3,6 +3,7 @@ variables:
 output: dist/
 releases:
   - name: prod
+    tag: v1.0.21
     jobs:
       - name: windows-exe
         package:
@@ -16,3 +17,4 @@ releases:
           args:
             repo-owner: albertpurnawan
             repo-name: BeOne-POS
+            tag: v1.0.21
