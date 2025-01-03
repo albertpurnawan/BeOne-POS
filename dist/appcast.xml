@@ -5,16 +5,16 @@
         <description>Most recent updates to Ruby POS</description>
         <language>en</language>
         <item>
-            <title>Version 1.0.11</title>
+            <title>Version 1.0.12</title>
             <sparkle:version>2</sparkle:version>
-            <sparkle:shortVersionString>1.0.11</sparkle:shortVersionString>
+            <sparkle:shortVersionString>1.0.12</sparkle:shortVersionString>
             <sparkle:releaseNotesLink>
                 https://gitlab.com/beonerepository/beone-pos/-/blob/development/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Thursday, 02 Jan 2025 12:00:00 +0800</pubDate>
-            <enclosure url="1.0.11/pos_fe-1.0.11+1.0.11-windows-setup.exe"
-                       sparkle:dsaSignature="MD0CHQDALGJr8MWvdskVsn3BnoBMc5IN4uZmAhhn6Q4eAhxw5VRA/OB4ayVvQN5ZjWzBuMd9vAEwPy5jlZRi"
-                       sparkle:version="1.0.11"
+            <enclosure url="1.0.12/pos_fe-1.0.12+1.0.12-windows-setup.exe"
+                       sparkle:dsaSignature="MD0CHQC/4DK1qbTjdCgDV/1CWervRBo0YNe5dkrFDT1dAhxNBPMkRwE0oU/KmZl0Ul9URXhPuZ0qYm60pVJj"
+                       sparkle:version="1.0.12"
                        sparkle:os="windows"
                        length="0"
                        type="application/octet-stream" />
