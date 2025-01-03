@@ -1,3 +1,5 @@
+variables:
+  GITHUB_TOKEN: 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
 output: dist/
 releases:
   - name: prod
@@ -9,3 +11,8 @@ releases:
           build_args:
             dart-define:
               APP_ENV: dev
+        publish:
+          target: github
+          args:
+            repo-owner: albertpurnawan
+            repo-name: BeOne-POS
