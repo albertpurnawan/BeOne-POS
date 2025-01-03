@@ -12,7 +12,7 @@
                https://github.com/albertpurnawan/BeOne-POS/blob/feat/auto_updater/release_notes.html
             </sparkle:releaseNotesLink>
             <pubDate>Thursday, 02 Jan 2025 12:00:00 +0800</pubDate>
-            <enclosure url="1.0.15/pos_fe-1.0.15+1.0.15-windows-setup.exe"
+            <enclosure url="https://github.com/albertpurnawan/BeOne-POS/releases/download/untagged-b2bc1d44617222f71300/pos_fe-1.0.15%2B1.0.15-windows-setup.exe"
                        sparkle:dsaSignature="MD0CHClcAc8yb+Y94Jjo9uk4Wz2Qe0hQ145dwp2c7QICHQC+r8+JqzdmTClf90b/GOv6QOPCnhhZDelKIw2x"
                        sparkle:version="1.0.15"
                        sparkle:os="windows"
