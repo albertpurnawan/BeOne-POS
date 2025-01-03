@@ -35,12 +35,13 @@ git tag "v$VERSION" || { echo "git tag failed"; exit 1; }
 git push origin "v$VERSION" || { echo "git push origin v$VERSION failed"; exit 1; }
 
 echo "Release process for version $VERSION completed."
-dart run auto_updater:sign_update https://github.com/albertpurnawan/BeOne-POS/releases/download/untagged-b546517c130ced91d8bb/pos_fe-1.0.19%2B1.0.19-windows-setup.exe
+dart run auto_updater:sign_update https://github.com/albertpurnawan/BeOne-POS/releases/download/v$VERSION/pos_fe-$VERSION+$VERSION-windows-setup.exe
 
-EXE_PATH="./build/your-app-$VERSION.exe"
-EXE_URL="https://github.com/albertpurnawan/BeOne-POS/releases/download/v$VERSION/your-app-$VERSION.exe"
+EXE_URL="https://github.com/albertpurnawan/BeOne-POS/releases/download/v$VERSION/pos_fe-$VERSION+$VERSION-windows-setup.exe"
 APPCAST_PATH="./build/appcast.xml"
-SIGNATURE=$(openssl dgst -sha256 -sign private_key.pem "$EXE_PATH" | base64)
+SIGNATURE=$(dart run auto_updater:sign_update --json https://github.com/albertpurnawan/BeOne-POS/releases/download/v$VERSION/pos_fe-$VERSION+$VERSION-windows-setup.exe)
+LENGTH=$(echo $SIGNATURE | jq -r '.length')
+SIGNATURE=$(echo $SIGNATURE | jq -r '.signature')
 
 cat > "$APPCAST_PATH" <<EOL
 <?xml version="1.0" encoding="utf-8"?>
@@ -58,8 +59,9 @@ cat > "$APPCAST_PATH" <<EOL
       <enclosure
         url="$EXE_URL"
         sparkle:version="$VERSION"
+        sparkle:os="windows"
         sparkle:dsaSignature="$SIGNATURE"
-        length="$(stat -c%s "$EXE_PATH")"
+        length="$LENGTH"
         type="application/octet-stream" />
     </item>
   </channel>
