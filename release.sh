@@ -34,6 +34,10 @@ git commit -m "Release v$VERSION $(date '+%Y-%m-%d %H:%M:%S')" || { echo "git co
 git tag "v$VERSION" || { echo "git tag failed"; exit 1; }
 git push origin "v$VERSION" || { echo "git push origin v$VERSION failed"; exit 1; }
 
+# Publish the release
+echo "Publishing release v$VERSION to GitHub..."
+gh release create "v$VERSION" ./build/windows/Release/pos_fe-$VERSION+$VERSION-windows-setup.exe
+
 echo "Release process for version $VERSION completed."
 dart run auto_updater:sign_update https://github.com/albertpurnawan/BeOne-POS/releases/download/v$VERSION/pos_fe-$VERSION+$VERSION-windows-setup.exe
 
