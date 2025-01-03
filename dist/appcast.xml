@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+    <channel>
+        <title>Ruby POS</title>
+        <description>Most recent updates to Ruby POS</description>
+        <language>en</language>
+        <item>
+            <title>Version 1.0.11</title>
+            <sparkle:version>2</sparkle:version>
+            <sparkle:shortVersionString>1.0.11</sparkle:shortVersionString>
+            <sparkle:releaseNotesLink>
+                https://gitlab.com/beonerepository/beone-pos/-/blob/development/release_notes.html
+            </sparkle:releaseNotesLink>
+            <pubDate>Thursday, 02 Jan 2025 12:00:00 +0800</pubDate>
+            <enclosure url="1.0.11/pos_fe-1.0.11+1.0.11-windows-setup.exe"
+                       sparkle:dsaSignature="MD0CHQDALGJr8MWvdskVsn3BnoBMc5IN4uZmAhhn6Q4eAhxw5VRA/OB4ayVvQN5ZjWzBuMd9vAEwPy5jlZRi"
+                       sparkle:version="1.0.11"
+                       sparkle:os="windows"
+                       length="0"
+                       type="application/octet-stream" />
+        </item>
+    </channel>
+</rss>

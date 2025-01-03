@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'package:auto_updater/auto_updater.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -17,6 +19,8 @@ import 'package:pos_fe/features/sales/domain/usecases/get_pos_parameter.dart';
 import 'package:pos_fe/features/settings/presentation/device_setup.dart';
 import 'package:pos_fe/features/settings/presentation/pages/test_fetch_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bot_toast/bot_toast.dart';
+import 'package:window_manager/window_manager.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
@@ -64,17 +68,21 @@ class LanguageSwitchButton extends StatelessWidget {
   }
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
+class _WelcomeScreenState extends State<WelcomeScreen> with UpdaterListener {
   bool isLoggedIn = false;
   final SharedPreferences prefs = GetIt.instance<SharedPreferences>();
   bool haveTopos = false;
   String appVersion = "";
   String buildNumber = "";
   bool secondDisplay = true;
+  final String _feedURL = 'http://localhost:55056/appcast.xml';
+  bool _isFeedURLSetted = false;
+  bool isUpdateAvailable = false;
 
   @override
   void initState() {
     super.initState();
+    autoUpdater.addListener(this);
     checkAppVersion();
     checkTopos();
     checkPermission();
@@ -83,10 +91,28 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         isLoggedIn = prefs.getBool('logStatus') ?? false;
       });
     });
+    _handleClickSetFeedURL().then((value) => {_handleClickCheckForUpdatesWithoutUI()});
+    if (isUpdateAvailable) {
+      Future.microtask(() => showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                title: const Text("Update Available"),
+                content: const Text("Please update your app"),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text("Update"),
+                  ),
+                ],
+              )));
+    }
   }
 
   @override
   void dispose() {
+    autoUpdater.removeListener(this);
     super.dispose();
   }
 
@@ -110,8 +136,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Future<void> checkAppVersion() async {
-    final appVersionUseCase =
-        await GetIt.instance<GetAppVersionUseCase>().call();
+    final appVersionUseCase = await GetIt.instance<GetAppVersionUseCase>().call();
     setState(() {
       appVersion = appVersionUseCase.version;
       buildNumber = appVersionUseCase.buildNumber;
@@ -129,6 +154,73 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   //   log("prefsMap - $prefsMap");
   // }
+
+  Future<void> _handleClickSetFeedURL() async {
+    await autoUpdater.setFeedURL(_feedURL);
+    _isFeedURLSetted = true;
+  }
+
+  Future<void> _handleClickCheckForUpdates() async {
+    if (!_isFeedURLSetted) {
+      BotToast.showText(text: 'Please call setFeedURL method first.');
+      return;
+    }
+    await autoUpdater.checkForUpdates();
+  }
+
+  Future<void> _handleClickCheckForUpdatesWithoutUI() async {
+    await autoUpdater.checkForUpdates(inBackground: true);
+  }
+
+  Future<void> _handleClickSetScheduledCheckInterval() async {
+    await autoUpdater.setScheduledCheckInterval(3600);
+  }
+
+  @override
+  void onUpdaterError(UpdaterError? error) {
+    if (kDebugMode) {
+      print('onUpdaterError: $error');
+    }
+  }
+
+  @override
+  void onUpdaterCheckingForUpdate(Appcast? appcast) {
+    if (kDebugMode) {
+      setState(() {
+        isUpdateAvailable = true;
+      });
+      print('onUpdaterCheckingForUpdate: ${appcast?.toJson()}');
+    }
+  }
+
+  @override
+  void onUpdaterUpdateAvailable(AppcastItem? item) {
+    if (kDebugMode) {
+      print('onUpdaterUpdateAvailable: ${item?.toJson()}');
+    }
+  }
+
+  @override
+  void onUpdaterUpdateNotAvailable(UpdaterError? error) {
+    if (kDebugMode) {
+      print('onUpdaterUpdateNotAvailable: $error');
+    }
+  }
+
+  @override
+  void onUpdaterUpdateDownloaded(AppcastItem? item) {
+    if (kDebugMode) {
+      print('onUpdaterUpdateDownloaded: ${item?.toJson()}');
+    }
+  }
+
+  @override
+  void onUpdaterBeforeQuitForUpdate(AppcastItem? item) {
+    if (kDebugMode) {
+      print('onUpdaterBeforeQuitForUpdate: ${item?.toJson()}');
+    }
+    windowManager.setPreventClose(false);
+  }
 
   Widget welcomingButtons(BuildContext context) {
     return Container(
@@ -155,8 +247,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               }
                             }
                           : () {
-                              SnackBarHelper.presentErrorSnackBar(
-                                  context, "Please Setup the Device First");
+                              SnackBarHelper.presentErrorSnackBar(context, "Please Setup the Device First");
                             },
                       child: const Text("Login"),
                     ),
@@ -191,16 +282,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                         )),
                               ).then((value) => Future.delayed(
                                   const Duration(milliseconds: 200),
-                                  () => SystemChrome.setSystemUIOverlayStyle(
-                                      const SystemUiOverlayStyle(
-                                          statusBarColor: ProjectColors.primary,
-                                          statusBarBrightness: Brightness.light,
-                                          statusBarIconBrightness:
-                                              Brightness.light))));
+                                  () => SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+                                      statusBarColor: ProjectColors.primary,
+                                      statusBarBrightness: Brightness.light,
+                                      statusBarIconBrightness: Brightness.light))));
                             }
                           : () {
-                              SnackBarHelper.presentErrorSnackBar(
-                                  context, "Please Setup the Device First");
+                              SnackBarHelper.presentErrorSnackBar(context, "Please Setup the Device First");
                             },
                       child: const Text("Sync Data"),
                     ),
@@ -243,8 +331,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     children: [
                       const Text(
                         "Version  ",
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       Text(appVersion, style: const TextStyle(fontSize: 16)),
                     ],
@@ -283,6 +370,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
           ),
+
           // const LanguageSwitchButton(color: ProjectColors.primary),
           // const SizedBox(height: 5),
           // const Padding(
