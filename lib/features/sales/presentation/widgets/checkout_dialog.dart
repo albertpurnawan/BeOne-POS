@@ -541,7 +541,65 @@ class _CheckoutDialogState extends State<CheckoutDialog> {
               context.read<ReceiptCubit>().resetReceipt();
               return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.escape && !isCharged) {
-              context.pop();
+              isCharging
+                  ? null
+                  : () async {
+                      if (context.read<ReceiptCubit>().state.vouchers.isNotEmpty) {
+                        final bool? isProceed = await showDialog<bool>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => const ConfirmResetVouchersDialog(),
+                        );
+                        if (isProceed == null) return;
+                        if (!isProceed) return;
+                      }
+
+                      try {
+                        final String cashierName = GetIt.instance<SharedPreferences>().getString("username") ?? "";
+                        final UserModel? user =
+                            await GetIt.instance<AppDatabase>().userDao.readByUsername(cashierName, null);
+                        List<DownPaymentEntity> dpList = context.read<ReceiptCubit>().state.downPayments ?? [];
+                        List<String> docnumList = [];
+                        if (dpList.isNotEmpty) {
+                          for (DownPaymentEntity dp in dpList) {
+                            if (dp.isSelected == true && dp.isReceive == false) {
+                              docnumList.add(dp.refpos2 ?? "");
+                            }
+                          }
+
+                          if (user != null) {
+                            String checkLock = await GetIt.instance<InvoiceApi>().unlockInvoice(user.docId, docnumList);
+                            if (checkLock != 'Unlock Down Payment success') {
+                              setState(() {
+                                cancelCount++;
+                              });
+                              SnackBarHelper.presentErrorSnackBar(
+                                  context, "Please check your connection and try again ($cancelCount/3)");
+
+                              if (cancelCount >= 3) {
+                                setState(() {
+                                  cancelCount = 0;
+                                });
+                                Future.delayed(Durations.extralong4, () {
+                                  SnackBarHelper.presentErrorSnackBar(context, "Down Payment disabled $docnumList");
+                                  context.pop(false);
+                                });
+                              }
+                              return;
+                            }
+                          }
+                        }
+                      } catch (e) {
+                        return;
+                      }
+                      setState(() {
+                        cancelCount = 0;
+                        _isRoundedUp = false;
+                        _isRoundedDown = false;
+                        _originalValue = null;
+                      });
+                      context.pop(false);
+                    };
               return KeyEventResult.handled;
             } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown && node.hasPrimaryFocus) {
               node.nextFocus();
