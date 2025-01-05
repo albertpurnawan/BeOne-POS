@@ -447,11 +447,9 @@ class _UnlockInvoiceState extends State<UnlockInvoice> {
                             overlayColor: MaterialStateColor.resolveWith((states) => Colors.white.withOpacity(.2)),
                           ),
                           onPressed: () {
-                            if (_invoiceDocNumTextController.text == "" ||
-                                _invoiceDocNumTextController.text.length != 24) {
-                              log(_invoiceDocNumTextController.text);
+                            if (_invoiceDocNumTextController.text.isEmpty) {
                               _invoiceDocNumFocusNode.unfocus();
-                              SnackBarHelper.presentErrorSnackBar(context, "Please input the correct invoice number");
+                              SnackBarHelper.presentErrorSnackBar(context, "Please type the invoice number");
                               return;
                             }
                             setState(() {

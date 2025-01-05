@@ -3366,12 +3366,17 @@ class _FetchScreenState extends State<FetchScreen> {
   }
 
   Future<void> selectSyncDate(BuildContext context) async {
-    log("lastSync - $startSyncFrom");
+    final DateTime lastSyncDateTime = DateTime.parse(_posParameterEntity!.lastSync!);
+    final DateTime adjustedLastSyncDateTime = DateTime(
+      lastSyncDateTime.year,
+      lastSyncDateTime.month,
+      lastSyncDateTime.day,
+    );
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: startSyncFrom,
       firstDate: DateTime(2000),
-      lastDate: DateTime.now(),
+      lastDate: adjustedLastSyncDateTime,
       builder: (BuildContext context, Widget? child) {
         return Theme(
             data: ThemeData.light().copyWith(
