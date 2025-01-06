@@ -53,6 +53,13 @@ abstract class BaseDao<T extends BaseModel> {
     }
   }
 
+  Future<int> getLength() async {
+    final List<Map<String, Object?>> rawData =
+        await db.rawQuery("SELECT COUNT(*) as tablelength FROM $tableName");
+    if (rawData.firstOrNull == null) throw "Null length";
+    return rawData.first['tablelength'] as int;
+  }
+
   Future<T?> readByDocId(String docId, Transaction? txn);
 
   Future<List<T>> readAll({Transaction? txn});
@@ -200,11 +207,14 @@ abstract class BaseDao<T extends BaseModel> {
     }
   }
 
-  Future<void> update({required String docId, required T data, Transaction? txn}) async {
+  Future<void> update(
+      {required String docId, required T data, Transaction? txn}) async {
     if (txn != null) {
-      await txn.update(tableName, data.toMap(), where: "docId = ?", whereArgs: [docId]);
+      await txn.update(tableName, data.toMap(),
+          where: "docId = ?", whereArgs: [docId]);
     } else {
-      await db.update(tableName, data.toMap(), where: "docId = ?", whereArgs: [docId]);
+      await db.update(tableName, data.toMap(),
+          where: "docId = ?", whereArgs: [docId]);
     }
   }
 

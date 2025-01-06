@@ -23,7 +23,8 @@ class PromosDao extends BaseDao<PromotionsModel> {
     return res.isNotEmpty ? PromotionsModel.fromMap(res[0]) : null;
   }
 
-  Future<PromotionsModel?> readByPromoIdAndPromoType(String promoId, int promoType, Transaction? txn) async {
+  Future<PromotionsModel?> readByPromoIdAndPromoType(
+      String promoId, int promoType, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     final res = await dbExecutor.query(
       tableName,
@@ -40,11 +41,15 @@ class PromosDao extends BaseDao<PromotionsModel> {
     if (txn != null) {
       final result = await txn.query(tableName);
 
-      return result.map((itemData) => PromotionsModel.fromMap(itemData)).toList();
+      return result
+          .map((itemData) => PromotionsModel.fromMap(itemData))
+          .toList();
     } else {
       final result = await db.query(tableName);
 
-      return result.map((itemData) => PromotionsModel.fromMap(itemData)).toList();
+      return result
+          .map((itemData) => PromotionsModel.fromMap(itemData))
+          .toList();
     }
   }
 
@@ -52,7 +57,8 @@ class PromosDao extends BaseDao<PromotionsModel> {
     await db.delete('toprm');
   }
 
-  Future<List<PromotionsModel>> readByToitmId(String toitmId, Transaction? txn) async {
+  Future<List<PromotionsModel>> readByToitmId(
+      String toitmId, Transaction? txn) async {
     DatabaseExecutor dbExecutor = txn ?? db;
     if (txn != null) {
       final res = await dbExecutor.query(
@@ -73,5 +79,14 @@ class PromosDao extends BaseDao<PromotionsModel> {
 
       return res.map((itemData) => PromotionsModel.fromMap(itemData)).toList();
     }
+  }
+
+  Future<int> getLengthUniqueByType(int? promoType) async {
+    final String whereClause =
+        promoType == null ? "" : " WHERE promoType = $promoType";
+    final List<Map<String, Object?>> rawData = await db.rawQuery(
+        "SELECT COUNT(DISTINCT promoId) as tablelength FROM $tableName$whereClause;");
+    if (rawData.firstOrNull == null) throw "Null length";
+    return rawData.first['tablelength'] as int;
   }
 }
