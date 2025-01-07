@@ -35,8 +35,8 @@ git tag "v$VERSION" || { echo "git tag failed"; exit 1; }
 git push origin "v$VERSION" || { echo "git push origin v$VERSION failed"; exit 1; }
 
 echo "Editing appcast.xml..."
-sed -i -e "s|<item>.*</item>||g" build/appcast.xml
-cat >> build/appcast.xml <<EOF
+sed -i -e "s|<item>.*</item>||g" dist/appcast.xml
+cat >> dist/appcast.xml <<EOF
 <item>
   <title>Version $VERSION</title>
   <sparkle:version>$VERSION</sparkle:version>
