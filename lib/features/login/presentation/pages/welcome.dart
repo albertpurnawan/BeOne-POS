@@ -75,8 +75,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> with UpdaterListener {
   String appVersion = "";
   String buildNumber = "";
   bool secondDisplay = true;
-  final String _feedURL =
-      'https://github.com/albertpurnawan/BeOne-POS/releases/tag/v1.0.17/download/latest/appcast.xml';
+  final String _feedURL = 'dist/appcast.xml';
+  // final String _feedURL =
+  //     'https://github.com/albertpurnawan/BeOne-POS/releases/tag/v1.0.17/download/latest/appcast.xml';
   // final String _feedURL = 'http://localhost:55056/appcast.xml';
   bool _isFeedURLSetted = false;
   bool isUpdateAvailable = false;

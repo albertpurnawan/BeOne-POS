@@ -34,46 +34,32 @@ git commit -m "Release v$VERSION $(date '+%Y-%m-%d %H:%M:%S')" || { echo "git co
 git tag "v$VERSION" || { echo "git tag failed"; exit 1; }
 git push origin "v$VERSION" || { echo "git push origin v$VERSION failed"; exit 1; }
 
+echo "Editing appcast.xml..."
+sed -i -e "s|<item>.*</item>||g" build/appcast.xml
+cat >> build/appcast.xml <<EOF
+<item>
+  <title>Version $VERSION</title>
+  <sparkle:version>$VERSION</sparkle:version>
+  <sparkle:shortVersionString></sparkle:shortVersionString>
+  <sparkle:releaseNotesLink>https://github.com/albertpurnawan/BeOne-POS/blob/feat/auto_updater/release_notes.html</sparkle:releaseNotesLink>
+  <pubDate>$(date -R)</pubDate>
+  <enclosure url="https://github.com/albertpurnawan/BeOne-POS/releases/download/v$VERSION/pos_fe-$VERSION+$VERSION-windows-setup.exe"
+    sparkle:dsaSignature=$(dart run auto_updater:sign_update dist/$VERSION/pos_fe-$VERSION+$VERSION-windows-setup.exe | jq -r '.signature')
+    sparkle:version="$VERSION"
+    sparkle:os="windows"
+    length="0"
+    type="application/octet-stream" />
+</item>
+EOF
+
+echo "Logging in to GitHub..."
+gh auth login --with-token $GITHUB_TOKEN || { echo "gh auth login failed"; exit 1; }
+
 echo "Adding appcast.xml..."
-git add build/appcast.xml
-git commit -m "Add appcast.xml for v$VERSION" || { echo "git commit failed"; exit 1; }
-git push origin || { echo "git push origin failed"; exit 1; }
+gh release upload "v$VERSION" build/appcast.xml
 
-echo "Release process for version $VERSION completed."
-# dart run auto_updater:sign_update https://github.com/albertpurnawan/BeOne-POS/releases/download/v$VERSION/pos_fe-$VERSION+$VERSION-windows-setup.exe
-dart run auto_updater:sign_update dist/$VERSION/pos_fe-$VERSION+$VERSION-windows-setup.exe
-
-EXE_URL="https://github.com/albertpurnawan/BeOne-POS/releases/download/v$VERSION/pos_fe-$VERSION+$VERSION-windows-setup.exe"
-APPCAST_PATH="./build/appcast.xml"
-SIGNATURE=$(dart run auto_updater:sign_update --json https://github.com/albertpurnawan/BeOne-POS/releases/download/v$VERSION/pos_fe-$VERSION+$VERSION-windows-setup.exe)
-LENGTH=$(echo $SIGNATURE | jq -r '.length')
-SIGNATURE=$(echo $SIGNATURE | jq -r '.signature')
-
-cat > "$APPCAST_PATH" <<EOL
-<?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
-  <channel>
-    <title>Your App Updates</title>
-    <link>https://github.com/albertpurnawan/BeOne-POS/releases</link>
-    <description>Latest updates for Your App</description>
-    <language>en</language>
-
-    <item>
-      <title>Version $VERSION</title>
-      <sparkle:releaseNotesLink>https://github.com/albertpurnawan/BeOne-POS/releases/tag/v$VERSION</sparkle:releaseNotesLink>
-      <pubDate>$(date -R)</pubDate>
-      <enclosure
-        url="$EXE_URL"
-        sparkle:version="$VERSION"
-        sparkle:os="windows"
-        sparkle:dsaSignature="$SIGNATURE"
-        length="$LENGTH"
-        type="application/octet-stream" />
-    </item>
-  </channel>
-</rss>
-EOL
-
+echo "Publishing release on GitHub..."
+gh release create "v$VERSION" --title "v$VERSION" --notes "Release v$VERSION" || { echo "gh release create failed"; exit 1; }
 
 echo "Version $VERSION has been released."
 read -p "Press [Enter] key to close terminal..."
