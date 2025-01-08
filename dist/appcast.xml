@@ -20,4 +20,16 @@
                        type="application/octet-stream" />
         </item>
     </channel>
-</rss>
+</rss><item>
+  <title>Version 1.0.234</title>
+  <sparkle:version>1.0.234</sparkle:version>
+  <sparkle:shortVersionString></sparkle:shortVersionString>
+  <sparkle:releaseNotesLink>https://github.com/albertpurnawan/BeOne-POS/blob/feat/auto_updater/release_notes.html</sparkle:releaseNotesLink>
+  <pubDate>Tue, 07 Jan 2025 16:53:25 +0700</pubDate>
+  <enclosure url="https://github.com/albertpurnawan/BeOne-POS/releases/download/v1.0.234/pos_fe-1.0.234+1.0.234-windows-setup.exe"
+    sparkle:dsaSignature=
+    sparkle:version="1.0.234"
+    sparkle:os="windows"
+    length="0"
+    type="application/octet-stream" />
+</item>
