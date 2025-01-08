@@ -417,19 +417,26 @@ class InvoiceApi {
   Future<void> sendFailedInvoice(InvoiceHeaderModel invHead, List<InvoiceDetailModel> invDet,
       {List<ReceiptItemEntity>? receiptItems}) async {
     try {
-      // log("SEND FAILED INVOICE SERVICE");
+      log("SEND FAILED INVOICE SERVICE");
       token = prefs.getString('adminToken');
       List<POSParameterModel> pos = await GetIt.instance<AppDatabase>().posParameterDao.readAll();
       url = pos[0].baseUrl;
 
-      // log("$invHead");
-      // log("$invDet");
+      // log("invHead - $invHead");
+      // log("invDet - $invDet");
+      List<String>? barcodes = [];
+      for (var tinv1 in invDet) {
+        final String tbitm = tinv1.tbitmId ?? "";
+        final barcodeModel = await GetIt.instance<AppDatabase>().itemBarcodeDao.readByDocId(tbitm, null);
+        final barcode = barcodeModel?.barcode ?? "";
+        barcodes.add(barcode);
+      }
       final invDetWithQtyBarcode = await GetIt.instance<AppDatabase>()
           .invoiceDetailDao
-          .readByToinvIdAddQtyBarcode(invHead.docId.toString(), receiptItems: receiptItems);
-
+          .readByToinvIdAddQtyBarcode(invHead.docId.toString(), receiptItems: receiptItems, barcodes: barcodes);
+      // log("invDetWithQtyBarcode - $invDetWithQtyBarcode");
       final payMean = await GetIt.instance<AppDatabase>().payMeansDao.readByToinvShowTopmt(invHead.docId.toString());
-      log("paymean - $payMean");
+      // log("paymean - $payMean");
 
       List<Map<String, dynamic>> invoicePayments = [];
       if (payMean != null) {
@@ -559,7 +566,7 @@ class InvoiceApi {
 
         promotionsDetail.addAll(promoMaps);
       }
-      log("promotionsDetail - $promotionsDetail");
+      // log("promotionsDetail - $promotionsDetail");
 
       List<Map<String, dynamic>> approvals = [];
       final tinv6s = await GetIt.instance<AppDatabase>().approvalInvoiceDao.readByToinvId(invHead.docId!, null);
@@ -574,7 +581,7 @@ class InvoiceApi {
       }
 
       final tinv7s = await GetIt.instance<AppDatabase>().downPaymentItemsDao.readByToinvId(invHead.docId!, null);
-      log("tinv7s - $tinv7s");
+      // log("tinv7s - $tinv7s");
       final List<Map<String, dynamic>> downPaymentItems = [];
 
       for (final tinv7 in tinv7s) {
