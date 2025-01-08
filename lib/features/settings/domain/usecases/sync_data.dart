@@ -2977,7 +2977,11 @@ Future<void> syncData() async {
           log("$invoice");
           try {
             final invDetails = await GetIt.instance<AppDatabase>().invoiceDetailDao.readByToinvId(invoice.docId!, null);
-            await GetIt.instance<InvoiceApi>().sendFailedInvoice(invoice, invDetails);
+
+            await GetIt.instance<InvoiceApi>().sendFailedInvoice(
+              invoice,
+              invDetails,
+            );
           } catch (e) {
             final logErr = LogErrorModel(
                 docId: const Uuid().v4(),

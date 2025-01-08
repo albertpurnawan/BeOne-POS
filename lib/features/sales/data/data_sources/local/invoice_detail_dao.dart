@@ -64,15 +64,17 @@ class InvoiceDetailDao extends BaseDao<InvoiceDetailModel> {
   Future<List<Map<String, dynamic>>> readByToinvIdAddQtyBarcode(
     String toinvId, {
     List<ReceiptItemEntity>? receiptItems,
+    List<String>? barcodes,
   }) async {
-    if (receiptItems == null || receiptItems.isEmpty) {
+    if ((receiptItems == null || receiptItems.isEmpty) && (barcodes == null || barcodes.isEmpty)) {
       throw Exception("Failed to retrieve ReceiptItems: The list is null or empty.");
     }
 
     List<Map<String, dynamic>> result = [];
 
-    for (var i = 0; i < receiptItems.length; i++) {
-      final barcode = receiptItems[i].itemEntity.barcode;
+    int loop = (barcodes != null && barcodes.isNotEmpty) ? barcodes.length : receiptItems!.length;
+    for (var i = 0; i < loop; i++) {
+      final barcode = (barcodes != null && barcodes.isNotEmpty) ? barcodes[i] : receiptItems![i].itemEntity.barcode;
 
       final queryResult = await db.rawQuery('''
       SELECT x0.*, x1.quantity AS qtybarcode 
