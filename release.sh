@@ -107,28 +107,31 @@ output=$(dart run auto_updater:sign_update dist/$VERSION/pos_fe-$VERSION+$VERSIO
 signature=$(echo "$output" | awk -F 'sparkle:dsaSignature="' '{print $2}' | awk -F '"' '{print $1}')
 length=$(echo "$output" | awk -F 'length="' '{print $2}' | awk -F '"' '{print $1}')
 
-# Update appcast.xml
-echo "Updating appcast.xml..."
-sed -i -e "/<item>/,/<\/item>/c\
-<item>\
-  <title>Version $VERSION</title>\
-  <sparkle:version>$VERSION</sparkle:version>\
-  <sparkle:shortVersionString></sparkle:shortVersionString>\
-  <sparkle:releaseNotesLink>https://github.com/albertpurnawan/BeOne-POS/blob/feat/auto_updater/release_notes.html</sparkle:releaseNotesLink>\
-  <pubDate>$(date -R)</pubDate>\
-  <enclosure url=\"https://github.com/albertpurnawan/BeOne-POS/releases/download/v$VERSION/pos_fe-$VERSION+$VERSION-windows-setup.exe\"\
-    sparkle:dsaSignature=\"$signature\"\
-    sparkle:version=\"$VERSION\"\
-    sparkle:os=\"windows\"\
-    length=\"$length\"\
-    type=\"application/octet-stream\" />\
-</item>" dist/appcast.xml
+# Remove existing item for the current version
+sed -i -e "/<item>/,/<\/item>/d" dist/appcast.xml
+
+# Add the new item
+cat >> dist/appcast.xml <<EOF
+<item>
+  <title>Version $VERSION</title>
+  <sparkle:version>$VERSION</sparkle:version>
+  <sparkle:shortVersionString></sparkle:shortVersionString>
+  <sparkle:releaseNotesLink>https://github.com/albertpurnawan/BeOne-POS/blob/feat/auto_updater/release_notes.html</sparkle:releaseNotesLink>
+  <pubDate>$(date -R)</pubDate>
+  <enclosure url="https://github.com/albertpurnawan/BeOne-POS/releases/download/v$VERSION/pos_fe-$VERSION+$VERSION-windows-setup.exe"
+    sparkle:dsaSignature="$signature"
+    sparkle:version="$VERSION"
+    sparkle:os="windows"
+    length="$length"
+    type="application/octet-stream" />
+</item>
+EOF
 
 echo "Logging in to GitHub..."
 gh auth login --with-token $GITHUB_TOKEN || { echo "gh auth login failed"; exit 1; }
 
 echo "Adding appcast.xml..."
-gh release upload "v$VERSION" build/appcast.xml
+gh release upload "v$VERSION" dist/appcast.xml
 
 echo "Publishing release on GitHub..."
 gh release create "v$VERSION" --title "v$VERSION" --notes "Release v$VERSION" || { echo "gh release create failed"; exit 1; }

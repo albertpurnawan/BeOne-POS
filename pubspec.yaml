@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.236
+version: 1.0.237
 
 environment:
   sdk: ">=3.1.1 <4.0.0"
@@ -175,7 +175,7 @@ flutter:
 #   display_name: Test POS
 #   publisher_display_name: Company Name
 #   identity_name: company.suite.flutterapp
-#   msix_version: 1.0.236
+#   msix_version: 1.0.237
 #   # logo_path: C:\Users\Beone\Documents\devRaymond\pos_fe\assets\logo\maroon.svg
 #   capabilities: internetClient, location, microphone, webcam
 
@@ -187,8 +187,8 @@ msix_config:
     automatic_background_task: true
     update_blocks_activation: true
     show_prompt: true
-    force_update_from_any_version: 1.0.236
-  msix_version: 1.0.236
+    force_update_from_any_version: 1.0.237
+  msix_version: 1.0.237
 
 # Splash Screen
 flutter_native_splash:
